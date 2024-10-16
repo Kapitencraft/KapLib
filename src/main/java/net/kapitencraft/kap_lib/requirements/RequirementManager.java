@@ -23,6 +23,7 @@ import net.minecraftforge.common.extensions.IForgeFriendlyByteBuf;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -63,8 +64,8 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
         return element != null ? element.requirements.get(t) : List.of();
     }
 
-    public <T> boolean meetsRequirements(RequirementType<T> type, T value, LivingEntity living) {
-        return getReqs(type, value).stream().allMatch(reqCondition -> reqCondition.matches(living));
+    public <T> boolean meetsRequirements(RequirementType<T> type, @Nullable T value, LivingEntity living) {
+        return living != null && getReqs(type, value).stream().allMatch(reqCondition -> reqCondition.matches(living));
     }
 
     public static boolean meetsRequirementsFromEvent(LivingEvent event, EquipmentSlot slot) {

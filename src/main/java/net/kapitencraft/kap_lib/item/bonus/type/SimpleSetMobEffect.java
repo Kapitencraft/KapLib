@@ -5,19 +5,24 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.registry.custom.ModSetBonusTypes;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
+/**
+ * adds one or more effect to the player
+ * recommended to use at least 30 ticks because
+ */
 public class SimpleSetMobEffect implements Bonus<SimpleSetMobEffect> {
     private static final Codec<MobEffectInstance> EFFECT_INSTANCE_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
@@ -50,15 +55,29 @@ public class SimpleSetMobEffect implements Bonus<SimpleSetMobEffect> {
     }
 
     @Override
-    public void onTick(Level level, @NotNull LivingEntity entity) {
+    public void onTick(int tickCount, @NotNull LivingEntity entity) {
         this.effects.stream()
                 .map(MobEffectInstance::new) //create new Object to effectively finalize 'effects'
                 .forEach(entity::addEffect);
     }
 
     @Override
-    public Consumer<List<Component>> getDisplay() {
-        return null;
+    public void addDisplay(List<Component> tooltip) {
+        tooltip.add(Component.translatable("bonus_type.simple_mob_effect.def").withStyle(ChatFormatting.BLUE));
+        for(MobEffectInstance mobeffectinstance : effects) {
+            MutableComponent mutablecomponent = Component.translatable(mobeffectinstance.getDescriptionId());
+            MobEffect mobeffect = mobeffectinstance.getEffect();
+
+            if (mobeffectinstance.getAmplifier() > 0) {
+                mutablecomponent = Component.translatable("potion.withAmplifier", mutablecomponent, Component.translatable("potion.potency." + mobeffectinstance.getAmplifier()));
+            }
+
+            if (!mobeffectinstance.endsWithin(20)) {
+                mutablecomponent = Component.translatable("potion.withDuration", mutablecomponent, MobEffectUtil.formatDuration(mobeffectinstance, 1));
+            }
+
+            tooltip.add(mutablecomponent.withStyle(mobeffect.getCategory().getTooltipFormatting()));
+        }
     }
 
     private static void writeEffect(FriendlyByteBuf buf, MobEffectInstance instance) {

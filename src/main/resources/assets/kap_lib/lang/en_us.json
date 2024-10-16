@@ -6,6 +6,9 @@
   "alignment.y.middle": "Middle",
   "alignment.y.bottom": "Bottom",
 
+  "set.bonus.test.name": "Test Bonus",
+  "bonus.kap_lib.sword_strength": "Strength",
+
   "change_overlay_locations.title": "Change Overlay Locations",
   "command.failed.console": "Can not perform this command from the console",
 
@@ -39,5 +42,10 @@
   "component_chain.or": " or ",
   "component_chain.and": " and ",
   "gui.overlays": "Overlays...",
-  "overlay.stats": "Player Stats"
+  "overlay.stats": "Player Stats",
+
+  "bonus.name": "Bonus",
+  "set.bonus.name": "Set Bonus",
+
+  "bonus_type.simple_mob_effect.def": "Adds following Effects each tick:"
 }

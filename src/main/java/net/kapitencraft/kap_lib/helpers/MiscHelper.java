@@ -104,7 +104,7 @@ public class MiscHelper {
      */
     public static Style withSpecial(Style style, GlyphEffect effect) {
         Style newStyle = style.withClickEvent(style.getClickEvent());
-        EffectsStyle effectsStyle = (EffectsStyle) newStyle;
+        EffectsStyle effectsStyle = EffectsStyle.of(newStyle);
         effectsStyle.addEffect(effect);
         return newStyle;
     }

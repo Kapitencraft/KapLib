@@ -13,7 +13,6 @@ import java.util.function.Supplier;
  * only clientside, can not be canceled
  */
 @OnlyIn(Dist.CLIENT)
-
 public class RegisterUniformsEvent extends Event implements IModBusEvent {
     private final HashMap<String, Supplier<float[]>> vecSuppliers;
     private final HashMap<String, Supplier<Integer>> intSuppliers;

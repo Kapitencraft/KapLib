@@ -27,14 +27,14 @@ public class ClientModConfig {
         CURSOR_MOVE_OFFSET = BUILDER.comment("how many lines below the top the cursor will start scrolling up")
                         .defineInRange("cursor_move_offset", 2, 0, 5);
 
-        BUILDER.pop().comment("data to determine how chroma text should be rendered [WIP]").push("chroma");
+        BUILDER.pop().comment("data to determine how chroma text should be rendered").push("chroma");
         CHROMA_SPEED = BUILDER
                 .comment("the speed of chroma")
                 .defineInRange("speed", 4., 1., 50.);
         CHROMA_TYPE = BUILDER.comment("the type of chroma ")
                 .defineEnum("type", ChromaType.LINEAR);
         CHROMA_SPACING = BUILDER.comment("how wide each color should be rendered\nwith large values = less spread")
-                .defineInRange("spacing", 10., 0.5, 50.);
+                .defineInRange("spacing", 2., 0.5, 5.);
         CHROMA_ORIGIN = BUILDER.comment("where the origin of the chroma (eg it's rotation and animation direction) should be")
                 .defineEnum("origin", ChromaOrigin.BOTTOM_RIGHT);
 

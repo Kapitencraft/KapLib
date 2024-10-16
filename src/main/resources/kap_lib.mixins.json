@@ -5,16 +5,24 @@
   "package": "net.kapitencraft.kap_lib.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
+    "client.BakedGlyphMixin",
     "client.ChatScreenMixin",
     "client.EnchantedBookItemMixin",
+    "client.FontSetMixin",
+    "client.FontTextureMixin",
     "client.ItemStackMixin",
-    "client.RecipeBookComponentMixin"
+    "client.RecipeBookComponentMixin",
+    "client.ShaderInstanceMixin",
+    "client.StringRenderOutputMixin"
   ],
   "mixins": [
     "FishingHookMixin",
     "FishingRodMixin",
     "LivingEntityMixin",
-    "PlayerMixin"
+    "PlayerMixin",
+    "SharedConstantsMixin",
+    "StringDecomposerMixin",
+    "StyleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

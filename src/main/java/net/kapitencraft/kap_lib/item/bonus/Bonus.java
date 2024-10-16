@@ -9,18 +9,14 @@ import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
 import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
 import net.kapitencraft.kap_lib.item.IEventListener;
 import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -45,49 +41,87 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
         return object;
     }
 
+    /**
+     * called whenever a LivingEntity equips this bonus
+     * @param living the entity this bonus applied to
+     */
     default void onApply(LivingEntity living) {
     }
 
+    @Override
     default void onUse() {
+
     }
 
-    DataGenSerializer<T> getSerializer();
-
-    @org.jetbrains.annotations.Nullable
+    @Nullable
+    @Override
     default Cooldown getCooldown() {
         return null;
     }
 
-    default void onTick(Level level, @NotNull LivingEntity entity) {
+    DataGenSerializer<T> getSerializer();
+
+    /**
+     * @param tickCount the count of ticks since this bonus has been activated
+     * @param living the entity the bonus is applied to
+     * @return if this tick should apply a tick (similar to how the actual {@link net.minecraft.world.effect.MobEffect MobEffect} works)
+     */
+    default boolean isEffectTick(int tickCount, LivingEntity living) {
+        return false;
     }
 
+    /**
+     * applied each tick that {@link Bonus#isEffectTick(int, LivingEntity)} returns true
+     * @param tickCount count of ticks since this bonus has been activated
+     * @param entity the entity the bonus is applied to
+     */
+    default void onTick(int tickCount, @NotNull LivingEntity entity) {
+    }
+
+    /**
+     * @param killed the entity that has been killed
+     * @param user the entity that killed the target and owner of this bonus
+     * @param type the damage type that was used to kill this entity
+     */
     default void onEntityKilled(LivingEntity killed, LivingEntity user, MiscHelper.DamageType type) {
     }
 
+
+    /**
+     * called whenever an entity un-equips this bonus
+     * @param living the entity this bonus was previously applied to
+     */
     default void onRemove(LivingEntity living) {
     }
 
+    /**
+     * @param living the entity applied to
+     * @return all attribute modifiers this bonus should apply to the given entity
+     */
     default @Nullable Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living) {return null;}
 
-    default float onEntityHurt(LivingEntity hurt, LivingEntity user, MiscHelper.DamageType type, float damage) {
+    /**
+     * @param attacked the attack target
+     * @param attacker the attacker and source entity of this bonus
+     * @param type damage type of the attack
+     * @param damage amount of damage dealt
+     * @return the (potentially) modified damage value
+     */
+    default float onEntityHurt(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
         return damage;
     }
 
-    default float onTakeDamage(LivingEntity hurt, LivingEntity source, MiscHelper.DamageType type, float damage) {
+
+    /**
+     * @param attacked the attack target and source entity of this bonus
+     * @param attacker the attacker
+     * @param type damage type of the attack
+     * @param damage amount of damage dealt
+     * @return the (potentially) modified damage value
+     */
+    default float onTakeDamage(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
         return damage;
     }
-    Consumer<List<Component>> getDisplay();
 
-    default String getSuperName() {
-        return "Bonus";
-    }
-
-
-    default List<Component> makeDisplay() {
-        List<Component> display = new ArrayList<>();
-        display.add(Component.literal( getSuperName() + ": ").withStyle(ChatFormatting.GOLD).withStyle(ChatFormatting.BOLD));
-        getDisplay().accept(display);
-        display.add(CommonComponents.EMPTY);
-        return display;
-    }
+    void addDisplay(List<Component> currentTooltip);
 }

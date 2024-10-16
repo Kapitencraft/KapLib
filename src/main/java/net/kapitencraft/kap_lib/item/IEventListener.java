@@ -28,7 +28,7 @@ public interface IEventListener {
 
     float onTakeDamage(LivingEntity hurt, LivingEntity source, MiscHelper.DamageType type, float damage);
 
-    void onTick(Level level, @NotNull LivingEntity entity);
+    void onTick(int tickCount, @NotNull LivingEntity entity);
 
     void onApply(LivingEntity living);
 

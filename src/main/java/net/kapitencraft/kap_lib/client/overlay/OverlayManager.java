@@ -115,7 +115,7 @@ public class OverlayManager {
         Vec3 delta = living.getDeltaMovement();
         if (living.onGround())
             delta = delta.add(0, living.getAttributeValue(ForgeMod.ENTITY_GRAVITY.get()), 0);
-        return MathHelper.defRound(delta.length()) * 20;
+        return MathHelper.defRound(delta.length() * 20);
     }
 
     private void createRenderer(OverlayLocation provider, Function<OverlayProperties, Overlay> constructor) {

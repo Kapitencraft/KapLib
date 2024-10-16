@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.ModAttributes;
+import net.kapitencraft.kap_lib.registry.ModGlyphEffects;
 import net.kapitencraft.kap_lib.registry.ModParticleTypes;
 import net.kapitencraft.kap_lib.registry.custom.ModSetBonusTypes;
 import net.kapitencraft.kap_lib.registry.custom.core.ModRegistryBuilders;
@@ -50,6 +51,7 @@ public class KapLibMod
         ModSetBonusTypes.REGISTRY.register(modEventBus);
         ModAttributes.REGISTRY.register(modEventBus);
         ModParticleTypes.REGISTRY.register(modEventBus);
+        ModGlyphEffects.REGISTRY.register(modEventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
@@ -79,6 +81,7 @@ public class KapLibMod
             event.create(ModRegistryBuilders.REQUESTABLES_BUILDER);
             event.create(ModRegistryBuilders.REQUIREMENTS_BUILDER);
             event.create(ModRegistryBuilders.SET_BONUSES);
+            event.create(ModRegistryBuilders.GLYPH_EFFECTS);
         }
     }
 }

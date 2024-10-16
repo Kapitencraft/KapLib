@@ -15,5 +15,6 @@ public class Generator {
         PackOutput output = generator.getPackOutput();
         generator.addProvider(true, new ModRequirementProvider(output));
         generator.addProvider(true, new ModBonusProvider(output));
+        generator.addProvider(true, new ExtraNumbersLangProvider(output));
     }
 }

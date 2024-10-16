@@ -8,6 +8,8 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientData {
+    public static final int CHROMATIC_COLOR_ID = 0xFF000000;
+
     private static int time = 0;
 
     @SubscribeEvent
