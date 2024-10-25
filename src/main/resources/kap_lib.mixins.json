@@ -18,6 +18,7 @@
   "mixins": [
     "FishingHookMixin",
     "FishingRodMixin",
+    "ItemStackMixin",
     "LivingEntityMixin",
     "PlayerMixin",
     "SharedConstantsMixin",

@@ -32,7 +32,8 @@ public abstract class StatBoostEnchantment extends Enchantment implements ModEnc
         MapStream.of(enchantments).filterKeys(ench -> ench instanceof StatBoostEnchantment)
                 .mapKeys(StatBoostEnchantment.class::cast)
                 .filterKeys(boostEnchantment -> boostEnchantment.hasModifiersForThatSlot(slot, stack))
-                .mapToSimple((boostEnchantment, integer) -> boostEnchantment.getModifiers(integer, stack, slot)).forEach(multimapConsumer -> multimapConsumer.accept(multimap));
+                .mapToSimple((boostEnchantment, integer) -> boostEnchantment.getModifiers(integer, stack, slot))
+                .forEach(multimapConsumer -> multimapConsumer.accept(multimap));
         return multimap;
     }
 }
