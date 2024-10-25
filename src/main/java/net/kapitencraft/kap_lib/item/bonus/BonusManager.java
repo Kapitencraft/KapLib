@@ -17,6 +17,7 @@ import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
 import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
 import net.kapitencraft.kap_lib.requirements.BonusRequirementType;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
+import net.kapitencraft.kap_lib.util.Color;
 import net.kapitencraft.kap_lib.util.Reference;
 import net.kapitencraft.kap_lib.util.Vec2i;
 import net.minecraft.ChatFormatting;
@@ -26,6 +27,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -279,8 +281,15 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         MutableComponent join1 = start.append(": ").append(name);
         if (element instanceof SetBonusElement setBonusElement) {
             Vec2i count = getSetBonusCount(living, setBonusElement);
+            TextColor color = !enabled || count.x == 0 ?
+                    TextColor.fromLegacyFormat(ChatFormatting.RED) :
+                    new Color(ChatFormatting.GREEN)
+                            .mix(
+                                    new Color(ChatFormatting.RED),
+                                    count.x / (float) count.y
+                            ).toTextColor();
             join1.append(" (")
-                    .append(Component.literal(String.valueOf(count.x)).withStyle(ChatFormatting.AQUA))
+                    .append(Component.literal(String.valueOf(count.x)).withStyle(style -> style.withColor(color)))
                     .append("/")
                     .append(Component.literal(String.valueOf(count.y)).withStyle(ChatFormatting.DARK_AQUA))
                     .append(")");

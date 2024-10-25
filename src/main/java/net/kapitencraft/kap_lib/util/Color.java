@@ -2,7 +2,9 @@ package net.kapitencraft.kap_lib.util;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextColor;
 import org.jetbrains.annotations.Range;
 
 public class Color {
@@ -15,6 +17,10 @@ public class Color {
         this.g = g;
         this.b = b;
         this.a = a;
+    }
+
+    public Color(ChatFormatting color) {
+        this(color.getColor());
     }
 
     public Color(int packed) {
@@ -55,5 +61,9 @@ public class Color {
 
     public static Color read(FriendlyByteBuf buf) {
         return new Color(buf.readInt());
+    }
+
+    public TextColor toTextColor() {
+        return TextColor.fromRgb(this.pack());
     }
 }

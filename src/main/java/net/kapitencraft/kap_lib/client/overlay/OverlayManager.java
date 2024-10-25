@@ -90,7 +90,7 @@ public class OverlayManager {
     }
 
     /**
-     * fire the {@link RegisterOverlaysEvent} for registering custom events
+     * fires the {@link RegisterOverlaysEvent} for registering custom events
      */
     private void register() {
         this.createRenderer(OverlayLocations.STATS, positionHolder -> new MultiLineOverlay(
