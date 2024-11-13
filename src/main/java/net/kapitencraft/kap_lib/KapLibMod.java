@@ -3,10 +3,9 @@ package net.kapitencraft.kap_lib;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
+import net.kapitencraft.kap_lib.crafting.ModRecipeTypes;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
-import net.kapitencraft.kap_lib.registry.ModAttributes;
-import net.kapitencraft.kap_lib.registry.ModGlyphEffects;
-import net.kapitencraft.kap_lib.registry.ModParticleTypes;
+import net.kapitencraft.kap_lib.registry.*;
 import net.kapitencraft.kap_lib.registry.custom.ModSetBonusTypes;
 import net.kapitencraft.kap_lib.registry.custom.core.ModRegistryBuilders;
 import net.kapitencraft.kap_lib.registry.custom.ModRequirementTypes;
@@ -49,9 +48,13 @@ public class KapLibMod
 
         ModRequirementTypes.REGISTRY.register(modEventBus);
         ModSetBonusTypes.REGISTRY.register(modEventBus);
-        ModAttributes.REGISTRY.register(modEventBus);
-        ModParticleTypes.REGISTRY.register(modEventBus);
-        ModGlyphEffects.REGISTRY.register(modEventBus);
+        ExtraAttributes.REGISTRY.register(modEventBus);
+        ExtraParticleTypes.REGISTRY.register(modEventBus);
+        GlyphEffects.REGISTRY.register(modEventBus);
+        ModRecipeSerializers.REGISTRY.register(modEventBus);
+        ModRecipeTypes.REGISTRY.register(modEventBus);
+
+        TestEnchantments.REGISTRY.register(modEventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);

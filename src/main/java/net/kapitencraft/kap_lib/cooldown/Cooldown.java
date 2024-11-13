@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.cooldown;
 
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
-import net.kapitencraft.kap_lib.registry.ModAttributes;
+import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -26,7 +26,7 @@ public class Cooldown {
 
     public void applyCooldown(LivingEntity living, boolean reduceWithTime) {
         CompoundTag tag = getTag(living);
-        double mul = reduceWithTime ? living.getAttributeValue(ModAttributes.COOLDOWN_REDUCTION.get()) : 0;
+        double mul = reduceWithTime ? living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION.get()) : 0;
         int value = (int) (defaultTime * (1 - mul / 100));
         if (value > 0) {
             tag.putInt(path.path(), value);

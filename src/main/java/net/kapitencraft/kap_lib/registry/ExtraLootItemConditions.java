@@ -8,7 +8,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
-public interface ModLootItemConditions {
+public interface ExtraLootItemConditions {
     DeferredRegister<LootItemConditionType> REGISTRY = KapLibMod.registry(Registries.LOOT_CONDITION_TYPE);
 
     RegistryObject<LootItemConditionType> TAG_KEY = REGISTRY.register("tag_key", ()-> new LootItemConditionType(TagKeyCondition.SERIALIZER));

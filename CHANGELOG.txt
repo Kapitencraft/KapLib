@@ -1,9 +1,0 @@
-moved Leveled to a simpler system;
-added crafting refresh;
-
-fixed overlays crashing due to several reasons :upside_down:;
-
-fixed Bonuses not showing description;
-
-fixed Chroma Rendertype not working;
-fixed Bonus Manager not working perfectly; (TODO add support for other events)

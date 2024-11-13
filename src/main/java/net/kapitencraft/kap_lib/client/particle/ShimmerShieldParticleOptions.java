@@ -5,7 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
-import net.kapitencraft.kap_lib.registry.ModParticleTypes;
+import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
 import net.kapitencraft.kap_lib.util.Color;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -49,7 +49,7 @@ public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldPart
 
     @Override
     public ParticleType<?> getType() {
-        return ModParticleTypes.SHIMMER_SHIELD.get();
+        return ExtraParticleTypes.SHIMMER_SHIELD.get();
     }
 
     @Override

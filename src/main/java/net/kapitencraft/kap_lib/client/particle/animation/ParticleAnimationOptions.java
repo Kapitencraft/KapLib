@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.client.particle.animation;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.registry.ModParticleTypes;
+import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -31,7 +31,7 @@ public class ParticleAnimationOptions extends ParticleType<ParticleAnimationOpti
 
     @Override
     public @NotNull ParticleType<?> getType() {
-        return ModParticleTypes.ANIMATION.get();
+        return ExtraParticleTypes.ANIMATION.get();
     }
 
     @Override

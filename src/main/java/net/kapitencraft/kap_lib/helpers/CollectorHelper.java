@@ -1,10 +1,13 @@
 package net.kapitencraft.kap_lib.helpers;
 
+import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -23,6 +26,17 @@ public interface CollectorHelper {
      */
     static <T, L> Collector<L, ?, Map<T, L>> createMapForKeys(Function<L, T> keyMapper) {
         return Collectors.toMap(keyMapper, Function.identity());
+    }
+
+    static <K, V, L> Collector<L, ?, List<Pair<K, V>>> toPairList(Function<L, K> keyMapper, Function<L, V> valueMapper) {
+        return Collector.of(
+                ArrayList::new,
+                (pairs, l) -> pairs.add(new Pair<>(keyMapper.apply(l), valueMapper.apply(l))),
+                (pairs, pairs2) -> {
+                    pairs.addAll(pairs2);
+                    return pairs;
+                }
+        );
     }
 
     /**

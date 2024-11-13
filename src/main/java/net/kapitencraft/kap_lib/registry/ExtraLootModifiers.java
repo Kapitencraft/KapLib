@@ -10,7 +10,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-public interface ModLootModifiers {
+public interface ExtraLootModifiers {
 
     DeferredRegister<Codec<? extends IGlobalLootModifier>> REGISTRY = KapLibMod.registry(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS);
 

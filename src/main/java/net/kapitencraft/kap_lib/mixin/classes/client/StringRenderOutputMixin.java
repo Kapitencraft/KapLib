@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import net.kapitencraft.kap_lib.client.font.effect.EffectSettings;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
-import net.kapitencraft.kap_lib.registry.ModGlyphEffects;
+import net.kapitencraft.kap_lib.registry.GlyphEffects;
 import net.kapitencraft.kap_lib.mixin.duck.IChromatic;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
@@ -35,7 +35,7 @@ public abstract class StringRenderOutputMixin {
 
     @Redirect(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;renderType(Lnet/minecraft/client/gui/Font$DisplayMode;)Lnet/minecraft/client/renderer/RenderType;"))
     public RenderType changeRender(BakedGlyph instance, Font.DisplayMode pDisplayMode, int pIndex, Style pStyle, int pId) {
-        if (EffectsStyle.of(pStyle).getEffects().contains(ModGlyphEffects.RAINBOW.get()) && !this.dropShadow) {
+        if (EffectsStyle.of(pStyle).getEffects().contains(GlyphEffects.RAINBOW.get()) && !this.dropShadow) {
             return ((IChromatic) instance).getChromaType();
         }
         return instance.renderType(pDisplayMode);

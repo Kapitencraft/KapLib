@@ -12,7 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public interface ModGlyphEffects {
+public interface GlyphEffects {
     DeferredRegister<GlyphEffect> REGISTRY = KapLibMod.registry(ModRegistryKeys.GLYPH_EFFECTS);
     static Map<Character, GlyphEffect> effectsForKey() {
         return REGISTRY.getEntries().stream().map(RegistryObject::get).collect(Collectors.toMap(GlyphEffect::getKey, effect -> effect));

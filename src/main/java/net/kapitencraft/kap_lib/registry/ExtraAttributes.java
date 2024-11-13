@@ -7,7 +7,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-public interface ModAttributes {
+public interface ExtraAttributes {
     DeferredRegister<Attribute> REGISTRY = KapLibMod.registry(ForgeRegistries.ATTRIBUTES);
     private static RegistryObject<Attribute> register(String name, double initValue, double minValue, double maxValue) {
         return REGISTRY.register("generic." + name, ()-> new RangedAttribute("generic." + name, initValue, minValue, maxValue).setSyncable(true));

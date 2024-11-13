@@ -7,7 +7,7 @@ import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
-import net.kapitencraft.kap_lib.registry.ModAttributes;
+import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
 import net.kapitencraft.kap_lib.util.DamageCounter;
@@ -19,7 +19,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -84,7 +83,7 @@ public class Events {
         LivingEntity attacked = event.getEntity();
         DamageSource source = event.getSource();
         boolean dodge = false;
-        double dodgePercentage = AttributeHelper.getSaveAttributeValue(ModAttributes.DODGE.get(), attacked);
+        double dodgePercentage = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DODGE.get(), attacked);
         if (dodgePercentage > 0) {
             if (MathHelper.chance(dodgePercentage / 100, attacked) && !(source.is(DamageTypeTags.BYPASSES_ARMOR) || source.is(DamageTypeTags.IS_FALL) || source.is(DamageTypeTags.IS_FIRE))) {
                 dodge = true;

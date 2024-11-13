@@ -1,11 +1,9 @@
 package net.kapitencraft.kap_lib.helpers;
 
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.registry.ModAttributes;
-import net.kapitencraft.kap_lib.util.Color;
+import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.util.Reference;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -21,9 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
-import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +27,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 
 public interface MathHelper {
 
@@ -279,7 +273,7 @@ public interface MathHelper {
      * gets the cooldown time for the given {@link LivingEntity} and the defaultTime
      */
     static int cooldown(LivingEntity living, int defaultTime) {
-        return (int) (defaultTime * (1 - living.getAttributeValue(ModAttributes.COOLDOWN_REDUCTION.get()) / 100));
+        return (int) (defaultTime * (1 - living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION.get()) / 100));
     }
 
     /**

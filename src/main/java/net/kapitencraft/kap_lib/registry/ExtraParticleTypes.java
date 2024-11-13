@@ -16,7 +16,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.UUID;
 
-public interface ModParticleTypes {
+public interface ExtraParticleTypes {
     DeferredRegister<ParticleType<?>> REGISTRY = KapLibMod.registry(ForgeRegistries.PARTICLE_TYPES);
 
     RegistryObject<ParticleAnimationOptions> ANIMATION = REGISTRY.register("animation", () -> new ParticleAnimationOptions(ParticleTypes.ASH, ParticleAnimationParameters.create(), ParticleAnimationInfo.EMPTY, 1));

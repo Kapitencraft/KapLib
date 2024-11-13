@@ -7,12 +7,11 @@ import net.minecraft.world.level.storage.loot.Serializer;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.function.Supplier;
 
-public interface ModLootItemFunctions {
+public interface ExtraLootItemFunctions {
     DeferredRegister<LootItemFunctionType> REGISTRY = KapLibMod.registry(Registries.LOOT_FUNCTION_TYPE);
 
     RegistryObject<LootItemFunctionType> ATTRIBUTE_MODIFIER = REGISTRY.register("attribute_modifier", type(AttributeAmountModifierFunction.SERIALIZER));

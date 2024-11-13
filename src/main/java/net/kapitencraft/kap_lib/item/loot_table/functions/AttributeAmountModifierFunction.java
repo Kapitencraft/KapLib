@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.item.loot_table.IConditional;
 import net.kapitencraft.kap_lib.item.loot_table.modifiers.ModLootModifier;
-import net.kapitencraft.kap_lib.registry.ModLootItemFunctions;
+import net.kapitencraft.kap_lib.registry.ExtraLootItemFunctions;
 import net.kapitencraft.kap_lib.io.serialization.JsonSerializer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
@@ -97,7 +97,7 @@ public class AttributeAmountModifierFunction extends LootItemConditionalFunction
 
     @Override
     public @NotNull LootItemFunctionType getType() {
-        return ModLootItemFunctions.ATTRIBUTE_MODIFIER.get();
+        return ExtraLootItemFunctions.ATTRIBUTE_MODIFIER.get();
     }
 
     public static final JsonSerializer<AttributeAmountModifierFunction> SERIALIZER = new JsonSerializer<>(CODEC);

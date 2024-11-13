@@ -1,0 +1,8 @@
+{
+  "type": "kap_lib:armor",
+  "category": "equipment",
+  "material": {
+    "item": "minecraft:netherite_ingot"
+  },
+  "results": "minecraft:netherite"
+}

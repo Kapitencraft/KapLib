@@ -88,6 +88,8 @@ minecraft {
                     source sourceSets.main
                 }
             }
+
+            args '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
         }
 
         client {
@@ -154,6 +156,20 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+tasks.register('autoPublish', JavaExec) {
+    mainClass = 'net.kapitencraft.kap_lib.publish.AutoPublisher'
+
+    classpath = sourceSets.main.runtimeClasspath
+
+    args = [
+            mod_id,
+            mod_name,
+            mod_version,
+            minecraft_version,
+            forge_version
+    ]
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
