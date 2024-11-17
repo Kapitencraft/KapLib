@@ -7,6 +7,7 @@
   "client": [
     "client.BakedGlyphMixin",
     "client.ChatScreenMixin",
+    "client.ClientTooltipPositionerMixin",
     "client.EnchantedBookItemMixin",
     "client.FontSetMixin",
     "client.FontTextureMixin",
@@ -16,6 +17,7 @@
     "client.StringRenderOutputMixin"
   ],
   "mixins": [
+    "AttributesMixin",
     "FishingHookMixin",
     "FishingRodMixin",
     "ItemStackMixin",

@@ -2,7 +2,10 @@ package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.internal.Streams;
+import com.google.gson.stream.JsonReader;
 import net.minecraft.util.GsonHelper;
 import org.checkerframework.checker.units.qual.C;
 
@@ -24,7 +27,7 @@ public class AutoPublisher {
     private static final File CHANGE_LOG = new File("CHANGELOG.txt");
     private static final String API_URL = "https://api.modrinth.com/v2/version";
 
-    private record Config(String email, String author, String projectId) {
+    private record Config(String email, String author, String projectId, boolean sourcesFile) {
 
     }
 
@@ -34,7 +37,8 @@ public class AutoPublisher {
         return new Config(
                 object.getAsJsonPrimitive("author_email").getAsString(),
                 object.getAsJsonPrimitive("author").getAsString(),
-                object.getAsJsonPrimitive("project_id").getAsString()
+                object.getAsJsonPrimitive("project_id").getAsString(),
+                object.getAsJsonPrimitive("with_sources").getAsBoolean()
         );
     }
 
@@ -74,8 +78,7 @@ public class AutoPublisher {
             File mainFile = new File(fileBase + ".jar");
             String mainHash = getFileSHA512(mainFile);
 
-            File sourcesFile = new File(fileBase + "-sources.jar");
-            String sourcesHash = getFileSHA512(sourcesFile);
+
 
             try (OutputStream outputStream = connection.getOutputStream();
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
@@ -85,8 +88,12 @@ public class AutoPublisher {
 
                 // Add file part
                 addFilePart(writer, outputStream, boundary, "primary", mainFile);
-                addFilePart(writer, outputStream, boundary, "sources", sourcesFile);
 
+                if (config.sourcesFile) {
+                    File sourcesFile = new File(fileBase + "-sources.jar");
+                    String sourcesHash = getFileSHA512(sourcesFile);
+                    addFilePart(writer, outputStream, boundary, "sources", sourcesFile);
+                }
                 // Write the final boundary directly to OutputStream
                 outputStream.write(("--" + boundary + "--\r\n").getBytes());
                 outputStream.flush();
@@ -105,15 +112,14 @@ public class AutoPublisher {
                 dataStream = connection.getInputStream();
             }
             BufferedReader in = new BufferedReader(new InputStreamReader(dataStream));
-            String inputLine;
-            StringBuilder responseText = new StringBuilder();
 
-            while ((inputLine = in.readLine()) != null) {
-                responseText.append(inputLine);
-            }
-            in.close();
+            JsonReader reader = new JsonReader(new InputStreamReader(dataStream));
 
-            System.out.println("Response: " + responseText);
+            Map<String, Object> data = GSON.fromJson(reader, Map.class);
+
+            reader.close();
+
+            System.out.println("Successfully created new version with id '" + data.get("id") + "'");
         } catch (Exception e) {
             System.err.println("Error accessing API:");
             e.printStackTrace(System.err);

@@ -1,16 +1,16 @@
 package net.kapitencraft.kap_lib;
 
 import org.slf4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.slf4j.MarkerFactory;
 
-public class Markers {
-    public static final Marker REQUESTS = getMarker("Requests");
-    public static final Marker PARTICLE_ENGINE = getMarker("ParticleEngine");
-    public static final Marker REQUIREMENTS_MANAGER = getMarker("RequirementManager");
-    public static final Marker BONUS_MANAGER = getMarker("BonusManager");
+public interface Markers {
+    Marker REQUESTS = getMarker("Requests");
+    Marker PARTICLE_ENGINE = getMarker("ParticleEngine");
+    Marker REQUIREMENTS_MANAGER = getMarker("RequirementManager");
+    Marker BONUS_MANAGER = getMarker("BonusManager");
+    Marker UPDATE_CHECKER = getMarker("UpdateChecker");
 
-    private static Marker getMarker(String name) {
+    static Marker getMarker(String name) {
         return MarkerFactory.getMarker(name);
     }
 }

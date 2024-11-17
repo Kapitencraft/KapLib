@@ -19,6 +19,7 @@ import net.kapitencraft.kap_lib.stream.Consumers;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import org.checkerframework.checker.units.qual.K;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -32,7 +33,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class IOHelper {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final String LENGTH_ID = "Length";
 
 
@@ -75,7 +75,20 @@ public class IOHelper {
     @SuppressWarnings("all")
     public static <T> T loadFile(File file, Codec<T> codec, Supplier<T> defaulted) {
         try {
-            createFile(file);
+            if (!file.exists()) return defaulted.get();
+            return get(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
+        } catch (IOException e) {
+        }
+        return defaulted.get();
+    }
+
+    @SuppressWarnings("all")
+    public static <T> T loadOrCreateFile(File file, Codec<T> codec, Supplier<T> defaulted) {
+        try {
+            if (!file.exists()) {
+                saveFile(file, codec, defaulted.get());
+                return defaulted.get();
+            }
             return get(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
         } catch (IOException e) {
         }
@@ -122,7 +135,7 @@ public class IOHelper {
         try {
             createFile(file);
             FileWriter writer = new FileWriter(file);
-            writer.write(GSON.toJson(get(codec.encodeStart(JsonOps.INSTANCE, in), JsonObject::new)));
+            writer.write(JsonHelper.GSON.toJson(get(codec.encodeStart(JsonOps.INSTANCE, in), JsonObject::new)));
             writer.close();
         } catch (Exception e) {
             KapLibMod.LOGGER.warn("unable to save file: {}", e.getMessage());
