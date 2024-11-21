@@ -49,7 +49,6 @@ public class KapLibMod
 
     public KapLibMod()
     {
-        UpdateChecker.run();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ModRequirementTypes.REGISTRY.register(modEventBus);

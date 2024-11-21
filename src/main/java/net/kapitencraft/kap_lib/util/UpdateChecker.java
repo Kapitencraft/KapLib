@@ -49,13 +49,8 @@ public class UpdateChecker {
     public static void run() {
         RegisterUpdateCheckersEvent event = new RegisterUpdateCheckersEvent(UpdateChecker::registerUpdater);
         ModLoader.get().postEvent(event);
-        if (config.autoUpdate) {
-            //interrupt game thread to save time
-            checkUpdates();
-        } else {
-            Thread thread = new Thread(UpdateChecker::checkUpdates, "Update Checker");
-            thread.start();
-        }
+        Thread thread = new Thread(UpdateChecker::checkUpdates, "Update Checker");
+        thread.start();
     }
 
     private record Config(boolean autoUpdate) {
@@ -66,11 +61,11 @@ public class UpdateChecker {
         );
     }
 
-    private static void registerUpdater(String projectId, Pattern versionPattern, String modId) {
-        projectData.put(projectId, new UpdateData(versionPattern, modId));
+    private static void registerUpdater(String projectId, String modId) {
+        projectData.put(projectId, new UpdateData(modId));
     }
 
-    private record UpdateData(Pattern versionPattern, String modId) {
+    private record UpdateData(String modId) {
     }
 
     private static void checkUpdates() {
@@ -84,8 +79,8 @@ public class UpdateChecker {
         UpdateData updateData = projectData.get(projectId);
         IModFileInfo modInfo = ModList.get().getModFileById(updateData.modId);
         try {
-            String version = modInfo.versionString();
-            ComparableVersion currentModVersion = new ComparableVersion(updateData.versionPattern.matcher(version).group(1));
+            info("running version check on '" + projectId + "'");
+            ComparableVersion currentModVersion = new ComparableVersion(modInfo.versionString());
             String projectVersionURL = PROJECT_URL + projectId + "/version";
             String requestParams = "?loaders=" +
                     URLEncoder.encode(JsonHelper.GSON.toJson(new String[] {"forge"}), StandardCharsets.UTF_8) +
@@ -99,7 +94,7 @@ public class UpdateChecker {
 
             InputStream dataStream;
             if (response != HttpsURLConnection.HTTP_OK) {
-                System.err.println("failed: " + response);
+                LOGGER.warn("connection to {} failed: {}", updateData.modId, response);
                 dataStream = connection.getErrorStream();
             } else {
                 dataStream = connection.getInputStream();
@@ -116,16 +111,13 @@ public class UpdateChecker {
                             object -> GsonHelper.getAsString(object, "version_number")
                     )
             )
-                    .mapKeys(updateData.versionPattern::matcher)
-                    .mapKeys(s -> s.group(1))
                     .mapKeys(ComparableVersion::new)
                     .filterKeys(comparableVersion -> currentModVersion.compareTo(comparableVersion) < 0)
                     .mapKeys(ComparableVersion::toString)
                     .toMap();
             if (newer.isEmpty()) {
                 String msg = "Mod '" + updateData.modId + "' is up-to-date";
-                StartupMessageManager.addModMessage(msg);
-                LOGGER.info(msg);
+                info(msg);
 
                 return; //there's no newer versions, so we can skip the rest
             }
@@ -137,8 +129,7 @@ public class UpdateChecker {
                 }
             }
             String msg = String.format("Found newer version for mod '%s': %s", updateData.modId, newest);
-            StartupMessageManager.addModMessage(msg);
-            LOGGER.info(msg);
+            info(msg);
 
             if (config.autoUpdate) {
                 JsonObject newestVersionData = newer.get(newest.toString());
@@ -149,7 +140,7 @@ public class UpdateChecker {
             }
         } catch (IOException e) {
             LOGGER.warn("error checking for update on project '{}'", updateData.modId);
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IllegalStateException | IndexOutOfBoundsException e) {
             LOGGER.warn("provided pattern for mod '{}' does not have one group", updateData.modId);
         }
     }
@@ -188,5 +179,10 @@ public class UpdateChecker {
         } catch (IOException e) {
             LOGGER.warn("error attempting to save file: {}", e.getMessage());
         }
+    }
+
+    private static void info(String msg) {
+        StartupMessageManager.addModMessage(msg);
+        LOGGER.info(msg);
     }
 }

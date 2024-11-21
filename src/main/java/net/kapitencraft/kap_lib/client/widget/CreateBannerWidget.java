@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.client.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.client.BannerPatternRenderer;
 import net.kapitencraft.kap_lib.client.UsefulTextures;
