@@ -77,20 +77,4 @@ public class Events {
         if (event.getAmount() > 0) MiscHelper.createDamageIndicator(event.getEntity(), event.getAmount(), "heal");
 
     }
-
-    @SubscribeEvent
-    public static void damageTick(LivingDamageEvent event) {
-        LivingEntity attacked = event.getEntity();
-        DamageSource source = event.getSource();
-        boolean dodge = false;
-        double dodgePercentage = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DODGE.get(), attacked);
-        if (dodgePercentage > 0) {
-            if (MathHelper.chance(dodgePercentage / 100, attacked) && !(source.is(DamageTypeTags.BYPASSES_ARMOR) || source.is(DamageTypeTags.IS_FALL) || source.is(DamageTypeTags.IS_FIRE))) {
-                dodge = true;
-                event.setAmount(0);
-            }
-        }
-        MiscHelper.createDamageIndicator(attacked, event.getAmount(), dodge ? "dodge" : source.getMsgId());
-        DamageCounter.increaseDamage(event.getAmount());
-    }
 }

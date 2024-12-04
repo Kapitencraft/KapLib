@@ -26,6 +26,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -350,12 +351,7 @@ public class MiscHelper {
      * @return the {@link Nullable} {@link LivingEntity} to get from the damagesource
      */
     public static @Nullable LivingEntity getAttacker(@NotNull DamageSource source) {
-        if (source.getEntity() instanceof Projectile projectile && projectile.getOwner() instanceof LivingEntity living) {
-            return living;
-        } else if (source.getEntity() instanceof LivingEntity living) {
-            return living;
-        }
-        return null;
+        return source.getEntity() instanceof LivingEntity living ? living : null;
     }
 
     /**
@@ -369,10 +365,10 @@ public class MiscHelper {
         if (source.is(ExtraDamageTypeTags.MAGIC)) {
             return DamageType.MAGIC;
         }
-        if (source.getDirectEntity() == source.getEntity()) {
-            return DamageType.MELEE;
-        }
         if (source.getEntity() != null) {
+            if (source.getDirectEntity() == source.getEntity()) {
+                return DamageType.MELEE;
+            }
             return DamageType.RANGED;
         }
         return DamageType.MISC;

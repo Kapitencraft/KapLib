@@ -54,6 +54,8 @@ public class KapLibMod
         ModRequirementTypes.REGISTRY.register(modEventBus);
         ModSetBonusTypes.REGISTRY.register(modEventBus);
         ExtraAttributes.REGISTRY.register(modEventBus);
+        ExtraLootModifiers.REGISTRY.register(modEventBus);
+        ExtraLootItemConditions.REGISTRY.register(modEventBus);
         ExtraParticleTypes.REGISTRY.register(modEventBus);
         GlyphEffects.REGISTRY.register(modEventBus);
         ModRecipeSerializers.REGISTRY.register(modEventBus);

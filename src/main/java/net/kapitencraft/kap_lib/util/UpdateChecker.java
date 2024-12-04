@@ -19,6 +19,7 @@ import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.StartupMessageManager;
 import net.minecraftforge.fml.loading.progress.ProgressMeter;
 import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.versions.mcp.MCPVersion;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.Logger;
@@ -29,9 +30,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UpdateChecker {
@@ -50,6 +53,7 @@ public class UpdateChecker {
         RegisterUpdateCheckersEvent event = new RegisterUpdateCheckersEvent(UpdateChecker::registerUpdater);
         ModLoader.get().postEvent(event);
         Thread thread = new Thread(UpdateChecker::checkUpdates, "Update Checker");
+        if (config.autoUpdate) thread.setPriority(10);
         thread.start();
     }
 
@@ -69,8 +73,9 @@ public class UpdateChecker {
     }
 
     private static void checkUpdates() {
-        StartupMessageManager.addModMessage("Starting Update check...");
-        LOGGER.info(Markers.UPDATE_CHECKER, "Starting Update check...");
+        info("Starting Update check...");
+        if (config.autoUpdate) info("auto update enabled.");
+        else info("auto update disabled");
         projectData.keySet().forEach(UpdateChecker::checkUpdate);
         if (config.autoUpdate && updateExecuted) System.exit(0);
     }
@@ -78,8 +83,10 @@ public class UpdateChecker {
     private static void checkUpdate(String projectId) {
         UpdateData updateData = projectData.get(projectId);
         IModFileInfo modInfo = ModList.get().getModFileById(updateData.modId);
+        List<? extends IModInfo.ModVersion> dependencies = modInfo.getFile().getModInfos().stream().map(IModInfo::getDependencies).flatMap(Collection::stream).toList();
         try {
             info("running version check on '" + projectId + "'");
+            info("dependencies for mod '" + updateData.modId + "': " + dependenciesToString(dependencies));
             ComparableVersion currentModVersion = new ComparableVersion(modInfo.versionString());
             String projectVersionURL = PROJECT_URL + projectId + "/version";
             String requestParams = "?loaders=" +
@@ -183,6 +190,10 @@ public class UpdateChecker {
 
     private static void info(String msg) {
         StartupMessageManager.addModMessage(msg);
-        LOGGER.info(msg);
+        LOGGER.info(Markers.UPDATE_CHECKER, msg);
+    }
+
+    private static String dependenciesToString(List<? extends IModInfo.ModVersion> list) {
+        return list.stream().map(v -> v.toString()).collect(Collectors.joining(", ", "[", "]"));
     }
 }

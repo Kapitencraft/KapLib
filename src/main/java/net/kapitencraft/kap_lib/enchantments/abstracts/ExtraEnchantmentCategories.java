@@ -6,7 +6,7 @@ import net.minecraft.world.item.HoeItem;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
-public abstract class ModEnchantmentCategories {
+public abstract class ExtraEnchantmentCategories {
     public static final EnchantmentCategory SHIELD = EnchantmentCategory.create("shield", (item)-> item instanceof ShieldItem);
     public static final EnchantmentCategory ALL_WEAPONS = EnchantmentCategory.create("all_weapons", item -> EnchantmentCategory.WEAPON.canEnchant(item) || EnchantmentCategory.BOW.canEnchant(item) || EnchantmentCategory.CROSSBOW.canEnchant(item));
     public static final EnchantmentCategory TOOL = EnchantmentCategory.create("TOOL", item -> item instanceof DiggerItem || ALL_WEAPONS.canEnchant(item));

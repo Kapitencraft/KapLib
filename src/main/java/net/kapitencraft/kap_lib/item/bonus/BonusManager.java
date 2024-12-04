@@ -62,7 +62,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     private BonusLookup getOrCreateLookup(LivingEntity living) {
-        lookupMap.computeIfAbsent(living, BonusLookup::new);
+        lookupMap.computeIfAbsent(living, BonusLookup::new); //TODO fix concurrent modification exception
         return lookupMap.get(living);
     }
 

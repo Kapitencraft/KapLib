@@ -200,12 +200,16 @@ public class AutoPublisher {
         List<String> fixes = new ArrayList<>();
         List<String> removes = new ArrayList<>();
         List<String> uncategorized = new ArrayList<>();
+        List<String> knownErrors = new ArrayList<>();
         reader.lines().forEach(s -> {
+            s = s.trim();
+            if (s.isEmpty()) return;
             if (s.startsWith("added ")) additions.add(s.substring(6));
             else if (s.startsWith("removed ")) removes.add(s.substring(7));
             else if (s.startsWith("moved ")) moves.add(s.substring(6));
             else if (s.startsWith("modified ")) moves.add(s.substring(9));
             else if (s.startsWith("fixed ")) fixes.add(s.substring(6));
+            else if (s.startsWith("known error: ")) knownErrors.add(s.substring(13));
             else uncategorized.add(s);
         });
         StringBuilder changeLogBuilder = new StringBuilder();
@@ -213,6 +217,7 @@ public class AutoPublisher {
         addElements(changeLogBuilder, moves, "Moved");
         addElements(changeLogBuilder, fixes, "Fixed");
         addElements(changeLogBuilder, removes, "Removed");
+        addElements(changeLogBuilder, knownErrors, "Known Errors");
         addElements(changeLogBuilder, uncategorized, "Uncategorized");
         return changeLogBuilder.toString();
     }

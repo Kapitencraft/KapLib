@@ -16,8 +16,8 @@ import java.util.function.Consumer;
 
 public abstract class StatBoostEnchantment extends Enchantment implements ModEnchantment {
     private final List<EquipmentSlot> slots;
-    protected StatBoostEnchantment(Rarity p_44676_, EnchantmentCategory p_44677_, EquipmentSlot... sl) {
-        super(p_44676_, p_44677_, sl);
+    protected StatBoostEnchantment(Rarity pRarity, EnchantmentCategory pCategory, EquipmentSlot... sl) {
+        super(pRarity, pCategory, sl);
         slots = List.of(sl);
     }
 
