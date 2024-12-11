@@ -14,12 +14,14 @@ import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.StringRepresentable;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.StartupMessageManager;
 import net.minecraftforge.fml.loading.progress.ProgressMeter;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.server.command.ModIdArgument;
 import net.minecraftforge.versions.mcp.MCPVersion;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.slf4j.Logger;
@@ -30,10 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,10 +42,29 @@ public class UpdateChecker {
     private static final String PROJECT_URL = "https://api.modrinth.com/v2/project/";
     private static final Config config = loadConfig();
     private static boolean updateExecuted = false;
+    public static final List<Update> availableUpdates = new ArrayList<>();
+
+    public static class Update {
+        private final String modId;
+        private final String version;
+        private final String downloadURL;
+        private final List<Update> dependencies;
+
+        public Update(String modId, String version, String downloadURL, List<Update> dependencies) {
+            this.modId = modId;
+            this.version = version;
+            this.downloadURL = downloadURL;
+            this.dependencies = dependencies;
+        }
+    }
+
+    public enum DependencyType {
+
+    }
 
     private static Config loadConfig() {
         File file = new File(KapLibMod.MAIN, "update_checker_config.json");
-        return IOHelper.loadOrCreateFile(file, Config.CODEC, () -> new Config(false));
+        return IOHelper.loadOrCreateFile(file, Config.CODEC, () -> new Config(false, ReleaseState.RELEASE));
     }
 
     public static void run() {
@@ -57,12 +75,36 @@ public class UpdateChecker {
         thread.start();
     }
 
-    private record Config(boolean autoUpdate) {
+    private record Config(boolean autoUpdate, ReleaseState state) {
         private static final Codec<Config> CODEC = RecordCodecBuilder.create(configInstance -> configInstance
                 .group(
-                        Codec.BOOL.fieldOf("auto_update").forGetter(Config::autoUpdate)
+                        Codec.BOOL.fieldOf("auto_update").forGetter(Config::autoUpdate),
+                        ReleaseState.CODEC.fieldOf("release_state").forGetter(Config::state)
                 ).apply(configInstance, Config::new)
         );
+    }
+
+    private enum ReleaseState implements StringRepresentable {
+        RELEASE("release"),
+        BETA("beta"),
+        ALPHA("alpha");
+
+        private final String name;
+
+        ReleaseState(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
+
+        private boolean is(String val) {
+            return this == ALPHA || (this == BETA ? !"alpha".equals(val) : "release".equals(val));
+        }
+
+        private static final EnumCodec<ReleaseState> CODEC = StringRepresentable.fromEnum(ReleaseState::values);
     }
 
     private static void registerUpdater(String projectId, String modId) {
@@ -73,9 +115,7 @@ public class UpdateChecker {
     }
 
     private static void checkUpdates() {
-        info("Starting Update check...");
-        if (config.autoUpdate) info("auto update enabled.");
-        else info("auto update disabled");
+        info("Starting Update check... (auto update " + (config.autoUpdate ? "enabled" : "disabled") + ")");
         projectData.keySet().forEach(UpdateChecker::checkUpdate);
         if (config.autoUpdate && updateExecuted) System.exit(0);
     }
@@ -83,10 +123,8 @@ public class UpdateChecker {
     private static void checkUpdate(String projectId) {
         UpdateData updateData = projectData.get(projectId);
         IModFileInfo modInfo = ModList.get().getModFileById(updateData.modId);
-        List<? extends IModInfo.ModVersion> dependencies = modInfo.getFile().getModInfos().stream().map(IModInfo::getDependencies).flatMap(Collection::stream).toList();
         try {
             info("running version check on '" + projectId + "'");
-            info("dependencies for mod '" + updateData.modId + "': " + dependenciesToString(dependencies));
             ComparableVersion currentModVersion = new ComparableVersion(modInfo.versionString());
             String projectVersionURL = PROJECT_URL + projectId + "/version";
             String requestParams = "?loaders=" +
@@ -102,7 +140,7 @@ public class UpdateChecker {
             InputStream dataStream;
             if (response != HttpsURLConnection.HTTP_OK) {
                 LOGGER.warn("connection to {} failed: {}", updateData.modId, response);
-                dataStream = connection.getErrorStream();
+                return;
             } else {
                 dataStream = connection.getInputStream();
             }
@@ -119,6 +157,7 @@ public class UpdateChecker {
                     )
             )
                     .mapKeys(ComparableVersion::new)
+                    .filterValues(jsonObject -> config.state.is(GsonHelper.getAsString(jsonObject, "version_type")), null)
                     .filterKeys(comparableVersion -> currentModVersion.compareTo(comparableVersion) < 0)
                     .mapKeys(ComparableVersion::toString)
                     .toMap();

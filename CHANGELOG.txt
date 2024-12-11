@@ -1,1 +1,2 @@
 fixed UpdateChecker not working (hopefully)
+added UpdateChecker version type config ("release", "beta", "alpha")
