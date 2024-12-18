@@ -25,7 +25,6 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -116,8 +115,8 @@ public class DamageEvents {
         ItemStack stack = attacker.getMainHandItem();
         Map<Enchantment, Integer> enchantments = stack.getAllEnchantments();
         if (enchantments != null) {
-            event.setAmount(ExtendedCalculationEnchantment.runWithPriority(stack, attacker, attacked, event.getAmount(), type, true, source));
-            MiscHelper.getArmorEquipment(attacked).forEach(stack1 -> event.setAmount(ExtendedCalculationEnchantment.runWithPriority(stack1, attacker, attacked, event.getAmount(), type, false, source)));
+            event.setAmount(ExtendedCalculationEnchantment.runWithPriority(stack, attacker, attacked, event.getAmount(), type, source));
+            MiscHelper.getArmorEquipment(attacked).forEach(stack1 -> event.setAmount(ExtendedCalculationEnchantment.runWithPriority(stack1, attacker, attacked, event.getAmount(), type, source)));
         }
     }
 

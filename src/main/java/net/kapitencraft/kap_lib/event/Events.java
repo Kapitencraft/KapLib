@@ -1,32 +1,50 @@
 package net.kapitencraft.kap_lib.event;
 
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.helpers.ClientHelper;
-import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
+import net.kapitencraft.kap_lib.collection.Queue;
+import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
+import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
-import net.kapitencraft.kap_lib.util.DamageCounter;
+import net.kapitencraft.kap_lib.tags.ExtraTags;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.living.*;
+import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class Events {
@@ -72,9 +90,122 @@ public class Events {
         ClientHelper.addReqContent(event.getToolTip()::add, RequirementType.ITEM, event.getItemStack().getItem(), event.getEntity());
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void healingDisplay(LivingHealEvent event) {
         if (event.getAmount() > 0) MiscHelper.createDamageIndicator(event.getEntity(), event.getAmount(), "heal");
-
     }
+
+    @SubscribeEvent
+    public static void modArrowEnchantments(ArrowLooseEvent event) {
+        event.setCharge((int) (event.getCharge() * event.getEntity().getAttributeValue(ExtraAttributes.DRAW_SPEED.get()) / 100));
+    }
+
+    private static final Queue<UUID> helper = Queue.create();
+
+    @SubscribeEvent
+    public static void joinLevelEvent(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof Arrow arrow) {
+            if (arrow.getOwner() instanceof LivingEntity living) {
+                ItemStack bow = living.getMainHandItem();
+                CompoundTag arrowTag = arrow.getPersistentData();
+                if (bow.is(ExtraTags.Items.HITS_ENDERMAN)) {
+                    arrowTag.putBoolean("HitsEnderMan", true);
+                }
+                for (Enchantment enchantment : bow.getAllEnchantments().keySet()) {
+                    if (enchantment instanceof ModBowEnchantment bowEnchantment) {
+                        CompoundTag tag = new CompoundTag();
+                        int level = bow.getEnchantmentLevel(enchantment);
+                        tag.putInt("Level", level);
+                        arrowTag.put(bowEnchantment.getTagName(), bowEnchantment.write(tag, level, bow, living, arrow));
+                        if (bowEnchantment.shouldTick()) helper.add(arrow.getUUID());
+                    }
+                }
+            }
+        }
+        if (event.getEntity() instanceof Player player) {
+            AttributeInstance manaInst = player.getAttribute(ExtraAttributes.MANA.get());
+            CompoundTag tag = player.getPersistentData();
+            if (manaInst == null) throw new IllegalStateException();
+            else {
+                double mana; //upload lost mana
+                if (tag.contains("Mana", 6)) {
+                    mana = tag.getDouble("Mana");
+                } else mana = 100;
+                manaInst.setBaseValue(mana);
+            }
+            if (tag.contains("Health", Tag.TAG_FLOAT)) {
+                player.setHealth(tag.getFloat("Health"));
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void leaveLevelEvent(EntityLeaveLevelEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            player.getPersistentData().putDouble("Mana", player.getAttributeValue(ExtraAttributes.MANA.get()));
+        }
+    }
+
+    @SubscribeEvent
+    public static void serverTick(TickEvent.LevelTickEvent event) {
+        if (event.level instanceof ServerLevel serverLevel) {
+            helper.queue(uuid -> {
+                Arrow arrow = (Arrow) serverLevel.getEntity(uuid);
+                if (arrow != null) {
+                    CompoundTag arrowTag = arrow.getPersistentData();
+                    ModBowEnchantment.loadFromTag(null, arrowTag, ModBowEnchantment.ExecuteType.TICK, 0, arrow);
+                } else {
+                    helper.remove(uuid);
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void healthRegenRegister(LivingHealEvent event) {
+        LivingEntity living = event.getEntity();
+        if (living.getAttribute(ExtraAttributes.HEALTH_REGEN.get()) != null) {
+            double health_regen = living.getAttributeValue(ExtraAttributes.HEALTH_REGEN.get());
+            event.setAmount(event.getAmount() * (1 + (float) health_regen / 100));
+        }
+        if (living.getAttribute(ExtraAttributes.VITALITY.get()) != null) {
+            double vitality = living.getAttributeValue(ExtraAttributes.VITALITY.get());
+            event.setAmount(event.getAmount() * (1 + (float) vitality / 100));
+        }
+    }
+
+
+    public static final String DOUBLE_JUMP_ID = "currentDoubleJump";
+
+    @SubscribeEvent
+    public static void entityTick(LivingEvent.LivingTickEvent event) {
+        LivingEntity living = event.getEntity();
+        BonusHelper.tickEnchantments(living);
+        CompoundTag tag = living.getPersistentData();
+        if (living instanceof Player player) {
+            if (!player.onGround()) {
+                if (canJump(player) && tag.getInt(DOUBLE_JUMP_ID) < player.getAttributeValue(ExtraAttributes.DOUBLE_JUMP.get())) {
+                    if (player.jumping && player.noJumpDelay <= 0) {
+                        ParticleHelper.sendAlwaysVisibleParticles(ParticleTypes.CLOUD, player.level(), player.getX(), player.getY(), player.getZ(), 0.25, 0.0, 0.25, 0,0,0, 15);
+                        player.noJumpDelay = 10; player.fallDistance = 0;
+                        Vec3 targetLoc = player.getLookAngle().multiply(1, 0, 1).scale(0.75).add(0, 1, 0);
+                        player.setDeltaMovement(targetLoc.x, targetLoc.y > 0 ? targetLoc.y : -targetLoc.y, targetLoc.z);
+                        IOHelper.increaseIntegerTagValue(player.getPersistentData(), DOUBLE_JUMP_ID, 1);
+                    }
+                }
+            } else if (tag.getInt(DOUBLE_JUMP_ID) > 0) {
+                tag.putInt(DOUBLE_JUMP_ID, 0);
+            }
+        }
+        if (living instanceof Mob mob) {
+            if (mob.getTarget() != null && mob.getTarget().isInvisible()) {
+                mob.setTarget(null);
+            }
+        }
+    }
+
+    private static boolean canJump(Player player) {
+        return !player.onGround() && !(player.isPassenger() || player.getAbilities().flying) && !(player.isInWater() || player.isInLava());
+    }
+
 }

@@ -21,9 +21,9 @@ import net.minecraftforge.fml.StartupMessageManager;
 import net.minecraftforge.fml.loading.progress.ProgressMeter;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.server.command.ModIdArgument;
 import net.minecraftforge.versions.mcp.MCPVersion;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -33,6 +33,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,25 +43,27 @@ public class UpdateChecker {
     private static final Map<String, UpdateData> projectData = new HashMap<>();
     private static final String PROJECT_URL = "https://api.modrinth.com/v2/project/";
     private static final Config config = loadConfig();
-    private static boolean updateExecuted = false;
     public static final List<Update> availableUpdates = new ArrayList<>();
 
     public static class Update {
         private final String modId;
         private final String version;
         private final String downloadURL;
-        private final List<Update> dependencies;
+        private final String newFileName, oldFileName;
+        private final int size;
 
-        public Update(String modId, String version, String downloadURL, List<Update> dependencies) {
+        public Update(String modId, String version, String downloadURL, String newFileName, String oldFileName, int size) {
             this.modId = modId;
             this.version = version;
             this.downloadURL = downloadURL;
-            this.dependencies = dependencies;
+            this.newFileName = newFileName;
+            this.oldFileName = oldFileName;
+            this.size = size;
         }
-    }
 
-    public enum DependencyType {
-
+        public void download() {
+            downloadAndSaveUpdate(downloadURL, newFileName, size);
+        }
     }
 
     private static Config loadConfig() {
@@ -96,7 +100,7 @@ public class UpdateChecker {
         }
 
         @Override
-        public String getSerializedName() {
+        public @NotNull String getSerializedName() {
             return name;
         }
 
@@ -107,17 +111,27 @@ public class UpdateChecker {
         private static final EnumCodec<ReleaseState> CODEC = StringRepresentable.fromEnum(ReleaseState::values);
     }
 
-    private static void registerUpdater(String projectId, String modId) {
-        projectData.put(projectId, new UpdateData(modId));
+    private static void registerUpdater(String projectId, String modId, Pattern versionExtractor) {
+        projectData.put(projectId, new UpdateData(modId, versionExtractor));
     }
 
-    private record UpdateData(String modId) {
+    private record UpdateData(String modId, Pattern versionExtractor) {
     }
 
     private static void checkUpdates() {
         info("Starting Update check... (auto update " + (config.autoUpdate ? "enabled" : "disabled") + ")");
         projectData.keySet().forEach(UpdateChecker::checkUpdate);
-        if (config.autoUpdate && updateExecuted) System.exit(0);
+        if (availableUpdates.isEmpty()) {
+            info("all mods up to date");
+            return;
+        }
+        info("Update check completed: " + availableUpdates.size() + " updates available");
+        if (config.autoUpdate) {
+            for (Update update : availableUpdates) {
+                update.download();
+            }
+            System.exit(0); //drop system for reload
+        }
     }
 
     private static void checkUpdate(String projectId) {
@@ -153,9 +167,16 @@ public class UpdateChecker {
             Stream<JsonObject> versionData = JsonHelper.castToObjects(data);
             Map<String, JsonObject> newer = versionData.collect(
                     CollectorHelper.toKeyMappedStream(
-                            object -> GsonHelper.getAsString(object, "version_number")
+                            object -> {
+                                Matcher matcher = updateData.versionExtractor.matcher(GsonHelper.getAsString(object, "version_number"));
+                                if (matcher.matches()) {
+                                    return matcher.group(1);
+                                }
+                                return null;
+                            }
                     )
             )
+                    .filterKeys(Objects::nonNull)
                     .mapKeys(ComparableVersion::new)
                     .filterValues(jsonObject -> config.state.is(GsonHelper.getAsString(jsonObject, "version_type")), null)
                     .filterKeys(comparableVersion -> currentModVersion.compareTo(comparableVersion) < 0)
@@ -177,18 +198,22 @@ public class UpdateChecker {
             String msg = String.format("Found newer version for mod '%s': %s", updateData.modId, newest);
             info(msg);
 
-            if (config.autoUpdate) {
-                JsonObject newestVersionData = newer.get(newest.toString());
-                String fileUrl = GsonHelper.getAsString(newestVersionData, "url");
-                String fileName = GsonHelper.getAsString(newestVersionData, "filename");
-                int size = GsonHelper.getAsInt(newestVersionData, "size");
-                downloadAndSaveUpdate(fileUrl, fileName, size);
-            }
+            JsonObject newestVersionData = newer.get(newest.toString());
+            JsonObject primaryFile = getPrimaryFile(newestVersionData);
+            String fileUrl = GsonHelper.getAsString(primaryFile, "url");
+            String fileName = GsonHelper.getAsString(primaryFile, "filename");
+            int size = GsonHelper.getAsInt(primaryFile, "size");
+            availableUpdates.add(new Update(updateData.modId, newest.toString(), fileUrl, fileName, modInfo.getFile().getFileName(), size));
         } catch (IOException e) {
             LOGGER.warn("error checking for update on project '{}'", updateData.modId);
         } catch (IllegalStateException | IndexOutOfBoundsException e) {
-            LOGGER.warn("provided pattern for mod '{}' does not have one group", updateData.modId);
+            LOGGER.warn("provided pattern for mod '{}' was unable to parse version string '{}'", updateData.modId, e.getMessage());
         }
+    }
+
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    private static JsonObject getPrimaryFile(JsonObject newestVersionData) {
+        return JsonHelper.castToObjects(GsonHelper.getAsJsonArray(newestVersionData, "files")).filter(o -> GsonHelper.getAsBoolean(o, "primary")).findAny().get();
     }
 
     private static void downloadAndSaveUpdate(String fileUrl, String fileName, int size) {
@@ -203,7 +228,7 @@ public class UpdateChecker {
                 // Get input stream and content disposition (file name)
                 InputStream inputStream = httpConnection.getInputStream();
 
-                // Save the file to the specified directory
+                // output file
                 File outputTarget = new File("./mods/" + fileName);
 
                 // Open output stream to save file
@@ -220,7 +245,6 @@ public class UpdateChecker {
                 outputStream.close();
                 inputStream.close();
                 downloadProgress.complete();
-                updateExecuted = true;
             }
         } catch (IOException e) {
             LOGGER.warn("error attempting to save file: {}", e.getMessage());
@@ -233,6 +257,6 @@ public class UpdateChecker {
     }
 
     private static String dependenciesToString(List<? extends IModInfo.ModVersion> list) {
-        return list.stream().map(v -> v.toString()).collect(Collectors.joining(", ", "[", "]"));
+        return list.stream().map(Object::toString).collect(Collectors.joining(", ", "[", "]"));
     }
 }

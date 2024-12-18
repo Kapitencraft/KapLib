@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -37,13 +38,13 @@ public class DamageIndicatorParticle extends Particle {
         this.color = TextHelper.damageIndicatorColorFromDouble(damageType).getColor();
         this.setColor(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color));
         this.darkColor = FastColor.ARGB32.color(255, (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25));
-        this.lifetime = 35;
+        this.lifetime = ClientModConfig.getIndicatorLifetime();
 
         this.yd = rangeOffset;
         this.xd = Mth.nextDouble(KapLibMod.RANDOM_SOURCE, -MAX_MOVEMENT, MAX_MOVEMENT) * rangeOffset;
     }
 
-    private static final char CRIT_CHAR = ' ';
+    private static final char CRIT_CHAR = ' '; //TODO add stars around damage if critical
 
     private float fadeout = -1;
     private float prevFadeout = -1;
@@ -112,7 +113,6 @@ public class DamageIndicatorParticle extends Particle {
         buffer.endBatch();
 
         poseStack.popPose();
-
     }
 
     @Override
@@ -156,6 +156,7 @@ public class DamageIndicatorParticle extends Particle {
         @Nullable
         @Override
         public DamageIndicatorParticle createParticle(@NotNull DamageIndicatorParticleOptions particleType, @NotNull ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+            if (!ClientModConfig.isIndicatorEnabled()) return null;
             return new DamageIndicatorParticle(level, x, y, z, particleType.getDamage(), particleType.getDamageType(), particleType.getRangeOffset());
         }
     }

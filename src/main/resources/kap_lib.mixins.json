@@ -23,6 +23,7 @@
     "ItemStackMixin",
     "LivingEntityMixin",
     "PlayerMixin",
+    "ProjectileMixin",
     "SharedConstantsMixin",
     "StringDecomposerMixin",
     "StyleMixin"

@@ -16,20 +16,18 @@ public abstract class ExtendedCalculationEnchantment extends Enchantment impleme
     private final CalculationType type;
     private final ProcessPriority priority;
 
-    public static Map<ExtendedCalculationEnchantment, Integer> getAllEnchantments(ItemStack stack, boolean isWeapon) {
+    public static Map<ExtendedCalculationEnchantment, Integer> getAllEnchantments(ItemStack stack) {
         Map<ExtendedCalculationEnchantment, Integer> map = new HashMap<>();
         for (Enchantment enchantment : stack.getAllEnchantments().keySet()) {
             if (enchantment instanceof ExtendedCalculationEnchantment extended) {
-                if ((isWeapon && enchantment instanceof IWeaponEnchantment) || (!isWeapon && enchantment instanceof IArmorEnchantment)) {
-                    map.put(extended, stack.getAllEnchantments().get(extended));
-                }
+                map.put(extended, stack.getAllEnchantments().get(extended));
             }
         }
         return map;
     }
 
-    public static float runWithPriority(ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, boolean isWeapon, DamageSource source) {
-        Map<ExtendedCalculationEnchantment, Integer> enchantmentIntegerMap = getAllEnchantments(enchanted, isWeapon);
+    public static float runWithPriority(ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, DamageSource source) {
+        Map<ExtendedCalculationEnchantment, Integer> enchantmentIntegerMap = getAllEnchantments(enchanted);
         for (ProcessPriority priority : ProcessPriority.values()) {
             for (ExtendedCalculationEnchantment enchantment : enchantmentIntegerMap.keySet()) {
                 if (enchantment.priority == priority) {
@@ -51,7 +49,7 @@ public abstract class ExtendedCalculationEnchantment extends Enchantment impleme
     }
 
     public double tryExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, DamageSource source) {
-        if (this.type.contains(type)) {
+        if (this.type.contains(type)) { //TODO add attack strength scale
             return this.execute(level, enchanted, attacker, attacked, damage, source);
         }
         return damage;
@@ -83,10 +81,18 @@ public abstract class ExtendedCalculationEnchantment extends Enchantment impleme
     }
 
     public enum ProcessPriority {
+
+        /**
+         * used for changing the damage
+         */
         HIGHEST,
         HIGH,
         MEDIUM,
         LOW,
+
+        /**
+         * used for special effects, like applying potions, attribute-modifiers etc
+         */
         LOWEST;
     }
 }

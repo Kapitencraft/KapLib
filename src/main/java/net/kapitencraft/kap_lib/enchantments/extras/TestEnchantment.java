@@ -1,26 +1,37 @@
 package net.kapitencraft.kap_lib.enchantments.extras;
 
-import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.enchantments.abstracts.ArmorStatBoostEnchantment;
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
-import java.util.function.Consumer;
-
-public class TestEnchantment extends ArmorStatBoostEnchantment {
+public class TestEnchantment extends ModBowEnchantment {
 
     public TestEnchantment() {
-        super(Rarity.UNCOMMON, EnchantmentCategory.ARMOR, MiscHelper.ARMOR_EQUIPMENT);
+        super(Rarity.UNCOMMON, EnchantmentCategory.ARMOR, new EquipmentSlot[] {EquipmentSlot.MAINHAND}, "Test");
     }
 
     @Override
-    public Consumer<Multimap<Attribute, AttributeModifier>> getArmorModifiers(int level, ItemStack enchanted, EquipmentSlot slot) {
-        return multimap -> multimap.put(ExtraAttributes.MINING_SPEED.get(), AttributeHelper.createModifierForSlot("test", AttributeModifier.Operation.ADDITION, level * 2, slot));
+    public int getMaxLevel() {
+        return 5;
+    }
+
+    @Override
+    public CompoundTag write(CompoundTag tag, int level, ItemStack bow, LivingEntity owner, AbstractArrow arrow) {
+        tag.putInt("level", level);
+        return tag;
+    }
+
+    @Override
+    public float execute(LivingEntity target, CompoundTag tag, ExecuteType type, float oldDamage, AbstractArrow arrow) {
+        return oldDamage * tag.getInt("level");
+    }
+
+    @Override
+    public boolean shouldTick() {
+        return false;
     }
 }

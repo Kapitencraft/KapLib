@@ -66,9 +66,9 @@ public class KapLibMod
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
 
-        ArtifactVersion modVersion = ModList.get().getModContainerById(KapLibMod.MOD_ID).get().getModInfo().getVersion();
-
         MinecraftForge.EVENT_BUS.addListener(CommandHelper::registerClient);
+
+        ArtifactVersion modVersion = ModList.get().getModContainerById(KapLibMod.MOD_ID).get().getModInfo().getVersion();
 
         StartupMessageManager.addModMessage("KapLib Mod v" + modVersion + " loaded");
         LOGGER.info(MARKER, "KapLib v{} loaded", modVersion);

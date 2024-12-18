@@ -27,13 +27,13 @@ public abstract class CountEnchantment extends ExtendedCalculationEnchantment im
         CompoundTag attackerTag = attacker.getPersistentData();
         HashMap<UUID, Integer> map = !attackerTag.getCompound(this.mapName).isEmpty() ? IOHelper.getHashMapTag(attackerTag.getCompound(this.mapName)) : new HashMap<>();
         if (!map.containsKey(attacked.getUUID())) {
-            map.put(attacked.getUUID(), 0);
+            map.put(attacked.getUUID(), 1);
         }
         int i = map.get(attacked.getUUID());
         if (i >= this.getCountAmount(level)) {
-            i = 0;
+            i = 1;
             if (this.type == CountType.NORMAL) {
-                damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, i, source);
+                damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, 0, source);
             }
         } else {
             i++;

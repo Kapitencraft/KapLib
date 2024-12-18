@@ -1,2 +1,3 @@
-fixed UpdateChecker not working (hopefully)
-added UpdateChecker version type config ("release", "beta", "alpha")
+fixed Double Jump attribute not working
+added rainbow enchantment color for > max level enchantments
+fixed Count enchantment counting one higher than it's supposed to

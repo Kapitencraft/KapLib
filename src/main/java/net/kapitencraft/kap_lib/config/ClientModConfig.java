@@ -17,7 +17,13 @@ public class ClientModConfig {
 
 
     static {
-        BUILDER.comment("settings for GUI elements").push("gui");
+        BUILDER.comment("Damage Indicator Settings").push("damage_indicator");
+        ENABLE_DAMAGE_INDICATOR = BUILDER.comment("whether to enable or disable damage indicators")
+                        .define("enable_indicator", true);
+        DAMAGE_INDICATOR_LIFETIME = BUILDER.comment("how long the damage indicator should life for in ticks")
+                        .defineInRange("indicator_lifetime", 35, 10, 100);
+
+        BUILDER.pop().comment("Settings for GUI elements").push("gui");
         SCROLL_SCALE = BUILDER
                 .comment("the scale of how quick tooltips are scrolled with")
                 .defineInRange("scroll_scale", 5., 1, 100);
@@ -44,16 +50,28 @@ public class ClientModConfig {
                 .defineEnum("ping_color", ChatFormatting.YELLOW, Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).toArray(ChatFormatting[]::new));
     }
 
+    private static final ForgeConfigSpec.BooleanValue ENABLE_DAMAGE_INDICATOR;
+    private static final ForgeConfigSpec.IntValue DAMAGE_INDICATOR_LIFETIME;
+
     private static final ForgeConfigSpec.DoubleValue SCROLL_SCALE;
     private static final ForgeConfigSpec.EnumValue<Element.FocusTypes> FOCUS_TYPE;
+    private static final ForgeConfigSpec.IntValue CURSOR_MOVE_OFFSET;
+
     private static final ForgeConfigSpec.DoubleValue CHROMA_SPEED;
     private static final ForgeConfigSpec.EnumValue<ChromaType> CHROMA_TYPE;
     private static final ForgeConfigSpec.DoubleValue CHROMA_SPACING;
     private static final ForgeConfigSpec.EnumValue<ChromaOrigin> CHROMA_ORIGIN;
+
     private static final ForgeConfigSpec.EnumValue<ChatFormatting> PING_COLOR;
-    private static final ForgeConfigSpec.IntValue CURSOR_MOVE_OFFSET;
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
+
+    public static boolean isIndicatorEnabled() {
+        return ENABLE_DAMAGE_INDICATOR.get();
+    }
+    public static int getIndicatorLifetime() {
+        return DAMAGE_INDICATOR_LIFETIME.get();
+    }
 
     public static ChatFormatting getPingColor() {
         return PING_COLOR.get();
@@ -62,27 +80,22 @@ public class ClientModConfig {
     public static double getScrollScale() {
         return SCROLL_SCALE.get();
     }
-
-    public static int getCursorMoveOffset() {
-        return CURSOR_MOVE_OFFSET.get();
-    }
-
     public static ChromaType getChromaType() {
         return CHROMA_TYPE.get();
     }
-
     public static float getChromaSpeed() {
         return (float) (double) CHROMA_SPEED.get();
     }
-
     public static float getChromaSpacing() {
         return (float) (double) CHROMA_SPACING.get();
     }
 
+    public static int getCursorMoveOffset() {
+        return CURSOR_MOVE_OFFSET.get();
+    }
     public static Element.FocusTypes getFocusType() {
         return FOCUS_TYPE.get();
     }
-
     public static ChromaOrigin getChromaOrigin() {
         return CHROMA_ORIGIN.get();
     }

@@ -1,14 +1,19 @@
 package net.kapitencraft.kap_lib.enchantments.extras;
 
+import net.kapitencraft.kap_lib.enchantments.abstracts.IUltimateEnchantment;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModEnchantment;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
+import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
+import net.kapitencraft.kap_lib.registry.GlyphEffects;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
@@ -33,7 +38,18 @@ public class EnchantmentDescriptionManager {
         for(int i = 0; i < pStoredEnchantments.size(); ++i) {
             CompoundTag compoundtag = pStoredEnchantments.getCompound(i);
             Optional.ofNullable(ForgeRegistries.ENCHANTMENTS.getValue(EnchantmentHelper.getEnchantmentId(compoundtag))).ifPresent((ench) -> {
-                tooltips.add(ench.getFullname(EnchantmentHelper.getEnchantmentLevel(compoundtag)));
+                int level = EnchantmentHelper.getEnchantmentLevel(compoundtag);
+                MutableComponent component = (MutableComponent) ench.getFullname(level);
+                if (!(ench.isCurse())) {
+                    if (ench instanceof IUltimateEnchantment) {
+                        component.withStyle(ChatFormatting.LIGHT_PURPLE).withStyle(ChatFormatting.BOLD);
+                    } else if (level == ench.getMaxLevel()) {
+                        component.withStyle(ChatFormatting.GOLD);
+                    } else if (level > ench.getMaxLevel()) {
+                        component.setStyle(MiscHelper.withSpecial(component.getStyle(), GlyphEffects.RAINBOW.get()));
+                    }
+                }
+                tooltips.add(component);
                 if (Screen.hasShiftDown()) EnchantmentDescriptionManager.addTooltipForEnchant(stack, tooltips, ench, player);
                 ClientHelper.addReqContent(tooltips::add, RequirementType.ENCHANTMENT, ench, player);
             });

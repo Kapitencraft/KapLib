@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
-import net.kapitencraft.kap_lib.tags.ExtraDamageTypeTags;
+import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -25,7 +25,7 @@ public class ModProtectionEnchantment extends Enchantment implements IArmorEncha
         if (source.is(DamageTypeTags.BYPASSES_ARMOR)) return 0;
         if (source.getMsgId().equals("true_damage") && this.type == Type.TRUE) {
             return level;
-        } else if (source.is(ExtraDamageTypeTags.MAGIC) && this.type == Type.MAGIC) {
+        } else if (source.is(ExtraTags.DamageTypes.MAGIC) && this.type == Type.MAGIC) {
             return 2 * level;
         }
         return 0;

@@ -4,7 +4,7 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.particle.DamageIndicatorParticleOptions;
-import net.kapitencraft.kap_lib.tags.ExtraDamageTypeTags;
+import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.kapitencraft.kap_lib.util.Color;
 import net.kapitencraft.kap_lib.util.ExtraRarities;
 import net.minecraft.advancements.Advancement;
@@ -26,7 +26,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -35,7 +34,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
@@ -227,7 +225,9 @@ public class MiscHelper {
      * @param player player to add achievement to
      * @param achievementName name of the achievement
      * @return true if the achievement has been awarded, false otherwise
+     * @deprecated use custom achievement triggers
      */
+    @Deprecated(forRemoval = true)
     public static boolean awardAchievement(Player player, String achievementName) {
         if (player instanceof ServerPlayer serverPlayer) {
             ServerAdvancementManager manager = serverPlayer.server.getAdvancements();
@@ -362,7 +362,7 @@ public class MiscHelper {
      */
     @Contract("null -> fail")
     public static DamageType getDamageType(DamageSource source) {
-        if (source.is(ExtraDamageTypeTags.MAGIC)) {
+        if (source.is(ExtraTags.DamageTypes.MAGIC)) {
             return DamageType.MAGIC;
         }
         if (source.getEntity() != null) {
