@@ -104,7 +104,7 @@ public class Events {
 
     @SubscribeEvent
     public static void joinLevelEvent(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof Arrow arrow) {
+        if (event.getEntity() instanceof AbstractArrow arrow) {
             if (arrow.getOwner() instanceof LivingEntity living) {
                 ItemStack bow = living.getMainHandItem();
                 CompoundTag arrowTag = arrow.getPersistentData();

@@ -8,7 +8,7 @@
 
   "attribute.name.generic.ability_damage": "§cAbility Damage",
   "attribute.name.generic.armor_shredder": "Armor Shredding",
-  "attribute.name.generic.arrow_speed": "Arrow Speed",
+  "attribute.name.generic.projectile_speed": "Projectile Speed",
   "attribute.name.generic.arrow_count": "Arrow Count",
   "attribute.name.generic.bonus_attack_speed": "Bonus Attack Speed",
   "attribute.name.generic.crit_damage": "§1Crit Damage",
@@ -25,7 +25,7 @@
   "attribute.name.generic.mana_regen": "§9Mana Regeneration",
   "attribute.name.generic.max_mana": "§3Max Mana",
   "attribute.name.generic.mining_speed": "Mining Speed",
-  "attribute.name.generic.strenght": "§gStrenght",
+  "attribute.name.generic.strength": "§gStrength",
 
   "change_overlay_locations.title": "Change Overlay Locations",
   "command.failed.console": "Can not perform this command from the console",
@@ -48,7 +48,7 @@
 
   "generic.ability_damage": "§cAbility Damage",
   "generic.armor_shredder": "Armor Shredding",
-  "generic.arrow_speed": "Arrow Speed",
+  "generic.arrow_count": "Arrow Count",
   "generic.bonus_attack_speed": "Bonus Attack Speed",
   "generic.crit_chance": "Crit Chance",
   "generic.crit_damage": "§1Crit Damage",
@@ -66,9 +66,9 @@
   "generic.mana_regen": "§9Mana Regeneration",
   "generic.max_mana": "§3Max Mana",
   "generic.mining_speed": "Mining Speed",
+  "generic.projectile_speed": "Projectile Speed",
   "generic.ranged_damage": "Ranged Damage",
-  "generic.strenght": "§gStrenght",
-  "generic.arrow_count": "Arrow Count",
+  "generic.strength": "§gStrength",
 
   "gui.alignment": "Alignment",
   "gui.alignment.x": "Width Alignment",

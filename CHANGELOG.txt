@@ -1,3 +1,6 @@
 fixed Double Jump attribute not working
 added rainbow enchantment color for > max level enchantments
 fixed Count enchantment counting one higher than it's supposed to
+removed existing crafting recipe netherite ingots to netherite armor
+fixed typo in Strength attribute
+renamed ARROW_SPEED -> PROJECTILE_SPEED Attribute

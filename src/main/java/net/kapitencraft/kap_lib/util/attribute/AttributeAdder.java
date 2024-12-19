@@ -44,7 +44,7 @@ public class AttributeAdder {
                 ExtraAttributes.DODGE,
                 ExtraAttributes.LIVE_STEAL,
                 ExtraAttributes.DRAW_SPEED,
-                ExtraAttributes.ARROW_SPEED,
+                ExtraAttributes.PROJECTILE_SPEED,
                 ExtraAttributes.ARMOR_SHREDDER,
                 ExtraAttributes.DOUBLE_JUMP,
                 ExtraAttributes.FISHING_SPEED
