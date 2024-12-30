@@ -10,23 +10,20 @@ import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -42,6 +39,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.UUID;
@@ -100,7 +98,7 @@ public class Events {
         event.setCharge((int) (event.getCharge() * event.getEntity().getAttributeValue(ExtraAttributes.DRAW_SPEED.get()) / 100));
     }
 
-    private static final Queue<UUID> helper = Queue.create();
+    private static final Queue<UUID> arrowHelper = Queue.create();
 
     @SubscribeEvent
     public static void joinLevelEvent(EntityJoinLevelEvent event) {
@@ -116,8 +114,8 @@ public class Events {
                         CompoundTag tag = new CompoundTag();
                         int level = bow.getEnchantmentLevel(enchantment);
                         tag.putInt("Level", level);
-                        arrowTag.put(bowEnchantment.getTagName(), bowEnchantment.write(tag, level, bow, living, arrow));
-                        if (bowEnchantment.shouldTick()) helper.add(arrow.getUUID());
+                        arrowTag.put(ForgeRegistries.ENCHANTMENTS.getKey(enchantment).toString(), bowEnchantment.write(tag, level, bow, living, arrow));
+                        if (bowEnchantment.shouldTick()) arrowHelper.add(arrow.getUUID());
                     }
                 }
             }
@@ -149,13 +147,13 @@ public class Events {
     @SubscribeEvent
     public static void serverTick(TickEvent.LevelTickEvent event) {
         if (event.level instanceof ServerLevel serverLevel) {
-            helper.queue(uuid -> {
+            arrowHelper.queue(uuid -> {
                 Arrow arrow = (Arrow) serverLevel.getEntity(uuid);
                 if (arrow != null) {
                     CompoundTag arrowTag = arrow.getPersistentData();
-                    ModBowEnchantment.loadFromTag(null, arrowTag, ModBowEnchantment.ExecuteType.TICK, 0, arrow);
+                    ModBowEnchantment.loadFromTag(null, arrowTag, ModBowEnchantment.ExePhase.TICK, 0, arrow);
                 } else {
-                    helper.remove(uuid);
+                    arrowHelper.remove(uuid);
                 }
             });
         }

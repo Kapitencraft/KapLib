@@ -6,17 +6,17 @@ import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.kapitencraft.kap_lib.crafting.ModRecipeTypes;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
-import net.kapitencraft.kap_lib.registry.custom.ModSetBonusTypes;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistryBuilders;
-import net.kapitencraft.kap_lib.registry.custom.ModRequirementTypes;
-import net.kapitencraft.kap_lib.util.UpdateChecker;
+import net.kapitencraft.kap_lib.registry.custom.SetBonusTypes;
+import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
+import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
+import net.kapitencraft.kap_lib.registry.vanilla.VanillaComponentContentTypes;
+import net.kapitencraft.kap_lib.registry.vanilla.VanillaDataSourceTypes;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.StartupMessageManager;
@@ -25,7 +25,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.NewRegistryEvent;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
@@ -51,8 +50,8 @@ public class KapLibMod
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        ModRequirementTypes.REGISTRY.register(modEventBus);
-        ModSetBonusTypes.REGISTRY.register(modEventBus);
+        RequirementTypes.REGISTRY.register(modEventBus);
+        SetBonusTypes.REGISTRY.register(modEventBus);
         ExtraAttributes.REGISTRY.register(modEventBus);
         ExtraLootModifiers.REGISTRY.register(modEventBus);
         ExtraLootItemConditions.REGISTRY.register(modEventBus);
@@ -60,6 +59,10 @@ public class KapLibMod
         GlyphEffects.REGISTRY.register(modEventBus);
         ModRecipeSerializers.REGISTRY.register(modEventBus);
         ModRecipeTypes.REGISTRY.register(modEventBus);
+
+        VanillaAttributeModifierTypes.REGISTRY.register(modEventBus);
+        VanillaComponentContentTypes.REGISTRY.register(modEventBus);
+        VanillaDataSourceTypes.REGISTRY.register(modEventBus);
 
         //TestEnchantments.REGISTRY.register(modEventBus);
 

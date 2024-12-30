@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.helpers;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.util.Reference;
@@ -39,6 +40,14 @@ public interface MathHelper {
         int returnable = (a << 8) + r;
         returnable = (returnable << 8) + g;
         return (returnable << 8) + b;
+    }
+
+    static IntSet intSetRange(int min, int max) {
+        int[] range = new int[max - min + 1];
+        for (int i = min; i <= max; i++) {
+            range[i-min] = min + i;
+        }
+        return IntSet.of(range);
     }
 
     /**

@@ -4,7 +4,7 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.SimplePacket;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -32,13 +32,13 @@ public class RequestPacket<T, K> implements SimplePacket {
 
     public static <T, K> IRequestable<T, K> getRequestable(String id) {
         ResourceLocation location = new ResourceLocation(id);
-        IRequestable<T, K> requestable = (IRequestable<T, K>) ModRegistries.REQUESTABLES.getValue(location);
+        IRequestable<T, K> requestable = (IRequestable<T, K>) ExtraRegistries.REQUESTABLES.getValue(location);
         if (requestable == null) throw new IllegalStateException("unable to read requestable for key '" + id + "'");
         return requestable;
     }
 
     public static <T, K> String saveRequestable(IRequestable<T, K> requestable) {
-        ResourceLocation location = ModRegistries.REQUESTABLES.getKey(requestable);
+        ResourceLocation location = ExtraRegistries.REQUESTABLES.getKey(requestable);
         if (location == null) throw new IllegalStateException("can not send request without valid requestable");
         return location.toString();
     }
@@ -59,7 +59,7 @@ public class RequestPacket<T, K> implements SimplePacket {
                     try {
                         ModMessages.sendToClientPlayer(new RequestDataPacket<>(this.requestId, this.provider, this.provider.pack(this.value, player)), player);
                     } catch (Exception e) {
-                        KapLibMod.LOGGER.warn((Marker) Markers.REQUESTS, "unable to handle Request Packet of provider '{}': {}", ModRegistries.REQUESTABLES.getKey(this.provider), e.getMessage());
+                        KapLibMod.LOGGER.warn((Marker) Markers.REQUESTS, "unable to handle Request Packet of provider '{}': {}", ExtraRegistries.REQUESTABLES.getKey(this.provider), e.getMessage());
                     }
                 }
         });

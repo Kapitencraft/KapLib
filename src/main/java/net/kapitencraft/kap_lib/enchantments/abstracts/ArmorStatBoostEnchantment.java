@@ -9,25 +9,28 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
+import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class ArmorStatBoostEnchantment extends StatBoostEnchantment implements IArmorEnchantment {
-    protected ArmorStatBoostEnchantment(Rarity p_44676_, EnchantmentCategory p_44677_, EquipmentSlot... p_44678_) {
-        super(p_44676_, p_44677_, p_44678_);
-    }
+public interface ArmorStatBoostEnchantment extends StatBoostEnchantment, IArmorEnchantment {
 
     @Override
-    public Consumer<Multimap<Attribute, AttributeModifier>> getModifiers(int level, ItemStack enchanted, EquipmentSlot slot) {
+    default Consumer<Multimap<Attribute, AttributeModifier>> getModifiers(int level, ItemStack enchanted, EquipmentSlot slot) {
         if (enchanted.getItem() instanceof ArmorItem armorItem && armorItem.getEquipmentSlot() == slot) {
             return getArmorModifiers(level, enchanted, slot);
         }
         return multimap -> {};
     }
 
-    public abstract Consumer<Multimap<Attribute, AttributeModifier>> getArmorModifiers(int level, ItemStack enchanted, EquipmentSlot slot);
+    Consumer<Multimap<Attribute, AttributeModifier>> getArmorModifiers(int level, ItemStack enchanted, EquipmentSlot slot);
 
     @Override
-    public boolean hasModifiersForThatSlot(EquipmentSlot slot, ItemStack stack) {
+    default boolean hasModifiersForThatSlot(EquipmentSlot slot, ItemStack stack) {
         return MiscHelper.getSlotForStack(stack) == slot;
+    }
+
+    @Override
+    default List<EquipmentSlot> slots() {
+        return List.of(MiscHelper.ARMOR_EQUIPMENT);
     }
 }

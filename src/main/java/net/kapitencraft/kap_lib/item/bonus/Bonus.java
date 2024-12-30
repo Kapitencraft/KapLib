@@ -8,7 +8,7 @@ import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
 import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
 import net.kapitencraft.kap_lib.item.IEventListener;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventListener {
 
@@ -29,7 +28,7 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
 
     @Override
     default void toNetwork(FriendlyByteBuf buf) {
-        buf.writeRegistryId(ModRegistries.BONUS_SERIALIZER, this.getSerializer());
+        buf.writeRegistryId(ExtraRegistries.BONUS_SERIALIZER, this.getSerializer());
         additionalToNetwork(buf);
     }
 
@@ -37,7 +36,7 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
     default JsonObject toJson() {
         JsonObject object = new JsonObject();
         object.add("data", getSerializer().serialize((T) this));
-        object.addProperty("type", Objects.requireNonNull(ModRegistries.BONUS_SERIALIZER.getKey(this.getSerializer()), String.format("unknown requirement type: %s", this.getClass().getCanonicalName())).toString());
+        object.addProperty("type", Objects.requireNonNull(ExtraRegistries.BONUS_SERIALIZER.getKey(this.getSerializer()), String.format("unknown requirement type: %s", this.getClass().getCanonicalName())).toString());
         return object;
     }
 

@@ -4,7 +4,6 @@ import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
 import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimationAcceptor;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.request.RequestHandler;
-import net.kapitencraft.kap_lib.util.ShimmerShieldManager;
 
 /**
  * client handler for much information
@@ -23,15 +22,8 @@ public interface LibClient {
      */
     RequestHandler handler = new RequestHandler(ModMessages::sendToServer);
 
-
     /**
      * handles ParticleAnimations either clientside or synced from the server
      */
     ParticleAnimationAcceptor acceptor = new ParticleAnimationAcceptor();
-
-
-    /**
-     * shimmer shield manager; handles
-     */
-    ShimmerShieldManager manager = new ShimmerShieldManager();
 }

@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -40,7 +40,7 @@ public abstract class StyleMixin implements EffectsStyle {
     @Redirect(method = "toString", at = @At(value = "INVOKE", target = "Ljava/lang/StringBuilder;append(Ljava/lang/String;)Ljava/lang/StringBuilder;"))
     public StringBuilder toString(StringBuilder instance, String str) {
         instance.append(str);
-        if (!this.effects.isEmpty()) instance.append("{special: ").append(this.effects.stream().map(ModRegistries.GLYPH_EFFECTS::getKey).filter(Objects::nonNull).map(ResourceLocation::toString).collect(Collectors.joining(", "))).append("}");
+        if (!this.effects.isEmpty()) instance.append("{special: ").append(this.effects.stream().map(ExtraRegistries.GLYPH_EFFECTS::getKey).filter(Objects::nonNull).map(ResourceLocation::toString).collect(Collectors.joining(", "))).append("}");
         return instance;
     }
 

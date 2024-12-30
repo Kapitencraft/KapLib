@@ -14,20 +14,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public abstract class StatBoostEnchantment extends Enchantment implements ModEnchantment {
-    private final List<EquipmentSlot> slots;
-    protected StatBoostEnchantment(Rarity pRarity, EnchantmentCategory pCategory, EquipmentSlot... sl) {
-        super(pRarity, pCategory, sl);
-        slots = List.of(sl);
+public interface StatBoostEnchantment extends ModEnchantment {
+    List<EquipmentSlot> slots();
+
+    Consumer<Multimap<Attribute, AttributeModifier>> getModifiers(int level, ItemStack enchanted, EquipmentSlot slot);
+
+    default boolean hasModifiersForThatSlot(EquipmentSlot slot, ItemStack stack) {
+        return this.slots().contains(slot);
     }
 
-    public abstract Consumer<Multimap<Attribute, AttributeModifier>> getModifiers(int level, ItemStack enchanted, EquipmentSlot slot);
-
-    public boolean hasModifiersForThatSlot(EquipmentSlot slot, ItemStack stack) {
-        return this.slots.contains(slot);
-    }
-
-    public static Multimap<Attribute, AttributeModifier> getAllModifiers(ItemStack stack, EquipmentSlot slot) {
+    static Multimap<Attribute, AttributeModifier> getAllModifiers(ItemStack stack, EquipmentSlot slot) {
         Map<Enchantment, Integer> enchantments = stack.getAllEnchantments();
         Multimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
         MapStream.of(enchantments).filterKeys(ench -> ench instanceof StatBoostEnchantment)

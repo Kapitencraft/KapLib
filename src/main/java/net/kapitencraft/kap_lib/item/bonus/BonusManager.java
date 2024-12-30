@@ -14,7 +14,7 @@ import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.requirements.BonusRequirementType;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.util.Color;
@@ -29,7 +29,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.*;
@@ -148,7 +147,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> pObject, @NotNull ResourceManager pResourceManager, @NotNull ProfilerFiller pProfiler) {
-        pProfiler.push("bonuses");
+        pProfiler.push("loading bonuses");
         pObject.forEach((location, element) -> {
             pProfiler.push("element '" + location + "'");
             if (location.getPath().startsWith("set/")) readSetElement(new ResourceLocation(location.getNamespace(), location.getPath().substring(4)), element);
@@ -195,7 +194,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     private static DataGenSerializer<? extends Bonus<?>> readFromString(String string) {
-        return ModRegistries.BONUS_SERIALIZER.getValue(new ResourceLocation(string));
+        return ExtraRegistries.BONUS_SERIALIZER.getValue(new ResourceLocation(string));
     }
 
     private void readSetElement(ResourceLocation location, JsonElement jsonElement) {

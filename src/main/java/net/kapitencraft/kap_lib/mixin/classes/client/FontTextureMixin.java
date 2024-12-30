@@ -5,10 +5,12 @@ import net.minecraft.client.gui.font.FontTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 
 @Mixin(FontTexture.class)
 public abstract class FontTextureMixin extends AbstractTexture implements IChromatic {
+    @Unique
     private RenderType chromatic, seeThroughChromatic, polygonOffsetChromatic;
 
     @Override

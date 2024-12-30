@@ -101,7 +101,7 @@ public class DamageEvents {
         LivingEntity attacked = event.getEntity();
         if (event.getSource().getEntity() instanceof Arrow arrow) {
             CompoundTag tag = arrow.getPersistentData();
-            event.setAmount(ModBowEnchantment.loadFromTag(attacked, tag, ModBowEnchantment.ExecuteType.HIT, event.getAmount(), arrow));
+            event.setAmount(ModBowEnchantment.loadFromTag(attacked, tag, ModBowEnchantment.ExePhase.HIT, event.getAmount(), arrow));
             if (tag.getInt("OverloadEnchant") > 0 && arrow.isCritArrow()) {
                 if (MathHelper.chance(0.1, arrow.getOwner())) event.setAmount((float) (event.getAmount() * 1 + (tag.getInt("OverloadEnchant") * 0.1)));
             }

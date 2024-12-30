@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
 import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +24,7 @@ public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGe
     }
     //data-gen
     public static <T extends ReqCondition<T>> ReqCondition<T> readFromJson(JsonObject object) {
-        DataGenSerializer<T> serializer = (DataGenSerializer<T>) ModRegistries.REQUIREMENT_TYPE.getValue(new ResourceLocation(GsonHelper.getAsString(object, "type")));
+        DataGenSerializer<T> serializer = (DataGenSerializer<T>) ExtraRegistries.REQUIREMENT_TYPES.getValue(new ResourceLocation(GsonHelper.getAsString(object, "type")));
         if (serializer == null) throw new NullPointerException("unknown requirement type: '" + GsonHelper.getAsString(object, "type") + "'");
         return serializer.deserialize(GsonHelper.getAsJsonObject(object, "data"));
     }
@@ -36,14 +36,14 @@ public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGe
 
     //network
     public final void toNetwork(FriendlyByteBuf byteBuf) {
-        byteBuf.writeRegistryId(ModRegistries.REQUIREMENT_TYPE, this.getSerializer());
+        byteBuf.writeRegistryId(ExtraRegistries.REQUIREMENT_TYPES, this.getSerializer());
         additionalToNetwork(byteBuf);
     }
 
     public final JsonObject toJson() {
         JsonObject object = new JsonObject();
         object.add("data", getSerializer().serialize((T) this));
-        object.addProperty("type", Objects.requireNonNull(ModRegistries.REQUIREMENT_TYPE.getKey(this.getSerializer()), String.format("unknown requirement type: %s", this.getClass().getCanonicalName())).toString());
+        object.addProperty("type", Objects.requireNonNull(ExtraRegistries.REQUIREMENT_TYPES.getKey(this.getSerializer()), String.format("unknown requirement type: %s", this.getClass().getCanonicalName())).toString());
         return object;
     }
 

@@ -19,8 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public class FontSetMixin {
 
     @Inject(method = "stitch", at = @At(value = "INVOKE", target = "Ljava/util/List;add(Ljava/lang/Object;)Z"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void addChromaToTexture(SheetGlyphInfo p_232557_, CallbackInfoReturnable<BakedGlyph> cir, ResourceLocation $$3, boolean $$4, GlyphRenderTypes $$5, FontTexture $$6) {
-        IChromatic.of($$6).setChromaType(ModRenderTypes.chromatic($$3));
+    private void addChromaToTexture(SheetGlyphInfo info, CallbackInfoReturnable<BakedGlyph> cir, ResourceLocation location, boolean $$4, GlyphRenderTypes $$5, FontTexture texture) {
+        IChromatic.of(texture).setChromaType(ModRenderTypes.chromatic(location));
     }
 
     @Redirect(method = "stitch", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/FontTexture;add(Lcom/mojang/blaze3d/font/SheetGlyphInfo;)Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;"))

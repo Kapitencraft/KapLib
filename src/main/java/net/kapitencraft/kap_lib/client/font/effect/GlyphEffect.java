@@ -9,7 +9,7 @@ public abstract class GlyphEffect {
     }
 
     /**
-     * method to modify the {@code EffectSettings} for changing behaviour of the glyph rendering
+     * method to modify the {@link EffectSettings} for changing behaviour of the glyph rendering
      * @param settings the settings of the current glyph being applied
      */
     public abstract void apply(EffectSettings settings);

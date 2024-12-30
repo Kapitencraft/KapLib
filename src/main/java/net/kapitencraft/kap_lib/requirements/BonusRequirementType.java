@@ -11,6 +11,7 @@ public class BonusRequirementType extends RequirementType<BonusManager.BonusElem
         super("bonuses", null);
     }
 
+    //TODO fix
     @Override
     public BonusManager.BonusElement getById(ResourceLocation location) {
         return super.getById(location);

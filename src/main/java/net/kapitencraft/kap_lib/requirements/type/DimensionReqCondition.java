@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
-import net.kapitencraft.kap_lib.registry.custom.ModRequirementTypes;
+import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
 import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,7 +13,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,6 +58,6 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
 
     @Override
     public DataGenSerializer<DimensionReqCondition> getSerializer() {
-        return ModRequirementTypes.DIMENSION.get();
+        return RequirementTypes.DIMENSION.get();
     }
 }

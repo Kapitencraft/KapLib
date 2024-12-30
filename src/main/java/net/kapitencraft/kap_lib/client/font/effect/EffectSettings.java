@@ -5,7 +5,7 @@ package net.kapitencraft.kap_lib.client.font.effect;
  * <br> as well if it's just a shadow glyph, and it's index (of the rendered text)
  */
 public class EffectSettings {
-    public float r, g, b, x, y, a;
+    public float r, g, b, a, x, y;
     public boolean isShadow = false;
     public int index;
 }

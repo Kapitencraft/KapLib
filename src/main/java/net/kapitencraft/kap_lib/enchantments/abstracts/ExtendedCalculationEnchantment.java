@@ -7,16 +7,20 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class ExtendedCalculationEnchantment extends Enchantment implements ModEnchantment {
+public interface ExtendedCalculationEnchantment extends ModEnchantment {
 
-    private final CalculationType type;
-    private final ProcessPriority priority;
+    @NotNull
+    CalculationType type();
 
-    public static Map<ExtendedCalculationEnchantment, Integer> getAllEnchantments(ItemStack stack) {
+    @NotNull
+    ProcessPriority priority();
+
+    static Map<ExtendedCalculationEnchantment, Integer> getAllEnchantments(ItemStack stack) {
         Map<ExtendedCalculationEnchantment, Integer> map = new HashMap<>();
         for (Enchantment enchantment : stack.getAllEnchantments().keySet()) {
             if (enchantment instanceof ExtendedCalculationEnchantment extended) {
@@ -30,7 +34,7 @@ public abstract class ExtendedCalculationEnchantment extends Enchantment impleme
         Map<ExtendedCalculationEnchantment, Integer> enchantmentIntegerMap = getAllEnchantments(enchanted);
         for (ProcessPriority priority : ProcessPriority.values()) {
             for (ExtendedCalculationEnchantment enchantment : enchantmentIntegerMap.keySet()) {
-                if (enchantment.priority == priority) {
+                if (enchantment.priority() == priority) {
                     damage = enchantment.tryExecute(enchantmentIntegerMap.get(enchantment), enchanted, attacker, attacked, damage, type, source);
                 }
             }
@@ -38,26 +42,16 @@ public abstract class ExtendedCalculationEnchantment extends Enchantment impleme
         return (float) damage;
     }
 
-    protected ExtendedCalculationEnchantment(Rarity rarity, EnchantmentCategory category, EquipmentSlot[] slots, CalculationType type, ProcessPriority priority) {
-        super(rarity, category, slots);
-        this.type = type;
-        this.priority = priority;
-    }
-
-    public ProcessPriority getPriority() {
-        return priority;
-    }
-
-    public double tryExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, DamageSource source) {
-        if (this.type.contains(type)) { //TODO add attack strength scale
+    default double tryExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, DamageSource source) {
+        if (this.type().contains(type)) { //TODO add attack strength scale
             return this.execute(level, enchanted, attacker, attacked, damage, source);
         }
         return damage;
     }
 
-    protected abstract double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, DamageSource source);
+    double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, DamageSource source);
 
-    public enum CalculationType {
+    enum CalculationType {
         ONLY_MAGIC(MiscHelper.DamageType.MAGIC),
         ONLY_MELEE(MiscHelper.DamageType.MELEE),
         ONLY_RANGED(MiscHelper.DamageType.RANGED),

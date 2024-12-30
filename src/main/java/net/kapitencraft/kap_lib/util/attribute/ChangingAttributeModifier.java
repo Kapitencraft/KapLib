@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.util.attribute;
 
+import com.mojang.serialization.Codec;
+import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeModifier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -11,7 +13,7 @@ import java.util.function.Function;
 /**
  * wrapper class for dynamic attribute modifiers that depend on a LivingEntity
  */
-public class ChangingAttributeModifier extends AttributeModifier {
+public class ChangingAttributeModifier extends AttributeModifier implements IKapLibAttributeModifier {
     private final LivingEntity living;
     private final Function<LivingEntity, Double> provider;
 
@@ -32,5 +34,20 @@ public class ChangingAttributeModifier extends AttributeModifier {
     @Override
     public @NotNull CompoundTag save() {
         throw new IllegalStateException("should not save changing attributeModifier");
+    }
+
+    @Override
+    public Codec<? extends AttributeModifier> getCodec() {
+        return null;
+    }
+
+    @Override
+    public boolean tickBased() {
+        return false;
+    }
+
+    @Override
+    public boolean tick() {
+        return false;
     }
 }

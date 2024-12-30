@@ -5,10 +5,12 @@
   "package": "net.kapitencraft.kap_lib.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
+    "RegistryBuilderMixin",
     "client.BakedGlyphMixin",
     "client.ChatScreenMixin",
     "client.ClientTooltipPositionerMixin",
     "client.EnchantedBookItemMixin",
+    "client.EntityClientMixin",
     "client.FontSetMixin",
     "client.FontTextureMixin",
     "client.ItemStackMixin",
@@ -17,7 +19,13 @@
     "client.StringRenderOutputMixin"
   ],
   "mixins": [
+    "AttributeInstanceMixin",
+    "AttributeMapMixin",
+    "AttributeModifierMixin",
     "AttributesMixin",
+    "ComponentContentsMixin",
+    "ComponentSerializerMixin",
+    "DataSourceMixin",
     "FishingHookMixin",
     "FishingRodMixin",
     "ItemStackMixin",

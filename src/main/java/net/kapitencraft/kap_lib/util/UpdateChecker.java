@@ -120,7 +120,7 @@ public class UpdateChecker {
 
     private static void checkUpdates() {
         info("Starting Update check... (auto update " + (config.autoUpdate ? "enabled" : "disabled") + ")");
-        projectData.keySet().forEach(UpdateChecker::checkUpdate);
+        projectData.keySet().stream().map(UpdateChecker::checkUpdate);
         if (availableUpdates.isEmpty()) {
             info("all mods up to date");
             return;
@@ -134,7 +134,7 @@ public class UpdateChecker {
         }
     }
 
-    private static void checkUpdate(String projectId) {
+    private static Result checkUpdate(String projectId) {
         UpdateData updateData = projectData.get(projectId);
         IModFileInfo modInfo = ModList.get().getModFileById(updateData.modId);
         try {
@@ -154,7 +154,7 @@ public class UpdateChecker {
             InputStream dataStream;
             if (response != HttpsURLConnection.HTTP_OK) {
                 LOGGER.warn("connection to {} failed: {}", updateData.modId, response);
-                return;
+                return Result.connectionFailed(updateData.modId, currentModVersion);
             } else {
                 dataStream = connection.getInputStream();
             }
@@ -186,7 +186,7 @@ public class UpdateChecker {
                 String msg = "Mod '" + updateData.modId + "' is up-to-date";
                 info(msg);
 
-                return; //there's no newer versions, so we can skip the rest
+                return Result.upToDate(updateData.modId, currentModVersion); //there's no newer versions, so we can skip the rest
             }
             ComparableVersion newest = null;
             for (String s : newer.keySet()) {
@@ -195,6 +195,7 @@ public class UpdateChecker {
                     newest = v;
                 }
             }
+
             String msg = String.format("Found newer version for mod '%s': %s", updateData.modId, newest);
             info(msg);
 
@@ -204,10 +205,42 @@ public class UpdateChecker {
             String fileName = GsonHelper.getAsString(primaryFile, "filename");
             int size = GsonHelper.getAsInt(primaryFile, "size");
             availableUpdates.add(new Update(updateData.modId, newest.toString(), fileUrl, fileName, modInfo.getFile().getFileName(), size));
+            return Result.success(currentModVersion, newest, updateData.modId);
         } catch (IOException e) {
             LOGGER.warn("error checking for update on project '{}'", updateData.modId);
         } catch (IllegalStateException | IndexOutOfBoundsException e) {
             LOGGER.warn("provided pattern for mod '{}' was unable to parse version string '{}'", updateData.modId, e.getMessage());
+        }
+        return Result.failed(updateData.modId);
+    }
+
+    private record Result(@NotNull String modId, ComparableVersion currentVersion, ComparableVersion targetVersion, Type type) {
+
+        public static Result success(ComparableVersion currentModVersion, ComparableVersion newest, String modId) {
+            return new Result(modId, currentModVersion, newest, Type.UP_TO_DATE);
+        }
+
+        private enum Type {
+            CONNECTION_FAILED,
+            FAILED,
+            UP_TO_DATE,
+            OUTDATED
+        }
+
+        public static Result connectionFailed(String modId, ComparableVersion currentModVersion) {
+            return new Result(modId, currentModVersion, null, Type.CONNECTION_FAILED);
+        }
+
+        public static Result upToDate(String modId, ComparableVersion currentModVersion) {
+            return new Result(modId, currentModVersion, null, Type.UP_TO_DATE);
+        }
+
+        public static Result failed(String modId) {
+            return new Result(modId, null, null, Type.FAILED);
+        }
+
+        public void log() {
+            info(modId + " (version = " + (currentVersion == null ? "null" : currentVersion.getCanonical()) + ") found status " + type.name() + ", target = " + (targetVersion == null ? "null" : targetVersion.getCanonical()));
         }
     }
 

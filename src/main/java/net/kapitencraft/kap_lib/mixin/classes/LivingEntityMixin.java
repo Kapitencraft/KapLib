@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.kapitencraft.kap_lib.helpers.AttributeHelper;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
+import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeMap;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
@@ -10,12 +11,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.extensions.IForgeLivingEntity;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,6 +29,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class LivingEntityMixin extends Entity implements IForgeLivingEntity {
 
     @Shadow public abstract ItemStack getItemBySlot(EquipmentSlot pSlot);
+
+    @Shadow @Final private AttributeMap attributes;
 
     public LivingEntityMixin(EntityType<?> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -38,6 +44,12 @@ public abstract class LivingEntityMixin extends Entity implements IForgeLivingEn
         }
     }
 
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void addAttributeTick(CallbackInfo ci) {
+        IKapLibAttributeMap.of(this.attributes).tick();
+    }
+
+
     /**
      * @reason armor-shredder attribute
      * @author Kapitencraft
@@ -49,6 +61,7 @@ public abstract class LivingEntityMixin extends Entity implements IForgeLivingEn
         cir.setReturnValue(MathHelper.calculateDamage(damage, (float) armorValue, (float) self().getAttributeValue(Attributes.ARMOR_TOUGHNESS)));
     }
 
+    @Unique
     private double getArmorValue(DamageSource source) {
         if (source.getMsgId().equals("true_damage")) {
             return AttributeHelper.getSaveAttributeValue(ExtraAttributes.TRUE_DEFENCE.get(), self());

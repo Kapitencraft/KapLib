@@ -1,57 +1,73 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
-public abstract class ModBowEnchantment extends Enchantment implements ModEnchantment {
-    private static final HashMap<String, Execution> executionMap = new HashMap<>();
-    private final String tagName;
-    protected ModBowEnchantment(Rarity p_44676_, EnchantmentCategory p_44677_, EquipmentSlot[] p_44678_, String tagName) {
-        super(p_44676_, p_44677_, p_44678_);
-        this.tagName = tagName + "Enchant";
-        executionMap.put(this.tagName, this::execute);
-    }
+public interface ModBowEnchantment extends ModEnchantment, IWeaponEnchantment {
+    @ApiStatus.Internal
+    HashMap<ResourceLocation, Execution> executionMap = new HashMap<>();
 
-    protected static int getLevel(CompoundTag tag) {
+    static int getLevel(CompoundTag tag) {
         return tag.getInt("Level");
     }
 
-    public interface Execution {
-        float execute(LivingEntity target, CompoundTag tag, ExecuteType type, float oldDamage, AbstractArrow arrow);
+    interface Execution {
+        float execute(int enchantLevel, LivingEntity target, CompoundTag tag, ExePhase type, float oldDamage, AbstractArrow arrow);
     }
 
-    public static float loadFromTag(LivingEntity target, CompoundTag tag, ExecuteType type, float oldDamage, AbstractArrow arrow) {
-        for (String string : executionMap.keySet()) {
+    @ApiStatus.Internal
+    static float loadFromTag(LivingEntity target, CompoundTag tag, ExePhase type, float oldDamage, AbstractArrow arrow) {
+        for (ResourceLocation location : executionMap.keySet()) {
+            String string = location.toString();
             if (tag.contains(string, 10)) {
                 CompoundTag elementTag = tag.getCompound(string);
-                oldDamage = executionMap.get(string).execute(target, elementTag, type, oldDamage, arrow);
+                int level = getLevel(elementTag);
+                oldDamage = executionMap.get(location).execute(level, target, elementTag, type, oldDamage, arrow);
             }
         }
         return oldDamage;
     }
 
     /**
-     * use to add more tags to Arrow
+     * use to add extra tags which are needed in {@link ModBowEnchantment#execute(int, LivingEntity, CompoundTag, ExePhase, float, AbstractArrow) execute}, to the bow
+     * the enchantment level is written automatically
      * @return the populated data
      */
-    public abstract CompoundTag write(CompoundTag tag, int level, ItemStack bow, LivingEntity owner, AbstractArrow arrow);
-    public abstract float execute(LivingEntity target, CompoundTag tag, ExecuteType type, float oldDamage, AbstractArrow arrow);
+    CompoundTag write(CompoundTag tag, int level, ItemStack bow, LivingEntity owner, AbstractArrow arrow);
 
-    public String getTagName() {
-        return tagName;
-    }
+    /**
+     * @param level the enchantment level applied
+     * @param target the hit entity, or null if it hit a block, or it's a tick event (see {@code type})
+     * @param tag the data saved to the arrow via the {@link ModBowEnchantment#write(CompoundTag, int, ItemStack, LivingEntity, AbstractArrow) write} method
+     * @param type the type of the execution. either TICK or HIT
+     * @param oldDamage the damage the arrow would do (only HIT)
+     * @param arrow the arrow that's currently used
+     * @return the new damage value (ignored in TICK phase)
+     */
+    float execute(int level, @Nullable LivingEntity target, CompoundTag tag, ExePhase type, float oldDamage, AbstractArrow arrow);
 
-    public abstract boolean shouldTick();
+    /**
+     * determines whether the enchantment should tick on arrows
+     */
+    boolean shouldTick();
 
-    public enum ExecuteType {
+    enum ExePhase {
+        /**
+         * the TICK execution type. only used when the Enchantment specifies {@link ModBowEnchantment#shouldTick()} as true
+         */
         TICK,
+        /**
+         * the HIT execution type. executed when the Arrow hits a block / entity
+         */
         HIT;
     }
 }

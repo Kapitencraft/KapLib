@@ -9,7 +9,7 @@ import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -93,7 +93,7 @@ public abstract class BonusProvider implements DataProvider {
         }
 
         if (item != null) main.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item), "unknown item with class: " + item.getClass().getCanonicalName()).toString());
-        main.addProperty("type", Objects.requireNonNull(ModRegistries.BONUS_SERIALIZER.getKey(itemBuilder.bonus.getSerializer()), "unknown bonus with class: " + itemBuilder.bonus.getClass().getCanonicalName()).toString());
+        main.addProperty("type", Objects.requireNonNull(ExtraRegistries.BONUS_SERIALIZER.getKey(itemBuilder.bonus.getSerializer()), "unknown bonus with class: " + itemBuilder.bonus.getClass().getCanonicalName()).toString());
         return main;
     }
 

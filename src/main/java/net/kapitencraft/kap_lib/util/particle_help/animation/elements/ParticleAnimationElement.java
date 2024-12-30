@@ -13,6 +13,10 @@ public abstract class ParticleAnimationElement {
         this.id = id;
     }
 
+    /**
+     * @param animator the animator (retrieve target entity with {@link ParticleAnimator#target})
+     * @return whether the element has expired or not
+     */
     public abstract boolean tick(ParticleAnimator animator);
 
     protected final int getRotForIndex(int index) {

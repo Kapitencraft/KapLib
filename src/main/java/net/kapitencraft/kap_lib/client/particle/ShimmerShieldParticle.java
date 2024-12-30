@@ -174,8 +174,8 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
 
         @Nullable
         @Override
-        public TextureSheetParticle createParticle(ShimmerShieldParticleOptions pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            return LibClient.manager.addShield(pType.getUUID(), new ShimmerShieldParticle(pLevel, pType.getMinColor(), pType.getMaxColor(), pLevel.getEntity(pType.getEntityId()), pType.getMaxElements(), pType.getMinRegenTime(), pType.getMaxRegenTime(), pType.getMaxSpeed(), pType.getMaxLifeTime(), pType.getMinLifeTime()));
+        public TextureSheetParticle createParticle(ShimmerShieldParticleOptions pType, @NotNull ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+            return new ShimmerShieldParticle(pLevel, pType.getMinColor(), pType.getMaxColor(), pLevel.getEntity(pType.getEntityId()), pType.getMaxElements(), pType.getMinRegenTime(), pType.getMaxRegenTime(), pType.getMaxSpeed(), pType.getMaxLifeTime(), pType.getMinLifeTime());
         }
     }
 }

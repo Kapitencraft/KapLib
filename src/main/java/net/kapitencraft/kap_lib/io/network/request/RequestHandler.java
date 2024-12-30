@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.io.network.request;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import org.slf4j.Marker;
 
 import java.util.HashMap;
@@ -26,7 +26,7 @@ public class RequestHandler {
             requests.put(nextEmpty, consumer);
             nextEmpty = getNextEmpty(nextEmpty);
         } catch (Exception e) {
-            KapLibMod.LOGGER.warn((Marker) Markers.REQUESTS, "unable to send request of type '{}': {}", ModRegistries.REQUESTABLES.getKey(requestable), e.getMessage());
+            KapLibMod.LOGGER.warn((Marker) Markers.REQUESTS, "unable to send request of type '{}': {}", ExtraRegistries.REQUESTABLES.getKey(requestable), e.getMessage());
         }
     }
 
