@@ -5,20 +5,20 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
-public class UsefulTextures {
-    public static final ResourceLocation CHECK_MARK = getGuiLocation("checkmark.png");
-    public static final ResourceLocation CROSS = KapLibMod.res("textures/gui/red_cross.png");
-    public static final ResourceLocation SLIDER = getGuiLocation("container/loom.png");
-    public static final ResourceLocation ARROWS = getGuiLocation("server_selection.png");
+public interface UsefulTextures {
+    ResourceLocation CHECK_MARK = getGuiLocation("checkmark.png");
+    ResourceLocation CROSS = KapLibMod.res("textures/gui/red_cross.png");
+    ResourceLocation SLIDER = getGuiLocation("container/loom.png");
+    ResourceLocation ARROWS = getGuiLocation("server_selection.png");
     private static ResourceLocation getGuiLocation(String path) {
         return new ResourceLocation("textures/gui/" + path);
     }
 
-    public static void renderCheckMark(GuiGraphics graphics, int checkBoxX, int checkBoxY) {
+    static void renderCheckMark(GuiGraphics graphics, int checkBoxX, int checkBoxY) {
         graphics.blit(CHECK_MARK, checkBoxX, checkBoxY, 0, 0, 0, 8, 8, 8, 8);
     }
 
-    public static void renderCross(GuiGraphics graphics, int x, int y, int size) {
+    static void renderCross(GuiGraphics graphics, int x, int y, int size) {
         graphics.pose().pushPose();
         graphics.pose().translate(x, y, 0);
         graphics.pose().scale(size / 8f, size / 7f, 0);
@@ -26,7 +26,7 @@ public class UsefulTextures {
         graphics.pose().popPose();
     }
 
-    public static void renderSlider(GuiGraphics graphics, int x, int y, boolean light, float scale) {
+    static void renderSlider(GuiGraphics graphics, int x, int y, boolean light, float scale) {
         graphics.pose().pushPose();
         graphics.pose().translate(x, y, 0);
         graphics.pose().scale(scale, scale, 0);
@@ -34,7 +34,7 @@ public class UsefulTextures {
         graphics.pose().popPose();
     }
 
-    public static void renderUpButton(GuiGraphics graphics, int pLeft, int pTop, boolean hovered, int size) {
+    static void renderUpButton(GuiGraphics graphics, int pLeft, int pTop, boolean hovered, int size) {
         graphics.pose().pushPose();
         graphics.pose().translate(pLeft, pTop, 0);
         float scale = size / 16f;
@@ -47,7 +47,7 @@ public class UsefulTextures {
         graphics.pose().popPose();
     }
 
-    public static void renderDownButton(GuiGraphics graphics, int pLeft, int pTop, boolean hovered, int size) {
+    static void renderDownButton(GuiGraphics graphics, int pLeft, int pTop, boolean hovered, int size) {
         graphics.pose().pushPose();
         graphics.pose().translate(pLeft, pTop - size, 0);
         graphics.pose().scale(size / 16f, size / 16f, 0);

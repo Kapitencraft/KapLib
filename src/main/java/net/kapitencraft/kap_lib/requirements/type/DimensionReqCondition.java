@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.requirements.type;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
-import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
+import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
 import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
 import net.minecraft.core.registries.Registries;
@@ -57,7 +57,7 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
     }
 
     @Override
-    public DataGenSerializer<DimensionReqCondition> getSerializer() {
+    public DataPackSerializer<DimensionReqCondition> getSerializer() {
         return RequirementTypes.DIMENSION.get();
     }
 }

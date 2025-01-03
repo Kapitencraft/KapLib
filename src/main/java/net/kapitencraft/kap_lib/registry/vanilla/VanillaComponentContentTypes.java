@@ -9,6 +9,8 @@ import net.minecraft.network.chat.contents.*;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.Optional;
+
 public interface VanillaComponentContentTypes {
 
     DeferredRegister<Codec<? extends ComponentContents>> REGISTRY = DeferredRegister.create(ExtraRegistryKeys.COMPONENT_CONTENTS_TYPES, "minecraft");
@@ -63,8 +65,8 @@ public interface VanillaComponentContentTypes {
     private static Codec<TranslatableContents> createTranslatable() {
         return RecordCodecBuilder.create(instance -> instance.group(
                 Codec.STRING.fieldOf("translate").forGetter(TranslatableContents::getKey),
-                Codec.STRING.optionalFieldOf("fallback", null).forGetter(TranslatableContents::getFallback),
+                Codec.STRING.optionalFieldOf("fallback").forGetter(c -> Optional.ofNullable(c.getFallback())),
                 ExtraCodecs.TRANSLATABLE_COMPONENT_ARGS.optionalFieldOf("with", TranslatableContents.NO_ARGS).forGetter(TranslatableContents::getArgs)
-        ).apply(instance, TranslatableContents::new));
+        ).apply(instance, (string, s, objects) -> new TranslatableContents(string, s.orElse(null), objects)));
     }
 }

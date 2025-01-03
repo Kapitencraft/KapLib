@@ -29,11 +29,6 @@ public class ModMessages {
         PACKET_HANDLER.sendToServer(message);
     }
 
-
-    public static <MSG> void sendToClient(MSG message, ServerPlayer player) {
-        PACKET_HANDLER.send(PacketDistributor.PLAYER.with(()-> player), message);
-    }
-
     public static <MSG> void sendToClientPlayer(MSG message, ServerPlayer player) {
         PACKET_HANDLER.sendTo(message, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
@@ -53,6 +48,7 @@ public class ModMessages {
         ModEventFactory.fireModEvent(new RegisterRequestEvent(PACKET_HANDLER, messageID));
         addMessage(SyncRequirementsPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncRequirementsPacket::new);
         addMessage(DisplayTotemActivationPacket.class, NetworkDirection.PLAY_TO_CLIENT, DisplayTotemActivationPacket::new);
+        addMessage(SendParticleAnimationPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendParticleAnimationPacket::new);
     }
 
 

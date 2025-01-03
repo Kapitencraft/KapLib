@@ -61,6 +61,18 @@ public interface CollectionHelper {
     }
 
     /**
+     * @param src the array to search
+     * @param obj the object to find
+     * @return the index of the object in the array, or {@code -1} if it wasn't contained
+     */
+    static <T> int index(T[] src, T obj) {
+        for (int i = 0; i < src.length; i++) {
+            if (src[i].equals(obj)) return i;
+        }
+        return -1;
+    }
+
+    /**
      * @return a new, modifiable list
      */
     static <T> List<T> mutableList(Collection<T> immutable) {

@@ -1,12 +1,12 @@
 package net.kapitencraft.kap_lib.client;
 
 import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
-import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimationAcceptor;
+import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimationManager;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.request.RequestHandler;
 
 /**
- * client handler for much information
+ * client handler for cached information
  */
 public interface LibClient {
 
@@ -23,7 +23,7 @@ public interface LibClient {
     RequestHandler handler = new RequestHandler(ModMessages::sendToServer);
 
     /**
-     * handles ParticleAnimations either clientside or synced from the server
+     * handles particle animations
      */
-    ParticleAnimationAcceptor acceptor = new ParticleAnimationAcceptor();
+    ParticleAnimationManager particleManager = new ParticleAnimationManager();
 }

@@ -13,7 +13,7 @@ import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
-import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
+import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.requirements.BonusRequirementType;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
@@ -163,7 +163,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             ResourceLocation itemLocation = new ResourceLocation(GsonHelper.getAsString(main, "item"));
             Item item = ForgeRegistries.ITEMS.getValue(itemLocation);
             if (item == null) throw new IllegalArgumentException("unknown Item: " + itemLocation);
-            DataGenSerializer<? extends Bonus<?>> serializer = readFromString(GsonHelper.getAsString(main, "type"));
+            DataPackSerializer<? extends Bonus<?>> serializer = readFromString(GsonHelper.getAsString(main, "type"));
 
             Bonus<?> bonus = serializer.deserialize(main.get("data"));
             boolean hidden = main.has("hidden") && GsonHelper.getAsBoolean(main, "hidden");
@@ -193,7 +193,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return components;
     }
 
-    private static DataGenSerializer<? extends Bonus<?>> readFromString(String string) {
+    private static DataPackSerializer<? extends Bonus<?>> readFromString(String string) {
         return ExtraRegistries.BONUS_SERIALIZER.getValue(new ResourceLocation(string));
     }
 
@@ -227,7 +227,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                 });
             }
             //read Set Type and configuration
-            DataGenSerializer<? extends Bonus<?>> serializer = readFromString(GsonHelper.getAsString(main, "type"));
+            DataPackSerializer<? extends Bonus<?>> serializer = readFromString(GsonHelper.getAsString(main, "type"));
 
             Bonus<?> bonus = serializer.deserialize(main.get("data"));
             boolean hidden = main.has("hidden") && GsonHelper.getAsBoolean(main, "hidden");

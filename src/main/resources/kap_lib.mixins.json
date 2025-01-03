@@ -10,10 +10,10 @@
     "client.ChatScreenMixin",
     "client.ClientTooltipPositionerMixin",
     "client.EnchantedBookItemMixin",
-    "client.EntityClientMixin",
     "client.FontSetMixin",
     "client.FontTextureMixin",
     "client.ItemStackMixin",
+    "client.ParticleEngineMixin",
     "client.RecipeBookComponentMixin",
     "client.ShaderInstanceMixin",
     "client.StringRenderOutputMixin"

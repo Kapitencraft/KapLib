@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
+import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
 import net.kapitencraft.kap_lib.item.IEventListener;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
@@ -22,7 +22,7 @@ import java.util.Objects;
 
 public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventListener {
 
-    static <T extends Bonus<T>> DataGenSerializer<T> createSerializer(Codec<T> codec, FriendlyByteBuf.Reader<T> factory) {
+    static <T extends Bonus<T>> DataPackSerializer<T> createSerializer(Codec<T> codec, FriendlyByteBuf.Reader<T> factory) {
         return IDataGenElement.createSerializer(codec, factory);
     }
 
@@ -58,7 +58,7 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
         return null;
     }
 
-    DataGenSerializer<T> getSerializer();
+    DataPackSerializer<T> getSerializer();
 
     /**
      * @param tickCount the count of ticks since this bonus has been activated

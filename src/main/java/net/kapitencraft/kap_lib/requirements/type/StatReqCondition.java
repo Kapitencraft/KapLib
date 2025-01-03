@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.requirements.type;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
+import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
 import net.kapitencraft.kap_lib.requirements.type.abstracts.CountCondition;
 import net.minecraft.client.player.LocalPlayer;
@@ -103,7 +103,7 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
     }
 
     @Override
-    public DataGenSerializer<StatReqCondition> getSerializer() {
+    public DataPackSerializer<StatReqCondition> getSerializer() {
         return RequirementTypes.STAT_REQ.get();
     }
 

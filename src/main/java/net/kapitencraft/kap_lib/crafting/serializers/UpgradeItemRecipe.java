@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.crafting.serializers;
 
 import com.google.gson.JsonObject;
-import net.kapitencraft.kap_lib.registry.ModRecipeSerializers;
+import net.kapitencraft.kap_lib.registry.ExtraRecipeSerializers;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -84,7 +84,7 @@ public class UpgradeItemRecipe extends CustomRecipe {
 
     @Override
     public @NotNull RecipeSerializer<UpgradeItemRecipe> getSerializer() {
-        return ModRecipeSerializers.UPGRADE_ITEM.get();
+        return ExtraRecipeSerializers.UPGRADE_ITEM.get();
     }
 
     private interface PositionPredicate {

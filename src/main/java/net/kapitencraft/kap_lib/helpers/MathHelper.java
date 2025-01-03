@@ -434,4 +434,16 @@ public interface MathHelper {
     static float randomBetween(RandomSource source, float min, float max) {
         return Mth.lerp(source.nextFloat(), min, max);
     }
+
+    static double randomBetween(RandomSource source, double min, double max) {
+        return Mth.lerp(source.nextDouble(), min, max);
+    }
+
+    static Vec3 randomBetween(RandomSource source, Vec3 min, Vec3 max) {
+        return new Vec3(
+                randomBetween(source, min.x, max.x),
+                randomBetween(source, min.y, max.y),
+                randomBetween(source, min.z, max.z)
+        );
+    }
 }

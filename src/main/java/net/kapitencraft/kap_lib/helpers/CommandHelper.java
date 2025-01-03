@@ -3,13 +3,15 @@ package net.kapitencraft.kap_lib.helpers;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.kapitencraft.kap_lib.commands.OverlaysCommand;
-import net.kapitencraft.kap_lib.commands.TestCommand;
+import net.kapitencraft.kap_lib.commands.ClientTestCommand;
+import net.kapitencraft.kap_lib.commands.ServerTestCommand;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +25,12 @@ public interface CommandHelper {
     static void registerClient(RegisterClientCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         OverlaysCommand.register(dispatcher);
-        TestCommand.register(dispatcher);
+        ClientTestCommand.register(dispatcher);
+    }
+
+    @ApiStatus.Internal
+    static void registerServer(RegisterCommandsEvent event) {
+        ServerTestCommand.register(event.getDispatcher());
     }
 
     /**

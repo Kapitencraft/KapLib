@@ -137,13 +137,7 @@ public class DamageEvents {
         }
         double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIVE_STEAL.get(), attacker);
         if (liveSteal != -1) {
-            ParticleHelper.sendParticles(new ParticleAnimationOptions(
-                    new DustParticleOptions(Vec3.fromRGB24(0x820000).toVector3f(), 1.9f),
-                    ParticleAnimationParameters.create().withParam(ParticleAnimParams.TARGET, attacker.getId()),
-                    ParticleAnimationInfo.create(Map.of(50, ParticleAnimations.MOVE_TO)),
-                    5
-            ), false, attacked, 5, attacked.getBbWidth(), attacked.getBbHeight(), attacked.getBbWidth(), 0.1);
-
+            //TODO add life-steal particle code
             attacker.heal(Math.min((float) liveSteal, event.getAmount()));
         }
     }

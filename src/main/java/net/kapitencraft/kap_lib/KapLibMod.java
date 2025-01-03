@@ -3,11 +3,15 @@ package net.kapitencraft.kap_lib;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
-import net.kapitencraft.kap_lib.crafting.ModRecipeTypes;
+import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
 import net.kapitencraft.kap_lib.registry.custom.SetBonusTypes;
 import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
+import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
+import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
+import net.kapitencraft.kap_lib.registry.custom.particle_animation.FinalizerTypes;
+import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaComponentContentTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaDataSourceTypes;
@@ -17,12 +21,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.StartupMessageManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
@@ -50,15 +56,21 @@ public class KapLibMod
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        RequirementTypes.REGISTRY.register(modEventBus);
-        SetBonusTypes.REGISTRY.register(modEventBus);
         ExtraAttributes.REGISTRY.register(modEventBus);
         ExtraLootModifiers.REGISTRY.register(modEventBus);
         ExtraLootItemConditions.REGISTRY.register(modEventBus);
         ExtraParticleTypes.REGISTRY.register(modEventBus);
+        ExtraRecipeSerializers.REGISTRY.register(modEventBus);
+        ExtraRecipeTypes.REGISTRY.register(modEventBus);
+
+        RequirementTypes.REGISTRY.register(modEventBus);
+        SetBonusTypes.REGISTRY.register(modEventBus);
         GlyphEffects.REGISTRY.register(modEventBus);
-        ModRecipeSerializers.REGISTRY.register(modEventBus);
-        ModRecipeTypes.REGISTRY.register(modEventBus);
+
+        ElementTypes.REGISTRY.register(modEventBus);
+        SpawnerTypes.REGISTRY.register(modEventBus);
+        FinalizerTypes.REGISTRY.register(modEventBus);
+        TerminatorTypes.REGISTRY.register(modEventBus);
 
         VanillaAttributeModifierTypes.REGISTRY.register(modEventBus);
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);
@@ -70,8 +82,11 @@ public class KapLibMod
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
 
         MinecraftForge.EVENT_BUS.addListener(CommandHelper::registerClient);
+        MinecraftForge.EVENT_BUS.addListener(CommandHelper::registerServer);
 
-        ArtifactVersion modVersion = ModList.get().getModContainerById(KapLibMod.MOD_ID).get().getModInfo().getVersion();
+        ArtifactVersion modVersion = ModList.get().getModContainerById(KapLibMod.MOD_ID).map(ModContainer::getModInfo).map(IModInfo::getVersion).orElse(null);
+
+        if (modVersion == null) throw new IllegalStateException("kap lib version not found");
 
         StartupMessageManager.addModMessage("KapLib Mod v" + modVersion + " loaded");
         LOGGER.info(MARKER, "KapLib v{} loaded", modVersion);

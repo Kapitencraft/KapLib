@@ -6,7 +6,7 @@ import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
-import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
+import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
@@ -88,7 +88,7 @@ public abstract class BonusProvider implements DataProvider {
             main.addProperty("hidden", true);
         }
         {
-            DataGenSerializer<T> serializer = bonus.getSerializer();
+            DataPackSerializer<T> serializer = bonus.getSerializer();
             main.add("data", serializer.serialize(bonus));
         }
 

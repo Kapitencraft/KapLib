@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.item.bonus.type;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.io.serialization.DataGenSerializer;
+import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.registry.custom.SetBonusTypes;
 import net.minecraft.ChatFormatting;
@@ -45,7 +45,7 @@ public class SimpleSetMobEffect implements Bonus<SimpleSetMobEffect> {
     private final List<MobEffectInstance> effects = new ArrayList<>();
 
     @Override
-    public DataGenSerializer<SimpleSetMobEffect> getSerializer() {
+    public DataPackSerializer<SimpleSetMobEffect> getSerializer() {
         return SetBonusTypes.SIMPLE_MOB_EFFECT.get();
     }
 

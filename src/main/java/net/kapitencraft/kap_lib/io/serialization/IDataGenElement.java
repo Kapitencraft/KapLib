@@ -10,12 +10,12 @@ import net.minecraft.network.FriendlyByteBuf;
  */
 public interface IDataGenElement<T extends IDataGenElement<T>> {
 
-    static <T extends IDataGenElement<T>> DataGenSerializer<T> createSerializer(Codec<T> codec, FriendlyByteBuf.Reader<T> factory) {
-        return new DataGenSerializer<>(codec, factory, (buf, t) -> t.toNetwork(buf));
+    static <T extends IDataGenElement<T>> DataPackSerializer<T> createSerializer(Codec<T> codec, FriendlyByteBuf.Reader<T> factory) {
+        return new DataPackSerializer<>(codec, factory, (buf, t) -> t.toNetwork(buf));
     }
 
     static <T extends IDataGenElement<T>> T fromNetwork(FriendlyByteBuf buf) {
-        DataGenSerializer<T> serializer = buf.readRegistryId();
+        DataPackSerializer<T> serializer = buf.readRegistryId();
         return serializer.fromNetwork(buf);
     }
 
@@ -28,7 +28,7 @@ public interface IDataGenElement<T extends IDataGenElement<T>> {
      */
     JsonObject toJson();
 
-    DataGenSerializer<T> getSerializer();
+    DataPackSerializer<T> getSerializer();
 
     void additionalToNetwork(FriendlyByteBuf buf);
 

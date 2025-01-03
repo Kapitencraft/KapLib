@@ -4,11 +4,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.kapitencraft.kap_lib.collection.MapStream;
-import net.kapitencraft.kap_lib.crafting.ModRecipeTypes;
+import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
 import net.kapitencraft.kap_lib.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
-import net.kapitencraft.kap_lib.registry.ModRecipeSerializers;
+import net.kapitencraft.kap_lib.registry.ExtraRecipeSerializers;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -74,7 +74,7 @@ public class ArmorRecipe extends CustomRecipe {
 
     @Override
     public @NotNull RecipeType<?> getType() {
-        return ModRecipeTypes.ARMOR_RECIPE.get();
+        return ExtraRecipeTypes.ARMOR_RECIPE.get();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ArmorRecipe extends CustomRecipe {
 
     @Override
     public @NotNull RecipeSerializer<?> getSerializer() {
-        return ModRecipeSerializers.ARMOR.get();
+        return ExtraRecipeSerializers.ARMOR.get();
     }
 
     public enum ArmorType implements StringRepresentable {
