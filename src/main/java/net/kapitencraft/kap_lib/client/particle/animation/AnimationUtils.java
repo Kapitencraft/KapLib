@@ -26,7 +26,7 @@ public interface AnimationUtils {
 
         return ParticleAnimation.builder()
                 .spawn(spawner
-                ).spawnTime();
+                ).spawnTime(ParticleAnimation.SpawnTime.once());
     }
 
     private static Vec3 point(float angle) {

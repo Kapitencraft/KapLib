@@ -207,7 +207,7 @@ public class ParticleAnimation {
             this.max = max;
         }
 
-        public static SpawnTime none() {
+        public static SpawnTime once() {
             return new SpawnTime(-1, -1);
         }
 
