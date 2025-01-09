@@ -27,7 +27,7 @@ public class TrackingSpawner extends Spawner {
 
     @Override
     public void spawn(ParticleSpawnSink sink) {
-        sink.accept(particle, target.pos());
+        sink.accept(particle, target.get());
     }
 
     @Override

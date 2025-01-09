@@ -16,7 +16,7 @@ public class EntityPositionTarget implements PositionTarget {
     }
 
     @Override
-    public Vec3 pos() {
+    public Vec3 get() {
         return ClientHelper.getEntity(target).position();
     }
 

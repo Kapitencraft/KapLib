@@ -53,7 +53,7 @@ public class RingSpawner extends Spawner {
                 case Y -> new Vec3(sin, curHeightChange, cos);
                 case Z -> new Vec3(sin, cos, curHeightChange);
             };
-            Vec3 targetPos = targetOffset.add(target.pos());
+            Vec3 targetPos = targetOffset.add(target.get());
             sink.accept(particle, targetPos);
             curRot += rotPerTick;
             if (heightChangePerTick > 0) applyHeightChange();

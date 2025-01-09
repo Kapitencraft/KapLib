@@ -32,7 +32,7 @@ public class MoveAwayElement implements AnimationElement {
 
     @Override
     public void tick(ParticleConfig object, int tick) {
-        Vec3 relative = object.pos().subtract(target.pos());
+        Vec3 relative = object.pos().subtract(target.get());
         object.setPos(
                 object.pos().add(MathHelper.clampLength(relative, relative.length() + speed))
         );

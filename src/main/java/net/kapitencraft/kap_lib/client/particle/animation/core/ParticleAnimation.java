@@ -37,7 +37,7 @@ public class ParticleAnimation {
 
     private ParticleAnimation(Builder builder) {
         if (builder.minSpawnDelay > builder.maxSpawnDelay) throw new IllegalStateException("minimum spawn delay must be smaller than maximum spawn delay");
-        if (builder.minSpawnDelay <= 0) throw new IllegalStateException("minimum spawn delay must be above 0");
+        if (builder.minSpawnDelay < -1 || builder.minSpawnDelay == 0) throw new IllegalStateException("minimum spawn delay must be above 0 or -1");
         this.elements = builder.elements.toArray(new AnimationElement[0]);
         this.finalizer = Objects.requireNonNull(builder.finalizer, "animations must have a finalizer");
         this.spawner = Objects.requireNonNull(builder.spawner, "animations must have a spawner");
@@ -117,18 +117,24 @@ public class ParticleAnimation {
 
         /**
          * sets the minimum amount of ticks between particle spawns
+         * use {@link #spawnTime(SpawnTime)}
          */
-        public Builder minSpawnTickTime(int minTickTime) {
+        private Builder minSpawnTickTime(int minTickTime) {
             minSpawnDelay = minTickTime;
             return this;
         }
 
         /**
          * sets the maximum amount of ticks between particle spawns
+         * use {@link #spawnTime(SpawnTime)}
          */
-        public Builder maxSpawnTickTime(int maxSpawnTickTime) {
+        private Builder maxSpawnTickTime(int maxSpawnTickTime) {
             this.maxSpawnDelay = maxSpawnTickTime;
             return this;
+        }
+
+        public Builder spawnTime(SpawnTime time) {
+            return minSpawnTickTime(time.min).maxSpawnTickTime(time.max);
         }
 
         /**
@@ -190,6 +196,27 @@ public class ParticleAnimation {
         @OnlyIn(Dist.CLIENT)
         public void register() {
             LibClient.particleManager.accept(this.build());
+        }
+    }
+
+    public static class SpawnTime {
+        private final int min, max;
+
+        public SpawnTime(int min, int max) {
+            this.min = min;
+            this.max = max;
+        }
+
+        public static SpawnTime none() {
+            return new SpawnTime(-1, -1);
+        }
+
+        public static SpawnTime absolute(int time) {
+            return new SpawnTime(time, time);
+        }
+
+        public static SpawnTime range(int min, int max) {
+            return new SpawnTime(min, max);
         }
     }
 

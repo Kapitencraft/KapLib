@@ -29,6 +29,7 @@ public abstract class Spawner {
         return type.fromNw(buf, Minecraft.getInstance().level);
     }
 
+    @SuppressWarnings("unchecked")
     @ApiStatus.Internal
     public static <T extends Spawner> void toNw(FriendlyByteBuf buf, T element) {
         Spawner.Type<T> type = Objects.requireNonNull((Spawner.Type<T>) element.getType(), "element " + element + " does not declare type!");

@@ -44,7 +44,7 @@ public class ParticleAnimator {
 
     @ApiStatus.Internal
     public void tick(RandomSource source) {
-        if (currentSpawnDelay <= 0) {
+        if (currentSpawnDelay == 0) {
             animation.spawnTick(sink);
             currentSpawnDelay = Mth.randomBetweenInclusive(source, animation.minSpawnDelay, animation.maxSpawnDelay);
         }

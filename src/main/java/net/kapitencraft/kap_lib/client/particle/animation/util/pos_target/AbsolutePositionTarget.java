@@ -4,7 +4,7 @@ import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 
-public record AbsolutePositionTarget(Vec3 pos) implements PositionTarget {
+public record AbsolutePositionTarget(Vec3 get) implements PositionTarget {
 
     @Override
     public Types getType() {
@@ -15,7 +15,7 @@ public record AbsolutePositionTarget(Vec3 pos) implements PositionTarget {
 
         @Override
         public void toNw(FriendlyByteBuf buf, AbsolutePositionTarget val) {
-            NetworkHelper.writeVec3(buf, val.pos);
+            NetworkHelper.writeVec3(buf, val.get);
         }
 
         @Override
@@ -26,6 +26,6 @@ public record AbsolutePositionTarget(Vec3 pos) implements PositionTarget {
 
     @Override
     public String toString() {
-        return "AbsolutePositionTarget@" + pos;
+        return "AbsolutePositionTarget@" + get;
     }
 }

@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * position target interface
  * provides positions for spawning / moving particles
  */
-public interface PositionTarget {
+public interface PositionTarget extends Supplier<Vec3> {
 
     static PositionTarget fromNw(FriendlyByteBuf buf) {
         Types t = Types.values()[buf.readInt()];
@@ -25,6 +25,10 @@ public interface PositionTarget {
         return new AbsolutePositionTarget(pos);
     }
 
+    static PositionTarget relative(PositionTarget pos, Vec3 offset) {
+        return new RelativePositionTarget(pos, offset);
+    }
+
     /**
      * @return a position target tracking the entity's position
      */
@@ -35,7 +39,7 @@ public interface PositionTarget {
     /**
      * @return the current position
      */
-    Vec3 pos();
+    Vec3 get();
 
     Types getType();
 
@@ -45,7 +49,8 @@ public interface PositionTarget {
 
     enum Types implements IExtensibleEnum {
         ENTITY(EntityPositionTarget.Type::new),
-        POS(AbsolutePositionTarget.Type::new);
+        POS(AbsolutePositionTarget.Type::new),
+        RELATIVE(RelativePositionTarget.Type::new);
 
         private final Type<? extends PositionTarget> type;
 
