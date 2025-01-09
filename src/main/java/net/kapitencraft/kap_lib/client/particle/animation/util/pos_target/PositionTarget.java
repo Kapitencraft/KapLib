@@ -29,7 +29,7 @@ public interface PositionTarget {
      * @return a position target tracking the entity's position
      */
     static PositionTarget entity(Entity entity) {
-        return new EntityPositionTarget(entity);
+        return new EntityPositionTarget(entity.getId());
     }
 
     /**

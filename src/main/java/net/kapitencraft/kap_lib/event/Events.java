@@ -1,10 +1,5 @@
 package net.kapitencraft.kap_lib.event;
 
-import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimation;
-import net.kapitencraft.kap_lib.client.particle.animation.finalizers.SetLifeTimeFinalizer;
-import net.kapitencraft.kap_lib.client.particle.animation.spawners.RingSpawner;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminator;
-import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.collection.Queue;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
@@ -15,7 +10,6 @@ import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

@@ -7,6 +7,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 
 public class ExtraTags {
 
@@ -38,6 +39,14 @@ public class ExtraTags {
 
         private static TagKey<EntityType<?>> forgeKey(String path) {
             return TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation("forge", path));
+        }
+    }
+
+    public interface Blocks {
+        TagKey<Block> VANILLA_GOLEM_HEADS = vanillaKey("golem_heads");
+
+        static TagKey<Block> vanillaKey(String path) {
+            return TagKey.create(Registries.BLOCK, new ResourceLocation(path));
         }
     }
 }

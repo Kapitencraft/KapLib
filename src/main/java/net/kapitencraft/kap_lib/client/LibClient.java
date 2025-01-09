@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.client;
 
 import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
-import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimationManager;
+import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimationManager;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.request.RequestHandler;
 

@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
@@ -32,6 +33,7 @@ public interface ModRegistryBuilders {
     RegistryBuilder<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = makeBuilder(ExtraRegistryKeys.SPAWN_ELEMENT_TYPES);
     RegistryBuilder<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = makeBuilder(ExtraRegistryKeys.TERMINATOR_TYPES);
     RegistryBuilder<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = makeBuilder(ExtraRegistryKeys.FINALIZER_TYPES);
+    RegistryBuilder<ActivationTrigger<?>> ACTIVATION_LISTENER_TYPES = makeBuilder(ExtraRegistryKeys.ACTIVATION_TRIGGERS);
 
     private static <T> RegistryBuilder<T> makeBuilder(ResourceKey<Registry<T>> location) {
         return new RegistryBuilder<T>().setName(location.location());

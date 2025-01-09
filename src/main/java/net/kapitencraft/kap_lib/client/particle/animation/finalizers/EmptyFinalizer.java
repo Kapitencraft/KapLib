@@ -42,4 +42,9 @@ public class EmptyFinalizer implements ParticleFinalizer {
             return INSTANCE;
         }
     }
+
+    @Override
+    public String toString() {
+        return "EMPTY";
+    }
 }

@@ -43,4 +43,9 @@ public class RemoveParticleFinalizer implements ParticleFinalizer {
             return INSTANCE;
         }
     }
+
+    @Override
+    public String toString() {
+        return "REMOVE";
+    }
 }

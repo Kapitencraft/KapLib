@@ -14,6 +14,9 @@ import net.minecraft.world.level.Level;
 
 import java.util.List;
 
+/**
+ * example Requirement provider
+ */
 public class ModRequirementProvider extends RequirementProvider<Item> {
 
     protected ModRequirementProvider(PackOutput output) {

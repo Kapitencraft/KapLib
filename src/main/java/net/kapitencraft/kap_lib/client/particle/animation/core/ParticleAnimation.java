@@ -1,16 +1,17 @@
-package net.kapitencraft.kap_lib.client.particle.animation;
+package net.kapitencraft.kap_lib.client.particle.animation.core;
 
+import com.google.common.base.Preconditions;
 import net.kapitencraft.kap_lib.client.LibClient;
-import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimator;
-import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
+import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.TriggerInstance;
+import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SendParticleAnimationPacket;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.client.particle.animation.modifiers.AnimationElement;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
+import net.minecraft.CrashReport;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +31,7 @@ public class ParticleAnimation {
     private final AnimationElement[] elements;
     private final ParticleFinalizer finalizer;
     private final AnimationTerminator terminator;
+    private final TriggerInstance[] activationTriggers;
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
 
@@ -41,15 +44,17 @@ public class ParticleAnimation {
         this.terminator = Objects.requireNonNull(builder.terminator, "animations must have a terminator");
         this.maxSpawnDelay = builder.maxSpawnDelay;
         this.minSpawnDelay = builder.minSpawnDelay;
+        this.activationTriggers = Objects.requireNonNull(builder.activationTriggers.toArray(TriggerInstance[]::new));
     }
 
-    private ParticleAnimation(AnimationElement[] elements, ParticleFinalizer finalizer, AnimationTerminator terminator, Spawner spawner, int minSpawnDelay, int maxSpawnDelay) {
+    private ParticleAnimation(AnimationElement[] elements, ParticleFinalizer finalizer, AnimationTerminator terminator, Spawner spawner, int minSpawnDelay, int maxSpawnDelay, TriggerInstance[] activationTriggers) {
         this.elements = elements;
         this.finalizer = finalizer;
         this.terminator = terminator;
         this.spawner = spawner;
         this.minSpawnDelay = minSpawnDelay;
         this.maxSpawnDelay = maxSpawnDelay;
+        this.activationTriggers = activationTriggers;
     }
 
     public static Builder builder() {
@@ -72,6 +77,21 @@ public class ParticleAnimation {
         this.spawner.spawn(sink);
     }
 
+    public TriggerInstance[] getTriggers() {
+        return activationTriggers;
+    }
+
+    public void fillCrashReport(CrashReport report) {
+        report.addCategory("Animation")
+                .setDetail("Elements", Arrays.toString(this.elements))
+                .setDetail("Particle Finalizer", this.finalizer)
+                .setDetail("Terminator", this.terminator)
+                .setDetail("Activation Triggers", Arrays.toString(this.activationTriggers))
+                .setDetail("Spawner", this.spawner)
+                .setDetail("minSpawnDelay", this.minSpawnDelay)
+                .setDetail("maxSpawnDelay", this.maxSpawnDelay);
+    }
+
     /**
      * particle animation builder. create using {@link #builder()}
      */
@@ -81,6 +101,7 @@ public class ParticleAnimation {
         private ParticleFinalizer finalizer;
         private AnimationTerminator terminator;
         private int minSpawnDelay, maxSpawnDelay;
+        private final List<TriggerInstance> activationTriggers = new ArrayList<>();
 
         private Builder() {}
 
@@ -90,6 +111,7 @@ public class ParticleAnimation {
          */
         public Builder spawn(Spawner.Builder<?> spawn) {
             spawner = spawn.build();
+            Preconditions.checkNotNull(spawner.getType(), "Spawner without Type detected!");
             return this;
         }
 
@@ -114,6 +136,7 @@ public class ParticleAnimation {
          */
         public Builder finalizes(ParticleFinalizer.Builder finalizerBuilder) {
             this.finalizer = finalizerBuilder.build();
+            Preconditions.checkNotNull(this.finalizer.getType(), "Finalizer without type detected!");
             return this;
         }
 
@@ -122,6 +145,13 @@ public class ParticleAnimation {
          */
         public Builder terminatedWhen(AnimationTerminator.Builder terminator) {
             this.terminator = terminator.build();
+            Preconditions.checkNotNull(this.terminator.getType(), "Terminator without type detected!");
+            return this;
+        }
+
+        public Builder activatedOn(TriggerInstance activationListener) {
+            this.activationTriggers.add(activationListener);
+            Preconditions.checkNotNull(activationListener.getTrigger(), "Activation Listener without trigger detected!");
             return this;
         }
 
@@ -170,13 +200,11 @@ public class ParticleAnimation {
     public void toNW(FriendlyByteBuf buf) {
         buf.writeInt(this.minSpawnDelay);
         buf.writeInt(this.maxSpawnDelay);
-        buf.writeInt(elements.length);
-        for (AnimationElement e : elements) {
-            AnimationElement.toNw(buf, e);
-        }
+        NetworkHelper.writeArray(buf, elements, AnimationElement::toNw);
         Spawner.toNw(buf, this.spawner);
         ParticleFinalizer.toNw(buf, this.finalizer);
         AnimationTerminator.toNw(buf, this.terminator);
+        NetworkHelper.writeArray(buf, this.activationTriggers, ActivationTrigger::writeToNw);
     }
 
     /**
@@ -186,15 +214,15 @@ public class ParticleAnimation {
     public static ParticleAnimation fromNw(FriendlyByteBuf buf) {
         int minSpawnDelay = buf.readInt();
         int maxSpawnDelay = buf.readInt();
-        AnimationElement[] elements = new AnimationElement[buf.readInt()];
-        for (int i = 0; i < elements.length; i++) {
-            elements[i] = AnimationElement.fromNw(buf);
-        }
+        AnimationElement[] elements = NetworkHelper.readArray(buf, AnimationElement[]::new, AnimationElement::fromNw);
+
         Spawner spawner = Spawner.fromNw(buf);
         ParticleFinalizer finalizer = ParticleFinalizer.fromNw(buf);
         AnimationTerminator terminator = AnimationTerminator.fromNw(buf);
 
-        return new ParticleAnimation(elements, finalizer, terminator, spawner, minSpawnDelay, maxSpawnDelay);
+        TriggerInstance[] triggers = NetworkHelper.readArray(buf, TriggerInstance[]::new, ActivationTrigger::readFromNw);
+
+        return new ParticleAnimation(elements, finalizer, terminator, spawner, minSpawnDelay, maxSpawnDelay, triggers);
     }
 
     @ApiStatus.Internal

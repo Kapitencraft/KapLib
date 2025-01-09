@@ -1,0 +1,4 @@
+//TODO fix Command block crash
+//TODO fix
+moved ParticleAnimation and ParticleAnimationManager into 'core' package
+moved Vanilla Golem heads (Carved Pumpkin, Jack O' Lantern) to tag ExtraTags.Blocks.VANILLA_GOLEM_HEADS

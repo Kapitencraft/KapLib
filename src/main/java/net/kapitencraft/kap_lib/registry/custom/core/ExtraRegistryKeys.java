@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.registry.custom.core;
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
@@ -35,6 +36,7 @@ public interface ExtraRegistryKeys {
     ResourceKey<Registry<Spawner.Type<?>>> SPAWN_ELEMENT_TYPES = createRegistry("particle_animation/spawn_types");
     ResourceKey<Registry<ParticleFinalizer.Type<?>>> FINALIZER_TYPES = createRegistry("particle_animation/finalizer_types");
     ResourceKey<Registry<AnimationTerminator.Type<?>>> TERMINATOR_TYPES = createRegistry("particle_animation/terminator_types");
+    ResourceKey<Registry<ActivationTrigger<?>>> ACTIVATION_TRIGGERS = createRegistry("particle_animation/activation_triggers");
 
     private static <T> ResourceKey<Registry<T>> createRegistry(String id) {
         return ResourceKey.createRegistryKey(KapLibMod.res(id));

@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.client.particle.animation.core;
 
 import net.kapitencraft.kap_lib.helpers.CollectionHelper;
-import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimation;
 import net.kapitencraft.kap_lib.client.particle.animation.modifiers.AnimationElement;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.world.phys.Vec3;

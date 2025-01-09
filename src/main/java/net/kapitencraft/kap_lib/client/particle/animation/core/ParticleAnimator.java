@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.client.particle.animation.core;
 
-import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimation;
+import net.minecraft.CrashReport;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -59,5 +59,13 @@ public class ParticleAnimator {
     @ApiStatus.Internal
     public boolean beenTerminated() {
         return this.animation.terminated(this);
+    }
+
+    public void fillCrashReport(CrashReport report) {
+        report.addCategory("Animator")
+                .setDetail("runningTicks", this.runningTicks)
+                .setDetail("currentSpawnDelay", this.currentSpawnDelay)
+                .setDetail("Particles", this.particles);
+        this.animation.fillCrashReport(report);
     }
 }

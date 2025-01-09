@@ -35,6 +35,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -233,4 +234,20 @@ public class ClientHelper {
         return Objects.requireNonNull(Minecraft.getInstance().screen, "active screen is null!").height;
     }
 
+    public static @NotNull Entity getEntity(int id) {
+        return Objects.requireNonNull(
+                Objects.requireNonNull(
+                        Minecraft.getInstance().level,
+                        "Client Level is null!"
+                ).getEntity(id),
+                "missing entity with id " + id
+        );
+    }
+
+    public static @Nullable Entity getNullableEntity(int id) {
+        return Objects.requireNonNull(
+                Minecraft.getInstance().level,
+                "Client Level is null!"
+        ).getEntity(id);
+    }
 }

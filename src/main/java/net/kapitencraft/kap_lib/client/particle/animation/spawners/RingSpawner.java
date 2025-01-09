@@ -19,34 +19,35 @@ public class RingSpawner extends Spawner {
     private final PositionTarget target;
     private float curRot, curHeightChange;
     private boolean rising;
-    private final float rotPerTick, maxHeight, heightChangePerTick, distance;
+    private final float rotPerTick, maxHeight, heightChangePerTick, radius;
     private final float angleBetweenSpawner;
     private final int spawnerCount;
     private final Direction.Axis axis;
 
-    private RingSpawner(PositionTarget target, ParticleOptions particle, Direction.Axis axis, float rotPerTick, float maxHeight, float heightChangePerTick, float distance, int spawnerCount) {
+    private RingSpawner(PositionTarget target, ParticleOptions particle, Direction.Axis axis, float rotPerTick, float maxHeight, float heightChangePerTick, float radius, int spawnerCount) {
         super(particle);
+        if (radius <= 0) throw new IllegalStateException("radius must be larger than 0!");
         this.target = Objects.requireNonNull(target, "no target specified!");
         this.axis = Objects.requireNonNull(axis, "no axis specified");
         this.rotPerTick = rotPerTick;
         this.maxHeight = maxHeight;
         this.heightChangePerTick = heightChangePerTick;
-        this.distance = distance;
+        this.radius = radius;
         this.spawnerCount = spawnerCount;
         this.angleBetweenSpawner = 360f / spawnerCount;
     }
 
     @Override
     public @NotNull Type getType() {
-        return SpawnerTypes.RING_SPAWN.get();
+        return SpawnerTypes.RING.get();
     }
 
     @SuppressWarnings("SuspiciousNameCombination")
     @Override
     public void spawn(ParticleSpawnSink sink) {
         for (int i = 0; i < spawnerCount; i++) {
-            double sin = Math.sin(Math.toRadians(curRot + angleBetweenSpawner * i)) * distance;
-            double cos = Math.cos(Math.toRadians(curRot + angleBetweenSpawner * i)) * distance;
+            double sin = Math.sin(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
+            double cos = Math.cos(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
             Vec3 targetOffset = switch (axis) {
                 case X -> new Vec3(curHeightChange, sin, cos);
                 case Y -> new Vec3(sin, curHeightChange, cos);
@@ -97,7 +98,7 @@ public class RingSpawner extends Spawner {
             buf.writeFloat(value.rotPerTick);
             buf.writeFloat(value.maxHeight);
             buf.writeFloat(value.heightChangePerTick);
-            buf.writeFloat(value.distance);
+            buf.writeFloat(value.radius);
             buf.writeInt(value.spawnerCount);
         }
     }
@@ -203,5 +204,23 @@ public class RingSpawner extends Spawner {
         public Spawner build() {
             return new RingSpawner(target, particle, axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "RingSpawner{" +
+                "particle=" + particle +
+                ", axis=" + axis +
+                ", spawnerCount=" + spawnerCount +
+                ", angleBetweenSpawner=" + angleBetweenSpawner +
+                ", radius=" + radius +
+                ", heightChangePerTick=" + heightChangePerTick +
+                ", maxHeight=" + maxHeight +
+                ", rotPerTick=" + rotPerTick +
+                ", rising=" + rising +
+                ", curHeightChange=" + curHeightChange +
+                ", curRot=" + curRot +
+                ", target=" + target +
+                '}';
     }
 }

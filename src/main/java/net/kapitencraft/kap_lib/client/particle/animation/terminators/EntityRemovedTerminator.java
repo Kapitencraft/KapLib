@@ -1,24 +1,25 @@
 package net.kapitencraft.kap_lib.client.particle.animation.terminators;
 
-import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimation;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimator;
+import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.event.CaretListener;
 import java.util.Objects;
 
 public class EntityRemovedTerminator implements AnimationTerminator {
-    private final Entity target;
+    private final int target;
 
-    public EntityRemovedTerminator(Entity target) {
+    public EntityRemovedTerminator(int target) {
         this.target = target;
     }
 
     public static Builder builder(Entity target) {
-        return new Builder(target);
+        return new Builder(target.getId());
     }
 
     @Override
@@ -28,27 +29,27 @@ public class EntityRemovedTerminator implements AnimationTerminator {
 
     @Override
     public boolean shouldTerminate(ParticleAnimator animation) {
-        return target.isRemoved();
+        Entity entity = ClientHelper.getNullableEntity(target);
+        return entity == null || entity.isRemoved();
     }
 
     public static class Type implements AnimationTerminator.Type<EntityRemovedTerminator> {
 
         @Override
         public void toNw(FriendlyByteBuf buf, EntityRemovedTerminator val) {
-            buf.writeInt(val.target.getId());
+            buf.writeInt(val.target);
         }
 
         @Override
         public EntityRemovedTerminator fromNw(FriendlyByteBuf buf) {
-            Entity target = Objects.requireNonNull(Minecraft.getInstance().level).getEntity(buf.readInt());
-            return new EntityRemovedTerminator(target);
+            return new EntityRemovedTerminator(buf.readInt());
         }
     }
 
     public static class Builder implements AnimationTerminator.Builder {
-        private final Entity entity;
+        private final int entity;
 
-        public Builder(Entity entity) {
+        public Builder(int entity) {
             this.entity = entity;
         }
 
@@ -56,5 +57,10 @@ public class EntityRemovedTerminator implements AnimationTerminator {
         public AnimationTerminator build() {
             return new EntityRemovedTerminator(entity);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "EntityRemovedTerminator[" + target + "]";
     }
 }

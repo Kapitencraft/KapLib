@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.client.particle.animation.util.pos_target;
 
+import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -8,15 +9,15 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Objects;
 
 public class EntityPositionTarget implements PositionTarget {
-    private final Entity target;
+    private final int target;
 
-    public EntityPositionTarget(Entity target) {
+    public EntityPositionTarget(int target) {
         this.target = target;
     }
 
     @Override
     public Vec3 pos() {
-        return target.position();
+        return ClientHelper.getEntity(target).position();
     }
 
     @Override
@@ -28,12 +29,17 @@ public class EntityPositionTarget implements PositionTarget {
 
         @Override
         public void toNw(FriendlyByteBuf buf, EntityPositionTarget val) {
-            buf.writeInt(val.target.getId());
+            buf.writeInt(val.target);
         }
 
         @Override
         public EntityPositionTarget fromNw(FriendlyByteBuf buf) {
-            return new EntityPositionTarget(Objects.requireNonNull(Minecraft.getInstance().level).getEntity(buf.readInt()));
+            return new EntityPositionTarget(buf.readInt());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "EntityPositionTarget[" + target + ']';
     }
 }

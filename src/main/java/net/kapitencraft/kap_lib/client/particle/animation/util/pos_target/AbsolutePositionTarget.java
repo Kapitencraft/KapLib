@@ -23,4 +23,9 @@ public record AbsolutePositionTarget(Vec3 pos) implements PositionTarget {
             return new AbsolutePositionTarget(NetworkHelper.readVec3(buf));
         }
     }
+
+    @Override
+    public String toString() {
+        return "AbsolutePositionTarget@" + pos;
+    }
 }

@@ -8,10 +8,7 @@ import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
 import net.kapitencraft.kap_lib.registry.custom.SetBonusTypes;
 import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
-import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
-import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
-import net.kapitencraft.kap_lib.registry.custom.particle_animation.FinalizerTypes;
-import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTypes;
+import net.kapitencraft.kap_lib.registry.custom.particle_animation.*;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaComponentContentTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaDataSourceTypes;
@@ -71,6 +68,7 @@ public class KapLibMod
         SpawnerTypes.REGISTRY.register(modEventBus);
         FinalizerTypes.REGISTRY.register(modEventBus);
         TerminatorTypes.REGISTRY.register(modEventBus);
+        ActivationTriggers.REGISTRY.register(modEventBus);
 
         VanillaAttributeModifierTypes.REGISTRY.register(modEventBus);
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);

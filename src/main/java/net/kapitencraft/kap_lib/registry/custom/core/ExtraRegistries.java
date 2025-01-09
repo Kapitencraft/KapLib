@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
@@ -28,4 +29,5 @@ public interface ExtraRegistries {
     IForgeRegistry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.SPAWN_ELEMENT_TYPES);
     IForgeRegistry<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.FINALIZER_TYPES);
     IForgeRegistry<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.TERMINATOR_TYPES);
+    IForgeRegistry<ActivationTrigger<?>> ACTIVATION_TRIGGERS = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.ACTIVATION_TRIGGERS);
 }

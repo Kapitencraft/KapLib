@@ -63,4 +63,11 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
             return new SetLifeTimeFinalizer(lifeTime, resetAge);
         }
     }
+
+    @Override
+    public String toString() {
+        return "SetLifeTimeFinalizer{" +
+                "lifeTime=" + lifeTime + (resetAge ? ", resetsAge" : "") +
+                '}';
+    }
 }

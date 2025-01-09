@@ -1,10 +1,10 @@
 package net.kapitencraft.kap_lib.client.particle.animation.spawners;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -13,19 +13,17 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 /**
  * spawns particles inside the Bounding Box of an entity
  */
 public class EntityBBSpawner extends Spawner {
-    private final Entity target;
+    private final int targetId;
     private final boolean onlyOutline;
     private final float sizeXScale, sizeYScale;
 
-    protected EntityBBSpawner(ParticleOptions particle, Entity target, boolean onlyOutline, float sizeXScale, float sizeYScale) {
+    protected EntityBBSpawner(ParticleOptions particle, int targetId, boolean onlyOutline, float sizeXScale, float sizeYScale) {
         super(particle);
-        this.target = target;
+        this.targetId = targetId;
         this.onlyOutline = onlyOutline;
         this.sizeXScale = sizeXScale;
         this.sizeYScale = sizeYScale;
@@ -33,6 +31,7 @@ public class EntityBBSpawner extends Spawner {
 
     @Override
     public void spawn(ParticleSpawnSink sink) {
+        Entity target = ClientHelper.getEntity(targetId);
         float bbRadius = target.getBbWidth() / 2;
         Vec3 min = target.position().add(-bbRadius, 0, -bbRadius);
         Vec3 max = target.position().add(bbRadius, target.getBbHeight(), bbRadius);
@@ -63,7 +62,7 @@ public class EntityBBSpawner extends Spawner {
         @Override
         public void toNW(FriendlyByteBuf buf, EntityBBSpawner value) {
             NetworkHelper.writeParticleOptions(buf, value.particle);
-            buf.writeInt(value.target.getId());
+            buf.writeInt(value.targetId);
             buf.writeBoolean(value.onlyOutline);
             buf.writeFloat(value.sizeXScale);
             buf.writeFloat(value.sizeYScale);
@@ -72,7 +71,7 @@ public class EntityBBSpawner extends Spawner {
         @Override
         public EntityBBSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
             return new EntityBBSpawner(NetworkHelper.readParticleOptions(buf),
-                    Objects.requireNonNull(Minecraft.getInstance().level).getEntity(buf.readInt()),
+                    buf.readInt(),
                     buf.readBoolean(),
                     buf.readFloat(),
                     buf.readFloat()
@@ -107,7 +106,7 @@ public class EntityBBSpawner extends Spawner {
 
         @Override
         public Spawner build() {
-            return new EntityBBSpawner(particle, target, onlyOutline, xScale, yScale);
+            return new EntityBBSpawner(particle, target.getId(), onlyOutline, xScale, yScale);
         }
     }
 }

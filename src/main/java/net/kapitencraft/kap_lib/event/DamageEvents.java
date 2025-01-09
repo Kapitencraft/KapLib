@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.collection.MapStream;
-import net.kapitencraft.kap_lib.client.particle.animation.*;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ExtendedCalculationEnchantment;
 import net.kapitencraft.kap_lib.enchantments.abstracts.IToolEnchantment;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
@@ -12,7 +11,6 @@ import net.kapitencraft.kap_lib.item.combat.totem.ModTotemItem;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.util.DamageCounter;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -24,7 +22,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;

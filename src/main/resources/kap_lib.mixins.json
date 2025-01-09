@@ -23,6 +23,7 @@
     "AttributeMapMixin",
     "AttributeModifierMixin",
     "AttributesMixin",
+    "CarvedPumpkinMixin",
     "ComponentContentsMixin",
     "ComponentSerializerMixin",
     "DataSourceMixin",

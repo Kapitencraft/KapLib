@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.client.particle.animation.terminators;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimator;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimation;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
