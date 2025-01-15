@@ -36,4 +36,9 @@ public class RelativePositionTarget implements PositionTarget {
             return new RelativePositionTarget(PositionTarget.fromNw(buf), NetworkHelper.readVec3(buf));
         }
     }
+
+    @Override
+    public String toString() {
+        return "RelativePositionTarget[" + target + "], offset=" + this.offset;
+    }
 }

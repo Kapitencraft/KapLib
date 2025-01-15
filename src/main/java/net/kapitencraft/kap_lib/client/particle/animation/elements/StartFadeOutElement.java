@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.particle.animation.modifiers;
+package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
@@ -31,7 +31,7 @@ public class StartFadeOutElement implements AnimationElement {
     public static class Type implements AnimationElement.Type<StartFadeOutElement> {
 
         @Override
-        public StartFadeOutElement fromNW(FriendlyByteBuf buf, ClientLevel level) {
+        public StartFadeOutElement fromNW(FriendlyByteBuf buf) {
             return new StartFadeOutElement(buf.readFloat());
         }
 

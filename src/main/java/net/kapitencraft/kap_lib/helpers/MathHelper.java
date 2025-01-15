@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.util.Reference;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -81,22 +82,61 @@ public interface MathHelper {
     /**
      * gives the 3d location for the given arm and entity
      */
-    @Contract("_, null -> fail")
-    static Vec3 getHandHoldingItemAngle(HumanoidArm arm, Entity entity) {
+    static Vec3 getHandHoldingItemAngle(HumanoidArm arm, @NotNull Entity entity) {
         return entity.position().add(entity.calculateViewVector(0.0F, entity.getYRot() + (float)(arm == HumanoidArm.RIGHT ? 80 : -80)).scale(0.5D));
     }
 
     /**
      * @param source the source Vec to rotate
      * @param pivot the rotation pivot
-     * @param angle the angle to rotate by
-     * @return the rotated relative angle
+     * @param angle the angle in radians
+     * @return the rotated angle
      */
-    @Contract("_, null, _ -> fail; null, _, _ -> fail")
-    static Vec3 rotateHorizontalVec(Vec3 source, Vec3 pivot, int angle) {
-        double x = (pivot.x - source.x) * Mth.cos(angle) - (pivot.y - source.y) * Mth.sin(angle) + source.x;
-        double z = (pivot.x - source.x) * Mth.sin(angle) + (pivot.y - source.y) * Mth.cos(angle) + source.y;
-        return new Vec3(x, 0, z);
+    static Vec3 rotateHorizontalYAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
+        double x = (source.x - pivot.x) * Mth.cos(angle) - (source.z - pivot.z) * Mth.sin(angle) + pivot.x;
+        double z = (source.x - pivot.x) * Mth.sin(angle) + (source.z - pivot.z) * Mth.cos(angle) + pivot.z;
+        return new Vec3(x, source.y, z);
+    }
+
+    static Vec3 rotateXAxis(@NotNull Vec3 source, Vec3 pivot, float angle) {
+        double y = (source.y - pivot.y) * Mth.cos(angle) - (source.z - pivot.z) * Mth.sin(angle) + pivot.y;
+        double z = (source.y - pivot.y) * Mth.sin(angle) + (source.z - pivot.z) * Mth.cos(angle) + pivot.z;
+        return new Vec3(source.x, y, z);
+    }
+
+    static Vec3 rotateZAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
+        double x = (source.x - pivot.x) * Mth.cos(angle) - (source.y - pivot.y) * Mth.sin(angle) + pivot.x;
+        double y = (source.x - pivot.x) * Mth.sin(angle) + (source.y - pivot.y) * Mth.cos(angle) + pivot.y;
+        return new Vec3(x, y, source.z);
+    }
+
+    /**
+     * @param source the source Vec to rotate
+     * @param pivot the rotation pivot
+     * @param angle the angle in degree
+     * @return the rotated angle
+     */
+    static Vec3 rotateVec(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
+        angle *= Mth.DEG_TO_RAD;
+        Vec3 diff = source.subtract(pivot);
+        return diff.xRot(angle).yRot(angle).zRot(angle).add(pivot);
+    }
+
+    /**
+     * rotates the given angle around the given axis
+     * @param source the source Vec to rotate
+     * @param pivot the rotation pivot
+     * @param angle the angle in degree
+     * @param axis the axis to rotate around
+     * @return the rotated angle
+     */
+    static Vec3 rotateAroundAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle, @NotNull Direction.Axis axis) {
+        angle *= Mth.DEG_TO_RAD;
+        return switch (axis) {
+            case X -> rotateXAxis(source, pivot, angle);
+            case Y -> rotateHorizontalYAxis(source, pivot, angle);
+            case Z -> rotateZAxis(source, pivot, angle);
+        };
     }
 
     /**
@@ -212,10 +252,10 @@ public interface MathHelper {
      * get all positions between the 2 given block positions
      */
     static List<BlockPos> makeLine(BlockPos a, BlockPos b, LineSize size) {
-        List<BlockPos> list = new ArrayList<>();
         BlockPos diff = b.subtract(a);
         double horizontal = Mth.sqrt((diff.getX() * diff.getX()) + (diff.getZ() * diff.getZ()) + (diff.getY() * diff.getY()));
         int numPoints = (int) (size == LineSize.THIN ? horizontal * 20 : horizontal * 50);
+        List<BlockPos> list = new ArrayList<>();
         MiscHelper.repeat(numPoints, integer -> {
             double t = integer / (numPoints - 1.);
             list.add(makeLinePos(t, a, diff));
@@ -228,6 +268,17 @@ public interface MathHelper {
      */
     private static BlockPos makeLinePos(double t, BlockPos a, BlockPos diff) {
         return new BlockPos((int) (a.getX() + diff.getX() * t), (int) (a.getY() + diff.getY() * t), (int) (a.getZ() + diff.getZ() * t));
+    }
+
+    static List<Vec3> makeLine(Vec3 a, Vec3 b, float spacing) {
+        Vec3 diff = b.subtract(a);
+        int numPoints = (int) (diff.length() / spacing);
+        List<Vec3> list = new ArrayList<>();
+        MiscHelper.repeat(numPoints, integer -> {
+            double t = integer / (numPoints - 1.);
+            list.add(a.add(diff.scale(t)));
+        });
+        return list;
     }
 
     enum LineSize {
@@ -248,15 +299,14 @@ public interface MathHelper {
      * picks a random element from the list
      */
     @Nullable
-    static <T> T pickRandom(List<T> list) {
+    static <T> T pickRandom(@NotNull List<T> list) {
         return pickRandom(list, KapLibMod.RANDOM_SOURCE);
     }
 
     /**
      * picks a random element from the list using the given {@link RandomSource}
      */
-    @Contract("null, _ -> fail; _, null -> fail")
-    static <T> T pickRandom(List<T> list, RandomSource source) {
+    static <T> T pickRandom(@NotNull List<T> list, @NotNull RandomSource source) {
         return list.isEmpty() ? null : list.get(Mth.nextInt(source, 0, list.size() - 1));
     }
 
@@ -362,13 +412,12 @@ public interface MathHelper {
         return createTargetRotationFromPos(source.position(), target.position());
     }
 
-    @Contract("null, _ -> fail; _, null -> fail")
-    static Vec2 createTargetRotationFromPos(Vec3 source, Vec3 target) {
-        double d0 = target.x - source.x;
-        double d1 = target.y - source.y;
-        double d2 = target.z - source.z;
-        double d3 = Math.sqrt(d0 * d0 + d2 * d2);
-        return new Vec2(Mth.wrapDegrees((float)(-(Mth.atan2(d1, d3) * (double)(180F / (float)Math.PI)))), Mth.wrapDegrees((float)(Mth.atan2(d2, d0) * (double)(180F / (float)Math.PI)) - 90.0F));
+    static Vec2 createTargetRotationFromPos(@NotNull Vec3 source, @NotNull Vec3 target) {
+        double dX = target.x - source.x;
+        double dY = target.y - source.y;
+        double dZ = target.z - source.z;
+        double d3 = Math.sqrt(dX * dX + dZ * dZ);
+        return new Vec2(Mth.wrapDegrees((float)(-(Mth.atan2(dY, d3) * (double)(180F / (float)Math.PI)))), Mth.wrapDegrees((float)(Mth.atan2(dZ, dX) * (double)(180F / (float)Math.PI)) - 90.0F));
     }
 
     static Vec2 createTargetRotationFromEyeHeight(Entity source, Entity target) {
@@ -444,6 +493,14 @@ public interface MathHelper {
                 randomBetween(source, min.x, max.x),
                 randomBetween(source, min.y, max.y),
                 randomBetween(source, min.z, max.z)
+        );
+    }
+
+    static Vec3 randomIn(RandomSource source, AABB box) {
+        return new Vec3(
+                randomBetween(source, box.minX, box.maxX),
+                randomBetween(source, box.minY, box.maxY),
+                randomBetween(source, box.minZ, box.maxZ)
         );
     }
 }

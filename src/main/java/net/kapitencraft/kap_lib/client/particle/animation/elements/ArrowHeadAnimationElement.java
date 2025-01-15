@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.particle.animation.modifiers;
+package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.util.particle_help.ParticleAmountHolder;

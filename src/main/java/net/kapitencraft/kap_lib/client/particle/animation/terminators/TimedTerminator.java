@@ -16,6 +16,10 @@ public class TimedTerminator implements AnimationTerminator {
         return new Builder().ticks(tickCount);
     }
 
+    public static AnimationTerminator.Builder seconds(int secondsCount) {
+        return ticks(secondsCount * 20);
+    }
+
     @Override
     public @NotNull Type getType() {
         return TerminatorTypes.TIMED.get();
@@ -51,5 +55,10 @@ public class TimedTerminator implements AnimationTerminator {
             this.ticks = ticks;
             return this;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "TimedTerminator[" + ticks + "]";
     }
 }

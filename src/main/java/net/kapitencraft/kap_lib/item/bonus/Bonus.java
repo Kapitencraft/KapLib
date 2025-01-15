@@ -71,6 +71,7 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
 
     /**
      * applied each tick that {@link Bonus#isEffectTick(int, LivingEntity)} returns true
+     * only called serverside
      * @param tickCount count of ticks since this bonus has been activated
      * @param entity the entity the bonus is applied to
      */

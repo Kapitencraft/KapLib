@@ -18,29 +18,15 @@ public class TimedModifier extends AttributeModifier implements IKapLibAttribute
             Codec.STRING.fieldOf("Name").forGetter(AttributeModifier::getName),
             Codec.DOUBLE.fieldOf("Amount").forGetter(AttributeModifier::getAmount),
             VanillaAttributeModifierTypes.OPERATION_CODEC.fieldOf("Operation").forGetter(AttributeModifier::getOperation),
-            Codec.INT.fieldOf("timer").forGetter(TimedModifier::remaining)
+            Codec.INT.fieldOf("Timer").forGetter(TimedModifier::remaining)
     ).apply(instance, TimedModifier::new));
 
     private int timer;
-    private static final Map<LivingEntity, Multimap<Attribute, TimedModifier>> allModifiers = new HashMap<>();
 
-    @SuppressWarnings("ALL")
-    public static void tick(LivingEntity living) {
-        allModifiers.get(living).forEach((attribute, timedModifier) -> {
-                    if (timedModifier.tickDown()) living.getAttribute(attribute).removeModifier(timedModifier.getId());
-                }
-        );
-    }
 
-    private TimedModifier(String string, double v, Operation p_22203_, int timer) {
-        super(UUID.randomUUID(), string, v, p_22203_);
+    public TimedModifier(String name, double value, Operation operation, int timer) {
+        super(UUID.randomUUID(), name, value, operation);
         this.timer = timer;
-    }
-
-    public static TimedModifier addModifier(String name, double value, Operation operation, int time, LivingEntity living, Attribute attribute) {
-        TimedModifier modifier = new TimedModifier(name, value, operation, time);
-        allModifiers.get(living).put(attribute, modifier);
-        return modifier;
     }
 
     private boolean tickDown() {

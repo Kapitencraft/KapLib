@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.client.particle.animation.core;
 
+import net.kapitencraft.kap_lib.client.particle.animation.spawners.VisibleSpawner;
 import net.minecraft.CrashReport;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.util.Mth;
@@ -19,7 +20,7 @@ public class ParticleAnimator {
      */
     private final List<ParticleConfig> particles = new ArrayList<>();
     /**
-     * the spawn sink used inside {@link net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner#spawn(ParticleSpawnSink) Spawner#spawn} to add new particles
+     * the spawn sink used inside {@link VisibleSpawner#spawn(ParticleSpawnSink) Spawner#spawn} to add new particles
      */
     private final ParticleSpawnSink sink = new ParticleSpawnSink(this);
     /**

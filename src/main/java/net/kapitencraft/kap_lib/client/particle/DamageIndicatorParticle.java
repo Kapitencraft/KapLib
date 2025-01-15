@@ -34,7 +34,7 @@ public class DamageIndicatorParticle extends Particle {
     protected DamageIndicatorParticle(ClientLevel p_107234_, double p_107235_, double p_107236_, double p_107237_, double amount, double damageType, float rangeOffset) {
         super(p_107234_, p_107235_, p_107236_, p_107237_);
 
-        this.text = KapLibMod.doubleFormat(amount);
+        this.text = amount == Float.MAX_VALUE ? "INFINITE" : KapLibMod.doubleFormat(amount);
         this.color = TextHelper.damageIndicatorColorFromDouble(damageType).getColor();
         this.setColor(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color));
         this.darkColor = FastColor.ARGB32.color(255, (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25));

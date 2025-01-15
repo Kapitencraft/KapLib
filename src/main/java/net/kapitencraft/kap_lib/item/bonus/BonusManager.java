@@ -68,6 +68,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     @SubscribeEvent
     public void onLivingEquipmentChange(LivingEquipmentChangeEvent event) {
         LivingEntity entity = event.getEntity();
+        if (entity.level().isClientSide()) return; //ONLY SERVERSIDE
         BonusLookup bonusLookup = getOrCreateLookup(entity);
         bonusLookup.removeEquipment(Pair.of(event.getFrom(), event.getSlot()));
         bonusLookup.addEquipment(Pair.of(event.getTo(), event.getSlot()));
@@ -75,6 +76,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     @SubscribeEvent
     public void onLivingTick(LivingEvent.LivingTickEvent event) {
+        if (event.getEntity().level().isClientSide()) return; //ONLY SERVERSIDE
         getOrCreateLookup(event.getEntity()).tick();
     }
 

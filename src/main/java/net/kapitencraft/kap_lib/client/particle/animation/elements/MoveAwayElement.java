@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.particle.animation.modifiers;
+package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
@@ -45,7 +45,7 @@ public class MoveAwayElement implements AnimationElement {
     public static class Type implements AnimationElement.Type<MoveAwayElement> {
 
         @Override
-        public MoveAwayElement fromNW(FriendlyByteBuf buf, ClientLevel level) {
+        public MoveAwayElement fromNW(FriendlyByteBuf buf) {
             return new MoveAwayElement(PositionTarget.fromNw(buf), buf.readFloat(), buf.readInt());
         }
 

@@ -11,11 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GroupSpawner extends Spawner {
+public class GroupSpawner implements Spawner {
     private final Spawner[] spawners;
 
-    public GroupSpawner(ParticleOptions options, Spawner[] spawners) {
-        super(options);
+    public GroupSpawner(Spawner[] spawners) {
         this.spawners = spawners;
     }
 
@@ -33,32 +32,30 @@ public class GroupSpawner extends Spawner {
         return SpawnerTypes.GROUP.get();
     }
 
-    public static class Builder extends Spawner.Builder<Builder> {
+    public static class Builder implements Spawner.Builder {
         private final List<Spawner> spawners = new ArrayList<>();
 
-        public Builder addSpawner(Spawner.Builder<?> spawner) {
+        public Builder addSpawner(Spawner.Builder spawner) {
             spawners.add(spawner.build());
             return this;
         }
 
-        //TODO extract particle cuz not necessary
         @Override
         public Spawner build() {
-            return new GroupSpawner(particle, spawners.toArray(Spawner[]::new));
+            return new GroupSpawner(spawners.toArray(Spawner[]::new));
         }
     }
 
-    public static class Type implements Spawner.Type<GroupSpawner> {
+    public static class Type implements VisibleSpawner.Type<GroupSpawner> {
 
         @Override
         public void toNW(FriendlyByteBuf buf, GroupSpawner value) {
-            NetworkHelper.writeParticleOptions(buf, value.particle);
             NetworkHelper.writeArray(buf, value.spawners, Spawner::toNw);
         }
 
         @Override
         public GroupSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new GroupSpawner(NetworkHelper.readParticleOptions(buf), NetworkHelper.readArray(buf, Spawner[]::new, Spawner::fromNw));
+            return new GroupSpawner(NetworkHelper.readArray(buf, Spawner[]::new, Spawner::fromNw));
         }
     }
 }

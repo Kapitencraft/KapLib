@@ -1,6 +1,8 @@
 package net.kapitencraft.kap_lib.client.particle.animation.spawners;
 
 import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.client.particle.animation.util.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
@@ -9,14 +11,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class RingSpawner extends Spawner {
+public class RingSpawner extends VisibleSpawner {
     private final PositionTarget target;
+    private final RotationTarget rotation;
     private float curRot, curHeightChange;
     private boolean rising;
     private final float rotPerTick, maxHeight, heightChangePerTick, radius;
@@ -24,11 +28,12 @@ public class RingSpawner extends Spawner {
     private final int spawnerCount;
     private final Direction.Axis axis;
 
-    private RingSpawner(PositionTarget target, ParticleOptions particle, Direction.Axis axis, float rotPerTick, float maxHeight, float heightChangePerTick, float radius, int spawnerCount) {
+    private RingSpawner(PositionTarget target, ParticleOptions particle, RotationTarget rotation, Direction.Axis axis, float rotPerTick, float maxHeight, float heightChangePerTick, float radius, int spawnerCount) {
         super(particle);
-        if (radius <= 0) throw new IllegalStateException("radius must be larger than 0!");
-        this.target = Objects.requireNonNull(target, "no target specified!");
-        this.axis = Objects.requireNonNull(axis, "no axis specified");
+        this.rotation = rotation;
+        if (radius <= 0) throw new IllegalStateException("Ring-Spawner radius must be larger than 0!");
+        this.target = Objects.requireNonNull(target, "Ring-Spawner no target specified!");
+        this.axis = Objects.requireNonNull(axis, "Ring-Spawner no axis specified");
         this.rotPerTick = rotPerTick;
         this.maxHeight = maxHeight;
         this.heightChangePerTick = heightChangePerTick;
@@ -45,6 +50,8 @@ public class RingSpawner extends Spawner {
     @SuppressWarnings("SuspiciousNameCombination")
     @Override
     public void spawn(ParticleSpawnSink sink) {
+        Vec2 rot = rotation.get();
+
         for (int i = 0; i < spawnerCount; i++) {
             double sin = Math.sin(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
             double cos = Math.cos(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
@@ -80,14 +87,14 @@ public class RingSpawner extends Spawner {
         }
     }
 
-    public static class Type implements Spawner.Type<RingSpawner> {
+    public static class Type implements VisibleSpawner.Type<RingSpawner> {
 
         @Override
         public RingSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
             PositionTarget target = PositionTarget.fromNw(buf);
             ParticleOptions options = NetworkHelper.readParticleOptions(buf);
             Direction.Axis axis = Direction.Axis.values()[buf.readInt()];
-            return new RingSpawner(target, options, axis, buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readInt());
+            return new RingSpawner(target, options, RotationTarget.fromNw(buf), axis, buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readInt());
         }
 
         @Override
@@ -138,11 +145,12 @@ public class RingSpawner extends Spawner {
     /**
      * a new Builder
      */
-    public static class Builder extends Spawner.Builder<Builder> {
+    public static class Builder extends VisibleSpawner.Builder<Builder> {
         private PositionTarget target;
         private float rotPerTick, maxHeight, heightChangePerTick, radius;
         private int spawnCount = 1;
         private Direction.Axis axis;
+        private RotationTarget rotationTarget = RotationTarget.absolute(Vec2.ZERO);
 
         /**
          * @param rotPerTick Developer Note: do I need to explain this?
@@ -200,9 +208,14 @@ public class RingSpawner extends Spawner {
             return this;
         }
 
+        public Builder rotation(RotationTarget target) {
+            this.rotationTarget = target;
+            return this;
+        }
+
         @Override
-        public Spawner build() {
-            return new RingSpawner(target, particle, axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
+        public VisibleSpawner build() {
+            return new RingSpawner(target, particle, rotationTarget, axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
         }
     }
 

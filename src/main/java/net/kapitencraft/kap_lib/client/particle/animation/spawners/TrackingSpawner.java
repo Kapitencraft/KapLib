@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * spawns particles exactly at the given point
  */
-public class TrackingSpawner extends Spawner {
+public class TrackingSpawner extends VisibleSpawner {
     private final PositionTarget target;
 
     public TrackingSpawner(ParticleOptions particle, PositionTarget target) {
@@ -35,7 +35,7 @@ public class TrackingSpawner extends Spawner {
         return SpawnerTypes.TRACKING.get();
     }
 
-    public static class Type implements Spawner.Type<TrackingSpawner> {
+    public static class Type implements VisibleSpawner.Type<TrackingSpawner> {
 
         @Override
         public void toNW(FriendlyByteBuf buf, TrackingSpawner value) {
@@ -49,7 +49,7 @@ public class TrackingSpawner extends Spawner {
         }
     }
 
-    public static class Builder extends Spawner.Builder<Builder> {
+    public static class Builder extends VisibleSpawner.Builder<Builder> {
         private PositionTarget target;
 
         public Builder target(PositionTarget target) {
@@ -58,7 +58,7 @@ public class TrackingSpawner extends Spawner {
         }
 
         @Override
-        public Spawner build() {
+        public VisibleSpawner build() {
             return new TrackingSpawner(particle, target);
         }
     }

@@ -12,7 +12,7 @@ import net.minecraftforge.eventbus.api.Cancelable;
  */
 @Cancelable
 public class LivingStartGlidingEvent extends LivingEvent {
-    private final ItemStack elytra;
+    public final ItemStack elytra;
 
     public LivingStartGlidingEvent(LivingEntity entity, ItemStack elytra) {
         super(entity);

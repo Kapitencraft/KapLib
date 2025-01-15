@@ -2,19 +2,23 @@ package net.kapitencraft.kap_lib.client.particle.animation.core;
 
 import com.google.common.base.Preconditions;
 import net.kapitencraft.kap_lib.client.LibClient;
+import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.EntityAddedTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.TriggerInstance;
+import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminator;
 import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SendParticleAnimationPacket;
-import net.kapitencraft.kap_lib.client.particle.animation.modifiers.AnimationElement;
-import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
+import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
+import net.kapitencraft.kap_lib.client.particle.animation.spawners.VisibleSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
 import net.minecraft.CrashReport;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.ApiStatus;
@@ -57,10 +61,6 @@ public class ParticleAnimation {
         this.activationTriggers = activationTriggers;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public AnimationElement getElement(int elementIndex) {
         return elements[elementIndex];
     }
@@ -92,6 +92,19 @@ public class ParticleAnimation {
                 .setDetail("maxSpawnDelay", this.maxSpawnDelay);
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * creates a new Builder which starts when the given entity is added and ends when the given entity is removed
+     */
+    public static Builder requireEntity(Entity target) {
+        return builder()
+                .activatedOn(EntityAddedTrigger.forEntity(target))
+                .terminatedWhen(EntityRemovedTerminator.builder(target));
+    }
+
     /**
      * particle animation builder. create using {@link #builder()}
      */
@@ -109,7 +122,7 @@ public class ParticleAnimation {
          * sets the spawner of this builder
          * @param spawn the spawner to use
          */
-        public Builder spawn(Spawner.Builder<?> spawn) {
+        public Builder spawn(Spawner.Builder spawn) {
             spawner = spawn.build();
             Preconditions.checkNotNull(spawner.getType(), "Spawner without Type detected!");
             return this;

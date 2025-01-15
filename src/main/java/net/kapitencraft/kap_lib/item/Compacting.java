@@ -1,17 +1,15 @@
 package net.kapitencraft.kap_lib.item;
 
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -21,24 +19,30 @@ import java.util.Optional;
 
 public class Compacting {
     private static final Map<Item, Result> resultCache = new HashMap<>();
-    private static RecipeManager manager;
 
-    public static Result tryCompact(Item in, Level level) {
+    public static Result tryCompact(Item in, ServerLevel level) {
         if (resultCache.containsKey(in)) return resultCache.get(in);
+        RecipeManager manager = level.getRecipeManager();
 
         Optional<CraftingRecipe> smallRecipe = manager.getRecipeFor(RecipeType.CRAFTING, new Container(true, in), level);
         Optional<CraftingRecipe> largeRecipe = manager.getRecipeFor(RecipeType.CRAFTING, new Container(false, in), level);
 
-        Result result = new Result(
+        Result result;
+        if (smallRecipe.isEmpty() && largeRecipe.isEmpty())
+            result = Result.EMPTY;
+        else
+            result = new Result(
                 smallRecipe.map(craftingRecipe -> craftingRecipe.getResultItem(level.registryAccess())).orElse(null),
                 largeRecipe.map(craftingRecipe -> craftingRecipe.getResultItem(level.registryAccess())).orElse(null)
-        );
+            );
         resultCache.put(in, result);
 
         return result;
     }
 
     public static class Result {
+        public static final Result EMPTY = new Result(null, null);
+
         private final @Nullable ItemStack small, large;
 
         private Result(@Nullable ItemStack small, @Nullable ItemStack large) {
@@ -48,6 +52,14 @@ public class Compacting {
 
         public boolean successful() {
             return small != null || large != null;
+        }
+
+        public int getCountReq() {
+            return small != null ? 4 : large != null ? 9 : -1;
+        }
+
+        public @Nullable ItemStack result() {
+            return small != null ? small : large;
         }
     }
 
@@ -71,7 +83,7 @@ public class Compacting {
         }
 
         @Override
-        public List<ItemStack> getItems() {
+        public @NotNull List<ItemStack> getItems() {
             return List.of();
         }
 

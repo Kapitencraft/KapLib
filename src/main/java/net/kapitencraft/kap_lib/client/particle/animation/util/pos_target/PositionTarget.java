@@ -18,6 +18,10 @@ public interface PositionTarget extends Supplier<Vec3> {
         return t.type.fromNw(buf);
     }
 
+    default void toNw(FriendlyByteBuf buf) {
+        Types.toNw(buf, this);
+    }
+
     /**
      * @return a position target for the given position
      */
@@ -36,6 +40,10 @@ public interface PositionTarget extends Supplier<Vec3> {
         return new EntityPositionTarget(entity.getId());
     }
 
+    static PositionTarget entityBB(Entity entity) {
+        return new EntityBBPositionTarget(entity);
+    }
+
     /**
      * @return the current position
      */
@@ -43,12 +51,9 @@ public interface PositionTarget extends Supplier<Vec3> {
 
     Types getType();
 
-    default void toNw(FriendlyByteBuf buf) {
-        Types.toNw(buf, this);
-    }
-
     enum Types implements IExtensibleEnum {
         ENTITY(EntityPositionTarget.Type::new),
+        ENTITY_BB(EntityBBPositionTarget.Type::new),
         POS(AbsolutePositionTarget.Type::new),
         RELATIVE(RelativePositionTarget.Type::new);
 

@@ -16,6 +16,9 @@ public class ServerModConfig {
     private static final ForgeConfigSpec.IntValue MAX_ITERATION_BROKEN_BLOCKS = BUILDER
             .comment("determines how many blocks per tick should be broken by the multi-break enchantments")
             .defineInRange("iter_max_broken", 20, 1, 200);
+    private static final ForgeConfigSpec.BooleanValue DISABLE_ANVIL_LIMIT = BUILDER
+            .comment("determines whether to disable anvil \"Too Expensive\" cap")
+            .define("disable_anvil_limit", true);
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 
@@ -25,5 +28,9 @@ public class ServerModConfig {
 
     public static int getMaxBrokenBlocks() {
         return MAX_ITERATION_BROKEN_BLOCKS.get();
+    }
+
+    public static boolean disableAnvilLimit() {
+        return DISABLE_ANVIL_LIMIT.get();
     }
 }

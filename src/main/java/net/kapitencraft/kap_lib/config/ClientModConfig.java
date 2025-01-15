@@ -1,16 +1,13 @@
 package net.kapitencraft.kap_lib.config;
 
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.chroma.ChromaOrigin;
 import net.kapitencraft.kap_lib.client.chroma.ChromaType;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements.Element;
 import net.minecraft.ChatFormatting;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.Arrays;
 
-@Mod.EventBusSubscriber(modid = KapLibMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientModConfig {
 
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
@@ -48,6 +45,10 @@ public class ClientModConfig {
         PING_COLOR = BUILDER
                 .comment("determines the color which indicates pings")
                 .defineEnum("ping_color", ChatFormatting.YELLOW, Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).toArray(ChatFormatting[]::new));
+
+        SHOW_LIFE_STEAL_PARTICLE = BUILDER
+                .comment("determines whether to display life steal particles")
+                .define("show_life_steal_particle", true);
     }
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_DAMAGE_INDICATOR;
@@ -64,6 +65,8 @@ public class ClientModConfig {
 
     private static final ForgeConfigSpec.EnumValue<ChatFormatting> PING_COLOR;
 
+    private static final ForgeConfigSpec.BooleanValue SHOW_LIFE_STEAL_PARTICLE;
+
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static boolean isIndicatorEnabled() {
@@ -75,6 +78,10 @@ public class ClientModConfig {
 
     public static ChatFormatting getPingColor() {
         return PING_COLOR.get();
+    }
+
+    public static boolean lifeStealParticleEnabled() {
+        return SHOW_LIFE_STEAL_PARTICLE.get();
     }
 
     public static double getScrollScale() {

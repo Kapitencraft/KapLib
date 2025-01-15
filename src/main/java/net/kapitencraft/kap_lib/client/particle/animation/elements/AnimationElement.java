@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.particle.animation.modifiers;
+package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
@@ -16,7 +16,7 @@ public interface AnimationElement {
     @OnlyIn(Dist.CLIENT)
     static AnimationElement fromNw(FriendlyByteBuf buf) {
         AnimationElement.Type<?> elementType = buf.readRegistryIdUnsafe(ExtraRegistries.ANIMATION_ELEMENT_TYPES);
-        return elementType.fromNW(buf, Minecraft.getInstance().level);
+        return elementType.fromNW(buf);
     }
 
     @ApiStatus.Internal
@@ -26,7 +26,7 @@ public interface AnimationElement {
         type.toNW(buf, val);
     }
 
-    @NotNull AnimationElement.Type<? extends AnimationElement> getType();
+    @NotNull Type<? extends AnimationElement> getType();
 
 
     /**
@@ -38,6 +38,22 @@ public interface AnimationElement {
     void tick(ParticleConfig object, int tick);
 
     /**
+     * called when this element start taking over the animation of the given config
+     * @param object the config being initialized
+     */
+    default void initialize(ParticleConfig object) {
+
+    }
+
+    /**
+     * called when this element has completed animating the given config
+     * @param config the config being finalized
+     */
+    default void finalize(ParticleConfig config) {
+
+    }
+
+    /**
      * builder for Animation elements. override in your own animation elements to use them in animations
      */
     interface Builder {
@@ -47,7 +63,7 @@ public interface AnimationElement {
 
     interface Type<T extends AnimationElement> {
 
-        T fromNW(FriendlyByteBuf buf, ClientLevel level);
+        T fromNW(FriendlyByteBuf buf);
 
         void toNW(FriendlyByteBuf buf, T value);
     }

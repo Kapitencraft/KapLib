@@ -6,6 +6,7 @@
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
     "RegistryBuilderMixin",
+    "client.AnvilScreenMixin",
     "client.BakedGlyphMixin",
     "client.ChatScreenMixin",
     "client.ClientTooltipPositionerMixin",
@@ -19,6 +20,7 @@
     "client.StringRenderOutputMixin"
   ],
   "mixins": [
+    "AnvilMenuMixin",
     "AttributeInstanceMixin",
     "AttributeMapMixin",
     "AttributeModifierMixin",

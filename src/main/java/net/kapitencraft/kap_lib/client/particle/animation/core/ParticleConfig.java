@@ -1,9 +1,10 @@
 package net.kapitencraft.kap_lib.client.particle.animation.core;
 
 import net.kapitencraft.kap_lib.helpers.CollectionHelper;
-import net.kapitencraft.kap_lib.client.particle.animation.modifiers.AnimationElement;
+import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -15,6 +16,7 @@ import java.util.function.Supplier;
  */
 public class ParticleConfig {
     public double x,y,z;
+    public double dx, dy, dz;
     public float r, g, b, a;
     public int lifeTime, age;
     private final Particle target;
@@ -22,21 +24,44 @@ public class ParticleConfig {
     private int[] elementLengths;
     private int totalLength;
 
+    /**
+     * properties applied to this config. do not persist swapping animation element
+     */
     private final Map<String, Object> properties = new HashMap<>();
     private final List<BiConsumer<ParticleConfig, Integer>> tickers = new ArrayList<>();
 
+    /**
+     * the total tick count of the Config
+     */
     private int tickCount;
+    /**
+     * the index of the active element inside the animation
+     */
     private int elementIndex;
+    /**
+     * the tick the current active element started in
+     */
     private int elementStartTick = 0;
+    /**
+     * the animation this config is a part of
+     */
     private final ParticleAnimation animation;
+    /**
+     * the currently active element
+     */
     private AnimationElement active;
 
+    @ApiStatus.Internal
     public ParticleConfig(Particle target, ParticleAnimation animation) {
         this.target = target;
         this.animation = animation;
         this.init();
     }
 
+    /**
+     * synchronizes the underlying particle to any changes mode to this config
+     */
+    @ApiStatus.Internal
     public void sync() {
         target.x = x;
         target.y = y;
@@ -46,9 +71,16 @@ public class ParticleConfig {
         target.bCol = b;
         target.alpha = a;
         target.setLifetime(lifeTime);
+        target.xd = dx;
+        target.yd = dy;
+        target.zd = dz;
         target.age = age;
     }
 
+    /**
+     * initializes the configuration.
+     */
+    @ApiStatus.Internal
     private void init() {
         AnimationElement[] elements = animation.allElements();
         int[] counts = new int[elements.length];
@@ -59,8 +91,7 @@ public class ParticleConfig {
         this.elementLengths = counts;
         this.totalLength = totalLength;
 
-        if (elements.length > 0) this.active = elements[0];
-
+        //Update properties before init
         this.r = target.rCol;
         this.g = target.gCol;
         this.b = target.bCol;
@@ -71,12 +102,22 @@ public class ParticleConfig {
         this.z = target.z;
 
         this.lifeTime = target.getLifetime();
+
+        if (elements.length > 0) {
+            this.active = elements[0];
+            this.active.initialize(this);
+        }
+
     }
 
+    @ApiStatus.Internal
     public void tick() {
-        if (tickCount - elementStartTick > elementLengths[elementIndex]) {
+        if (tickCount - elementStartTick >= elementLengths[elementIndex]) {
             elementIndex++;
+            active.finalize(this);
             active = animation.getElement(elementIndex);
+            properties.clear();
+            active.initialize(this);
             elementStartTick = tickCount;
         }
         active.tick(this, tickCount - elementStartTick);
@@ -85,6 +126,10 @@ public class ParticleConfig {
         this.sync();
     }
 
+    /**
+     * register a ticker to this config.
+     * tickers will be called (you guessed it) each tick
+     */
     public void registerTicker(BiConsumer<ParticleConfig, Integer> ticker) {
         this.tickers.add(ticker);
     }
@@ -108,14 +153,23 @@ public class ParticleConfig {
         return (this.tickCount - elementStartTick) / elementLengths[elementIndex];
     }
 
+    /**
+     * @return the amount of ticks this config has until the animation's particle finalizer will be called for this config
+     */
     public int remainingTicks() {
         return totalLength - tickCount;
     }
 
+    /**
+     * @return whether the config has completed all animation elements or not
+     */
     public boolean hasExpired() {
         return remainingTicks() <= 0;
     }
 
+    /**
+     * removes the target particle
+     */
     public void removeTarget() {
         this.target.remove();
     }
@@ -136,7 +190,12 @@ public class ParticleConfig {
     public <T> T getOrCreateProperty(String key, Supplier<T> value) {
         if (!properties.containsKey(key)) properties.put(key, value.get());
         return getProperty(key);
-     }
+    }
+
+    public <T> void setProperty(String key, T value) {
+        properties.put(key, value);
+    }
+
 
     public void setPos(Vec3 vec3) {
         this.x = vec3.x;

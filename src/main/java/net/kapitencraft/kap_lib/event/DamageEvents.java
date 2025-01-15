@@ -1,5 +1,12 @@
 package net.kapitencraft.kap_lib.event;
 
+import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimation;
+import net.kapitencraft.kap_lib.client.particle.animation.elements.MoveTowardsBBElement;
+import net.kapitencraft.kap_lib.client.particle.animation.finalizers.RemoveParticleFinalizer;
+import net.kapitencraft.kap_lib.client.particle.animation.spawners.EntityBBSpawner;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.EitherTerminator;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminator;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ExtendedCalculationEnchantment;
 import net.kapitencraft.kap_lib.enchantments.abstracts.IToolEnchantment;
@@ -11,7 +18,9 @@ import net.kapitencraft.kap_lib.item.combat.totem.ModTotemItem;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.util.DamageCounter;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -22,6 +31,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -133,8 +143,26 @@ public class DamageEvents {
                     .forEach(stack -> stack.hurt((int) (armorShredder / 3), attacked.level().getRandom(), attacker instanceof ServerPlayer serverPlayer ? serverPlayer : null));
         }
         double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIVE_STEAL.get(), attacker);
-        if (liveSteal != -1) {
-            //TODO add life-steal particle code
+        if (!event.getSource().isIndirect() && liveSteal != -1) {
+            if (attacker.level() instanceof ServerLevel sL) {
+                ParticleAnimation.builder()
+                        .spawn(EntityBBSpawner.builder()
+                                .setParticle(new DustParticleOptions(Vec3.fromRGB24(0x800000).toVector3f(), .3f))
+                                .target(attacked)
+                                .perTick(150)
+                                .scaleX(1.3f).scaleY(1.1f)
+                        ).then(MoveTowardsBBElement.builder()
+                                .target(attacker)
+                                .duration(30)
+                        ).finalizes(RemoveParticleFinalizer.builder())
+                        .spawnTime(ParticleAnimation.SpawnTime.once())
+                        .terminatedWhen(EitherTerminator.with(
+                                TimedTerminator.ticks(20),
+                                EntityRemovedTerminator.builder(attacked),
+                                EntityRemovedTerminator.builder(attacker)
+                        ))
+                        .sendToAllPlayers(sL);
+            }
             attacker.heal(Math.min((float) liveSteal, event.getAmount()));
         }
     }
