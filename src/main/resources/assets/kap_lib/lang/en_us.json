@@ -29,6 +29,7 @@
 
   "change_overlay_locations.title": "Change Overlay Locations",
   "command.failed.console": "Can not perform this command from the console",
+  "command.overlay.reset.success": "Overlays Reset Successfully",
 
   "component_chain.or": " or ",
   "component_chain.and": " and ",

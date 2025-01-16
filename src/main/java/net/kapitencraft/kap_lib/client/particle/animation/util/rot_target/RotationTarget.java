@@ -2,6 +2,8 @@ package net.kapitencraft.kap_lib.client.particle.animation.util.rot_target;
 
 import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.*;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.phys.Vec2;
 import net.minecraftforge.common.IExtensibleEnum;
 
@@ -24,6 +26,10 @@ public interface RotationTarget extends Supplier<Vec2> {
 
     static RotationTarget absolute(Vec2 rot) {
         return new AbsoluteRotationTarget(rot);
+    }
+
+    static RotationTarget forEntity(Entity entity) {
+        return new FromEntityRotationTarget(entity.getId());
     }
 
 

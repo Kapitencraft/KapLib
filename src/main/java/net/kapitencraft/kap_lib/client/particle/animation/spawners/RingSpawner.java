@@ -10,6 +10,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -47,20 +48,35 @@ public class RingSpawner extends VisibleSpawner {
         return SpawnerTypes.RING.get();
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     public void spawn(ParticleSpawnSink sink) {
         Vec2 rot = rotation.get();
-
         for (int i = 0; i < spawnerCount; i++) {
             double sin = Math.sin(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
             double cos = Math.cos(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
-            Vec3 targetOffset = switch (axis) {
-                case X -> new Vec3(curHeightChange, sin, cos);
-                case Y -> new Vec3(sin, curHeightChange, cos);
-                case Z -> new Vec3(sin, cos, curHeightChange);
-            };
-            Vec3 targetPos = targetOffset.add(target.get());
+            double x = axis == Direction.Axis.X ? 0 : sin,
+                    y = switch (axis) {
+                case X -> sin;
+                case Y -> 0;
+                case Z -> cos;
+                },
+                    z = axis == Direction.Axis.Z ? 0 : cos;
+            Vec3 targetOffset = new Vec3(x, y, z);
+            switch (axis) {
+                case X -> {
+                    targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, rot.x);
+                    targetOffset = MathHelper.rotateZAxis(targetOffset, Vec3.ZERO, rot.y);
+                }
+                case Y -> {
+                    targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, rot.x);
+                    targetOffset = MathHelper.rotateZAxis(targetOffset, Vec3.ZERO, rot.y);
+                }
+                case Z -> {
+                    targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, rot.x);
+                    targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, rot.y);
+                }
+            }
+            Vec3 targetPos = targetOffset.add(Vec3.ZERO.with(axis, curHeightChange)).add(target.get());
             sink.accept(particle, targetPos);
             curRot += rotPerTick;
             if (heightChangePerTick > 0) applyHeightChange();

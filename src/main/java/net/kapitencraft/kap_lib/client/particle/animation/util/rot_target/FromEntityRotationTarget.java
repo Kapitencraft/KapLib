@@ -7,7 +7,7 @@ import net.minecraft.world.phys.Vec2;
 public class FromEntityRotationTarget implements RotationTarget {
     private final int entityId;
 
-    public FromEntityRotationTarget(int entityId) {
+    FromEntityRotationTarget(int entityId) {
         this.entityId = entityId;
     }
 

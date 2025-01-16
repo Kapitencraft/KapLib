@@ -86,6 +86,12 @@ public interface MathHelper {
         return entity.position().add(entity.calculateViewVector(0.0F, entity.getYRot() + (float)(arm == HumanoidArm.RIGHT ? 80 : -80)).scale(0.5D));
     }
 
+    static Vec3 rotateXAxis(@NotNull Vec3 source, Vec3 pivot, float angle) {
+        double y = (source.y - pivot.y) * Mth.cos(angle) - (source.z - pivot.z) * Mth.sin(angle) + pivot.y;
+        double z = (source.y - pivot.y) * Mth.sin(angle) + (source.z - pivot.z) * Mth.cos(angle) + pivot.z;
+        return new Vec3(source.x, y, z);
+    }
+
     /**
      * @param source the source Vec to rotate
      * @param pivot the rotation pivot
@@ -98,28 +104,10 @@ public interface MathHelper {
         return new Vec3(x, source.y, z);
     }
 
-    static Vec3 rotateXAxis(@NotNull Vec3 source, Vec3 pivot, float angle) {
-        double y = (source.y - pivot.y) * Mth.cos(angle) - (source.z - pivot.z) * Mth.sin(angle) + pivot.y;
-        double z = (source.y - pivot.y) * Mth.sin(angle) + (source.z - pivot.z) * Mth.cos(angle) + pivot.z;
-        return new Vec3(source.x, y, z);
-    }
-
     static Vec3 rotateZAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
         double x = (source.x - pivot.x) * Mth.cos(angle) - (source.y - pivot.y) * Mth.sin(angle) + pivot.x;
         double y = (source.x - pivot.x) * Mth.sin(angle) + (source.y - pivot.y) * Mth.cos(angle) + pivot.y;
         return new Vec3(x, y, source.z);
-    }
-
-    /**
-     * @param source the source Vec to rotate
-     * @param pivot the rotation pivot
-     * @param angle the angle in degree
-     * @return the rotated angle
-     */
-    static Vec3 rotateVec(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
-        angle *= Mth.DEG_TO_RAD;
-        Vec3 diff = source.subtract(pivot);
-        return diff.xRot(angle).yRot(angle).zRot(angle).add(pivot);
     }
 
     /**

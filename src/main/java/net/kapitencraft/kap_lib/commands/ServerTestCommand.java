@@ -16,6 +16,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.spawners.RingSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.client.particle.animation.util.rot_target.RotationTarget;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -112,6 +113,7 @@ public class ServerTestCommand {
                     .finalizes(SetLifeTimeFinalizer.builder().resetAge().lifeTime(20))
                     .spawn(RingSpawner.noHeight()
                             .setTarget(PositionTarget.entity(arrow))
+                            .rotation(RotationTarget.forEntity(arrow))
                             .spawnCount(2)
                             .rotPerTick(5)
                             .axis(Direction.Axis.Z)

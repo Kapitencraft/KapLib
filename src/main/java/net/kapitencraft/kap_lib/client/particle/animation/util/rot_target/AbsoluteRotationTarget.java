@@ -6,7 +6,7 @@ import net.minecraft.world.phys.Vec2;
 public class AbsoluteRotationTarget implements RotationTarget {
     private final Vec2 rot;
 
-    public AbsoluteRotationTarget(Vec2 rot) {
+    AbsoluteRotationTarget(Vec2 rot) {
         this.rot = rot;
     }
 
