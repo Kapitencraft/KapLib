@@ -52,7 +52,7 @@ public interface RotationTarget extends Supplier<Vec2> {
             ((RotationTarget.Type<T>) types.type).toNw(buf, val);
         }
 
-        public static PositionTarget.Types create(String name, Supplier<PositionTarget.Type<? extends PositionTarget>> typeSupplier) {
+        public static RotationTarget.Types create(String name, Supplier<PositionTarget.Type<? extends PositionTarget>> typeSupplier) {
             throw new IllegalAccessError("enum not extended!");
         }
     }

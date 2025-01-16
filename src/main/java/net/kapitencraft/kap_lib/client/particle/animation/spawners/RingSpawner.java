@@ -30,8 +30,8 @@ public class RingSpawner extends VisibleSpawner {
 
     private RingSpawner(PositionTarget target, ParticleOptions particle, RotationTarget rotation, Direction.Axis axis, float rotPerTick, float maxHeight, float heightChangePerTick, float radius, int spawnerCount) {
         super(particle);
-        this.rotation = rotation;
         if (radius <= 0) throw new IllegalStateException("Ring-Spawner radius must be larger than 0!");
+        this.rotation = Objects.requireNonNull(rotation, "Ring-Spawner no rotation specified!");
         this.target = Objects.requireNonNull(target, "Ring-Spawner no target specified!");
         this.axis = Objects.requireNonNull(axis, "Ring-Spawner no axis specified");
         this.rotPerTick = rotPerTick;
@@ -102,6 +102,7 @@ public class RingSpawner extends VisibleSpawner {
             value.target.toNw(buf);
             NetworkHelper.writeParticleOptions(buf, value.particle);
             buf.writeInt(value.axis.ordinal());
+            value.rotation.toNw(buf);
             buf.writeFloat(value.rotPerTick);
             buf.writeFloat(value.maxHeight);
             buf.writeFloat(value.heightChangePerTick);
