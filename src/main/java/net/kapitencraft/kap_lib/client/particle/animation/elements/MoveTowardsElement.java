@@ -37,7 +37,7 @@ public class MoveTowardsElement implements AnimationElement {
 
     @Override
     public void tick(ParticleConfig object, int tick) {
-        object.setPos(object.<Vec3>getProperty("origin").lerp(targetLoc.get(), (tick + 1f) / duration));
+        object.setPos(object.<Vec3>getProperty("origin").lerp(targetLoc.get(), tick / (duration - 1f)));
     }
 
     public static class Builder implements AnimationElement.Builder {

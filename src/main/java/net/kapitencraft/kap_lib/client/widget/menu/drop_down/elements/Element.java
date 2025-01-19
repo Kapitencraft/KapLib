@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements;
 
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.DropDownMenu;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
+import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,7 +20,7 @@ public abstract class Element implements Renderable {
     protected final DropDownMenu menu;
     private final Component name;
     protected int x, y;
-    protected boolean shown = false, focused = false;
+    protected boolean focused = false;
 
     protected Element(ListElement parent, DropDownMenu menu, Component name) {
         this.parent = parent;
@@ -46,14 +47,8 @@ public abstract class Element implements Renderable {
     }
 
     public void show(int x, int y) {
-        if (shown) throw new IllegalStateException("tried showing Element that's already shown!");
         this.x = x;
         this.y = y;
-        this.shown = true;
-    }
-
-    public void hide() {
-        this.shown = false;
     }
 
     public abstract void click(float relativeX, float relativeY);
@@ -94,8 +89,9 @@ public abstract class Element implements Renderable {
     public boolean mouseClick(double mouseX, double mouseY) {
         Element element = this.getFocused();
         if (element == null) return false;
-        float relativeX = (float) (mouseX - this.x);
-        float relativeY = (float) (mouseY - this.y);
+        float relativeX = (float) (mouseX - element.x);
+        float relativeY = (float) (mouseY - element.y);
+        if (!MathHelper.is2dBetween(relativeX, relativeY, 0, 0, element.effectiveWidth(), OFFSET_PER_ELEMENT)) return false;
         element.click(relativeX, relativeY);
         return true;
     }
@@ -106,6 +102,9 @@ public abstract class Element implements Renderable {
 
     protected boolean isFocused() {
         return focused;
+    }
+
+    public void hide() {
     }
 
     public enum FocusTypes implements StringRepresentable {

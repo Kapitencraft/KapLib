@@ -1,22 +1,29 @@
 package net.kapitencraft.kap_lib.client.overlay;
 
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.LibClient;
-import net.kapitencraft.kap_lib.client.overlay.box.InteractiveBox;
+import net.kapitencraft.kap_lib.client.gui.screen.ConfigureOverlaysScreen;
+import net.kapitencraft.kap_lib.client.overlay.box.ResizeBox;
 import net.kapitencraft.kap_lib.client.overlay.holder.MultiLineOverlay;
 import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
+import net.kapitencraft.kap_lib.client.overlay.holder.SimpleOverlay;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.event.ModEventFactory;
-import net.kapitencraft.kap_lib.event.custom.client.RegisterOverlaysEvent;
+import net.kapitencraft.kap_lib.event.custom.client.RegisterConfigurableOverlaysEvent;
 import net.kapitencraft.kap_lib.helpers.*;
+import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.registry.Overlays;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec2;
@@ -27,10 +34,12 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -44,21 +53,32 @@ public class OverlayManager {
      */
     private static final Codec<OverlayManager> CODEC = RecordCodecBuilder.create(
             renderControllerInstance -> renderControllerInstance.group(
-                    Codec.unboundedMap(IOHelper.UUID_CODEC, OverlayProperties.CODEC).fieldOf("storage").forGetter(OverlayManager::getLocations)
+                    Codec.unboundedMap(ResourceLocation.CODEC, OverlayProperties.CODEC).fieldOf("storage").forGetter(OverlayManager::getLocations)
             ).apply(renderControllerInstance, OverlayManager::fromCodec)
     );
 
-    private static OverlayManager fromCodec(Map<UUID, OverlayProperties> map) {
+    private static OverlayManager fromCodec(Map<ResourceLocation, OverlayProperties> map) {
         OverlayManager controller = new OverlayManager();
         controller.loadedPositions.putAll(map);
         return controller;
     }
 
+    public static void setVisible(Overlay overlay, boolean b) {
+        OverlayManager manager = LibClient.controller;
+        if (b) {
+            manager.visible.add(overlay);
+            manager.invisible.remove(overlay);
+        } else {
+            manager.invisible.add(overlay);
+            manager.visible.remove(overlay);
+        }
+    }
+
     /**
      * @return the positions of each overlay mapped to their UUID
      */
-    private Map<UUID, OverlayProperties> getLocations() {
-        return MapStream.of(map).mapValues(Overlay::getProperties).mapKeys(OverlayLocation::getUUID).toMap();
+    private Map<ResourceLocation, OverlayProperties> getLocations() {
+        return MapStream.of(map).mapValues(Overlay::getProperties).mapKeys(RegistryObject::getId).toMap();
     }
 
     /**
@@ -68,7 +88,7 @@ public class OverlayManager {
 
     private static @NotNull File getOrCreateFile() {
         if (PERSISTENT_FILE == null) {
-            PERSISTENT_FILE = new File(KapLibMod.MAIN, "gui-locations.json");
+            PERSISTENT_FILE = new File(KapLibMod.MAIN, "overlay_config.json");
         }
         return PERSISTENT_FILE;
     }
@@ -81,29 +101,50 @@ public class OverlayManager {
         return IOHelper.loadFile(getOrCreateFile(), CODEC, OverlayManager::new);
     }
 
-    private final Map<OverlayLocation, Function<OverlayProperties, Overlay>> constructors = new HashMap<>();
-    public final Map<OverlayLocation, Overlay> map = new HashMap<>();
-    private final Map<UUID, OverlayProperties> loadedPositions = new HashMap<>();
+    private final Map<RegistryObject<OverlayProperties>, Function<OverlayProperties, Overlay>> constructors = new HashMap<>();
+    public final Map<RegistryObject<OverlayProperties>, Overlay> map = new HashMap<>();
+
+
+    private final ConfigureOverlaysScreen screen = new ConfigureOverlaysScreen();
+    private final List<Overlay> visible = new ArrayList<>(), invisible = new ArrayList<>();
+
+    public int openConfigureScreenFromCommand(CommandContext<CommandSourceStack> context) {
+        ClientHelper.postCommandScreen = screen;
+        return 1;
+    }
+
+    private final Map<ResourceLocation, OverlayProperties> loadedPositions = new HashMap<>();
 
     private OverlayManager() {
         this.register();
     }
 
     /**
-     * fires the {@link RegisterOverlaysEvent} for registering custom events
+     * fires the {@link RegisterConfigurableOverlaysEvent} for registering custom overlays
      */
     private void register() {
-        this.createRenderer(OverlayLocations.STATS, positionHolder -> new MultiLineOverlay(
+        this.createRenderer(Overlays.STATS, properties -> new MultiLineOverlay(
                 Component.translatable("overlay.stats"),
-                positionHolder,
+                properties,
                 -10,
                 List.of(
-                        player -> Component.literal("Protection: " + getDamageProtection(player) + "%").withStyle(ChatFormatting.DARK_BLUE),
-                        player -> Component.literal("Effective HP: " + MathHelper.defRound(player.getHealth() * 100 / (100 - getDamageProtection(player)))).withStyle(ChatFormatting.DARK_AQUA),
-                        player -> Component.literal("Current Speed: " + cancelGravityMovement(player) + " b/s").withStyle(ChatFormatting.YELLOW)
+                        player -> Component.translatable("overlay.stats.protection", getDamageProtection(player)).withStyle(ChatFormatting.DARK_BLUE),
+                        player -> Component.translatable("overlay.stats.ehp", MathHelper.defRound(player.getHealth() * 100 / (100 - getDamageProtection(player)))).withStyle(ChatFormatting.DARK_AQUA),
+                        player -> Component.translatable("overlay.stats.speed", cancelGravityMovement(player)).withStyle(ChatFormatting.YELLOW)
                 )
         ));
-        ModEventFactory.fireModEvent(new RegisterOverlaysEvent(this::createRenderer));
+        this.createRenderer(Overlays.MANA, properties -> new SimpleOverlay(
+                Component.translatable("overlay.mana"),
+                properties,
+                player -> Component.translatable(
+                        "overlay.mana.display",
+                        MathHelper.round(player.getAttributeValue(ExtraAttributes.MANA.get()), 1),
+                                MathHelper.round(player.getPersistentData().getDouble(MiscHelper.OVERFLOW_MANA_ID), 1),
+                                player.getAttributeValue(ExtraAttributes.MAX_MANA.get()),
+                                MathHelper.defRound(player.getPersistentData().getDouble("manaRegen") * 20)
+                ).withStyle(ChatFormatting.BLUE)
+        ));
+        ModEventFactory.fireModEvent(new RegisterConfigurableOverlaysEvent(this::createRenderer));
         construct();
     }
 
@@ -118,9 +159,9 @@ public class OverlayManager {
         return MathHelper.defRound(delta.length() * 20);
     }
 
-    private void createRenderer(OverlayLocation provider, Function<OverlayProperties, Overlay> constructor) {
+    private void createRenderer(RegistryObject<OverlayProperties> provider, Function<OverlayProperties, Overlay> constructor) {
         if (this.constructors.containsKey(provider))
-            throw new IllegalStateException("detected double registered Overlay with UUID '" + provider.getUUID() + "'");
+            throw new IllegalStateException("detected double registered Overlay with ID '" + provider.getId() + "'");
         this.constructors.put(provider, constructor);
     }
 
@@ -142,8 +183,12 @@ public class OverlayManager {
     /**
      * create all overlay-relocation widgets and push them to the handling screen
      */
-    public void fillRenderBoxes(Consumer<InteractiveBox> acceptor, LocalPlayer player, Font font, float width, float height) {
-        this.map.values().stream().map(renderHolder -> renderHolder.newBox(width, height, player, font)).forEach(acceptor);
+    public void fillRenderBoxes(Consumer<ResizeBox> acceptor, BiConsumer<Overlay, ResizeBox> map, LocalPlayer player, Font font, float width, float height) {
+        this.visible.forEach(overlay -> {
+            ResizeBox box = overlay.newBox(width, height, player, font);
+            acceptor.accept(box);
+            map.accept(overlay, box);
+        });
     }
 
     /**
@@ -152,7 +197,7 @@ public class OverlayManager {
     private void render(ForgeGui forgeGui, GuiGraphics graphics, float partialTicks, int screenWidth, int screenHeight) {
         LocalPlayer entity = Minecraft.getInstance().player;
         if (entity != null && !ClientHelper.hideGui()) {
-            map.forEach((uuid, renderHolder) -> {
+            visible.forEach(renderHolder -> {
                 graphics.pose().pushPose();
                 OverlayProperties holder = renderHolder.getProperties();
                 Vec2 renderLocation = renderHolder.getLoc(screenWidth, screenHeight);
@@ -169,8 +214,13 @@ public class OverlayManager {
      */
     private void construct() {
         this.constructors.forEach((location, constructor) -> {
-            OverlayProperties holder = MiscHelper.nonNullOr(this.loadedPositions.get(location.getUUID()), location.getDefault().createCopy());
-            this.map.put(location, constructor.apply(holder));
+            OverlayProperties holder = MiscHelper.nonNullOr(this.loadedPositions.get(location.getId()), location.get().createCopy());
+            Overlay overlay = constructor.apply(holder);
+            if (holder.isVisible())
+                visible.add(overlay);
+            else
+                invisible.add(overlay);
+            this.map.put(location, overlay);
         });
     }
 
@@ -181,8 +231,12 @@ public class OverlayManager {
     @SuppressWarnings("all")
     public void reset(Overlay dedicatedHolder) {
         if (this.map.containsValue(dedicatedHolder)) {
-            OverlayLocation location = CollectionHelper.getKeyForValue(this.map, dedicatedHolder);
-            dedicatedHolder.getProperties().copy(location.getDefault());
+            if (invisible.contains(dedicatedHolder)) {
+                invisible.remove(dedicatedHolder);
+                visible.add(dedicatedHolder);
+            }
+            RegistryObject<OverlayProperties> location = CollectionHelper.getKeyForValue(this.map, dedicatedHolder);
+            dedicatedHolder.getProperties().copy(location.get());
             return;
         }
         throw new IllegalStateException("attempted to reset non-existing Holder");
@@ -193,10 +247,12 @@ public class OverlayManager {
      */
     public static void resetAll() {
         OverlayManager controller = LibClient.controller;
-        Collection<OverlayLocation> locations = controller.constructors.keySet();
+        Collection<RegistryObject<OverlayProperties>> locations = controller.constructors.keySet();
         locations.forEach(location -> {
             Overlay holder = controller.map.get(location);
-            holder.getProperties().copy(location.getDefault());
+            holder.getProperties().copy(location.get());
+            controller.visible.add(holder);
         });
+        controller.invisible.clear();
     }
 }

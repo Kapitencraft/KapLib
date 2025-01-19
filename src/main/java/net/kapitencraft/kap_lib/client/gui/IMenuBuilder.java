@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.client.gui;
 
+import net.kapitencraft.kap_lib.client.gui.screen.MenuableScreen;
 import net.kapitencraft.kap_lib.client.widget.menu.Menu;
 
 /**
@@ -13,5 +14,5 @@ public interface IMenuBuilder {
      * @param y mouse y
      * @return the created menu
      */
-    Menu createMenu(int x, int y);
+    Menu createMenu(int x, int y, MenuableScreen screen);
 }

@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,12 +31,8 @@ public class Cooldown {
         int value = (int) (defaultTime * (1 - mul / 100));
         if (value > 0) {
             tag.putInt(path.path(), value);
-            cast(living).addCooldown(this);
+            ICooldownable.of(living).addCooldown(this);
         }
-    }
-
-    private static ICooldownable cast(LivingEntity living) {
-        return (ICooldownable) living;
     }
 
     public int getCooldownTime(Entity living) {
@@ -66,6 +63,10 @@ public class Cooldown {
     public Component createDisplay(Entity entity) {
         int cooldownTicks = getCooldownTime(entity);
         int defaultTime = entity instanceof LivingEntity living ? MathHelper.cooldown(living, this.defaultTime) : this.defaultTime;
-        return Component.literal("Cooldown: " + (cooldownTicks > 0 ? TextHelper.wrapInRed("ACTIVE ") + "(" + MathHelper.round(cooldownTicks / 20., 1) + "s)" : "§aINACTIVE§r, " + MathHelper.round(defaultTime / 20., 1) + "s")).withStyle(ChatFormatting.DARK_GRAY);
+        return Component.translatable("cooldown.display", (cooldownTicks > 0 ?
+                Component.translatable("cooldown.active").withStyle(ChatFormatting.RED).append(CommonComponents.SPACE).append(Component.literal("(" + MathHelper.round(cooldownTicks / 20., 1) + "s)").withStyle(ChatFormatting.DARK_GRAY))
+                : Component.translatable("cooldown.inactive").withStyle(ChatFormatting.GREEN).append(Component.literal(", " + MathHelper.round(defaultTime / 20., 1) + "s").withStyle(ChatFormatting.DARK_GRAY))
+                )
+        );
     }
 }

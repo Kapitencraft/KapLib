@@ -3,12 +3,12 @@ package net.kapitencraft.kap_lib.cooldown;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.common.extensions.IForgeLivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public interface ICooldownable {
-    LivingEntity self();
+public interface ICooldownable extends IForgeLivingEntity {
     @NotNull List<Cooldown> getActiveCooldowns();
 
     default void addCooldown(Cooldown cooldown) {
@@ -32,5 +32,9 @@ public interface ICooldownable {
             }
             return false;
         });
+    }
+
+    static ICooldownable of(LivingEntity living) {
+        return (ICooldownable) living;
     }
 }

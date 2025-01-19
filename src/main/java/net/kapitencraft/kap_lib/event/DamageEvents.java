@@ -42,12 +42,14 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
+@ApiStatus.Internal
 @Mod.EventBusSubscriber
 public class DamageEvents {
     private DamageEvents() {}//dummy constructor (do not call)
@@ -106,7 +108,7 @@ public class DamageEvents {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void DamageBonusRegister(LivingHurtEvent event) {
         LivingEntity attacked = event.getEntity();
-        if (event.getSource().getEntity() instanceof Arrow arrow) {
+        if (event.getSource().getDirectEntity() instanceof Arrow arrow) {
             CompoundTag tag = arrow.getPersistentData();
             event.setAmount(ModBowEnchantment.loadFromTag(attacked, tag, ModBowEnchantment.ExePhase.HIT, event.getAmount(), arrow));
             if (tag.getInt("OverloadEnchant") > 0 && arrow.isCritArrow()) {
@@ -135,7 +137,7 @@ public class DamageEvents {
             double Strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH.get(), attacker);
             MathHelper.mul(event::getAmount, event::setAmount, (float) (1 + Strength / 100));
         }
-        double double_jump = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DOUBLE_JUMP.get(), attacker);
+        double doubleJump = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DOUBLE_JUMP.get(), attacker);
         LivingEntity attacked = event.getEntity();
         if (AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER.get(), attacker) != -1) {
             double armorShredder = AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER.get(), attacker);
@@ -143,7 +145,7 @@ public class DamageEvents {
                     .forEach(stack -> stack.hurt((int) (armorShredder / 3), attacked.level().getRandom(), attacker instanceof ServerPlayer serverPlayer ? serverPlayer : null));
         }
         double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIVE_STEAL.get(), attacker);
-        if (!event.getSource().isIndirect() && liveSteal != -1) {
+        if (!event.getSource().isIndirect() && liveSteal > 0) {
             if (attacker.level() instanceof ServerLevel sL) {
                 ParticleAnimation.builder()
                         .spawn(EntityBBSpawner.builder()

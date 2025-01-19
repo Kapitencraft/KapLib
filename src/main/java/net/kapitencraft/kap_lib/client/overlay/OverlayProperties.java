@@ -19,21 +19,23 @@ public class OverlayProperties {
     public static final Codec<OverlayProperties> CODEC = RecordCodecBuilder.create(positionHolderInstance ->
             positionHolderInstance.group(
                     Axis.CODEC.fieldOf("x").forGetter(h -> h.x),
-                    Axis.CODEC.fieldOf("y").forGetter(h -> h.y)
+                    Axis.CODEC.fieldOf("y").forGetter(h -> h.y),
+                    Codec.BOOL.optionalFieldOf("visible", true).forGetter(OverlayProperties::isVisible)
             ).apply(positionHolderInstance, OverlayProperties::new)
     );
 
     private final Axis x;
     private final Axis y;
-    private boolean visible = true;
+    private boolean visible;
 
-    private OverlayProperties(Axis x, Axis y) {
+    private OverlayProperties(Axis x, Axis y, boolean visible) {
         this.x = x;
         this.y = y;
+        this.visible = visible;
     }
 
     public OverlayProperties(float x, float y, float sX, float sY, Alignment aX, Alignment aY) {
-        this(new Axis(x, sX, aX), new Axis(y, sY, aY));
+        this(new Axis(x, sX, aX), new Axis(y, sY, aY), true);
     }
 
 
@@ -46,8 +48,9 @@ public class OverlayProperties {
     /**
      * @param visible whether the corresponding Overlay should be rendered or not
      */
-    public void setVisible(boolean visible) {
+    public OverlayProperties setVisible(boolean visible) {
         this.visible = visible;
+        return this;
     }
 
     public Alignment getXAlignment() {
@@ -63,9 +66,25 @@ public class OverlayProperties {
         this.y.add(loc.y);
     }
 
+    public void addX(float offset) {
+        this.x.add(offset);
+    }
+
+    public void addY(float offset) {
+        this.y.add(offset);
+    }
+
     public void scale(float x, float y) {
         this.x.scale *= x;
         this.y.scale *= y;
+    }
+
+    public void scaleX(float scaleX) {
+        this.x.scale *= scaleX;
+    }
+
+    public void scaleY(float scaleY) {
+        this.y.scale *= scaleY;
     }
 
     public float getXScale() {

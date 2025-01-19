@@ -33,6 +33,7 @@ public class ModEventBusEvents {
         event.create(ModRegistryBuilders.REQUESTABLES_BUILDER);
         event.create(ModRegistryBuilders.REQUIREMENTS_BUILDER);
         event.create(ModRegistryBuilders.SET_BONUSES);
+        event.create(ModRegistryBuilders.OVERLAY_PROPERTIES);
         event.create(ModRegistryBuilders.GLYPH_EFFECTS);
         event.create(ModRegistryBuilders.ATTRIBUTE_MODIFIER_TYPES);
         event.create(ModRegistryBuilders.COMPONENT_CONTENTS_TYPES);

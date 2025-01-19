@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
@@ -19,6 +20,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
 
 public interface ExtraRegistries {
+    IForgeRegistry<OverlayProperties> OVERLAY_PROPERTIES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.OVERLAY_PROPERTIES);
     IForgeRegistry<GlyphEffect> GLYPH_EFFECTS = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.GLYPH_EFFECTS);
     IForgeRegistry<IRequestable<?, ?>> REQUESTABLES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.REQUESTABLES);
     IForgeRegistry<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.REQ_CONDITIONS);

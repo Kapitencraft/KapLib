@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.registry.custom.core;
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
@@ -19,10 +20,17 @@ import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraftforge.registries.RegistryObject;
+
+import java.util.function.Function;
 
 
 public interface ExtraRegistryKeys {
 
+    /**
+     * default overlay properties. register inside {@link net.kapitencraft.kap_lib.event.custom.client.RegisterConfigurableOverlaysEvent#addOverlay(RegistryObject, Function) RegisterConfigurableOverlaysEvent#addOverlay}, to apply the overlay
+     */
+    ResourceKey<Registry<OverlayProperties>> OVERLAY_PROPERTIES = createRegistry("overlay_properties");
     ResourceKey<Registry<GlyphEffect>> GLYPH_EFFECTS = createRegistry("glyph_effects");
     ResourceKey<Registry<IRequestable<?, ?>>> REQUESTABLES = createRegistry("requestables");
     ResourceKey<Registry<DataPackSerializer<? extends ReqCondition<?>>>> REQ_CONDITIONS = createRegistry("requirement_conditions");

@@ -69,6 +69,7 @@ public class KapLibMod
         FinalizerTypes.REGISTRY.register(modEventBus);
         TerminatorTypes.REGISTRY.register(modEventBus);
         ActivationTriggers.REGISTRY.register(modEventBus);
+        Overlays.REGISTRY.register(modEventBus);
 
         VanillaAttributeModifierTypes.REGISTRY.register(modEventBus);
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);

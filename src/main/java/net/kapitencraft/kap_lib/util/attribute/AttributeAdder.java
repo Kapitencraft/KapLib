@@ -23,7 +23,6 @@ public class AttributeAdder {
         addAll(event, ExtraAttributes.CRIT_DAMAGE.get(), ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.RANGED_DAMAGE.get(), ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.ARROW_COUNT.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.HEALTH_REGEN.get(), ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.MAGIC_DEFENCE.get(), ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.TRUE_DEFENCE.get(), ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.BONUS_ATTACK_SPEED.get(), ONLY_WITH_BRAIN);
@@ -36,7 +35,6 @@ public class AttributeAdder {
                 ExtraAttributes.ABILITY_DAMAGE,
                 ExtraAttributes.MANA_COST,
                 ExtraAttributes.INTELLIGENCE,
-                ExtraAttributes.MAGIC_FIND,
                 ExtraAttributes.FEROCITY,
                 ExtraAttributes.MAX_MANA,
                 ExtraAttributes.MANA_REGEN,

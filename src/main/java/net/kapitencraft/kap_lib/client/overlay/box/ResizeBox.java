@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.client.overlay.box;
 
 import net.kapitencraft.kap_lib.client.LibClient;
+import net.kapitencraft.kap_lib.client.gui.screen.MenuableScreen;
 import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
@@ -10,48 +11,45 @@ import net.kapitencraft.kap_lib.client.widget.menu.drop_down.DropDownMenu;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements.ButtonElement;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements.EnumElement;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 /**
  * box used to resize other things (like a RenderHolder)
  */
-public class ResizeBox extends ResizeAccessBox implements IMenuBuilder {
-    private final List<ResizeAccessBox> boxes = new ArrayList<>();
-    private static final int boxColor = 0xFFFFFFFF;
-    private static final int fillColor = 0x30FFFFFF;
-    private ResizeAccessBox active;
-    private boolean dirty = false;
+public class ResizeBox extends InteractiveBox implements IMenuBuilder {
+    private final List<AccessBox> boxes = new ArrayList<>();
+    private final @NotNull Overlay dedicatedHolder;
+    private static final int BOX_COLOR = 0xFFFFFFFF;
+    private static final int FILL_COLOR = 0x30FFFFFF;
+    private AccessBox active;
 
-
-    public ResizeBox(Vec2 start, Vec2 finish, Overlay dedicatedHolder) {
-        super(start, finish, GLFW.GLFW_RESIZE_ALL_CURSOR, fillColor, dedicatedHolder, Type.C, null);
+    public ResizeBox(Vec2 start, Vec2 finish, @NotNull Overlay dedicatedHolder) {
+        super(start, finish, GLFW.GLFW_RESIZE_ALL_CURSOR, FILL_COLOR);
+        this.dedicatedHolder = dedicatedHolder;
         fillBoxes();
     }
 
     private void fillBoxes() {
         this.boxes.clear();
         for (Type type : Type.values()) {
-            if (type == Type.C) continue;
-            boxes.add(new ResizeAccessBox(boxColor, dedicatedHolder, type, this));
+            boxes.add(new AccessBox(type == Type.C ? FILL_COLOR : BOX_COLOR, type));
         }
         reapplyPosition();
     }
 
     @Override
     public void render(GuiGraphics graphics, double mouseX, double mouseY) {
-        if (dirty) {
-            this.reapplyPosition();
-            dirty = false;
-        }
-        super.render(graphics, mouseX, mouseY);
         boxes.forEach(resizeAccessBox -> resizeAccessBox.render(graphics, mouseX, mouseY));
     }
 
@@ -73,22 +71,33 @@ public class ResizeBox extends ResizeAccessBox implements IMenuBuilder {
         moveWithoutHolder(delta);
     }
 
+    @Override
+    public void moveX(float offset) {
+        super.moveX(offset);
+        this.dedicatedHolder.moveX(offset);
+    }
+
+    @Override
+    public void moveY(float offset) {
+        super.moveY(offset);
+        this.dedicatedHolder.moveY(offset);
+    }
+
+    private void addX(float xChange) {
+        this.end = new Vec2(this.end.x + xChange, this.end.y);
+    }
+
+    private void addY(float yChange) {
+        this.end = new Vec2(this.end.x, this.end.y + yChange);
+    }
+
     private void moveWithoutHolder(Vec2 delta) {
         super.move(delta);
         this.boxes.forEach(resizeAccessBox -> resizeAccessBox.move(delta));
     }
 
-    @Override
     protected void reapplyPosition() {
-        this.boxes.forEach(ResizeAccessBox::reapplyPosition);
-    }
-
-    private void synchronizePosition() {
-        float width = ClientHelper.getScreenWidth();
-        float height = ClientHelper.getScreenHeight();
-        Vec2 pos = this.dedicatedHolder.getLoc(width, height);
-        Vec2 move = pos.add(this.start.scale(-1));
-        this.moveWithoutHolder(move);
+        this.boxes.forEach(AccessBox::reapplyPosition);
     }
 
     @Override
@@ -98,71 +107,30 @@ public class ResizeBox extends ResizeAccessBox implements IMenuBuilder {
 
     @Override
     public boolean mouseDrag(double x, double y, int clickType, double xChange, double yChange, double oldX, double oldY) {
-        if (this.active == null) {
-            boolean[] flag = new boolean[]{false};
-            boxes.stream().filter(resizeAccessBox -> resizeAccessBox.isMouseOver(oldX, oldY)).findFirst()
-                    .ifPresentOrElse(this::setActive, ()-> {
-                        if (this.isMouseOver(oldX, oldY)) {
-                            this.setActive(this);
-                            flag[0] = true;
-                        }
-                    });
-            return flag[0];
+        if (active == null) return false;
+        Type type = active.getType();
+        if (type == Type.C) {
+            this.move(new Vec2((float) xChange, (float) yChange));
         } else {
-            if (active == this) {
-                this.move(new Vec2((float) xChange, (float) yChange));
-            } else {
+            Boolean xOffset = active.getType().axes.get(Axis.X);
+            Boolean yOffset = active.getType().axes.get(Axis.Y);
+            if (xOffset != null) {
+                if (xOffset) this.moveX((float) xChange);
+                else this.addX((float) xChange);
                 float width = width();
+                float scaleX = (float) ((width + (xOffset ? -xChange : xChange)) / width);
+                this.dedicatedHolder.getProperties().scaleX(scaleX);
+            }
+            if (yOffset != null) {
+                if (yOffset) this.moveY((float) yChange);
+                else this.addY((float) yChange);
                 float height = height();
-                float scaleX = (float) ((width + xChange) / width);
-                float scaleY = (float) ((height + yChange) / height);
-                this.scale(scaleX, scaleY);
-            }
-            this.dirty = true;
-            return true;
-        }
-    }
-
-    @Override
-    public void scale(float x, float y) {
-        float height = height();
-        float width = width();
-        float xChange = width * x - width;
-        float yChange = height * x - height;
-        Map<Axis, Boolean> map = getTypeAxes();
-        if (map.containsKey(Axis.X) && map.get(Axis.X)) {
-            xChange *= -1;
-            this.dedicatedHolder.move(new Vec2(xChange, 0));
-        }
-        if (map.containsKey(Axis.Y) && map.get(Axis.Y)) {
-            yChange *= -1;
-            this.dedicatedHolder.move(new Vec2(0, yChange));
-        }
-        reapplyPosition(new Vec2(xChange, yChange));
-        super.scale(x, y);
-    }
-
-    private void reapplyPosition(Vec2 change) {
-        Map<Axis, Boolean> map = getTypeAxes();
-        if (map.containsKey(Axis.X)) {
-            if (map.get(Axis.X)) {
-                this.start = this.start.add(new Vec2(change.x, 0));
-            } else {
-                this.finish = this.finish.add(new Vec2(change.x, 0));
+                float scaleY = (float) ((height + (yOffset ? -yChange : yChange)) / height);
+                this.dedicatedHolder.getProperties().scaleY(scaleY);
             }
         }
-        if (map.containsKey(Axis.Y)) {
-            if (map.get(Axis.Y)) {
-                this.start = this.start.add(new Vec2(0, change.y));
-            } else {
-                this.finish = this.finish.add(new Vec2(0, change.y));
-            }
-        }
-        reapplyPosition();
-    }
-
-    private Map<Axis, Boolean> getTypeAxes() {
-        return getType().axes;
+        this.reapplyPosition();
+        return true;
     }
 
     protected Type getType() {
@@ -174,23 +142,24 @@ public class ResizeBox extends ResizeAccessBox implements IMenuBuilder {
         this.active = null;
     }
 
-    private void setActive(ResizeAccessBox box) {
+    private void setActive(AccessBox box) {
         this.active = box;
     }
 
     @Override
-    public Menu createMenu(int x, int y) {
-        if (this.dedicatedHolder == null) return null;
+    public Menu createMenu(int x, int y, MenuableScreen screen) {
         DropDownMenu menu = new DropDownMenu(x, y, this);
         OverlayProperties properties = this.dedicatedHolder.getProperties();
         menu.addElement(EnumElement.builder(OverlayProperties.Alignment.class)
                 .setName(Component.translatable("gui.alignment.x"))
+                .setCurrent(properties.getXAlignment())
                 .setElements(OverlayProperties.Alignment.values())
                 .setNameMapper(OverlayProperties.Alignment::getWidthName)
                 .setOnChange(properties::setXAlignment)
         );
         menu.addElement(EnumElement.builder(OverlayProperties.Alignment.class)
                 .setName(Component.translatable("gui.alignment.y"))
+                .setCurrent(properties.getYAlignment())
                 .setElements(OverlayProperties.Alignment.values())
                 .setNameMapper(OverlayProperties.Alignment::getHeightName)
                 .setOnChange(properties::setYAlignment)
@@ -201,7 +170,13 @@ public class ResizeBox extends ResizeAccessBox implements IMenuBuilder {
         );
         menu.addElement(ButtonElement.builder()
                 .setName(Component.translatable("gui.hide_overlay"))
-                .setExecutor(properties::hide)
+                .setExecutor(() -> {
+                    OverlayManager.setVisible(this.dedicatedHolder, false);
+                    properties.hide();
+                    menu.hide(screen);
+                    screen.closeMenu();
+                    
+                })
         );
         return menu;
     }
@@ -209,12 +184,22 @@ public class ResizeBox extends ResizeAccessBox implements IMenuBuilder {
     private void reset() {
         OverlayManager controller = LibClient.controller;
         controller.reset(this.dedicatedHolder);
-        this.synchronizePosition();
+        this.dedicatedHolder.reset(ClientHelper.getScreenWidth(), ClientHelper.getScreenHeight(), Minecraft.getInstance().player, Minecraft.getInstance().font, this);
+        this.reapplyPosition();
     }
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
+        if (pButton == 0) {
+            Optional<AccessBox> optional = boxes.stream().filter(accessBox -> accessBox.isMouseOver(pMouseX, pMouseY)).findFirst();
+            optional.ifPresent(this::setActive);
+            return optional.isPresent();
+        }
         return pButton == 1 && this.isMouseOver(pMouseX, pMouseY);
+    }
+
+    public int getActiveArrowId() {
+        return this.active == null ? GLFW.GLFW_ARROW_CURSOR : this.active.getCursorType();
     }
 
     public enum Type {
@@ -238,5 +223,70 @@ public class ResizeBox extends ResizeAccessBox implements IMenuBuilder {
     private enum Axis {
         X,
         Y
+    }
+
+    private class AccessBox extends InteractiveBox {
+        private final ResizeBox.Type type;
+        protected AccessBox(Vec2 start, Vec2 finish, int cursorType, int color, ResizeBox.Type type) {
+            super(start, finish, cursorType, color);
+            this.type = type;
+        }
+
+        protected AccessBox(int color, ResizeBox.Type type) {
+            this(Vec2.ZERO, Vec2.ZERO, getCursorType(type), color, type);
+        }
+
+        protected ResizeBox.Type getType() {
+            return type;
+        }
+
+        public static int getCursorType(ResizeBox.Type type) {
+            return switch (type) {
+                case E,W -> GLFW.GLFW_RESIZE_EW_CURSOR;
+                case N,S -> GLFW.GLFW_RESIZE_NS_CURSOR;
+                case NW,SE -> GLFW.GLFW_RESIZE_NWSE_CURSOR;
+                case NE,SW -> GLFW.GLFW_RESIZE_NESW_CURSOR;
+                case C -> GLFW.GLFW_RESIZE_ALL_CURSOR;
+            };
+        }
+
+        public int getCursorType() {
+            return getCursorType(this.type);
+        }
+
+        private static final float LINE_WIDTH = 0.5f;
+        private static final float SQUARE_SIZE = 1.5f;
+
+        protected void reapplyPosition() {
+            Vec2 start = ResizeBox.this.start;
+            Vec2 end = ResizeBox.this.end;
+            Vec2 bottomLeft = new Vec2(start.x, end.y);
+            Vec2 topRight = new Vec2(end.x, start.y);
+            switch (this.type) {
+                case E -> this.applyLine(topRight, end, LINE_WIDTH);
+                case SE -> this.applySquare(end, SQUARE_SIZE);
+                case S -> this.applyLine(bottomLeft, end, LINE_WIDTH);
+                case SW -> this.applySquare(bottomLeft, SQUARE_SIZE);
+                case W -> this.applyLine(start, bottomLeft, LINE_WIDTH);
+                case NW -> this.applySquare(start, SQUARE_SIZE);
+                case N -> this.applyLine(start, topRight, LINE_WIDTH);
+                case NE -> this.applySquare(topRight, SQUARE_SIZE);
+                case C -> {
+                    this.start = start.add(LINE_WIDTH);
+                    this.end = end.add(-LINE_WIDTH);
+                }
+            }
+        }
+
+        public void applyLine(Vec2 start, Vec2 finish, float lineW) {
+            boolean horizontal = start.x == finish.x;
+            this.start = new Vec2(horizontal ? start.x - lineW : start.x, horizontal ? start.y : start.y - lineW);
+            this.end = new Vec2(horizontal ? finish.x + lineW : finish.x, horizontal ? finish.y : finish.y  + lineW);
+        }
+
+        public void applySquare(Vec2 center, float size) {
+            this.start = center.add(new Vec2(-size, -size));
+            this.end = center.add(new Vec2(size, size));
+        }
     }
 }

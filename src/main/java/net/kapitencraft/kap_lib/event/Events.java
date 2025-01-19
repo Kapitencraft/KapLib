@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.collection.Queue;
+import net.kapitencraft.kap_lib.cooldown.ICooldownable;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
@@ -162,10 +163,6 @@ public class Events {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void healthRegenRegister(LivingHealEvent event) {
         LivingEntity living = event.getEntity();
-        if (living.getAttribute(ExtraAttributes.HEALTH_REGEN.get()) != null) {
-            double health_regen = living.getAttributeValue(ExtraAttributes.HEALTH_REGEN.get());
-            event.setAmount(event.getAmount() * (1 + (float) health_regen / 100));
-        }
         if (living.getAttribute(ExtraAttributes.VITALITY.get()) != null) {
             double vitality = living.getAttributeValue(ExtraAttributes.VITALITY.get());
             event.setAmount(event.getAmount() * (1 + (float) vitality / 100));
@@ -178,6 +175,7 @@ public class Events {
     @SubscribeEvent
     public static void entityTick(LivingEvent.LivingTickEvent event) {
         LivingEntity living = event.getEntity();
+        ICooldownable.of(living).tickCooldowns();
         BonusHelper.tickEnchantments(living);
         CompoundTag tag = living.getPersistentData();
         if (living instanceof Player player) {

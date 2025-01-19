@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.client.overlay.box;
 
-import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
@@ -10,13 +9,13 @@ import net.minecraft.world.phys.Vec2;
  * <br> (hence the {@link GuiEventListener} implementation)
  */
 public class InteractiveBox extends RenderBox implements GuiEventListener {
-    protected InteractiveBox(Vec2 start, Vec2 finish, int cursorType, int color, Overlay dedicatedHolder) {
-        super(start, finish, cursorType, color, dedicatedHolder);
+    protected InteractiveBox(Vec2 start, Vec2 finish, int cursorType, int color) {
+        super(start, finish, cursorType, color);
     }
 
     @Override
     public boolean isMouseOver(double x, double y) {
-        return check(start.x, finish.x, x) && check(start.y, finish.y, y);
+        return check(start.x, end.x, x) && check(start.y, end.y, y);
     }
 
     private static boolean check(float s, float f, double v) {
@@ -44,6 +43,7 @@ public class InteractiveBox extends RenderBox implements GuiEventListener {
     public boolean mouseDrag(double x, double y, int clickType, double xChange, double yChange, double oldX, double oldY) {
         return false;
     }
+
     public void mouseClick(double x, double y) {
     }
 

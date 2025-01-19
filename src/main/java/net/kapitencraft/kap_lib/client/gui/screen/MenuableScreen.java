@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -67,21 +68,38 @@ public class MenuableScreen extends Screen {
 
             return true;
         } else if (this.active != null) {
-            this.active.hide(this);
-            this.active = null;
+            this.closeMenu();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     private GuiEventListener makeMenu(IMenuBuilder builder, double pMouseX, double pMouseY) {
-        Menu menu = builder.createMenu(Mth.floor(pMouseX), Mth.floor(pMouseY));
+        Menu menu = builder.createMenu(Mth.floor(pMouseX), Mth.floor(pMouseY), this);
         if (menu != null) {
             this.active = menu;
             this.active.show();
             return this.active;
         }
         return null;
+    }
+
+    public void closeMenu() {
+        this.active.hide(this);
+        this.active = null;
+    }
+
+    @Override
+    public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
+        if (pKeyCode == 256 && this.active != null) {
+            closeMenu();
+            return true;
+        }
+        return super.keyPressed(pKeyCode, pScanCode, pModifiers);
+    }
+
+    @Override
+    public void setFocused(@Nullable GuiEventListener pListener) {
+        super.setFocused(pListener == this ? null : pListener);
     }
 }

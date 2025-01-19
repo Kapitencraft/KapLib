@@ -61,6 +61,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class MiscHelper {
+    public static final String OVERFLOW_MANA_ID = "overflowMana";
     //EAST = new Rotation("x+", 90, 1);
     //WEST = new Rotation("x-",270, 3);
     //SOUTH = new Rotation("z+", 180, 2);
@@ -71,8 +72,7 @@ public class MiscHelper {
      * @param stack the {@link ItemStack} to get the slot from
      * @return the {@link EquipmentSlot} dedicated to this stack
      */
-    @Contract("null -> fail")
-    public static EquipmentSlot getSlotForStack(ItemStack stack) {
+    public static EquipmentSlot getSlotForStack(@NotNull ItemStack stack) {
         return LivingEntity.getEquipmentSlotForItem(stack);
     }
 
@@ -89,8 +89,7 @@ public class MiscHelper {
         ClientHelper.sendElytraBoostParticles(target, random, delta, new Color(0, 0, 1, 1), new Color(.5f, 0, .5f, 1));
     }
 
-    @Contract("null -> fail")
-    public static void swapHands(LivingEntity living) {
+    public static void swapHands(@NotNull LivingEntity living) {
         ItemStack mainHand = living.getMainHandItem();
         living.setItemInHand(InteractionHand.MAIN_HAND, living.getOffhandItem());
         living.setItemInHand(InteractionHand.OFF_HAND, mainHand);
@@ -115,8 +114,7 @@ public class MiscHelper {
      * @param ench the enchantment this calculation is based on (see {@link net.minecraft.world.item.enchantment.MendingEnchantment})
      * @return the amount of capacity that hasn't been used
      */
-    @Contract("null, _, _ -> fail; _, _, null -> fail")
-    public static int repairPlayerItems(Player player, int value, Enchantment ench) {
+    public static int repairPlayerItems(@NotNull Player player, int value, @NotNull Enchantment ench) {
         Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(ench, player, ItemStack::isDamaged);
         if (entry != null) {
             ItemStack itemstack = entry.getValue();
@@ -130,6 +128,9 @@ public class MiscHelper {
 
     }
 
+    /**
+     * checks whether the given item is contained inside the given tag
+     */
     public static boolean is(Item item, TagKey<Item> tagKey) {
         return item.builtInRegistryHolder().is(tagKey);
     }
@@ -440,17 +441,13 @@ public class MiscHelper {
     public static Stream<ItemStack> getArmorEquipment(LivingEntity living) {
         return Arrays.stream(ARMOR_EQUIPMENT).map(living::getItemBySlot);
     }
-    public static int createCustomIndex(EquipmentSlot slot) {
-        return switch (slot) {
-            case HEAD -> 0;
-            case CHEST -> 1;
-            case LEGS -> 2;
-            case FEET -> 3;
-            case OFFHAND -> 4;
-            case MAINHAND -> 5;
-        };
-    }
 
+    /**
+     * @param living the entity to increase the effect of
+     * @param effect the effect to increase
+     * @param ticks the amount of time, in ticks, to increase by
+     * @return whether the effect was active and has been increased
+     */
     public static boolean increaseEffectDuration(LivingEntity living, MobEffect effect, int ticks) {
         if (living.hasEffect(effect)) {
             MobEffectInstance oldInstance = living.getEffect(effect);
@@ -458,11 +455,9 @@ public class MiscHelper {
             MobEffectInstance effectInstance = new MobEffectInstance(effect, oldInstance.getDuration() + ticks, oldInstance.getAmplifier(), oldInstance.isAmbient(), oldInstance.isVisible(), oldInstance.showIcon(), oldInstance, oldInstance.getFactorData());
             living.removeEffect(effect);
             living.addEffect(effectInstance);
-            return false;
-        } else {
-            living.addEffect(new MobEffectInstance(effect, 1, ticks));
             return true;
         }
+        return false;
     }
 
 
@@ -474,8 +469,8 @@ public class MiscHelper {
         return copy;
     }
 
-    @Contract("null, _, _ -> fail; _, _, _ -> param1")
-    public static List<ItemStack> shrinkDrops(List<ItemStack> drops, Item item, final int amount) {
+    @Contract("_, _, _ -> param1")
+    public static List<ItemStack> shrinkDrops(@NotNull List<ItemStack> drops, Item item, final int amount) {
         repeat(drops.size(), i -> {
             int varAmount = amount;
             ItemStack stack = drops.get(i);

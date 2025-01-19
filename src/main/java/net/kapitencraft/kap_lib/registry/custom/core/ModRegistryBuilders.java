@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
@@ -23,6 +24,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public interface ModRegistryBuilders {
 
+    RegistryBuilder<OverlayProperties> OVERLAY_PROPERTIES = makeBuilder(ExtraRegistryKeys.OVERLAY_PROPERTIES);
     RegistryBuilder<GlyphEffect> GLYPH_EFFECTS = makeBuilder(ExtraRegistryKeys.GLYPH_EFFECTS);
     RegistryBuilder<IRequestable<?, ?>> REQUESTABLES_BUILDER = makeBuilder(ExtraRegistryKeys.REQUESTABLES);
     RegistryBuilder<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENTS_BUILDER = makeBuilder(ExtraRegistryKeys.REQ_CONDITIONS);

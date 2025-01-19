@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.client.widget.menu.drop_down.DropDownMenu;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.Validate;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -14,11 +15,12 @@ public class EnumElement<T extends Enum<T>> extends ListElement implements IValu
     private final Function<T, Component> nameMapper;
     private final Consumer<T> onChange;
 
-    public EnumElement(ListElement parent, DropDownMenu menu, Component component, T[] elements, Function<T, Component> nameMapper, Consumer<T> onChange) {
+    public EnumElement(ListElement parent, DropDownMenu menu, Component component, T[] elements, Function<T, Component> nameMapper, Consumer<T> onChange, @Nullable T selected) {
         super(parent, menu, component);
         this.nameMapper = nameMapper;
         this.onChange = onChange;
         Arrays.stream(elements).map(ListItem::new).forEach(this::addElementInternal);
+        this.selected = selected;
     }
 
     private void addElementInternal(Element element) {
@@ -66,6 +68,7 @@ public class EnumElement<T extends Enum<T>> extends ListElement implements IValu
         private T[] elements;
         private Function<T, Component> nameMapper;
         private Consumer<T> onChange;
+        private T current;
 
         public Builder<T> setElements(T[] elements) {
             this.elements = elements;
@@ -82,12 +85,17 @@ public class EnumElement<T extends Enum<T>> extends ListElement implements IValu
             return this;
         }
 
+        public Builder<T> setCurrent(T current) {
+            this.current = current;
+            return this;
+        }
+
         @Override
         public EnumElement<T> build(ListElement element, DropDownMenu menu) {
             Validate.notNull(elements, "elements may not be null");
             Validate.notNull(nameMapper, "nameMapper may not be null");
             Validate.notNull(onChange, "onChange may not be null");
-            return new EnumElement<>(element, menu, name, elements, nameMapper, onChange);
+            return new EnumElement<>(element, menu, name, elements, nameMapper, onChange, current);
         }
     }
 }

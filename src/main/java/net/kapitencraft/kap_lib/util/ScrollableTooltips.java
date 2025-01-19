@@ -21,7 +21,7 @@ public class ScrollableTooltips {
     private static int initY = 0;
     private static float scale = 1;
     private static int oldTooltipSize = 0;
-    private static ItemStack stack = ItemStack.EMPTY;
+    private static int stackHash = 0;
 
     @SubscribeEvent
     public static void registerScrollable(RenderTooltipEvent.Pre event) {
@@ -30,9 +30,9 @@ public class ScrollableTooltips {
         Vector2i pos = new Vector2i(event.getX(), event.getY());
         int height = event.getY();
         boolean isHigherThanScreen = toolTipSize.y > screenSize.y || height + toolTipSize.y > screenSize.y;
-        if (stack != event.getItemStack()) {
+        if (stackHash != event.getComponents().hashCode()) {
             scrollY = 0;
-            stack = event.getItemStack();
+            stackHash = event.getComponents().hashCode();
         }
         if (scrollY == 0 || !isHigherThanScreen) {
             int i = toolTipSize.y + 3;
@@ -55,8 +55,8 @@ public class ScrollableTooltips {
     @SubscribeEvent
     public static void scrollEvent(ScreenEvent.MouseScrolled.Pre event) {
         double scrollScale = ClientModConfig.getScrollScale();
-        if (stack != ItemStack.EMPTY) {
-            event.setCanceled(true);
+        if (stackHash != 0) {
+            //event.setCanceled(true); //TODO fix
             float scrollDelta = (float) event.getScrollDelta();
             int scrollOffset = Mth.floor(scrollDelta * scrollScale);
             if (Screen.hasControlDown()) {
