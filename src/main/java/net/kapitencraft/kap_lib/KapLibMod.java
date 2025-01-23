@@ -29,6 +29,7 @@ import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
@@ -36,8 +37,8 @@ import java.io.File;
 import java.text.DecimalFormat;
 
 @Mod(KapLibMod.MOD_ID)
-public class KapLibMod
-{
+@ApiStatus.Internal
+public class KapLibMod {
     public static final String MOD_ID = "kap_lib";
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final Marker MARKER = Markers.getMarker("KapLib");
@@ -59,6 +60,7 @@ public class KapLibMod
         ExtraParticleTypes.REGISTRY.register(modEventBus);
         ExtraRecipeSerializers.REGISTRY.register(modEventBus);
         ExtraRecipeTypes.REGISTRY.register(modEventBus);
+        ExtraMobEffects.REGISTRY.register(modEventBus);
 
         RequirementTypes.REGISTRY.register(modEventBus);
         SetBonusTypes.REGISTRY.register(modEventBus);

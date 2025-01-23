@@ -7,15 +7,18 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
 public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeaponEnchantment {
+    @ApiStatus.Internal
     default String mapName() {
         return Objects.requireNonNull(ForgeRegistries.ENCHANTMENTS.getKey((Enchantment) this), "unknown enchantment").toString();
     }
+
     CountType countType();
 
     int getCountAmount(int level);

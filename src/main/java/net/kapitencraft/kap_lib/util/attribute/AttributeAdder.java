@@ -28,6 +28,7 @@ public class AttributeAdder {
         addAll(event, ExtraAttributes.BONUS_ATTACK_SPEED.get(), ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.CRIT_CHANCE.get(), ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.COOLDOWN_REDUCTION.get(), LIVINGS);
+        addAll(event, ExtraAttributes.VITALITY.get(), ONLY_WITH_BRAIN);
         addToPlayer(event,
                 ExtraAttributes.MINING_FORTUNE,
                 ExtraAttributes.PRISTINE,

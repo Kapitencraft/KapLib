@@ -1,0 +1,4 @@
+fixed Mana Overlay being shown by default
+removed ModProtectionEnchantment as it wasn't useful
+fixed client projectile-move-desync when traveling at high speed
+fixed Vitality Attribute not added to entities

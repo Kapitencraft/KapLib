@@ -138,8 +138,8 @@ public class OverlayManager {
                 properties,
                 player -> Component.translatable(
                         "overlay.mana.display",
-                        MathHelper.round(player.getAttributeValue(ExtraAttributes.MANA.get()), 1),
-                                MathHelper.round(player.getPersistentData().getDouble(MiscHelper.OVERFLOW_MANA_ID), 1),
+                        MathHelper.shortRound(player.getAttributeValue(ExtraAttributes.MANA.get())),
+                                MathHelper.shortRound(player.getPersistentData().getDouble(MiscHelper.OVERFLOW_MANA_ID)),
                                 player.getAttributeValue(ExtraAttributes.MAX_MANA.get()),
                                 MathHelper.defRound(player.getPersistentData().getDouble("manaRegen") * 20)
                 ).withStyle(ChatFormatting.BLUE)

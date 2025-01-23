@@ -443,6 +443,7 @@ public class MiscHelper {
     }
 
     /**
+     * only increases, not adds the effect duration
      * @param living the entity to increase the effect of
      * @param effect the effect to increase
      * @param ticks the amount of time, in ticks, to increase by
@@ -452,12 +453,20 @@ public class MiscHelper {
         if (living.hasEffect(effect)) {
             MobEffectInstance oldInstance = living.getEffect(effect);
             assert oldInstance != null;
-            MobEffectInstance effectInstance = new MobEffectInstance(effect, oldInstance.getDuration() + ticks, oldInstance.getAmplifier(), oldInstance.isAmbient(), oldInstance.isVisible(), oldInstance.showIcon(), oldInstance, oldInstance.getFactorData());
-            living.removeEffect(effect);
-            living.addEffect(effectInstance);
+            oldInstance.duration += ticks;
             return true;
         }
         return false;
+    }
+
+    public static void maxEffectDuration(LivingEntity living, MobEffect effect, int minTicks) {
+        if (living.hasEffect(effect)) {
+            MobEffectInstance oldInstance = living.getEffect(effect);
+            assert oldInstance != null;
+            oldInstance.duration = Math.max(oldInstance.duration, minTicks);
+        } else {
+            living.addEffect(new MobEffectInstance(effect, minTicks));
+        }
     }
 
 

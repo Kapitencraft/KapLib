@@ -13,6 +13,7 @@
   "attribute.name.generic.bonus_attack_speed": "Bonus Attack Speed",
   "attribute.name.generic.crit_damage": "§1Crit Damage",
   "attribute.name.generic.dodge": "§0Dodge",
+  "attribute.name.generic.double_jump": "Double Jump",
   "attribute.name.generic.draw_speed": "§6Draw Speed",
   "attribute.name.generic.ferocity": "§eFerocity",
   "attribute.name.generic.fishing_speed": "Fishing Speed",
@@ -24,6 +25,7 @@
   "attribute.name.generic.max_mana": "§3Max Mana",
   "attribute.name.generic.mining_speed": "Mining Speed",
   "attribute.name.generic.strength": "§gStrength",
+  "attribute.name.generic.vitality": "§4Vitality",
 
   "configure_overlays.title": "Configure Overlays",
   "command.failed.console": "Can not perform this command from the console",
@@ -45,6 +47,10 @@
   "dimension.minecraft.the_nether": "The Nether",
   "dimension.minecraft.the_end": "The End",
 
+  "effect.kap_lib.stun": "Stun",
+  "effect.stun.released": "Stun ended!",
+  "effect.stun.timer": "Stunned for another %1$ss",
+
   "ench_desc.missing": "No Description found :C",
   "ench_desc.not_tradeable": "Can not be traded with Villagers",
   "ench_desc.shift": "press [Shift] for enchantment descriptions",
@@ -57,6 +63,7 @@
   "generic.crit_chance": "Crit Chance",
   "generic.crit_damage": "§1Crit Damage",
   "generic.dodge": "§0Dodge",
+  "generic.double_jump": "Double Jump",
   "generic.draw_speed": "§6Draw Speed",
   "generic.ferocity": "§eFerocity",
   "generic.fishing_speed": "Fishing Speed",
@@ -71,6 +78,7 @@
   "generic.projectile_speed": "Projectile Speed",
   "generic.ranged_damage": "Ranged Damage",
   "generic.strength": "§gStrength",
+  "generic.vitality": "§4Vitality",
 
   "gui.alignment": "Alignment",
   "gui.alignment.x": "Width Alignment",

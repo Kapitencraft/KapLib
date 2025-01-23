@@ -18,9 +18,9 @@ public abstract class ProjectileMixin extends Entity {
         super(p_19870_, p_19871_);
     }
 
-    @ModifyVariable(method = "shootFromRotation", at = @At(value = "HEAD"), index = 4, argsOnly = true)
-    private float in(float i, Entity entity, float p_37253_, float p_37254_, float p_37255_, float actualSpeed, float p_37257_) {
-        if (entity instanceof LivingEntity living) {
+    @ModifyVariable(method = "shootFromRotation", at = @At(value = "HEAD"), ordinal = 3, argsOnly = true)
+    private float in(float i, Entity entity, float pX, float pY, float pZ, float pVelocity, float pInaccuracy) {
+        if (entity instanceof LivingEntity living) { //TODO fix client & server vec issues
             return (float) (i * (1 + AttributeHelper.getSaveAttributeValue(ExtraAttributes.PROJECTILE_SPEED.get(), living) / 100));
         }
         return i;

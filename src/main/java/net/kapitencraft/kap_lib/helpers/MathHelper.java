@@ -69,6 +69,9 @@ public interface MathHelper {
         return round(no, 2);
     }
 
+    static double shortRound(double no) {
+        return round(no, 1);
+    }
 
     /**
      * updated damage calculation:
@@ -490,5 +493,19 @@ public interface MathHelper {
                 randomBetween(source, box.minY, box.maxY),
                 randomBetween(source, box.minZ, box.maxZ)
         );
+    }
+
+    static float getOversizeScale(Vec3 original, Vec3 clamped) {
+        return pickLargest((float) (clamped.x / original.x), (float) (clamped.y / original.y), (float) (clamped.z / original.z));
+    }
+
+    static float pickLargest(float... values) {
+        Float min = null;
+        for (float f : values) {
+            if (min == null || min < f) {
+                min = f;
+            }
+        }
+        return min == null ? -1 : min;
     }
 }

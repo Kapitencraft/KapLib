@@ -64,8 +64,8 @@ public class Cooldown {
         int cooldownTicks = getCooldownTime(entity);
         int defaultTime = entity instanceof LivingEntity living ? MathHelper.cooldown(living, this.defaultTime) : this.defaultTime;
         return Component.translatable("cooldown.display", (cooldownTicks > 0 ?
-                Component.translatable("cooldown.active").withStyle(ChatFormatting.RED).append(CommonComponents.SPACE).append(Component.literal("(" + MathHelper.round(cooldownTicks / 20., 1) + "s)").withStyle(ChatFormatting.DARK_GRAY))
-                : Component.translatable("cooldown.inactive").withStyle(ChatFormatting.GREEN).append(Component.literal(", " + MathHelper.round(defaultTime / 20., 1) + "s").withStyle(ChatFormatting.DARK_GRAY))
+                Component.translatable("cooldown.active").withStyle(ChatFormatting.RED).append(CommonComponents.SPACE).append(Component.literal("(" + MathHelper.shortRound(cooldownTicks / 20.) + "s)").withStyle(ChatFormatting.DARK_GRAY))
+                : Component.translatable("cooldown.inactive").withStyle(ChatFormatting.GREEN).append(Component.literal(", " + MathHelper.shortRound(defaultTime / 20.) + "s").withStyle(ChatFormatting.DARK_GRAY))
                 )
         );
     }

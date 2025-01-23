@@ -103,7 +103,7 @@ public interface ExtraAttributes {
     RegistryObject<Attribute> FISHING_SPEED = register0Max("fishing_speed", 0);
 
     //Mana
-    RegistryObject<Attribute> MAX_MANA = register0Max("max_mana", 0);
+    RegistryObject<Attribute> MAX_MANA = register0Max("max_mana", 100);
     RegistryObject<Attribute> MANA = register0Max("mana", 100);
     RegistryObject<Attribute> MANA_COST = register("mana_cost", 0, 0, 100000);
     RegistryObject<Attribute> MANA_REGEN = register0Max("mana_regen", 0);

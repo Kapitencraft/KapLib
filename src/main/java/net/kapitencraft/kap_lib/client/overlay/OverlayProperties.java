@@ -100,7 +100,7 @@ public class OverlayProperties {
     }
 
     public OverlayProperties createCopy() {
-        return new OverlayProperties(this.x.value, this.y.value, this.x.scale, this.y.scale, this.x.alignment, this.y.alignment);
+        return new OverlayProperties(this.x.copy(), this.y.copy(), this.visible);
     }
 
     public void hide() {
@@ -209,6 +209,14 @@ public class OverlayProperties {
                 case MIDDLE -> axisMax / 2 + value;
                 case BOTTOM_RIGHT -> axisMax - value;
             };
+        }
+
+        public Axis copy() {
+            return new Axis(
+                    this.value,
+                    this.scale,
+                    this.alignment
+            );
         }
 
         private void copy(Axis axis) {

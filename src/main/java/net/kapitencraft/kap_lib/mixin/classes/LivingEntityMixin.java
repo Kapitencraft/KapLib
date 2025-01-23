@@ -6,9 +6,12 @@ import net.kapitencraft.kap_lib.helpers.AttributeHelper;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeMap;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.registry.ExtraMobEffects;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -17,6 +20,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.extensions.IForgeLivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
@@ -33,11 +37,16 @@ import java.util.List;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ICooldownable {
+    @Unique
     private final List<Cooldown> cooldowns = new ArrayList<>();
 
     @Shadow public abstract ItemStack getItemBySlot(EquipmentSlot pSlot);
 
     @Shadow @Final private AttributeMap attributes;
+
+    @Shadow public abstract boolean hasEffect(MobEffect pEffect);
+
+    @Shadow protected abstract boolean trapdoorUsableAsLadder(BlockPos pPos, BlockState pState);
 
     public LivingEntityMixin(EntityType<?> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -89,5 +98,10 @@ public abstract class LivingEntityMixin extends Entity implements ICooldownable 
 
     public @NotNull List<Cooldown> getActiveCooldowns() {
         return cooldowns;
+    }
+
+    @Inject(method = "isImmobile", at = @At("HEAD"), cancellable = true)
+    private void addStunEffect(CallbackInfoReturnable<Boolean> cir) {
+        if (this.hasEffect(ExtraMobEffects.STUN.get())) cir.setReturnValue(true);
     }
 }
