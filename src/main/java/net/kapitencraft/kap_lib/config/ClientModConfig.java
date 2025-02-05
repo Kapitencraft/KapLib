@@ -17,7 +17,7 @@ public class ClientModConfig {
         BUILDER.comment("Damage Indicator Settings").push("damage_indicator");
         ENABLE_DAMAGE_INDICATOR = BUILDER.comment("whether to enable or disable damage indicators")
                         .define("enable_indicator", true);
-        DAMAGE_INDICATOR_LIFETIME = BUILDER.comment("how long the damage indicator should life for in ticks")
+        DAMAGE_INDICATOR_LIFETIME = BUILDER.comment("how long the damage indicator should live for in ticks")
                         .defineInRange("indicator_lifetime", 35, 10, 100);
 
         BUILDER.pop().comment("Settings for GUI elements").push("gui");
@@ -38,8 +38,14 @@ public class ClientModConfig {
                 .defineEnum("type", ChromaType.LINEAR);
         CHROMA_SPACING = BUILDER.comment("how wide each color should be rendered\nwith large values = less spread")
                 .defineInRange("spacing", 2., 0.5, 5.);
-        CHROMA_ORIGIN = BUILDER.comment("where the origin of the chroma (eg it's rotation and animation direction) should be")
+        CHROMA_ORIGIN = BUILDER.comment("where the origin of the chroma (e.g. it's rotation and animation direction) should be")
                 .defineEnum("origin", ChromaOrigin.BOTTOM_RIGHT);
+
+        BUILDER.pop().comment("configuration for enchantment display").push("enchantment");
+        SHOW_ENCHANTMENT_OBTAIN_DISPLAY = BUILDER.comment("whether to show the enchantments obtain display", "e.g. if it's a treasure enchantment or can't be traded with villagers", "only shows on books")
+                        .define("obtain_display", true);
+        SHOW_ENCHANTMENT_APPLICABLES = BUILDER.comment("whether to show the items a given enchantment can be applied to", "only shows on books")
+                        .define("show_applicable", true);
 
         BUILDER.pop();
         PING_COLOR = BUILDER
@@ -66,6 +72,9 @@ public class ClientModConfig {
     private static final ForgeConfigSpec.EnumValue<ChatFormatting> PING_COLOR;
 
     private static final ForgeConfigSpec.BooleanValue SHOW_LIFE_STEAL_PARTICLE;
+
+    private static final ForgeConfigSpec.BooleanValue SHOW_ENCHANTMENT_OBTAIN_DISPLAY;
+    private static final ForgeConfigSpec.BooleanValue SHOW_ENCHANTMENT_APPLICABLES;
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 
@@ -105,5 +114,13 @@ public class ClientModConfig {
     }
     public static ChromaOrigin getChromaOrigin() {
         return CHROMA_ORIGIN.get();
+    }
+
+    public static boolean showObtainDisplay() {
+        return SHOW_ENCHANTMENT_OBTAIN_DISPLAY.get();
+    }
+
+    public static boolean showApplyDisplay() {
+        return SHOW_ENCHANTMENT_APPLICABLES.get();
     }
 }

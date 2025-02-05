@@ -1,0 +1,18 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "kap_lib:font/no_trading.png",
+      "height": 8,
+      "ascent": 7,
+      "chars": ["\uF000"]
+    },
+    {
+      "type": "bitmap",
+      "file": "kap_lib:font/treasure.png",
+      "height": 8,
+      "ascent": 7,
+      "chars": ["\uF001"]
+    }
+  ]
+}

@@ -41,7 +41,7 @@ public class ModEventBusClientEvents {
             if (living == null || living.getAttribute(ExtraAttributes.DRAW_SPEED.get()) == null) {
                 return 0.0F;
             } else {
-                return living.getUseItem() != stack ? 0.0F : (float)((stack.getUseDuration() * living.getAttributeValue(ExtraAttributes.DRAW_SPEED.get()) / 100) - living.getUseItemRemainingTicks()) / 20.0F;
+                return living.getUseItem() != stack ? 0.0F : (float)((stack.getUseDuration() - living.getUseItemRemainingTicks()) / 20.0F  * living.getAttributeValue(ExtraAttributes.DRAW_SPEED.get()) / 100);
             }
         });
     }

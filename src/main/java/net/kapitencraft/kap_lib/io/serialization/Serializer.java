@@ -29,4 +29,8 @@ public abstract class Serializer<T, K extends DynamicOps<T>, L> {
         if (object == null) return defaulted.get();
         return IOHelper.get(codec.parse(generator, object), MiscHelper.nonNullOr(defaulted, ()-> null));
     }
+
+    public Codec<L> getCodec() {
+        return codec;
+    }
 }

@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.collection;
 
+import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.stream.Consumers;
 import org.jetbrains.annotations.Contract;
@@ -11,11 +12,16 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * class that contains a map of a map making it able to contain 3 different types
  */
 public class DoubleMap<MK, K, V> extends HashMap<MK, Map<K, V>> {
+    public static <MK, K, V> Codec<DoubleMap<MK, K, V>> createCodec(Codec<MK> mKeyCodec, Codec<K> keyCodec, Codec<V> valueCodec) {
+        return Codec.unboundedMap(mKeyCodec, Codec.unboundedMap(keyCodec, valueCodec)).xmap(DoubleMap::of, Function.identity());
+    }
+
     /**
      * used to make a double map immutable, throwing an exception when trying to modify it
      */
@@ -111,17 +117,9 @@ public class DoubleMap<MK, K, V> extends HashMap<MK, Map<K, V>> {
         }
         return get(mk, k);
     }
-
     public V get(MK MK, K k) {
-        return this.get(MK).get(k);
-    }
-
-    public V getOrNull(MK MK, K k) {
-        try {
-            return get(MK, k);
-        } catch (Exception e) {
-            return null;
-        }
+        if (!containsKey(MK)) return null;
+        return get(MK).get(k);
     }
 
     public V computeIfAbsent(MK mk, K k, BiFunction<MK, K, V> mapper) {

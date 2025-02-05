@@ -182,7 +182,7 @@ public class ResizeBox extends InteractiveBox implements IMenuBuilder {
     }
 
     private void reset() {
-        OverlayManager controller = LibClient.controller;
+        OverlayManager controller = LibClient.overlays;
         controller.reset(this.dedicatedHolder);
         this.dedicatedHolder.reset(ClientHelper.getScreenWidth(), ClientHelper.getScreenHeight(), Minecraft.getInstance().player, Minecraft.getInstance().font, this);
         this.reapplyPosition();

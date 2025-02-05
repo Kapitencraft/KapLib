@@ -22,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
@@ -100,11 +101,12 @@ public class MiscHelper {
      * @param effect the effect to be added
      * @return the new Style with applied effect
      */
+    public static Style withSpecial(Style style, Supplier<? extends GlyphEffect> effect) {
+        return withSpecial(style, effect.get());
+    }
+
     public static Style withSpecial(Style style, GlyphEffect effect) {
-        Style newStyle = style.withClickEvent(style.getClickEvent());
-        EffectsStyle effectsStyle = EffectsStyle.of(newStyle);
-        effectsStyle.addEffect(effect);
-        return newStyle;
+        return EffectsStyle.of(style).addEffect(effect);
     }
 
     /**
@@ -122,10 +124,8 @@ public class MiscHelper {
             itemstack.setDamageValue(itemstack.getDamageValue() - i);
             int j = value - i / 2;
             return j > 0 ? repairPlayerItems(player, j, ench) : 0;
-        } else {
-            return value;
         }
-
+        return value;
     }
 
     /**

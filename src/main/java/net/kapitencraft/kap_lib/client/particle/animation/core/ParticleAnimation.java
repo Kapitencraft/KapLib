@@ -11,7 +11,6 @@ import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SendParticleAnimationPacket;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
-import net.kapitencraft.kap_lib.client.particle.animation.spawners.VisibleSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
 import net.minecraft.CrashReport;
@@ -208,7 +207,7 @@ public class ParticleAnimation {
          */
         @OnlyIn(Dist.CLIENT)
         public void register() {
-            LibClient.particleManager.accept(this.build());
+            LibClient.animations.accept(this.build());
         }
     }
 

@@ -9,7 +9,9 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Projectile.class)
 public abstract class ProjectileMixin extends Entity {
@@ -24,5 +26,10 @@ public abstract class ProjectileMixin extends Entity {
             return (float) (i * (1 + AttributeHelper.getSaveAttributeValue(ExtraAttributes.PROJECTILE_SPEED.get(), living) / 100));
         }
         return i;
+    }
+
+    @Inject(method = "lerpMotion", at = @At(value = "INVOKE", target = "Ljava/lang/Math;sqrt(D)D"), cancellable = true)
+    private void fixRotationLock(double pX, double pY, double pZ, CallbackInfo ci) {
+        if (pX == 0 && pY == 0 && pZ == 0) ci.cancel();
     }
 }

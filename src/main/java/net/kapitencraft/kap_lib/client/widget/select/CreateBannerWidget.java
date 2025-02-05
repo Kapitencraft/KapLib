@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.widget;
+package net.kapitencraft.kap_lib.client.widget.select;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.client.BannerPatternRenderer;
 import net.kapitencraft.kap_lib.client.UsefulTextures;
+import net.kapitencraft.kap_lib.client.widget.PositionedWidget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.util.Color;
 import net.minecraft.client.Minecraft;

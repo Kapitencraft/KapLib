@@ -23,10 +23,7 @@ public class ClientTestCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("client_test")
                     .then(Commands.literal("screen")
-                        .executes(commandContext -> {
-                            ClientHelper.postCommandScreen = new TestScreen();
-                            return 1;
-                        })
+                        .executes(ClientHelper.createScreenCommand(TestScreen::new))
                 ).then(Commands.literal("particle")
                         .executes(ClientTestCommand::spawnParticle)
                 ).then(Commands.literal("chroma")
@@ -36,7 +33,7 @@ public class ClientTestCommand {
     }
 
     private static int testChroma(CommandContext<CommandSourceStack> commandContext) {
-        for (int i = 0; i < 10; i++) commandContext.getSource().sendSystemMessage(Component.literal("EEEEEEEEEEEEEEEEEE").setStyle(MiscHelper.withSpecial(Style.EMPTY, GlyphEffects.RAINBOW.get())));
+        for (int i = 0; i < 10; i++) commandContext.getSource().sendSystemMessage(Component.literal("EEEEEEEEEEEEEEEEEE").setStyle(MiscHelper.withSpecial(Style.EMPTY, GlyphEffects.RAINBOW)));
         return 1;
     }
 

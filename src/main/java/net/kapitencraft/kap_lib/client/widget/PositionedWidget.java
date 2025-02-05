@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.client.widget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 
 public abstract class PositionedWidget extends Widget {
-    protected final int x, y, width, height;
+    public final int x, y, width, height;
 
     protected PositionedWidget(int x, int y, int width, int height) {
         this.x = x;

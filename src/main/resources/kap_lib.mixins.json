@@ -21,6 +21,7 @@
     "client.StringRenderOutputMixin"
   ],
   "mixins": [
+    "AbstractArrowMixin",
     "AnvilMenuMixin",
     "AttributeInstanceMixin",
     "AttributeMapMixin",

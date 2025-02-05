@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,11 +27,16 @@ public interface UsefulTextures {
         graphics.pose().popPose();
     }
 
+    static void renderSliderWithLine(GuiGraphics graphics, int sliderWidth, boolean showLine, float movePercent, int rightAlignment, int minY, int height) {
+        graphics.fill(rightAlignment - sliderWidth, minY, rightAlignment, minY +height, 0x2DFFFFFF);
+        UsefulTextures.renderSlider(graphics, rightAlignment - sliderWidth, minY + (int) (movePercent * height), showLine, sliderWidth / 12f);
+    }
+
     static void renderSlider(GuiGraphics graphics, int x, int y, boolean light, float scale) {
         graphics.pose().pushPose();
         graphics.pose().translate(x, y, 0);
         graphics.pose().scale(scale, scale, 0);
-        graphics.blit(SLIDER, 0, 0, 232 + (light ? 0 : 12), 0, 12, 15, 256, 256);
+        graphics.blit(SLIDER, 0, 0, 232 + (light ? 0 : 12), 0, 12, 15);
         graphics.pose().popPose();
     }
 
@@ -40,9 +46,9 @@ public interface UsefulTextures {
         float scale = size / 16f;
         graphics.pose().scale(scale, scale, 0);
         if (hovered) {
-            graphics.blit(ARROWS, 0, 0, 96.0F, 32.0F, 32, 32, 256, 256);
+            graphics.blit(ARROWS, 0, 0, 96, 32, 32, 32);
         } else {
-            graphics.blit(ARROWS, 0, 0, 96.0F, 0.0F, 32, 32, 256, 256);
+            graphics.blit(ARROWS, 0, 0, 96, 0, 32, 32);
         }
         graphics.pose().popPose();
     }
@@ -53,9 +59,9 @@ public interface UsefulTextures {
         graphics.pose().scale(size / 16f, size / 16f, 0);
         RenderSystem.setShaderTexture(0, ARROWS);
         if (hovered) {
-            graphics.blit(ARROWS, 0, 0, 64.0F, 32.0F, 32, 32, 256, 256);
+            graphics.blit(ARROWS, 0, 0, 64, 32, 32, 32);
         } else {
-            graphics.blit(ARROWS, 0, 0, 64.0F, 0.0F, 32, 32, 256, 256);
+            graphics.blit(ARROWS, 0, 0, 64, 0, 32, 32);
         }
         graphics.pose().popPose();
     }

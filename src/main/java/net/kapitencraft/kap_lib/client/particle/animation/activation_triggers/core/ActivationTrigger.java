@@ -41,7 +41,7 @@ public interface ActivationTrigger<T extends TriggerInstance> {
         }
 
         public void run() {
-            LibClient.particleManager.triggerComplete(animator, trigger);
+            LibClient.animations.triggerComplete(animator, trigger);
         }
 
         public T getTrigger() {

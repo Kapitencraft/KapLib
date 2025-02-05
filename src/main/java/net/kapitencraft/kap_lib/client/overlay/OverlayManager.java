@@ -7,31 +7,21 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.gui.screen.ConfigureOverlaysScreen;
 import net.kapitencraft.kap_lib.client.overlay.box.ResizeBox;
-import net.kapitencraft.kap_lib.client.overlay.holder.MultiLineOverlay;
 import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
-import net.kapitencraft.kap_lib.client.overlay.holder.SimpleOverlay;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.event.ModEventFactory;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterConfigurableOverlaysEvent;
 import net.kapitencraft.kap_lib.helpers.*;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
-import net.kapitencraft.kap_lib.registry.Overlays;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.RegistryObject;
@@ -64,7 +54,7 @@ public class OverlayManager {
     }
 
     public static void setVisible(Overlay overlay, boolean b) {
-        OverlayManager manager = LibClient.controller;
+        OverlayManager manager = LibClient.overlays;
         if (b) {
             manager.visible.add(overlay);
             manager.invisible.remove(overlay);
@@ -108,11 +98,6 @@ public class OverlayManager {
     private final ConfigureOverlaysScreen screen = new ConfigureOverlaysScreen();
     private final List<Overlay> visible = new ArrayList<>(), invisible = new ArrayList<>();
 
-    public int openConfigureScreenFromCommand(CommandContext<CommandSourceStack> context) {
-        ClientHelper.postCommandScreen = screen;
-        return 1;
-    }
-
     private final Map<ResourceLocation, OverlayProperties> loadedPositions = new HashMap<>();
 
     private OverlayManager() {
@@ -123,43 +108,12 @@ public class OverlayManager {
      * fires the {@link RegisterConfigurableOverlaysEvent} for registering custom overlays
      */
     private void register() {
-        this.createRenderer(Overlays.STATS, properties -> new MultiLineOverlay(
-                Component.translatable("overlay.stats"),
-                properties,
-                -10,
-                List.of(
-                        player -> Component.translatable("overlay.stats.protection", getDamageProtection(player)).withStyle(ChatFormatting.DARK_BLUE),
-                        player -> Component.translatable("overlay.stats.ehp", MathHelper.defRound(player.getHealth() * 100 / (100 - getDamageProtection(player)))).withStyle(ChatFormatting.DARK_AQUA),
-                        player -> Component.translatable("overlay.stats.speed", cancelGravityMovement(player)).withStyle(ChatFormatting.YELLOW)
-                )
-        ));
-        this.createRenderer(Overlays.MANA, properties -> new SimpleOverlay(
-                Component.translatable("overlay.mana"),
-                properties,
-                player -> Component.translatable(
-                        "overlay.mana.display",
-                        MathHelper.shortRound(player.getAttributeValue(ExtraAttributes.MANA.get())),
-                                MathHelper.shortRound(player.getPersistentData().getDouble(MiscHelper.OVERFLOW_MANA_ID)),
-                                player.getAttributeValue(ExtraAttributes.MAX_MANA.get()),
-                                MathHelper.defRound(player.getPersistentData().getDouble("manaRegen") * 20)
-                ).withStyle(ChatFormatting.BLUE)
-        ));
+        OverlaysRegister.register(this);
         ModEventFactory.fireModEvent(new RegisterConfigurableOverlaysEvent(this::createRenderer));
         construct();
     }
 
-    private static double getDamageProtection(LivingEntity living) {
-        return MathHelper.defRound(100 - MathHelper.calculateDamage(100, living.getAttributeValue(Attributes.ARMOR), living.getAttributeValue(Attributes.ARMOR_TOUGHNESS)));
-    }
-
-    private static double cancelGravityMovement(LivingEntity living) {
-        Vec3 delta = living.getDeltaMovement();
-        if (living.onGround())
-            delta = delta.add(0, living.getAttributeValue(ForgeMod.ENTITY_GRAVITY.get()), 0);
-        return MathHelper.defRound(delta.length() * 20);
-    }
-
-    private void createRenderer(RegistryObject<OverlayProperties> provider, Function<OverlayProperties, Overlay> constructor) {
+    void createRenderer(RegistryObject<OverlayProperties> provider, Function<OverlayProperties, Overlay> constructor) {
         if (this.constructors.containsKey(provider))
             throw new IllegalStateException("detected double registered Overlay with ID '" + provider.getId() + "'");
         this.constructors.put(provider, constructor);
@@ -169,7 +123,7 @@ public class OverlayManager {
      * save the Overlay locations to the corresponding file
      */
     public static void save() {
-        IOHelper.saveFile(getOrCreateFile(), CODEC, LibClient.controller);
+        IOHelper.saveFile(getOrCreateFile(), CODEC, LibClient.overlays);
     }
 
     /**
@@ -177,7 +131,7 @@ public class OverlayManager {
      */
     @SubscribeEvent
     public static void overlays(RegisterGuiOverlaysEvent event) {
-        event.registerAboveAll("main", LibClient.controller::render);
+        event.registerAboveAll("main", LibClient.overlays::render);
     }
 
     /**
@@ -246,7 +200,7 @@ public class OverlayManager {
      * reset all Overlays
      */
     public static void resetAll() {
-        OverlayManager controller = LibClient.controller;
+        OverlayManager controller = LibClient.overlays;
         Collection<RegistryObject<OverlayProperties>> locations = controller.constructors.keySet();
         locations.forEach(location -> {
             Overlay holder = controller.map.get(location);

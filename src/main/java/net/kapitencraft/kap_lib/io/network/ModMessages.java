@@ -47,6 +47,7 @@ public class ModMessages {
                 .simpleChannel();
         ModEventFactory.fireModEvent(new RegisterRequestEvent(PACKET_HANDLER, messageID));
         addMessage(SyncRequirementsPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncRequirementsPacket::new);
+        addMessage(SyncBonusesPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncBonusesPacket::new);
         addMessage(DisplayTotemActivationPacket.class, NetworkDirection.PLAY_TO_CLIENT, DisplayTotemActivationPacket::new);
         addMessage(SendParticleAnimationPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendParticleAnimationPacket::new);
     }

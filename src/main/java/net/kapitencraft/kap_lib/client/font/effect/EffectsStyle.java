@@ -13,7 +13,7 @@ public interface EffectsStyle {
      * adds an effect to the {@link Style}
      * @param effect the effect to add
      */
-    void addEffect(GlyphEffect effect);
+    Style addEffect(GlyphEffect effect);
 
     /**
      * @return all effects applied

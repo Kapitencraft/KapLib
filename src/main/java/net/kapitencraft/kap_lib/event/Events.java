@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.cooldown.ICooldownable;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
+import net.kapitencraft.kap_lib.io.network.S2C.SyncBonusesPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
@@ -14,6 +15,7 @@ import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -25,6 +27,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -41,10 +44,19 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.ApiStatus;
 
+import java.awt.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+/**
+ * event listeners for KapLib.
+ * <br>there shouldn't be any reason for Modders to use this class
+ */
+@ApiStatus.Internal
 @Mod.EventBusSubscriber
 public class Events {
     /**
@@ -81,6 +93,7 @@ public class Events {
     public static void playerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             ModMessages.sendToClientPlayer(new SyncRequirementsPacket(RequirementManager.instance), serverPlayer);
+            ModMessages.sendToClientPlayer(new SyncBonusesPacket(BonusManager.instance), serverPlayer);
         }
     }
 
@@ -99,11 +112,11 @@ public class Events {
         event.setCharge((int) (event.getCharge() * event.getEntity().getAttributeValue(ExtraAttributes.DRAW_SPEED.get()) / 100));
     }
 
-    private static final Queue<UUID> arrowHelper = Queue.create();
+    private static final Map<ResourceKey<Level>, Queue<UUID>> arrowHelper = new HashMap<>();
 
     @SubscribeEvent
     public static void joinLevelEvent(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof AbstractArrow arrow) {
+        if (event.getEntity() instanceof AbstractArrow arrow && !arrow.level().isClientSide()) {
             if (arrow.getOwner() instanceof LivingEntity living) {
                 ItemStack bow = living.getMainHandItem();
                 CompoundTag arrowTag = arrow.getPersistentData();
@@ -116,7 +129,7 @@ public class Events {
                         int level = bow.getEnchantmentLevel(enchantment);
                         tag.putInt("Level", level);
                         arrowTag.put(ForgeRegistries.ENCHANTMENTS.getKey(enchantment).toString(), bowEnchantment.write(tag, level, bow, living, arrow));
-                        if (bowEnchantment.shouldTick()) arrowHelper.add(arrow.getUUID());
+                        if (bowEnchantment.shouldTick()) arrowHelper.get(arrow.level().dimension()).add(arrow.getUUID());
                     }
                 }
             }
@@ -148,13 +161,16 @@ public class Events {
     @SubscribeEvent
     public static void serverTick(TickEvent.LevelTickEvent event) {
         if (event.level instanceof ServerLevel serverLevel) {
-            arrowHelper.queue(uuid -> {
+            //TODO fix dimension bug
+            arrowHelper.putIfAbsent(serverLevel.dimension(), Queue.create());
+            Queue<UUID> queue = arrowHelper.get(serverLevel.dimension());
+            queue.queue(uuid -> {
                 Arrow arrow = (Arrow) serverLevel.getEntity(uuid);
                 if (arrow != null) {
                     CompoundTag arrowTag = arrow.getPersistentData();
                     ModBowEnchantment.loadFromTag(null, arrowTag, ModBowEnchantment.ExePhase.TICK, 0, arrow);
                 } else {
-                    arrowHelper.remove(uuid);
+                    queue.remove(uuid);
                 }
             });
         }

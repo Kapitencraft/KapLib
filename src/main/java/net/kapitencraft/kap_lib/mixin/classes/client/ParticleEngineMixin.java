@@ -21,7 +21,7 @@ public class ParticleEngineMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void addAnimationTick(CallbackInfo ci) {
         this.level.getProfiler().push("KapLib particle animation");
-        LibClient.particleManager.tick(this.random);
+        LibClient.animations.tick(this.random);
         this.level.getProfiler().pop();
     }
 }

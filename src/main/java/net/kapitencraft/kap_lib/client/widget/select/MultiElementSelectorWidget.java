@@ -1,6 +1,8 @@
-package net.kapitencraft.kap_lib.client.widget;
+package net.kapitencraft.kap_lib.client.widget.select;
 
 import net.kapitencraft.kap_lib.client.UsefulTextures;
+import net.kapitencraft.kap_lib.client.widget.PositionedWidget;
+import net.kapitencraft.kap_lib.client.widget.Widget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.NotNull;
@@ -70,10 +72,9 @@ public abstract class MultiElementSelectorWidget<K> extends PositionedWidget {
     }
 
     private void renderSlider(GuiGraphics graphics, int pMouseX, int pMouseY) {
-        int movePercent = this.scrollOffset / this.allElementsSize;
+        float movePercent = (float) this.scrollOffset / this.allElementsSize;
         boolean flag = MathHelper.is2dBetween(pMouseX, pMouseY, this.getMaxX() - SLIDER_WIDTH, this.y, this.getMaxX(), this.getMaxY());
-        graphics.fill(this.width - SLIDER_WIDTH, 0, this.width, this.height, 0x2DFFFFFF);
-        UsefulTextures.renderSlider(graphics, this.width - SLIDER_WIDTH, movePercent * this.width, flag, .5f);
+        UsefulTextures.renderSliderWithLine(graphics, 6, flag, movePercent, this.getMaxX(), 0, this.height);
     }
 
     @Override

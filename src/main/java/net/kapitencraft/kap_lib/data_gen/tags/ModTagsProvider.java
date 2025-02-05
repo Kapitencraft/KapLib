@@ -4,7 +4,9 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.BlockTagsProvider;
@@ -36,6 +38,18 @@ public class ModTagsProvider {
         @Override
         protected void addTags(HolderLookup.@NotNull Provider pProvider) {
             this.tag(ExtraTags.EntityTypes.ENDER_MOBS).add(EntityType.ENDER_DRAGON, EntityType.ENDERMAN, EntityType.ENDERMITE);
+        }
+    }
+
+    public static class DamageType extends DamageTypeTagsProvider {
+
+        public DamageType(PackOutput p_270719_, CompletableFuture<HolderLookup.Provider> p_270256_, @Nullable ExistingFileHelper existingFileHelper) {
+            super(p_270719_, p_270256_, KapLibMod.MOD_ID, existingFileHelper);
+        }
+
+        @Override
+        protected void addTags(HolderLookup.Provider pProvider) {
+            this.tag(ExtraTags.DamageTypes.MAGIC).add(DamageTypes.MAGIC, DamageTypes.INDIRECT_MAGIC, DamageTypes.DRAGON_BREATH, DamageTypes.SONIC_BOOM);
         }
     }
 }

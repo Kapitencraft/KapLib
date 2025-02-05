@@ -27,7 +27,9 @@
   "attribute.name.generic.strength": "§gStrength",
   "attribute.name.generic.vitality": "§4Vitality",
 
+  "configure_enchantment_colors.title": "Configure Enchantment Colors",
   "configure_overlays.title": "Configure Overlays",
+
   "command.failed.console": "Can not perform this command from the console",
 
   "command.overlay.reset.success": "Overlays Reset Successfully",
@@ -51,10 +53,17 @@
   "effect.stun.released": "Stun ended!",
   "effect.stun.timer": "Stunned for another %1$ss",
 
+  "enchantment_colors.curse": "Curse",
+  "enchantment_colors.max_level": "Max Level",
+  "enchantment_colors.over_level": "Over Level",
+  "enchantment_colors.ultimate": "Ultimate",
+
+  "enchantment_group.normal": "Normal",
+  "enchantment_group.curse": "Curse",
+  "enchantment_group.ultimate": "Ultimate",
+
   "ench_desc.missing": "No Description found :C",
-  "ench_desc.not_tradeable": "Can not be traded with Villagers",
   "ench_desc.shift": "press [Shift] for enchantment descriptions",
-  "ench_desc.treasure": "Treasure Enchantment; may not be obtained from Enchantment Table",
 
   "generic.ability_damage": "§cAbility Damage",
   "generic.armor_shredder": "Armor Shredding",
@@ -97,7 +106,7 @@
   "stat_req.minecraft.killed": "%1$s %2$s kills",
 
   "overlay.stats": "Player Stats",
-  "overlay.stats.protection": "Protection: %1$s %",
+  "overlay.stats.protection": "Protection: %1$s%%",
   "overlay.stats.ehp": "Effective HP: %1$s",
   "overlay.stats.speed": "Current Speed; %1$sb/s",
   "overlay.mana": "Mana",

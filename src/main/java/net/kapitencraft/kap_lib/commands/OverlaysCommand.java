@@ -14,16 +14,11 @@ public class OverlaysCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("overlays")
                 .then(Commands.literal("configure")
-                        .executes(OverlaysCommand::configure))
+                        .executes(ClientHelper.createScreenCommand(ConfigureOverlaysScreen::new)))
                 .then(Commands.literal("reset")
                         .executes(OverlaysCommand::reset)
                 )
         );
-    }
-
-    private static int configure(CommandContext<CommandSourceStack> context) {
-        ClientHelper.postCommandScreen = new ConfigureOverlaysScreen();
-        return 1;
     }
 
     private static int reset(CommandContext<CommandSourceStack> context) {

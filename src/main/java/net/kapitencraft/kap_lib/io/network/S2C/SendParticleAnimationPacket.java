@@ -26,7 +26,7 @@ public class SendParticleAnimationPacket implements SimplePacket {
 
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> sup) {
-        sup.get().enqueueWork(() -> LibClient.particleManager.accept(animation));
+        sup.get().enqueueWork(() -> LibClient.animations.accept(animation));
         return true;
     }
 }

@@ -2,8 +2,6 @@ package net.kapitencraft.kap_lib.client.gui.screen;
 
 import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
-import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
-import net.kapitencraft.kap_lib.client.overlay.box.InteractiveBox;
 import net.kapitencraft.kap_lib.client.overlay.box.ResizeBox;
 import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.DropDownMenu;
@@ -22,7 +20,7 @@ import java.util.*;
  * change GUI locations screen
  */
 public class ConfigureOverlaysScreen extends MenuableScreen {
-    private final OverlayManager controller = LibClient.controller;
+    private final OverlayManager controller = LibClient.overlays;
     private final List<ResizeBox> boxes = new ArrayList<>();
     private ResizeBox active;
     private final Map<Overlay, ResizeBox> boxesForOverlay = new HashMap<>();

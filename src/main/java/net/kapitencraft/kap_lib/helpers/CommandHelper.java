@@ -2,6 +2,8 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import net.kapitencraft.kap_lib.client.enchantment_color.ConfigureEnchantmentColorsCommand;
+import net.kapitencraft.kap_lib.client.enchantment_color.ConfigureEnchantmentColorsScreen;
 import net.kapitencraft.kap_lib.commands.OverlaysCommand;
 import net.kapitencraft.kap_lib.commands.ClientTestCommand;
 import net.kapitencraft.kap_lib.commands.ServerTestCommand;
@@ -26,6 +28,8 @@ public interface CommandHelper {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         OverlaysCommand.register(dispatcher);
         ClientTestCommand.register(dispatcher);
+        //1.20 teaser?
+        ConfigureEnchantmentColorsCommand.register(dispatcher);
     }
 
     @ApiStatus.Internal

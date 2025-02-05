@@ -1,0 +1,103 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_boots.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0001"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_leggings.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0002"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_chestplate.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0003"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_helmet.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0004"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_pickaxe.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0005"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_sword.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0006"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_axe.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0007"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/diamond_hoe.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0008"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/bow.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0009"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/crossbow_standby.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0010"]
+    },
+
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/elytra.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0011"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/shears.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0012"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/trident.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0013"]
+    },
+    {
+      "type": "bitmap",
+      "file": "minecraft:item/fishing_rod.png",
+      "height": 10,
+      "ascent": 8,
+      "chars": ["\u0014"]
+    }
+  ]
+}

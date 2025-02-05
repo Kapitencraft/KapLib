@@ -15,8 +15,15 @@ public class ModifyFishingHookStatsEvent extends Event {
     public final Player player;
     public final ItemStack fishingRod;
 
+    /**
+     * lure-speed of the hook. values {@code >= 600} instantly attract fish
+     */
     public final IntegerModifierCollector lureSpeed;
     public final IntegerModifierCollector luck;
+    /**
+     * increases the hook speed of the hook. <br>
+     * values {@code >= 4} have a chance for instant hooking and values {@code >= 6} will instantly hook
+     */
     public final IntegerModifierCollector hookSpeed;
 
     public ModifyFishingHookStatsEvent(Entity hook, Player player, int lureSpeed, int luck, ItemStack fishingRod) {

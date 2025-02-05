@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.brigadier.Command;
 import com.mojang.math.Axis;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -44,10 +46,22 @@ import org.lwjgl.glfw.GLFW;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientHelper {
+    /**
+     * use {@link #createScreenCommand(Supplier)} instead
+     */
+    @ApiStatus.Internal
     public static Screen postCommandScreen = null;
+
+    public static Command<CommandSourceStack> createScreenCommand(Supplier<Screen> creator) {
+        return stack -> {
+            postCommandScreen = creator.get();
+            return 1;
+        };
+    }
 
     private static final ResourceLocation GUARDIAN_BEAM_LOCATION = new ResourceLocation("textures/entity/guardian_beam.png");
     private static final RenderType BEAM_RENDER_TYPE = RenderType.entityCutoutNoCull(GUARDIAN_BEAM_LOCATION);

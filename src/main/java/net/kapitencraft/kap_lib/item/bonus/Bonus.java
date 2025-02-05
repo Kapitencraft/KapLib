@@ -32,6 +32,11 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
         additionalToNetwork(buf);
     }
 
+    public static Bonus<?> fromNw(FriendlyByteBuf buf) {
+        DataPackSerializer<? extends Bonus<?>> serializer = buf.readRegistryId();
+        return serializer.fromNetwork(buf);
+    }
+
     @Override
     default JsonObject toJson() {
         JsonObject object = new JsonObject();

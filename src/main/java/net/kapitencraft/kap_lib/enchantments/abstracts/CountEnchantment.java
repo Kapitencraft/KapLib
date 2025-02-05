@@ -27,19 +27,17 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
     default double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, DamageSource source) {
         CompoundTag attackerTag = attacker.getPersistentData();
         HashMap<UUID, Integer> map = !attackerTag.getCompound(this.mapName()).isEmpty() ? IOHelper.getHashMapTag(attackerTag.getCompound(this.mapName())) : new HashMap<>();
-        if (!map.containsKey(attacked.getUUID())) {
-            map.put(attacked.getUUID(), 1);
-        }
+        map.putIfAbsent(attacked.getUUID(), 1);
         int i = map.get(attacked.getUUID());
         if (i >= this.getCountAmount(level)) {
-            i = 1;
-            if (this.countType() == CountType.NORMAL) {
+            if (this.countType() != CountType.EXCEPT) {
                 damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, 0, source);
             }
+            i = this.countType() == CountType.ONCE ? -1 : 1;
         } else {
-            i++;
-            if (this.countType() == CountType.EXCEPT) {
-                damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, i, source);
+            if (i >= 0) {
+                if (this.countType() != CountType.NORMAL) damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, i, source);
+                i++;
             }
         }
         map.put(attacked.getUUID(), i);
@@ -50,7 +48,17 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
     double mainExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, int curHit, DamageSource source);
 
     enum CountType {
+        /**
+         * executed when reaching the given count
+         */
         NORMAL,
-        EXCEPT;
+        /**
+         * executed except the counter is the given count
+         */
+        EXCEPT,
+        /**
+         * executed counter times, and then never again
+         */
+        ONCE;
     }
 }

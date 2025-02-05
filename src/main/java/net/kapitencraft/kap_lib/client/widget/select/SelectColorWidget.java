@@ -1,5 +1,6 @@
-package net.kapitencraft.kap_lib.client.widget;
+package net.kapitencraft.kap_lib.client.widget.select;
 
+import net.kapitencraft.kap_lib.client.widget.PositionedWidget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.gui.GuiGraphics;
 
