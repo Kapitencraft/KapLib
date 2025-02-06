@@ -133,16 +133,20 @@ public interface MathHelper {
     /**
      * @return if the given {@code val} value is between {@code start} and {@code end}
      */
-    static boolean isBetween(int start, int end, double val) {
+    static boolean isBetween(double val, int start, int end) {
+        return Mth.clamp(val, start, end) == val;
+    }
+
+    static boolean isBetween(double val, double start, double end) {
         return Mth.clamp(val, start, end) == val;
     }
 
     /**
      * @return if the given values are between the given start and end values
-     * @see MathHelper#isBetween(int, int, double) isBetween
+     * @see MathHelper#isBetween(double, int, int) isBetween
      */
     static boolean is2dBetween(double xVal, double yVal, int xStart, int yStart, int xEnd, int yEnd) {
-        return isBetween(xStart, xEnd, xVal) && isBetween(yStart, yEnd, yVal);
+        return isBetween(xVal, xStart, xEnd) && isBetween(yVal, yStart, yEnd);
     }
 
     /**

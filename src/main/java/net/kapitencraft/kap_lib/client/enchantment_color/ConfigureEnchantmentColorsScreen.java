@@ -22,7 +22,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     private final EnchantmentColorManager manager;
     private final List<ColorElement> elements = new ArrayList<>();
     private int maxScroll;
-    private int scrollY;
+    private float scrollY;
     private boolean scrolling;
     private int leftPos, topPos;
     private ColorElement active;
@@ -53,12 +53,12 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         pGuiGraphics.fill(this.leftPos + 2, this.topPos + 12, this.leftPos + WIDTH - 2, this.topPos + HEIGHT - 2, 0xFF505050);
         pGuiGraphics.enableScissor(this.leftPos + 2, this.topPos + 12, this.leftPos + WIDTH - 2, this.topPos + HEIGHT - 2);
         for (int i = 0; i < this.elements.size(); i++) {
-            this.elements.get(i).render(pGuiGraphics, (ELEMENT_HEIGHT + 2) * i + scrollY + 12, pPartialTick, getHoveredIndex(pMouseY) == i);
+            this.elements.get(i).render(pGuiGraphics, (ELEMENT_HEIGHT + 2) * i + (int) scrollY + 12, pPartialTick, getHoveredIndex(pMouseY) == i);
         }
         pGuiGraphics.disableScissor();
         if (shouldShowSlider(pMouseX, pMouseY)) {
-            float percentage = (float) scrollY / maxScroll;
-            UsefulTextures.renderSliderWithLine(pGuiGraphics, SLIDER_WIDTH, true, percentage, this.leftPos + WIDTH - 2, this.topPos + 12, HEIGHT - 14);
+            float percentage = (float) -scrollY / maxScroll;
+            UsefulTextures.renderSliderWithLine(pGuiGraphics, SLIDER_WIDTH, scrolling, percentage, this.leftPos + WIDTH - 2, this.topPos + 12, HEIGHT - 14);
         }
     }
 
@@ -66,13 +66,14 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         return maxScroll > 0 && MathHelper.is2dBetween(pMouseX, pMouseY, this.leftPos + WIDTH - 2 - SLIDER_WIDTH, this.topPos + 12, this.leftPos + WIDTH - 2, this.topPos + HEIGHT - 12);
     }
 
-    private boolean sliderHovered(double pMouseX, double pMouseY) {
-
+    private boolean sliderHovered(double pMouseY) {
+        int positionY = this.topPos + 12 + (int) scrollY * (HEIGHT - 14) / maxScroll;
+        return MathHelper.isBetween(pMouseY, positionY, positionY + 7.5);
     }
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        if (sliderHovered(pMouseX, pMouseY)) {
+        if (sliderHovered(pMouseY)) {
             scrolling = true;
             return true;
         }
@@ -95,7 +96,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
         if (MathHelper.is2dBetween(pMouseX, pMouseY, this.leftPos + 2, this.topPos + 12, this.leftPos + WIDTH - 2, this.topPos + HEIGHT - 2)) {
-            scrollY -= (int) (pDelta * ClientModConfig.getScrollScale());
+            scrollY += (int) (pDelta * ClientModConfig.getScrollScale());
             scrollY = Mth.clamp(scrollY, -maxScroll, 0);
             return true;
         }
@@ -105,7 +106,8 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         if (scrolling) {
-
+            this.scrollY += (int) (maxScroll * (pDragY / (HEIGHT - 14)));
+            this.scrollY = Mth.clamp(scrollY, -maxScroll, 0);
         }
         return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
     }
@@ -116,7 +118,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     }
 
     private int getHoveredIndex(int y) {
-        int index = (y - this.topPos + this.scrollY) / ELEMENT_HEIGHT;
+        int index = (y - this.topPos + (int) this.scrollY) / ELEMENT_HEIGHT;
         return index < 0 || index >= this.elements.size() ? -1 : index;
     }
 

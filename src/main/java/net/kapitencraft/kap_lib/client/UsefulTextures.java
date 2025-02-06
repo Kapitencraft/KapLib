@@ -28,8 +28,12 @@ public interface UsefulTextures {
     }
 
     static void renderSliderWithLine(GuiGraphics graphics, int sliderWidth, boolean showLine, float movePercent, int rightAlignment, int minY, int height) {
-        graphics.fill(rightAlignment - sliderWidth, minY, rightAlignment, minY +height, 0x2DFFFFFF);
-        UsefulTextures.renderSlider(graphics, rightAlignment - sliderWidth, minY + (int) (movePercent * height), showLine, sliderWidth / 12f);
+        graphics.fill(rightAlignment - sliderWidth, minY, rightAlignment, minY + height, 0x2DFFFFFF);
+        UsefulTextures.renderSlider(graphics, rightAlignment - sliderWidth, minY + (int) (movePercent * (height - sliderHeightForWidth(sliderWidth))), showLine, sliderWidth / 12f);
+    }
+
+    static int sliderHeightForWidth(int width) {
+        return 15 * width / 12;
     }
 
     static void renderSlider(GuiGraphics graphics, int x, int y, boolean light, float scale) {
