@@ -57,7 +57,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         }
         pGuiGraphics.disableScissor();
         if (shouldShowSlider(pMouseX, pMouseY)) {
-            float percentage = (float) -scrollY / maxScroll;
+            float percentage = -scrollY / maxScroll;
             UsefulTextures.renderSliderWithLine(pGuiGraphics, SLIDER_WIDTH, scrolling, percentage, this.leftPos + WIDTH - 2, this.topPos + 12, HEIGHT - 14);
         }
     }
@@ -106,7 +106,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         if (scrolling) {
-            this.scrollY += (int) (maxScroll * (pDragY / (HEIGHT - 14)));
+            this.scrollY -= (int) (maxScroll * (pDragY / (HEIGHT - 14)));
             this.scrollY = Mth.clamp(scrollY, -maxScroll, 0);
         }
         return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
