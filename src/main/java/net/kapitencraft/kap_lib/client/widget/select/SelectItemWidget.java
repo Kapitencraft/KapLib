@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 public class SelectItemWidget extends SelectRegistryElementWidget<Item> {
@@ -17,8 +18,13 @@ public class SelectItemWidget extends SelectRegistryElementWidget<Item> {
     private final int elementsPerRow = (this.width - 2 - xOffset * 2) / 18;
     private final int maxHeight = ITEM_WIDTH_WITH_OFFSET * (itemsCache.size() / elementsPerRow);
 
-    protected SelectItemWidget(int x, int y, int width, int height, Component title, Font font) {
-        super(x, y, width, height, title, font);
+    protected SelectItemWidget(int x, int y, int width, int height, Component title, Font font, Consumer<Item> itemSink) {
+        super(x, y, width, height, title, font, ForgeRegistries.ITEMS, itemSink);
+    }
+
+    @Override
+    protected int getHoveredIndex(double pMouseX, double pMouseY) {
+        return 0;
     }
 
     @Override
@@ -30,5 +36,10 @@ public class SelectItemWidget extends SelectRegistryElementWidget<Item> {
             int row = i / elementsPerRow;
             graphics.renderItem(itemsCache.get(i), this.xOffset + column * ITEM_WIDTH_WITH_OFFSET, scrollY + row * ITEM_WIDTH_WITH_OFFSET);
         }
+    }
+
+    @Override
+    protected int size() {
+        return allElements.size() / elementsPerRow * 18;
     }
 }

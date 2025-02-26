@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.mixin.duck;
 
-import net.kapitencraft.kap_lib.mixin.classes.ClientboundSetEntityMotionPacketMixin;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 
 /**

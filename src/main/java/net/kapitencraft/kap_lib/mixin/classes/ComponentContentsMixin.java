@@ -19,6 +19,7 @@ public interface ComponentContentsMixin extends IKapLibComponentContents {
         else if (contents instanceof NbtContents) return VanillaComponentContentTypes.NBT.get();
         else if (contents instanceof ScoreContents) return VanillaComponentContentTypes.SCORE.get();
         else if (contents instanceof SelectorContents) return VanillaComponentContentTypes.SELECTOR.get();
+        else if (contents == ComponentContents.EMPTY) return VanillaComponentContentTypes.EMPTY.get();
         else return VanillaComponentContentTypes.TRANSLATABLE.get();
     }
 }

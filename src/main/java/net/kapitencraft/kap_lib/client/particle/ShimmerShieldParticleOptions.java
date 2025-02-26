@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
+import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
 import net.kapitencraft.kap_lib.util.Color;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -24,7 +25,7 @@ public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldPart
             Color.CODEC.fieldOf("minColor").forGetter(ShimmerShieldParticleOptions::getMinColor),
             Color.CODEC.fieldOf("maxColor").forGetter(ShimmerShieldParticleOptions::getMaxColor),
             Codec.FLOAT.fieldOf("maxSpeed").forGetter(ShimmerShieldParticleOptions::getMaxSpeed),
-            IOHelper.UUID_CODEC.fieldOf("uuid").forGetter(ShimmerShieldParticleOptions::getUUID)
+            ExtraCodecs.UUID.fieldOf("uuid").forGetter(ShimmerShieldParticleOptions::getUUID)
             ).apply(instance, ShimmerShieldParticleOptions::new) //that's a lot
     );
 

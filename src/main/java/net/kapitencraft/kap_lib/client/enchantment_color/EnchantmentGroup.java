@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.common.IExtensibleEnum;
+import org.jetbrains.annotations.NotNull;
 
 public enum EnchantmentGroup implements IExtensibleEnum, StringRepresentable {
     NORMAL,
@@ -18,7 +19,7 @@ public enum EnchantmentGroup implements IExtensibleEnum, StringRepresentable {
     }
 
     @Override
-    public String getSerializedName() {
+    public @NotNull String getSerializedName() {
         return this.name().toLowerCase();
     }
 

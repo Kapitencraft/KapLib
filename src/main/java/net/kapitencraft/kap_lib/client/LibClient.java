@@ -20,7 +20,6 @@ public interface LibClient {
      */
     OverlayManager overlays = OverlayManager.load();
 
-
     /**
      * handles the server data requests
      */
@@ -30,6 +29,4 @@ public interface LibClient {
      * handles particle animations
      */
     ParticleAnimationManager animations = new ParticleAnimationManager();
-
-    EnchantmentColorManager enchantmentColors = EnchantmentColorManager.load();
 }

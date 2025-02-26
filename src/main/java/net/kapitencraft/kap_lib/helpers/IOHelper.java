@@ -257,18 +257,6 @@ public class IOHelper {
         return null;
     }
 
-    public static final PrimitiveCodec<UUID> UUID_CODEC = new PrimitiveCodec<>() {
-        @Override
-        public <T> DataResult<UUID> read(DynamicOps<T> ops, T input) {
-            return ops.getStringValue(input).map(UUID::fromString);
-        }
-
-        @Override
-        public <T> T write(DynamicOps<T> ops, UUID value) {
-            return ops.createString(value.toString());
-        }
-    };
-
     public static CompoundTag putUuidList(List<UUID> list) {
         CompoundTag arrayTag = new CompoundTag();
         for (int i = 0; i < list.size(); i++) {
@@ -295,6 +283,13 @@ public class IOHelper {
             listTag.add(tag);
         });
         return listTag;
+    }
+
+    public static CompoundTag getOrCreateTag(CompoundTag tag, String name) {
+        if (tag.contains(name, 10)) return tag.getCompound(name);
+        CompoundTag data = new CompoundTag();
+        tag.put(name, data);
+        return data;
     }
 
     @FunctionalInterface

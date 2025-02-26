@@ -15,6 +15,8 @@ public interface VanillaComponentContentTypes {
 
     DeferredRegister<Codec<? extends ComponentContents>> REGISTRY = DeferredRegister.create(ExtraRegistryKeys.COMPONENT_CONTENTS_TYPES, "minecraft");
 
+    RegistryObject<Codec<ComponentContents>> EMPTY = REGISTRY.register("empty", () -> Codec.unit(ComponentContents.EMPTY));
+
     RegistryObject<Codec<LiteralContents>> LITERAL = REGISTRY.register("literal", VanillaComponentContentTypes::createLiterals);
 
     RegistryObject<Codec<KeybindContents>> KEY_BIND = REGISTRY.register("key_bind", VanillaComponentContentTypes::createKeybind);

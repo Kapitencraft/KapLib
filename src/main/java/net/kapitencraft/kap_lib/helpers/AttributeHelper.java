@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.common.ForgeMod;
+import org.w3c.dom.Attr;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -82,8 +83,7 @@ public interface AttributeHelper {
         if (!hasBeenAdded) {
             toReturn.put(attributeReq, modifier);
         }
-        multimap = toReturn;
-        return multimap;
+        return toReturn;
     }
 
     /**

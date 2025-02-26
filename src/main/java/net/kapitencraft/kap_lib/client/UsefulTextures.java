@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
@@ -68,5 +67,10 @@ public interface UsefulTextures {
             graphics.blit(ARROWS, 0, 0, 64, 0, 32, 32);
         }
         graphics.pose().popPose();
+    }
+
+    static void renderCheckBox(GuiGraphics graphics, int x, int y, int backgroundColor, boolean active) {
+        graphics.fill(x - 1, y - 1, x + 9, y + 9, backgroundColor);
+        if (active) renderCheckMark(graphics, x, y);
     }
 }

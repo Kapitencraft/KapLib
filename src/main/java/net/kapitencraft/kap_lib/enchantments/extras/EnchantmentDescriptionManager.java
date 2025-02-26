@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class EnchantmentDescriptionManager {
+
     private static final Style INFO_STYLE = Style.EMPTY.withColor(ChatFormatting.WHITE).withBold(false).withStrikethrough(false).withItalic(false).withObfuscated(false).withUnderlined(false);
 
     private static final ResourceLocation INFO_FONT_LOCATION = KapLibMod.res("enchantment_info"),

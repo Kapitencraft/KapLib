@@ -1,6 +1,9 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
+import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
+import net.kapitencraft.kap_lib.io.serialization.NbtSerializer;
+import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,10 +13,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeaponEnchantment {
+    Codec<Map<UUID, Integer>> DATA_CODEC = Codec.unboundedMap(ExtraCodecs.UUID, Codec.INT);
+    NbtSerializer<Map<UUID, Integer>> SERIALIZER = new NbtSerializer<>(DATA_CODEC, HashMap::new);
+
     @ApiStatus.Internal
     default String mapName() {
         return Objects.requireNonNull(ForgeRegistries.ENCHANTMENTS.getKey((Enchantment) this), "unknown enchantment").toString();
@@ -25,8 +32,9 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
 
     @Override
     default double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, DamageSource source) {
-        CompoundTag attackerTag = attacker.getPersistentData();
-        HashMap<UUID, Integer> map = !attackerTag.getCompound(this.mapName()).isEmpty() ? IOHelper.getHashMapTag(attackerTag.getCompound(this.mapName())) : new HashMap<>();
+        CompoundTag attackerTag = IOHelper.getOrCreateTag(attacker.getPersistentData(), "CountEnchantment");
+        String mapName = this.mapName();
+        HashMap<UUID, Integer> map = new HashMap<>(SERIALIZER.deserialize(attackerTag.contains(mapName, 10) ? attackerTag.get(mapName) : new CompoundTag()));
         map.putIfAbsent(attacked.getUUID(), 1);
         int i = map.get(attacked.getUUID());
         if (i >= this.getCountAmount(level)) {
@@ -41,7 +49,7 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
             }
         }
         map.put(attacked.getUUID(), i);
-        attackerTag.put(this.mapName(), IOHelper.putHashMapTag(map));
+        attackerTag.put(mapName, SERIALIZER.serialize(map));
         return damageAmount;
     }
 
