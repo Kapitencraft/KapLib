@@ -52,8 +52,8 @@ public class EnchantmentDescriptionManager {
             CompoundTag compoundtag = pStoredEnchantments.getCompound(i);
             Optional.ofNullable(ForgeRegistries.ENCHANTMENTS.getValue(EnchantmentHelper.getEnchantmentId(compoundtag))).ifPresent((ench) -> {
                 int level = EnchantmentHelper.getEnchantmentLevel(compoundtag);
-                MutableComponent component = (MutableComponent) ench.getFullname(level);
-                component.withStyle(MiscHelper.nonNullOr(EnchantmentColorManager.getStyle(ench, level), Style.EMPTY));
+                MutableComponent component = Component.empty();
+                component.append(((MutableComponent) ench.getFullname(level)).withStyle(MiscHelper.nonNullOr(EnchantmentColorManager.getStyle(ench, level), Style.EMPTY)));
                 if (fromBook(stack.getItem())) {
                     if (ClientModConfig.showObtainDisplay()) {
                         component.append(CommonComponents.SPACE);

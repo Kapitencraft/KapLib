@@ -1,1 +1,5 @@
 fixed crash when empty component contents are mistakenly thought to be translatable
+added gui-chroma shader (currently not animated)
+added a few more widgets, such as a chat-color selector
+changed Style Glyph-Effects are now saved in an array instead of a list
+fixed Styles not having effects as an optional codec field

@@ -27,11 +27,19 @@
   "attribute.name.generic.strength": "§gStrength",
   "attribute.name.generic.vitality": "§4Vitality",
 
-  "cec.enable_level": "Enable Level Predicate",
+  "cec.enable_level": "Level Predicate",
   "cec.max_level": "max",
   "cec.min_level": "min",
   "cec.relative": "relative",
   "cec.select_enchantment": "Select Enchantment",
+
+  "cec.style.bold": "Bold",
+  "cec.style.underlined": "Underlined",
+  "cec.style.italic": "Italic",
+  "cec.style.color": "Color",
+
+  "cec.select_level_bound.min": "Select Minimum Level",
+  "cec.select_level_bound.max": "Select Maximum Level",
 
   "configure_enchantment_colors.title": "Configure Enchantment Colors",
   "configure_overlays.title": "Configure Overlays",
@@ -105,6 +113,8 @@
   "gui.toggle_overlays": "Toggle Overlays",
 
   "item.requires": "requires %1$s to be used",
+
+  "number_value": "Value: %1$s",
 
   "stat_req.minecraft.mined": "%1$s %2$s mined",
   "stat_req.minecraft.used": "%1$s %2$s used",

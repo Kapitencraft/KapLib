@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal
-public class ModShaderStateShards {
-    public static final RenderStateShard.ShaderStateShard CHROMATIC = new RenderStateShard.ShaderStateShard(ModShaders::getRendertypeChromaShader);
+public interface ModShaderStateShards {
+    RenderStateShard.ShaderStateShard CHROMATIC = new RenderStateShard.ShaderStateShard(ModShaders::getRendertypeChromaShader);
+    RenderStateShard.ShaderStateShard GUI_CHROMA = new RenderStateShard.ShaderStateShard(ModShaders::getGuiChromaShader);
 }

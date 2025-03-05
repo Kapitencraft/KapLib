@@ -23,7 +23,12 @@ import java.util.List;
 
 public class EnchantmentColorManager {
     static Codec<EnchantmentColorManager> CODEC = EnchantmentColor.CODEC.listOf().xmap(EnchantmentColorManager::new, EnchantmentColorManager::getColors);
-    public static final EnchantmentColorManager instance = load();
+    @ApiStatus.Internal
+    private static EnchantmentColorManager instance = load();
+
+    public static EnchantmentColorManager getInstance() {
+        return instance;
+    }
 
     private final List<EnchantmentColor> colors = new ArrayList<>();
     private final DoubleMap<Enchantment, Integer, Style> cache = DoubleMap.create();
@@ -71,7 +76,7 @@ public class EnchantmentColorManager {
                         I18n.get("enchantment_colors.over_level"),
                         List.of(),
                         List.of(),
-                        new LevelRange(1, Integer.MAX_VALUE, true),
+                        new LevelRange(1, 255, true),
                         MiscHelper.withSpecial(Style.EMPTY, GlyphEffects.RAINBOW)
                 )
         ));
@@ -79,6 +84,14 @@ public class EnchantmentColorManager {
 
     public static EnchantmentColorManager load() {
         return IOHelper.loadFile(getOrCreateFile(), CODEC, EnchantmentColorManager::createDefault);
+    }
+
+    public static void reset() {
+        instance = createDefault();
+    }
+
+    public static void reload() {
+        instance = load();
     }
 
     private List<EnchantmentColor> getColors() {

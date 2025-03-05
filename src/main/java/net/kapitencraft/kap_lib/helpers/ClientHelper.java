@@ -66,7 +66,10 @@ public class ClientHelper {
     private static final ResourceLocation GUARDIAN_BEAM_LOCATION = new ResourceLocation("textures/entity/guardian_beam.png");
     private static final RenderType BEAM_RENDER_TYPE = RenderType.entityCutoutNoCull(GUARDIAN_BEAM_LOCATION);
 
-    public static void renderBeam(Vec3 start, LivingEntity living, int r, int g, int b, PoseStack stack, MultiBufferSource p_114833_) {
+    /**
+     * @param renderType rendertype to use. must be of type {@link DefaultVertexFormat#NEW_ENTITY}
+     */
+    public static void renderBeam(Vec3 start, LivingEntity living, int r, int g, int b, PoseStack stack, MultiBufferSource source, RenderType renderType) {
         float f1 = (float)living.level().getGameTime();
         float f2 = f1 * 0.5F % 1.0F;
         stack.pushPose();
@@ -97,7 +100,7 @@ public class ClientHelper {
         float f26 = Mth.sin(f7 + ((float)Math.PI * 1.5F)) * 0.2F;
         float f29 = -1.0F + f2;
         float f30 = f4 * 2.5F + f29;
-        VertexConsumer vertexconsumer = p_114833_.getBuffer(BEAM_RENDER_TYPE);
+        VertexConsumer vertexconsumer = source.getBuffer(renderType);
         PoseStack.Pose pose = stack.last();
         Matrix4f matrix4f = pose.pose();
         Matrix3f matrix3f = pose.normal();

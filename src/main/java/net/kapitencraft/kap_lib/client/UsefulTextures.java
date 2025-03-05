@@ -2,7 +2,9 @@ package net.kapitencraft.kap_lib.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public interface UsefulTextures {
@@ -72,5 +74,15 @@ public interface UsefulTextures {
     static void renderCheckBox(GuiGraphics graphics, int x, int y, int backgroundColor, boolean active) {
         graphics.fill(x - 1, y - 1, x + 9, y + 9, backgroundColor);
         if (active) renderCheckMark(graphics, x, y);
+    }
+
+    static void renderCheckBoxWithText(GuiGraphics graphics, int x, int y, int backgroundColor, boolean active, Font font, int textColor, Component text) {
+        renderCheckBox(graphics, x, y, backgroundColor, active);
+        graphics.drawString(font, text, x + 11, y, textColor);
+    }
+
+    static void renderCheckBoxWithText(GuiGraphics graphics, int x, int y, int backgroundColor, boolean active, Font font, int textColor, Component text, boolean dropShadow) {
+        renderCheckBox(graphics, x, y, backgroundColor, active);
+        graphics.drawString(font, text, x + 11, y, textColor, dropShadow);
     }
 }

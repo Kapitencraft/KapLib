@@ -19,3 +19,19 @@ vec2 filterStage(in vec2 stage, int type) {
     float yVal = stage.y * (stage.x / stage.y);
     return vec2(x ? 1. - stage.x : stage.x, y ? 1. - stage.y : stage.y);
 }
+
+const float DEFAULT_COLOR_WIDTH = 10.0;
+
+float chromaPos(float chromaType, vec2 stage, float spacing) {
+    int type = int(chromaType);
+    float l;
+    if (type == 0) {
+        l = length(stage);
+    } else if (type == 1) {
+        l = (stage.x + stage.y);
+    } else {
+        l = max(stage.x, stage.y);
+    }
+    l *= DEFAULT_COLOR_WIDTH * spacing;
+    return l;
+}

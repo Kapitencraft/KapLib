@@ -29,6 +29,10 @@ public class IntegerNumberRange extends NumberRange<Integer> {
         return max;
     }
 
+    public int getRange() {
+        return max-min;
+    }
+
     @Override
     public boolean test(Integer integer) {
         return min <= integer && integer <= max;

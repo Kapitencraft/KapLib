@@ -16,14 +16,19 @@ import java.util.Objects;
 public class ModShaders {
 
     @Nullable
-    private static ShaderInstance rendertypeChromaShader;
+    private static ShaderInstance rendertypeChromaShader, guiChromaShader;
 
     public static ShaderInstance getRendertypeChromaShader() {
-        return Objects.requireNonNull(rendertypeChromaShader, "attempted to get Chroma shader before load");
+        return Objects.requireNonNull(rendertypeChromaShader, "attempted to get Rendertype Chroma before load");
+    }
+
+    public static ShaderInstance getGuiChromaShader() {
+        return Objects.requireNonNull(guiChromaShader, "attempted to get Chroma shader before load");
     }
 
     @SubscribeEvent
     public static void createShaders(RegisterShadersEvent event) throws IOException {
         event.registerShader(new ShaderInstance(event.getResourceProvider(), KapLibMod.res("rendertype_chroma"), DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP), shaderInstance -> rendertypeChromaShader = shaderInstance);
+        event.registerShader(new ShaderInstance(event.getResourceProvider(), KapLibMod.res("gui_chroma"), DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP), inst -> guiChromaShader = inst);
     }
 }

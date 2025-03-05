@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.client.enchantment_color;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.util.range.simple.IntegerNumberRange;
+import net.minecraft.util.Mth;
 
 public class LevelRange extends IntegerNumberRange {
     static final Codec<LevelRange> CODEC = RecordCodecBuilder.create(levelRangeInstance ->
@@ -19,7 +20,8 @@ public class LevelRange extends IntegerNumberRange {
     private final boolean maxLevelRelative;
 
     public LevelRange(int min, int max, boolean maxLevelRelative) {
-        super(min, max);
+        super(Mth.clamp(min, -255, 255), Mth.clamp(max, -255, 255));
+        if (max < min) throw new IllegalArgumentException("min on level range smaller than max");
         this.maxLevelRelative = maxLevelRelative;
     }
 

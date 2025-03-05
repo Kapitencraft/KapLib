@@ -55,13 +55,13 @@ public interface ExtraCodecs {
             Codec.BOOL.optionalFieldOf("obfuscated", false).forGetter(Style::isObfuscated),
             Codec.STRING.optionalFieldOf("insertion").forGetter((p_237269_) -> Optional.ofNullable(p_237269_.getInsertion())),
             ResourceLocation.CODEC.optionalFieldOf("font", Style.DEFAULT_FONT).forGetter(Style::getFont),
-            ExtraRegistries.GLYPH_EFFECTS.getCodec().listOf().fieldOf("effects").forGetter(style -> EffectsStyle.of(style).getEffects())
+            ExtraRegistries.GLYPH_EFFECTS.getCodec().listOf().optionalFieldOf("effects", List.of()).forGetter(style -> List.of(EffectsStyle.of(style).getEffects()))
     ).apply(styleInstance, ExtraCodecs::createStyleFromCodec));
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     static Style createStyleFromCodec(Optional<TextColor> color, Boolean bold, Boolean italic, Boolean underlined, Boolean strikethrough, Boolean obfuscated, Optional<String> insertion, ResourceLocation font, List<GlyphEffect> effects) {
         Style style = new Style(color.orElse(null), bold, italic, underlined, strikethrough, obfuscated, null, null, insertion.orElse(null), font);
-        EffectsStyle.of(style).getEffects().addAll(effects);
+        EffectsStyle.of(style).setEffects(effects.toArray(GlyphEffect[]::new));
         return style;
     }
 
