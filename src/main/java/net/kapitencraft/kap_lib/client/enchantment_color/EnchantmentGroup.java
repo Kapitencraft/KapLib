@@ -12,6 +12,7 @@ public enum EnchantmentGroup implements IExtensibleEnum, StringRepresentable {
     CURSE,
     ULTIMATE;
 
+    @SuppressWarnings("deprecation")
     public static final EnumCodec<EnchantmentGroup> CODEC = StringRepresentable.fromEnum(EnchantmentGroup::values);
 
     public static EnchantmentGroup create(String name) {

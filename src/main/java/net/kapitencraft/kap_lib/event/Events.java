@@ -163,7 +163,6 @@ public class Events {
     @SubscribeEvent
     public static void serverTick(TickEvent.LevelTickEvent event) {
         if (event.level instanceof ServerLevel serverLevel) {
-            //TODO fix dimension bug
             arrowHelper.putIfAbsent(serverLevel.dimension(), Queue.create());
             Queue<UUID> queue = arrowHelper.get(serverLevel.dimension());
             queue.queue(uuid -> {

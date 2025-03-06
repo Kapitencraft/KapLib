@@ -2,8 +2,10 @@ package net.kapitencraft.kap_lib.client.enchantment_color;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.UsefulTextures;
+import net.kapitencraft.kap_lib.client.widget.PositionedWidget;
 import net.kapitencraft.kap_lib.client.widget.SelectChatColorWidget;
 import net.kapitencraft.kap_lib.client.widget.SelectCountWidget;
+import net.kapitencraft.kap_lib.client.widget.SelectEnumWidget;
 import net.kapitencraft.kap_lib.client.widget.select.ByNameRegistryElementSelectorWidget;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
@@ -31,8 +33,6 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
 
     private static final MutableComponent ADD = Component.literal("+");
     private static final MutableComponent ADD_HOVERED = Component.literal("+").withStyle(ChatFormatting.BOLD);
-    private static final Component BOLT = Component.translatable("style.bold").withStyle(ChatFormatting.BOLD);
-    private static final Component UNDERLINED = Component.translatable("style.underlined").withStyle(ChatFormatting.UNDERLINE);
 
     private final EnchantmentColorManager manager;
     private final List<ColorElement> elements = new ArrayList<>();
@@ -42,11 +42,10 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     private int leftPos, topPos;
     private ColorElement active;
     private ByNameRegistryElementSelectorWidget<Enchantment> enchantmentSelector;
-    private @Nullable SelectCountWidget selectCount;
-    private @Nullable SelectChatColorWidget selectColor;
+    private @Nullable PositionedWidget selector;
 
     protected ConfigureEnchantmentColorsScreen() {
-        super(Component.translatable("configure_enchantment_colors.title"));
+        super(Component.translatable("cec.title"));
         this.manager = EnchantmentColorManager.getInstance();
         List<EnchantmentColor> colors = manager.getAllColors();
         colors.stream().map(ColorElement::new).forEach(this.elements::add);
@@ -90,8 +89,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         pGuiGraphics.pose().pushPose();
         pGuiGraphics.pose().translate(0, 0, 100);
         this.enchantmentSelector.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-        if (this.selectCount != null) this.selectCount.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-        if (this.selectColor != null) this.selectColor.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        if (this.selector != null) this.selector.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         pGuiGraphics.pose().popPose();
     }
 
@@ -113,8 +111,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        if (selectCount != null) return selectCount.mouseClicked(pMouseX, pMouseY, pButton);
-        if (selectColor != null) return selectColor.mouseClicked(pMouseX, pMouseY, pButton);
+        if (selector != null) return selector.mouseClicked(pMouseX, pMouseY, pButton);
         if (enchantmentSelector.isVisible()) return enchantmentSelector.mouseClicked(pMouseX, pMouseY, pButton);
 
         if (shouldShowSlider(pMouseX, pMouseY)) {
@@ -137,7 +134,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         }
         if (isAddElementHovered(pMouseX, pMouseY)) {
             this.elements.add(new ColorElement(
-                    new EnchantmentColor(
+                    EnchantmentColor.create(
                             I18n.get("enchantment_colors.by_id", this.elements.size() + 1),
                             new ArrayList<>(),
                             new ArrayList<>(),
@@ -174,8 +171,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         if (enchantmentSelector.isVisible()) return enchantmentSelector.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
-        if (this.selectCount != null) return selectCount.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
-        if (this.selectColor != null) return selectColor.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+        if (this.selector != null) return selector.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
         if (scrolling) {
             this.scrollY = (float) (Mth.clamp(pMouseY - (this.topPos + 12), 0, HEIGHT - 14) * -maxScroll / (HEIGHT - 14));
         }
@@ -299,11 +295,13 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
                 active = this;
                 enchantmentSelector.setVisible(true);
             } else if (isGroupAddHovered(relativeX, relativeY)) {
-
+                List<EnchantmentGroup> groupValues = new ArrayList<>(List.of(EnchantmentGroup.values()));
+                groupValues.removeAll(this.groups);
+                selector = new SelectEnumWidget<>(leftPos + 152, topPos + 53, 100, 80, font, groupValues, EnchantmentGroup::getName, this::addGroup, Component.translatable("cec.select_group"));
             } else if (MathHelper.is2dBetween(relativeX, relativeY, 70, 10, 80, 60)) {
                 int id = (int) ((relativeY - 11) / 10);
                 if (id < this.enchantments.size()) this.enchantments.remove(id);
-            } else if (MathHelper.is2dBetween(relativeX, relativeY, 81, 10, 161, 60)) {
+            } else if (MathHelper.is2dBetween(relativeX, relativeY, 152, 10, 161, 60)) {
                 int id = (int) ((relativeY - 11) / 10);
                 if (id < this.groups.size()) this.groups.remove(id);
             } else if (MathHelper.is2dBetween(relativeX, relativeY, 280, 11, 290, 21)) {
@@ -313,17 +311,22 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
             } else if (MathHelper.is2dBetween(relativeX, relativeY, 280, 35, 290, 45)) {
                 this.italic = !this.italic;
             } else if (MathHelper.is2dBetween(relativeX, relativeY, 280, 47, 290, 57)) {
-                selectColor = new SelectChatColorWidget(leftPos +  178, topPos + 56, this::setColor, Component.translatable("cec.select_color"), font, this.colorType);
+                selector = new SelectChatColorWidget(leftPos +  178, topPos + 56, this::setColor, Component.translatable("cec.select_color"), font, this.colorType);
             } else if (this.levelRange != null) {
                 if (MathHelper.is2dBetween(relativeX, relativeY, 163, 22, 173, 32)) {
                     this.levelRange = new LevelRange(levelRange.getMin(), levelRange.getMax(), !levelRange.isMaxLevelRelative());
                 } else if (MathHelper.is2dBetween(relativeX, relativeY, 165, 43, 185, 53)) {
                     if (levelRange.getMin() == levelRange.getMax() && !levelRange.isMaxLevelRelative()) return;
-                    selectCount = new SelectCountWidget(leftPos + 102, topPos + 43, 200, font, levelRange.getMin(), this::setMinLevel, new IntegerNumberRange(-255, this.levelRange.getMax()), Component.translatable("cec.select_level_bound.min"));
+                    selector = new SelectCountWidget(leftPos + 102, topPos + 43, 200, font, levelRange.getMin(), this::setMinLevel, new IntegerNumberRange(-255, this.levelRange.getMax()), Component.translatable("cec.select_level_bound.min"));
                 } else if (MathHelper.is2dBetween(relativeX, relativeY, 190, 43, 210, 53)) {
-                    selectCount = new SelectCountWidget(leftPos + 102, topPos + 43, 200, font, levelRange.getMax(), this::setMaxLevel, new IntegerNumberRange(this.levelRange.getMin(), 255), Component.translatable("cec.select_level_bound.max"));
+                    selector = new SelectCountWidget(leftPos + 102, topPos + 43, 200, font, levelRange.getMax(), this::setMaxLevel, new IntegerNumberRange(this.levelRange.getMin(), 255), Component.translatable("cec.select_level_bound.max"));
                 }
             }
+        }
+
+        private void addGroup(EnchantmentGroup enchantmentGroup) {
+            this.groups.add(enchantmentGroup);
+            selector = null;
         }
 
         private void setColor(SelectChatColorWidget.ColorType colorType) {
@@ -345,7 +348,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
 
         private EnchantmentColor color() {
             Style style = this.colorType.getStyle().withBold(bold).withUnderlined(underlined).withItalic(italic);
-            return new EnchantmentColor(name, this.enchantments, this.groups, levelRange, style);
+            return EnchantmentColor.create(name, this.enchantments, this.groups, levelRange, style);
         }
 
         public void toggleLevelReq() {
@@ -374,12 +377,9 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         if (pKeyCode == 256) {
             if (this.enchantmentSelector.isVisible())
                 this.enchantmentSelector.setVisible(false);
-            else if (this.selectCount != null)
-                this.selectCount = null;
-            else if (this.selectColor != null)
-                this.selectColor = null;
+            else if (this.selector != null)
+                this.selector = null;
             else this.onClose();
-
             return true;
         }
         return false;

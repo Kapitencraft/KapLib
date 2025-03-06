@@ -18,6 +18,7 @@ public class RotateElement implements AnimationElement {
     private final int duration;
     private final Direction.Axis axis;
 
+    //TODO fix weird bug
     public RotateElement(PositionTarget pivot, float degreePerTick, int duration, Direction.Axis axis) {
         this.pivot = pivot;
         this.degreePerTick = degreePerTick;

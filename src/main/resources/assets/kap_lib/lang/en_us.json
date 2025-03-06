@@ -32,16 +32,17 @@
   "cec.min_level": "min",
   "cec.relative": "relative",
   "cec.select_enchantment": "Select Enchantment",
+  "cec.select_level_bound.min": "Select Minimum Level",
+  "cec.select_level_bound.max": "Select Maximum Level",
+  "cec.select_group": "Select Group",
 
   "cec.style.bold": "Bold",
   "cec.style.underlined": "Underlined",
   "cec.style.italic": "Italic",
   "cec.style.color": "Color",
 
-  "cec.select_level_bound.min": "Select Minimum Level",
-  "cec.select_level_bound.max": "Select Maximum Level",
+  "cec.title": "Configure Enchantment Colors",
 
-  "configure_enchantment_colors.title": "Configure Enchantment Colors",
   "configure_overlays.title": "Configure Overlays",
 
   "command.failed.console": "Can not perform this command from the console",

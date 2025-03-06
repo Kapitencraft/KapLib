@@ -183,6 +183,7 @@ public class ParticleConfig {
         return new Vec3(this.x, this.y, this.z);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getProperty(String key) {
         return (T) properties.get(key);
     }

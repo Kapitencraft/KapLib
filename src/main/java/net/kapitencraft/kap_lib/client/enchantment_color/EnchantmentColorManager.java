@@ -51,28 +51,28 @@ public class EnchantmentColorManager {
 
     private static EnchantmentColorManager createDefault() {
         return new EnchantmentColorManager(List.of(
-                new EnchantmentColor(
+                EnchantmentColor.create(
                         I18n.get("enchantment_colors.curse"),
                         List.of(),
                         List.of(EnchantmentGroup.CURSE),
                         null,
                         Style.EMPTY.withColor(ChatFormatting.RED)
                 ),
-                new EnchantmentColor(
+                EnchantmentColor.create(
                         I18n.get("enchantment_colors.ultimate"),
                         List.of(),
                         List.of(EnchantmentGroup.ULTIMATE),
                         null,
                         Style.EMPTY.withColor(ChatFormatting.LIGHT_PURPLE).withBold(true)
                 ),
-                new EnchantmentColor(
+                EnchantmentColor.create(
                         I18n.get("enchantment_colors.max_level"),
                         List.of(),
                         List.of(),
                         new LevelRange(0, 0, true),
                         Style.EMPTY.withColor(ChatFormatting.GOLD)
                 ),
-                new EnchantmentColor(
+                EnchantmentColor.create(
                         I18n.get("enchantment_colors.over_level"),
                         List.of(),
                         List.of(),

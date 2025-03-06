@@ -277,6 +277,10 @@ public interface MathHelper {
         return list;
     }
 
+    static <T> boolean validIndex(List<T> values, int selectedIndex) {
+        return isBetween(selectedIndex, 0, values.size() - 1);
+    }
+
     enum LineSize {
         THIN,
         THICK

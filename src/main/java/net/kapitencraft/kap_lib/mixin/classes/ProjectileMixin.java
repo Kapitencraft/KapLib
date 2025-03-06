@@ -22,7 +22,7 @@ public abstract class ProjectileMixin extends Entity {
 
     @ModifyVariable(method = "shootFromRotation", at = @At(value = "HEAD"), ordinal = 3, argsOnly = true)
     private float in(float i, Entity entity, float pX, float pY, float pZ, float pVelocity, float pInaccuracy) {
-        if (entity instanceof LivingEntity living) { //TODO fix client & server vec issues
+        if (entity instanceof LivingEntity living) {
             return (float) (i * (1 + AttributeHelper.getSaveAttributeValue(ExtraAttributes.PROJECTILE_SPEED.get(), living) / 100));
         }
         return i;

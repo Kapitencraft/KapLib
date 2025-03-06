@@ -25,7 +25,11 @@ public record EnchantmentColor(String name, List<Enchantment> elements, List<Enc
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static EnchantmentColor fromCodec(String name, List<Enchantment> elements, List<EnchantmentGroup> groups, Optional<LevelRange> levelRange, Style targetStyle) {
-        return new EnchantmentColor(name, new ArrayList<>(elements), new ArrayList<>(groups), levelRange.orElse(null), targetStyle);
+        return EnchantmentColor.create(name, elements, groups, levelRange.orElse(null), targetStyle);
+    }
+
+    public static EnchantmentColor create(String name, List<Enchantment> elements, List<EnchantmentGroup> groups, @Nullable LevelRange range, Style targetStyle) {
+        return new EnchantmentColor(name, new ArrayList<>(elements), new ArrayList<>(groups), range, targetStyle);
     }
 
     /**
