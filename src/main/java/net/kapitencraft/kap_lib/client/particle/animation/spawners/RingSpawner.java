@@ -55,12 +55,11 @@ public class RingSpawner extends VisibleSpawner {
             double sin = Math.sin(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
             double cos = Math.cos(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
             double x = axis == Direction.Axis.X ? 0 : sin,
-                    y = switch (axis) {
+                   y = switch (axis) {
                 case X -> sin;
                 case Y -> 0;
                 case Z -> cos;
-                },
-                    z = axis == Direction.Axis.Z ? 0 : cos;
+                }, z = axis == Direction.Axis.Z ? 0 : cos;
             Vec3 targetOffset = new Vec3(x, y, z);
             switch (axis) {
                 case X -> {
