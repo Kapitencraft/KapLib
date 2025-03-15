@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.event;
 
+import net.kapitencraft.kap_lib.client.ModBEWLR;
 import net.kapitencraft.kap_lib.client.particle.DamageIndicatorParticle;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticle;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -45,4 +47,10 @@ public class ModEventBusClientEvents {
             }
         });
     }
+
+    @SubscribeEvent
+    public void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(ModBEWLR.setInstance());
+    }
+
 }
