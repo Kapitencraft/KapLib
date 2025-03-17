@@ -54,11 +54,10 @@ public class ScrollableTooltips {
 
     @SubscribeEvent
     public static void scrollEvent(ScreenEvent.MouseScrolled.Pre event) {
-        double scrollScale = ClientModConfig.getScrollScale();
         if (stackHash != 0) {
             //event.setCanceled(true); //TODO fix
             float scrollDelta = (float) event.getScrollDelta();
-            int scrollOffset = Mth.floor(scrollDelta * scrollScale);
+            int scrollOffset = Mth.floor(scrollDelta * ClientModConfig.getScrollScale());
             if (Screen.hasControlDown()) {
                 scale += scrollOffset;
             } else {

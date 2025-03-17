@@ -1,11 +1,9 @@
 package net.kapitencraft.kap_lib.client.overlay;
 
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.LibClient;
-import net.kapitencraft.kap_lib.client.gui.screen.ConfigureOverlaysScreen;
 import net.kapitencraft.kap_lib.client.overlay.box.ResizeBox;
 import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
 import net.kapitencraft.kap_lib.collection.MapStream;
@@ -16,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.minecraftforge.api.distmarker.Dist;

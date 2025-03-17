@@ -7,8 +7,6 @@ import java.util.stream.Stream;
 public interface JsonHelper {
     Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-
-
     static Stream<JsonObject> castToObjects(JsonArray array) {
         return array.asList().stream().filter(JsonElement::isJsonObject).map(JsonElement::getAsJsonObject);
     }

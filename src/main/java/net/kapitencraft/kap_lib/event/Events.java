@@ -3,7 +3,6 @@ package net.kapitencraft.kap_lib.event;
 import net.kapitencraft.kap_lib.collection.Queue;
 import net.kapitencraft.kap_lib.cooldown.ICooldownable;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
-import net.kapitencraft.kap_lib.enchantments.abstracts.StatBoostEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncBonusesPacket;
@@ -33,7 +32,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.ItemAttributeModifierEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
@@ -48,7 +46,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +79,7 @@ public class Events {
 
     @SubscribeEvent
     public static void ensureReqsMet(LivingEvent event) { //cancel any PlayerEvent that don't meet the item requirements
-        if (!dontCancel.contains(event.getClass()) && !RequirementManager.meetsRequirementsFromEvent(event, EquipmentSlot.MAINHAND) && event.isCancelable()) event.setCanceled(true);
+        if (!dontCancel.contains(event.getClass()) && !RequirementManager.meetsItemRequirementsFromEvent(event, EquipmentSlot.MAINHAND) && event.isCancelable()) event.setCanceled(true);
     }
 
     @SubscribeEvent

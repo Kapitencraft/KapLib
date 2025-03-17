@@ -31,7 +31,7 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
     int getCountAmount(int level);
 
     @Override
-    default double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, DamageSource source) {
+    default double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, DamageSource source, float attackStrenghtScale) {
         CompoundTag attackerTag = IOHelper.getOrCreateTag(attacker.getPersistentData(), "CountEnchantment");
         String mapName = this.mapName();
         HashMap<UUID, Integer> map = new HashMap<>(SERIALIZER.deserialize(attackerTag.contains(mapName, 10) ? attackerTag.get(mapName) : new CompoundTag()));
@@ -39,12 +39,12 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
         int i = map.get(attacked.getUUID());
         if (i >= this.getCountAmount(level)) {
             if (this.countType() != CountType.EXCEPT) {
-                damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, 0, source);
+                damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, 0, source, attackStrenghtScale);
             }
             i = this.countType() == CountType.ONCE ? -1 : 1;
         } else {
             if (i >= 0) {
-                if (this.countType() != CountType.NORMAL) damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, i, source);
+                if (this.countType() != CountType.NORMAL) damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, i, source, attackStrenghtScale);
                 i++;
             }
         }
@@ -53,7 +53,7 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
         return damageAmount;
     }
 
-    double mainExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, int curHit, DamageSource source);
+    double mainExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, int curHit, DamageSource source, float attackStrenghtScale);
 
     enum CountType {
         /**

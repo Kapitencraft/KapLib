@@ -11,5 +11,8 @@ import net.minecraftforge.registries.RegistryObject;
 public interface ExtraMobEffects {
     DeferredRegister<MobEffect> REGISTRY = KapLibMod.registry(ForgeRegistries.MOB_EFFECTS);
 
+    /**
+     * stun effect. disables movement
+     */
     RegistryObject<StunMobEffect> STUN = REGISTRY.register("stun", StunMobEffect::new);
 }

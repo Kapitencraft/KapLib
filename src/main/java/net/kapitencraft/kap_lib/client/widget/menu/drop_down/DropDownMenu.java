@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.client.widget.menu.drop_down;
 
-import net.kapitencraft.kap_lib.client.gui.screen.ConfigureOverlaysScreen;
-import net.kapitencraft.kap_lib.client.gui.screen.MenuableScreen;
+import net.kapitencraft.kap_lib.client.overlay.ConfigureOverlaysScreen;
 import net.kapitencraft.kap_lib.client.widget.menu.Menu;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements.ListElement;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements.Element;

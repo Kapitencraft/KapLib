@@ -43,18 +43,13 @@ public class UpdateChecker {
     private static final Map<String, UpdateData> projectData = new HashMap<>();
     private static final String PROJECT_URL = "https://api.modrinth.com/v2/project/";
     private static final Config config = loadConfig();
-    public static final List<Update> availableUpdates = new ArrayList<>();
 
     public static class Update {
-        private final String modId;
-        private final String version;
         private final String downloadURL;
         private final String newFileName, oldFileName;
         private final int size;
 
-        public Update(String modId, String version, String downloadURL, String newFileName, String oldFileName, int size) {
-            this.modId = modId;
-            this.version = version;
+        public Update(String downloadURL, String newFileName, String oldFileName, int size) {
             this.downloadURL = downloadURL;
             this.newFileName = newFileName;
             this.oldFileName = oldFileName;
@@ -62,7 +57,7 @@ public class UpdateChecker {
         }
 
         public void download() {
-            downloadAndSaveUpdate(downloadURL, newFileName, size);
+            downloadAndSaveUpdate(downloadURL, newFileName, oldFileName, size);
         }
     }
 
@@ -120,16 +115,19 @@ public class UpdateChecker {
 
     private static void checkUpdates() {
         info("Starting Update check... (auto update " + (config.autoUpdate ? "enabled" : "disabled") + ")");
-        projectData.keySet().stream().map(UpdateChecker::checkUpdate);
-        if (availableUpdates.isEmpty()) {
-            info("all mods up to date");
-            return;
+        List<Result> results = projectData.keySet().stream().map(UpdateChecker::checkUpdate).toList();
+        List<Update> updates = new ArrayList<>();
+        int connectionFailed = 0, failed = 0, upToDate = 0, outdated = 0;
+        for (Result result : results) {
+            info(String.format("status for '%s': %s, current=%s, target=%s", result.modId, result.type, result.currentVersion, result.targetVersion));
+            if (result.type == Result.Type.OUTDATED) updates.add(result.update);
         }
-        info("Update check completed: " + availableUpdates.size() + " updates available");
-        if (config.autoUpdate) {
-            for (Update update : availableUpdates) {
+        info(String.format("Update check completed: %s update(s) available", updates.size()));
+        if (config.autoUpdate && !updates.isEmpty()) {
+            for (Update update : updates) {
                 update.download();
             }
+            info("Ending Programm.");
             System.exit(0); //drop system for reload
         }
     }
@@ -183,9 +181,6 @@ public class UpdateChecker {
                     .mapKeys(ComparableVersion::toString)
                     .toMap();
             if (newer.isEmpty()) {
-                String msg = "Mod '" + updateData.modId + "' is up-to-date";
-                info(msg);
-
                 return Result.upToDate(updateData.modId, currentModVersion); //there's no newer versions, so we can skip the rest
             }
             ComparableVersion newest = null;
@@ -196,16 +191,16 @@ public class UpdateChecker {
                 }
             }
 
-            String msg = String.format("Found newer version for mod '%s': %s", updateData.modId, newest);
-            info(msg);
-
             JsonObject newestVersionData = newer.get(newest.toString());
             JsonObject primaryFile = getPrimaryFile(newestVersionData);
             String fileUrl = GsonHelper.getAsString(primaryFile, "url");
             String fileName = GsonHelper.getAsString(primaryFile, "filename");
             int size = GsonHelper.getAsInt(primaryFile, "size");
-            availableUpdates.add(new Update(updateData.modId, newest.toString(), fileUrl, fileName, modInfo.getFile().getFileName(), size));
-            return Result.success(currentModVersion, newest, updateData.modId);
+            return Result.outdated(
+                    currentModVersion,
+                    newest,
+                    new Update(fileUrl, fileName, modInfo.getFile().getFileName(), size),
+                    updateData.modId);
         } catch (IOException e) {
             LOGGER.warn("error checking for update on project '{}'", updateData.modId);
         } catch (IllegalStateException | IndexOutOfBoundsException e) {
@@ -214,10 +209,10 @@ public class UpdateChecker {
         return Result.failed(updateData.modId);
     }
 
-    private record Result(@NotNull String modId, ComparableVersion currentVersion, ComparableVersion targetVersion, Type type) {
+    private record Result(@NotNull String modId, ComparableVersion currentVersion, ComparableVersion targetVersion, Update update, Type type) {
 
-        public static Result success(ComparableVersion currentModVersion, ComparableVersion newest, String modId) {
-            return new Result(modId, currentModVersion, newest, Type.UP_TO_DATE);
+        public static Result outdated(ComparableVersion currentModVersion, ComparableVersion newest, Update update, String modId) {
+            return new Result(modId, currentModVersion, newest, update, Type.OUTDATED);
         }
 
         private enum Type {
@@ -228,15 +223,15 @@ public class UpdateChecker {
         }
 
         public static Result connectionFailed(String modId, ComparableVersion currentModVersion) {
-            return new Result(modId, currentModVersion, null, Type.CONNECTION_FAILED);
+            return new Result(modId, currentModVersion, null, null, Type.CONNECTION_FAILED);
         }
 
         public static Result upToDate(String modId, ComparableVersion currentModVersion) {
-            return new Result(modId, currentModVersion, null, Type.UP_TO_DATE);
+            return new Result(modId, currentModVersion, null, null, Type.UP_TO_DATE);
         }
 
         public static Result failed(String modId) {
-            return new Result(modId, null, null, Type.FAILED);
+            return new Result(modId, null, null, null, Type.FAILED);
         }
 
         public void log() {
@@ -249,8 +244,13 @@ public class UpdateChecker {
         return JsonHelper.castToObjects(GsonHelper.getAsJsonArray(newestVersionData, "files")).filter(o -> GsonHelper.getAsBoolean(o, "primary")).findAny().get();
     }
 
-    private static void downloadAndSaveUpdate(String fileUrl, String fileName, int size) {
+    private static void downloadAndSaveUpdate(String fileUrl, String fileName, String oldFileName, int size) {
         try {
+            File modsDir = new File("./mods");
+
+            File oldFile = new File(modsDir, oldFileName);
+            if (!oldFile.exists()) throw new IOException("Old file '" + oldFileName + "' not found");
+
             URL url = new URL(fileUrl);
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 
@@ -262,12 +262,12 @@ public class UpdateChecker {
                 InputStream inputStream = httpConnection.getInputStream();
 
                 // output file
-                File outputTarget = new File("./mods/" + fileName);
+                File outputTarget = new File(modsDir, fileName);
 
                 // Open output stream to save file
                 FileOutputStream outputStream = new FileOutputStream(outputTarget);
 
-                byte[] buffer = new byte[4096];
+                byte[] buffer = new byte[4096]; //read 4kb at once
                 ProgressMeter downloadProgress = StartupMessageManager.addProgressBar("Downloading '" + fileName + "'", size);
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -278,6 +278,9 @@ public class UpdateChecker {
                 outputStream.close();
                 inputStream.close();
                 downloadProgress.complete();
+                if (!oldFile.delete()) {
+                    throw new IOException("unable to delete old file '" + oldFileName + "'");
+                };
             }
         } catch (IOException e) {
             LOGGER.warn("error attempting to save file: {}", e.getMessage());

@@ -17,11 +17,8 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.extensions.IForgeFriendlyByteBuf;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,16 +56,22 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
                 });
     }
 
+    /**
+     * gets all requirements applied to the given value of the given type
+     */
     public <T> Collection<ReqCondition<?>> getReqs(RequirementType<T> type, T t) {
         Element<T> element = (Element<T>) this.elements.get(type.getName());
         return element != null ? element.requirements.get(t) : List.of();
     }
 
+    /**
+     * checks if the given entity matches the given value for the given type
+     */
     public <T> boolean meetsRequirements(RequirementType<T> type, @Nullable T value, LivingEntity living) {
         return living != null && getReqs(type, value).stream().allMatch(reqCondition -> reqCondition.matches(living));
     }
 
-    public static boolean meetsRequirementsFromEvent(LivingEvent event, EquipmentSlot slot) {
+    public static boolean meetsItemRequirementsFromEvent(LivingEvent event, EquipmentSlot slot) {
         return instance.meetsRequirements(RequirementType.ITEM, event.getEntity().getItemBySlot(slot).getItem(), event.getEntity());
     }
 

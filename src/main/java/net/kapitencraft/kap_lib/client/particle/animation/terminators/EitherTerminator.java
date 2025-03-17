@@ -23,7 +23,7 @@ public class EitherTerminator implements AnimationTerminator {
     }
 
     public static Builder with(AnimationTerminator.Builder... terminators) {
-        return new Builder().addTerminator(terminators);
+        return new Builder().addTerminators(terminators);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class EitherTerminator implements AnimationTerminator {
     public static class Builder implements AnimationTerminator.Builder {
         private final List<AnimationTerminator> terminators = new ArrayList<>();
 
-        public Builder addTerminator(AnimationTerminator.Builder... terminators) {
+        public Builder addTerminators(AnimationTerminator.Builder... terminators) {
             Arrays.stream(terminators).map(AnimationTerminator.Builder::build).forEach(this.terminators::add);
             return this;
         }

@@ -14,11 +14,12 @@ public class BonusRequirementType extends RequirementType<BonusManager.BonusElem
     //TODO fix
     @Override
     public BonusManager.BonusElement getById(ResourceLocation location) {
+        if (location.getPath().startsWith("set/")) return BonusManager.instance.getSet(location.withPath(s -> s.substring(4)));
         return super.getById(location);
     }
 
     @Override
     public ResourceLocation getId(BonusManager.BonusElement value) {
-        return super.getId(value);
+        return value.getId();
     }
 }

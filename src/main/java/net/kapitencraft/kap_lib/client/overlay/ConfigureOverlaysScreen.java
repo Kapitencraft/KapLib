@@ -1,7 +1,7 @@
-package net.kapitencraft.kap_lib.client.gui.screen;
+package net.kapitencraft.kap_lib.client.overlay;
 
 import net.kapitencraft.kap_lib.client.LibClient;
-import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
+import net.kapitencraft.kap_lib.client.gui.screen.MenuableScreen;
 import net.kapitencraft.kap_lib.client.overlay.box.ResizeBox;
 import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.DropDownMenu;
@@ -25,7 +25,7 @@ public class ConfigureOverlaysScreen extends MenuableScreen {
     private ResizeBox active;
     private final Map<Overlay, ResizeBox> boxesForOverlay = new HashMap<>();
 
-    public ConfigureOverlaysScreen() {
+    ConfigureOverlaysScreen() {
         super(Component.translatable("configure_overlays.title"));
         this.setDefaultMenuBuilder((x, y, screen) -> {
             DropDownMenu menu = new DropDownMenu(x, y, this);

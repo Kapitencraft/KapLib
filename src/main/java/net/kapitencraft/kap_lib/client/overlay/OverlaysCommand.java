@@ -1,10 +1,8 @@
-package net.kapitencraft.kap_lib.commands;
+package net.kapitencraft.kap_lib.client.overlay;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
-import net.kapitencraft.kap_lib.client.gui.screen.ConfigureOverlaysScreen;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

@@ -44,8 +44,7 @@
     "ProjectileMixin",
     "SharedConstantsMixin",
     "StringDecomposerMixin",
-    "StyleMixin",
-    "TridentItemMixin"
+    "StyleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

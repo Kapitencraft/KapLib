@@ -21,6 +21,7 @@ public class Generator {
         PackOutput output = generator.getPackOutput();
         ExistingFileHelper helper = event.getExistingFileHelper();
         generator.addProvider(true, new ExtraNumbersLangProvider(output));
+        generator.addProvider(true, new ModRegistriesProvider(output, lookupProvider));
         generator.addProvider(true, new ModTagsProvider.Block(output, lookupProvider, helper));
         generator.addProvider(true, new ModTagsProvider.EntityTypes(output, lookupProvider));
         generator.addProvider(true, new ModTagsProvider.DamageType(output, lookupProvider, helper));

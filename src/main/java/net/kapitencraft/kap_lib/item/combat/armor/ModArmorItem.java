@@ -18,6 +18,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
+/**
+ * basic armor item.
+ * <br>allows for full set effects TODO move to Bonuses?
+ * <br>and for custom model implementation (override {@link #withCustomModel()} and {@link #getRenderer(LivingEntity, ItemStack, EquipmentSlot)} to enable
+ */
 public abstract class ModArmorItem extends ArmorItem {
     private static final String FULL_SET_ID = "hadFullSet";
     protected int fullSetTick = 0;
@@ -98,7 +103,7 @@ public abstract class ModArmorItem extends ArmorItem {
 
     // display / model START
 
-    protected abstract boolean withCustomModel();
+    protected boolean withCustomModel() { return false; }
     protected ArmorRenderer<?> getRenderer(LivingEntity living, ItemStack stack, EquipmentSlot slot) { return null;}
 
     @Override
@@ -116,6 +121,10 @@ public abstract class ModArmorItem extends ArmorItem {
         });
     }
 
+    /**
+     * creates a custom texture for your armor in
+     * <br>{@code <nameSpace>:textures/models/armor/custom/<id>.png}
+     */
     public static String makeCustomTextureLocation(String nameSpace, String id) {
         return new ResourceLocation(nameSpace, "textures/models/armor/custom/" + id + ".png").toString();
     }

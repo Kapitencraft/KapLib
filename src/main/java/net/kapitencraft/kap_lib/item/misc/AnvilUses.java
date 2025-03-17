@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,24 +32,23 @@ public class AnvilUses {
         }
     }
 
+    /**
+     * @param bothPredicate predicate for both anvil inputs
+     * @param resultConsumer results. modify the left stack
+     * @param xpCost the amount of XP this anvil use should take
+     */
     public static void registerAnvilUse(BiPredicate<ItemStack, ItemStack> bothPredicate, BiConsumer<ItemStack, ItemStack> resultConsumer, int xpCost) {
         uses.add(new AnvilUse(bothPredicate, resultConsumer, xpCost));
     }
 
+    @ApiStatus.Internal
     public static void registerUses() {
         ModEventFactory.fireModEvent(new RegisterAnvilUsesEvent());
     }
 
-    public static class AnvilUse {
-        private final BiPredicate<ItemStack, ItemStack> bothPredicate;
-        private final BiConsumer<ItemStack, ItemStack> resultConsumer;
-        private final int xpCost;
-
-        public AnvilUse(BiPredicate<ItemStack, ItemStack> bothPredicate, BiConsumer<ItemStack, ItemStack> resultConsumer, int xpCost) {
-            this.bothPredicate = bothPredicate;
-            this.resultConsumer = resultConsumer;
-            this.xpCost = xpCost;
-        }
+    @ApiStatus.Internal
+    private record AnvilUse(BiPredicate<ItemStack, ItemStack> bothPredicate,
+                            BiConsumer<ItemStack, ItemStack> resultConsumer, int xpCost) {
     }
 
     private static BiPredicate<ItemStack, ItemStack> simple(Predicate<ItemStack> both) {

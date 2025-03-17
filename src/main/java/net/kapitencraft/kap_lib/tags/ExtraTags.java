@@ -15,6 +15,7 @@ public class ExtraTags {
         TagKey<DamageType> MAGIC = forgeKey("magic");
         TagKey<DamageType> PARTICLE_WEAPON = forgeKey("particle_weapon");
 
+
         private static TagKey<DamageType> forgeKey(String subName) {
             return TagKey.create(Registries.DAMAGE_TYPE, new ResourceLocation("forge", subName));
         }

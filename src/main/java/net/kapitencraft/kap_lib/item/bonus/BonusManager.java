@@ -84,12 +84,28 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     public static final Codec<List<TagEntry>> TAG_ENTRY_LOADER_CODEC = TagEntry.CODEC.listOf();
     /**
-     * only neccessary serverside
+     * only necessary serverside
      */
     private final RegistryAccess access;
     private final Map<ResourceLocation, SetBonusElement> sets = new HashMap<>();
     private final DoubleMap<Item, ResourceLocation, BonusElement> itemBonuses = DoubleMap.create();
     private final Map<LivingEntity, BonusLookup> lookupMap = new HashMap<>();
+
+    public BonusElement getSet(ResourceLocation resourceLocation) {
+        return Objects.requireNonNull(sets.get(resourceLocation), "unknown set bonus: '" + resourceLocation + "'");
+    }
+
+    private Map<ResourceLocation, SetBonusElement> getActiveSetBonuses(LivingEntity living, boolean ignoreHidden) {
+        Map<EquipmentSlot, ItemStack> equipment = InventoryHelper.equipment(living);
+        Map<ResourceLocation, SetBonusElement> bonuses = new HashMap<>();
+        sets.forEach((location, setBonusElement) -> {
+            if (Arrays.stream(EquipmentSlot.values()).allMatch(slot ->
+                    !setBonusElement.requiresSlot(slot) || setBonusElement.matchesItem(slot, equipment.get(slot)))
+                    && !setBonusElement.isHidden() || ignoreHidden
+            ) bonuses.put(location, setBonusElement);
+        });
+        return bonuses;
+    }
 
     private class BonusLookup {
         private final LivingEntity target;
@@ -131,15 +147,16 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             for (Pair<ItemStack, EquipmentSlot> pair : added) {
                 Map<ResourceLocation, BonusElement> bonuses = getBonusesForItem(pair.getFirst(), false);
                 bonuses.values().forEach(element -> {
-                    element.getBonus().onApply(target);
                     if (element instanceof SetBonusElement setElement) {
                         setData.putIfAbsent(setElement, new ArrayList<>());
                         List<EquipmentSlot> data = setData.get(element);
                         data.add(pair.getSecond());
-                        if (new HashSet<>(data).containsAll(setElement.itemsForSlot.keySet())) {
-                            activeItemBonuses.put(setElement, Reference.of(0));
+                        if (!new HashSet<>(data).containsAll(setElement.itemsForSlot.keySet())) {
+                            return;
                         }
-                    } else activeItemBonuses.put(element, Reference.of(0));
+                    }
+                    element.getBonus().onApply(target);
+                    activeItemBonuses.put(element, Reference.of(0));
                 });
             }
         }
@@ -313,19 +330,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return new Vec2i(c, booleans.size());
     }
 
-    private Map<ResourceLocation, SetBonusElement> getActiveSetBonuses(LivingEntity living, boolean ignoreHidden) {
-        Map<EquipmentSlot, ItemStack> equipment = InventoryHelper.equipment(living);
-        Map<ResourceLocation, SetBonusElement> bonuses = new HashMap<>();
-        sets.forEach((location, setBonusElement) -> {
-            if (Arrays.stream(EquipmentSlot.values()).allMatch(slot ->
-                    !setBonusElement.requiresSlot(slot) || setBonusElement.matchesItem(slot, equipment.get(slot)))
-                    && !setBonusElement.isHidden() || ignoreHidden
-            )
-                bonuses.put(location, setBonusElement);
-        });
-        return bonuses;
-    }
-
     private static class SetBonusElement extends BonusElement {
         private final Map<EquipmentSlot, TagKey<Item>> itemsForSlot;
 
@@ -398,6 +402,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
         public static BonusElement fromNw(FriendlyByteBuf buf) {
             return new BonusElement(buf.readBoolean(), Bonus.fromNw(buf));
+        }
+
+        public ResourceLocation getId() {
+            return null; //TODO
         }
     }
 

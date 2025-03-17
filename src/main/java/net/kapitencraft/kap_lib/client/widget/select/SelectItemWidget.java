@@ -29,12 +29,12 @@ public class SelectItemWidget extends SelectRegistryElementWidget<Item> {
 
     @Override
     protected void renderInternal(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
-        int minIndex = scrollY / ITEM_WIDTH_WITH_OFFSET * elementsPerRow;
-        int maxIndex = (scrollY + this.height) / ITEM_WIDTH_WITH_OFFSET * elementsPerRow;
+        int minIndex = (int) scroll / ITEM_WIDTH_WITH_OFFSET * elementsPerRow;
+        int maxIndex = ((int) scroll + this.height) / ITEM_WIDTH_WITH_OFFSET * elementsPerRow;
         for (int i = minIndex; i < maxIndex; i++) {
             int column = i % elementsPerRow;
             int row = i / elementsPerRow;
-            graphics.renderItem(itemsCache.get(i), this.xOffset + column * ITEM_WIDTH_WITH_OFFSET, scrollY + row * ITEM_WIDTH_WITH_OFFSET);
+            graphics.renderItem(itemsCache.get(i), this.xOffset + column * ITEM_WIDTH_WITH_OFFSET,  (int) scroll + row * ITEM_WIDTH_WITH_OFFSET);
         }
     }
 

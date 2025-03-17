@@ -33,6 +33,10 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
         this.inverted = inverted;
     }
 
+    public DimensionReqCondition(ResourceKey<Level>... dimensions) {
+        this(List.of(dimensions), false);
+    }
+
     @Override
     public @NotNull Component cacheDisplay() {
         String key = "dimension_req.display";

@@ -31,7 +31,7 @@ public class ParticleConfig {
     private final List<BiConsumer<ParticleConfig, Integer>> tickers = new ArrayList<>();
 
     /**
-     * the total tick count of the Config
+     * the current tick count of the Config
      */
     private int tickCount;
     /**

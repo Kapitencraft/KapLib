@@ -27,7 +27,7 @@ public interface EffectApplicationEnchantment extends ExtendedCalculationEnchant
     }
 
     @Override
-    default double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, DamageSource source) {
+    default double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, DamageSource source, float attackStrengthScale) {
         if (MathHelper.chance(getChance(level) / 100., attacker) && !MiscHelper.increaseEffectDuration(attacked, getEffect(), level * getScale())) {
             attacked.addEffect(new MobEffectInstance(getEffect(), level * getScale(), getAmplifier(level)));
         }

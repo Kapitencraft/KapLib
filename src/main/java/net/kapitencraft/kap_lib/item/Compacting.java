@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * API for simple item compacting
+ */
 public class Compacting {
     private static final Map<Item, Result> resultCache = new HashMap<>();
 
@@ -54,12 +57,26 @@ public class Compacting {
             return small != null || large != null;
         }
 
+        public boolean isSmall() {
+            return successful() && small != null;
+        }
+
         public int getCountReq() {
             return small != null ? 4 : large != null ? 9 : -1;
         }
 
         public @Nullable ItemStack result() {
             return small != null ? small : large;
+        }
+
+        @Nullable
+        public ItemStack getSmall() {
+            return small;
+        }
+
+        @Nullable
+        public ItemStack getLarge() {
+            return large;
         }
     }
 

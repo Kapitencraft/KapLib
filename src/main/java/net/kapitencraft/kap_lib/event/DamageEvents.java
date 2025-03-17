@@ -18,16 +18,21 @@ import net.kapitencraft.kap_lib.item.combat.totem.ModTotemItem;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.util.DamageCounter;
+import net.kapitencraft.kap_lib.util.FerociousDamageSource;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -53,6 +58,7 @@ import java.util.Objects;
 @Mod.EventBusSubscriber
 public class DamageEvents {
     private DamageEvents() {}//dummy constructor (do not call)
+
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void miscDamageEvents(LivingHurtEvent event) {
         LivingEntity attacked = event.getEntity();
@@ -93,16 +99,17 @@ public class DamageEvents {
         if (attacker == null || MiscHelper.getDamageType(source) != MiscHelper.DamageType.MELEE) {
             return;
         }
-//        if (attacker.getAttribute(ExtraAttributes.FEROCITY.get()) != null) { TODO fix ferocity
-//            double ferocity = source instanceof FerociousDamageSource damageSource ? damageSource.ferocity : attacker.getAttributeValue(ExtraAttributes.FEROCITY.get());
-//            if (MathHelper.chance(ferocity / 100, attacker)) {
-//                MiscHelper.schedule(40, () -> {
-//                    float ferocityDamage = (float) (source instanceof FerociousDamageSource ferociousDamageSource ? ferociousDamageSource.damage : source.getEntity() instanceof AbstractArrow arrow ?                             arrow.getBaseDamage() : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE));
-//                    attacked.level().playSound(attacked, attacked.getOnPos(), SoundEvents.IRON_GOLEM_ATTACK, SoundSource.HOSTILE, 1f, 0.5f);
-//                    attacked.hurt(new FerociousDamageSource(attacker, (ferocity - 100), ferocityDamage), ferocityDamage);
-//                });
-//            }
-//        }
+        if (attacker.getAttribute(ExtraAttributes.FEROCITY.get()) != null) { //TODO implement sounds & particles?
+            double ferocity = source instanceof FerociousDamageSource damageSource ? damageSource.ferocity : attacker.getAttributeValue(ExtraAttributes.FEROCITY.get());
+            if (MathHelper.chance(ferocity / 100, attacker)) {
+                MiscHelper.schedule(40, () -> {
+                    float ferocityDamage = (float) (source instanceof FerociousDamageSource ferociousDamageSource ? ferociousDamageSource.damage :
+                            source.getEntity() instanceof AbstractArrow arrow ? arrow.getBaseDamage() : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                    attacked.level().playSound(attacked, attacked.getOnPos(), SoundEvents.IRON_GOLEM_ATTACK, SoundSource.HOSTILE, 1f, 0.5f);
+                    attacked.hurt(FerociousDamageSource.create(attacker, (ferocity - 100), ferocityDamage), ferocityDamage);
+                });
+            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -171,7 +178,7 @@ public class DamageEvents {
 
     @SubscribeEvent
     public static void onAttackEntity(AttackEntityEvent event) {
-        event.setCanceled(!RequirementManager.meetsRequirementsFromEvent(event, EquipmentSlot.MAINHAND));
+        event.setCanceled(!RequirementManager.meetsItemRequirementsFromEvent(event, EquipmentSlot.MAINHAND));
     }
 
     @SubscribeEvent

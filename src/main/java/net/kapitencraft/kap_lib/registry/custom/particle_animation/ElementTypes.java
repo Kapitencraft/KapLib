@@ -16,4 +16,5 @@ public interface ElementTypes {
     RegistryObject<MoveAwayElement.Type> MOVE_AWAY = REGISTRY.register("move_away", MoveAwayElement.Type::new);
     RegistryObject<KeepAliveElement.Type> KEEP_ALIVE = REGISTRY.register("keep_alive", KeepAliveElement.Type::new);
     RegistryObject<RotateElement.Type> ROTATE = REGISTRY.register("rotate", RotateElement.Type::new);
+    RegistryObject<GroupElement.Type> GROUP = REGISTRY.register("group", GroupElement.Type::new);
 }

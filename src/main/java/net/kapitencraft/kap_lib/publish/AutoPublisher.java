@@ -1,13 +1,7 @@
 package net.kapitencraft.kap_lib.publish;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.Streams;
+import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
-import net.minecraft.util.GsonHelper;
-import org.checkerframework.checker.units.qual.C;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -21,13 +15,19 @@ import java.util.*;
 public class AutoPublisher {
     private static final Gson GSON = new GsonBuilder().create();
 
-    private static final File CONFIG = new File("run/PublishConfig.json");
+    private static final File CONFIG = new File("build/resources/main/publish_config.json");
     private static final File AUTHENTICATION = new File("run/AuthCache.txt");
     private static final File DATA_CACHE = new File("run/PublishCache.txt");
     private static final File CHANGE_LOG = new File("CHANGELOG.txt");
     private static final String API_URL = "https://api.modrinth.com/v2/version";
 
-    private record Config(String email, String author, String projectId, boolean sourcesFile) {
+    private record Config(String email, String author,
+                          String modId, String modName,
+                          String modVersion, String mcVersion,
+                          String fmlVersion, String projectId,
+                          String[] extraFiles,
+                          JsonObject[] dependencies
+    ) {
 
     }
 
@@ -37,18 +37,35 @@ public class AutoPublisher {
         return new Config(
                 object.getAsJsonPrimitive("author_email").getAsString(),
                 object.getAsJsonPrimitive("author").getAsString(),
+                object.getAsJsonPrimitive("mod_id").getAsString(),
+                object.getAsJsonPrimitive("mod_name").getAsString(),
+                object.getAsJsonPrimitive("mod_version").getAsString(),
+                object.getAsJsonPrimitive("mc_version").getAsString(),
+                object.getAsJsonPrimitive("fml_version").getAsString(),
                 object.getAsJsonPrimitive("project_id").getAsString(),
-                object.getAsJsonPrimitive("with_sources").getAsBoolean()
+                optionalList("extra_files", object).stream().map(JsonElement::getAsString).toArray(String[]::new),
+                optionalList("dependencies", object).stream().map(JsonElement::getAsJsonObject).toArray(JsonObject[]::new)
         );
     }
 
+    private static List<JsonElement> optionalList(String name, JsonObject object) {
+        return object.has(name) ? object.getAsJsonArray(name).asList() : List.of();
+    }
 
     public static void main(String[] args) {
-        String modId = args[0];
-        String modName = args[1];
-        String modVersion = args[2];
-        String mcVersion = args[3];
-        String fmlVersion = args[4];
+        Config config;
+        try {
+            config = loadConfig();
+        } catch (FileNotFoundException e) {
+            System.out.println("Config not found.");
+            return;
+        }
+
+        String modId = config.modId;
+        String modName = config.modName;
+        String modVersion = config.modVersion;
+        String mcVersion = config.mcVersion;
+        String fmlVersion = config.fmlVersion;
         System.out.println("Auto Publish activated with args:");
         System.out.printf("modId=\"%s\", modName=\"%s\", modVersion=%s, mcVersion=%s, fmlVersion=%s", modId, modName, modVersion, mcVersion, fmlVersion);
         System.out.println();
@@ -64,8 +81,6 @@ public class AutoPublisher {
             URL url = new URL(API_URL);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             String boundary = "----Boundary" + UUID.randomUUID();
-
-            Config config = loadConfig();
 
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
@@ -84,15 +99,15 @@ public class AutoPublisher {
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
 
                 // Add text part
-                addData(writer, boundary, modId, modName, modVersion, mcVersion, fmlVersion, config.projectId);
+                addData(writer, boundary, modId, modName, modVersion, mcVersion, fmlVersion, config.projectId, config.extraFiles, config.dependencies);
 
                 // Add file part
                 addFilePart(writer, outputStream, boundary, "primary", mainFile);
 
-                if (config.sourcesFile) {
-                    File sourcesFile = new File(fileBase + "-sources.jar");
-                    String sourcesHash = getFileSHA512(sourcesFile);
-                    addFilePart(writer, outputStream, boundary, "sources", sourcesFile);
+                for (String extraFile : config.extraFiles) {
+                    File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
+                    String extraFileHash = getFileSHA512(sourcesFile);
+                    addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
                 }
                 // Write the final boundary directly to OutputStream
                 outputStream.write(("--" + boundary + "--\r\n").getBytes());
@@ -119,7 +134,13 @@ public class AutoPublisher {
 
             reader.close();
 
-            System.out.println("Successfully created new version with id '" + data.get("id") + "'");
+            if (response == HttpsURLConnection.HTTP_OK) {
+                System.out.println("successfully created new version with id '" + data.get("id") + "'");
+            } else {
+                System.err.println("error: " + data.get("error"));
+                System.err.println("description: "+ data.get("description"));
+            }
+
         } catch (Exception e) {
             System.err.println("Error accessing API:");
             e.printStackTrace(System.err);
@@ -138,11 +159,11 @@ public class AutoPublisher {
     }
 
     // Helper method to add a text field
-    private static void addData(PrintWriter writer, String boundary, String modId, String modName, String modVersion, String mcVersion, String forgeVersion, String projectId) throws FileNotFoundException {
+    private static void addData(PrintWriter writer, String boundary, String modId, String modName, String modVersion, String mcVersion, String forgeVersion, String projectId, String[] extraFiles, JsonObject[] dependencies) throws IOException {
         writer.append("--").append(boundary).append("\r\n");
         writer.append("Content-Disposition: form-data; name=\"data\"\r\n");
         writer.append("Content-Type: application/json; charset=UTF-8\r\n\r\n");
-        writer.append(addVersionData(modId, modName, modVersion, mcVersion, forgeVersion, projectId)).append("\r\n");
+        writer.append(addVersionData(modId, modName, modVersion, mcVersion, forgeVersion, projectId, dependencies, extraFiles)).append("\r\n");
         writer.flush();
     }
 
@@ -160,7 +181,7 @@ public class AutoPublisher {
         writer.flush();
     }
 
-    private static String addVersionData(String modId, String modName, String modVersion, String mcVersion, String forgeVersion, String projectId) throws FileNotFoundException {
+    private static String addVersionData(String modId, String modName, String modVersion, String mcVersion, String forgeVersion, String projectId, JsonObject[] dependencies, String[] extraFiles) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
         JsonObject object = new JsonObject();
@@ -170,15 +191,36 @@ public class AutoPublisher {
         data.put("loaders", new String[] {"forge"});
         data.put("game_versions", new String[]{mcVersion});
         data.put("version_type", "release");
-        data.put("dependencies", new String[]{});
+        addDependencies(dependencies, data);
         data.put("featured", true);
         data.put("status", "listed");
         data.put("project_id", projectId);
-        data.put("file_parts", new String[] {"primary", "sources"});
+        String[] fileParts = new String[extraFiles.length + 1];
+        System.arraycopy(extraFiles, 0, fileParts, 1, extraFiles.length);
+        fileParts[0] = "primary";
+        data.put("file_parts", fileParts);
         data.put("primary_file", "primary");
         data.put("changelog", createChangelog());
 
         return GSON.toJson(data);
+    }
+
+    private static void addDependencies(JsonObject[] dependencies, Map<String, Object> data) throws IOException {
+        List<Map<String, Object>> dependencyData = new ArrayList<>();
+
+        for (JsonObject object : dependencies) {
+            Map<String, Object> dependency = GSON.fromJson(object, Map.class);
+            if (!dependency.containsKey("project_id")) System.err.println("Dependency missing project id!");
+            else if (!dependency.containsKey("file_name")) System.err.println("Dependency missing file name!");
+            else if (!dependency.containsKey("dependency_type")) System.err.println("Dependency missing dependency type");
+            else {
+                dependencyData.add(dependency);
+                continue;
+            }
+            throw new IOException("Dependency Load Failed");
+        }
+
+        data.put("dependencies", dependencyData);
     }
 
     private static String getFileSHA512(File file) {
@@ -201,8 +243,7 @@ public class AutoPublisher {
         List<String> removes = new ArrayList<>();
         List<String> uncategorized = new ArrayList<>();
         List<String> knownErrors = new ArrayList<>();
-        reader.lines().forEach(s -> {
-            s = s.trim();
+        reader.lines().map(String::trim).forEach(s -> {
             if (s.isEmpty()) return;
             if (s.startsWith("added ")) additions.add(s.substring(6));
             else if (s.startsWith("removed ")) removes.add(s.substring(7));

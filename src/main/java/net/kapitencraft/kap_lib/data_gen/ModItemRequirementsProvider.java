@@ -12,20 +12,18 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
-
 /**
  * example Requirement provider
  */
-public class ModRequirementProvider extends RequirementProvider<Item> {
+public class ModItemRequirementsProvider extends RequirementProvider<Item> {
 
-    protected ModRequirementProvider(PackOutput output) {
+    protected ModItemRequirementsProvider(PackOutput output) {
         super(output, KapLibMod.MOD_ID, RequirementType.ITEM);
     }
 
     @Override
     protected void register() {
         this.add(Items.ELYTRA, new StatReqCondition(Stats.ENTITY_KILLED.get(EntityType.ENDER_DRAGON), 5));
-        this.add(Items.NETHERITE_SWORD, new DimensionReqCondition(List.of(Level.OVERWORLD, Level.END), true));
+        this.add(Items.NETHERITE_SWORD, new DimensionReqCondition(Level.NETHER));
     }
 }

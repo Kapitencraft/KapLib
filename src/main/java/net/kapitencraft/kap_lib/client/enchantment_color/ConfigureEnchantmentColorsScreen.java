@@ -41,7 +41,6 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     private boolean scrolling;
     private int leftPos, topPos;
     private ColorElement active;
-    private ByNameRegistryElementSelectorWidget<Enchantment> enchantmentSelector;
     private @Nullable PositionedWidget selector;
 
     protected ConfigureEnchantmentColorsScreen() {
@@ -56,12 +55,6 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     protected void init() {
         this.leftPos = (this.width - WIDTH) / 2;
         this.topPos = (this.height - HEIGHT) / 2;
-        this.enchantmentSelector = new ByNameRegistryElementSelectorWidget<>(this.leftPos + 90, this.topPos + 20, WIDTH - 180, HEIGHT - 40, Component.translatable("cec.select_enchantment"), this.font, ForgeRegistries.ENCHANTMENTS, Enchantment::getDescriptionId, enchantment -> {
-            if (this.active == null) KapLibMod.LOGGER.warn("unexpected enchantment select with no selected color!");
-            else {
-                this.active.enchantments.add(enchantment);
-            }
-        });
         super.init();
     }
 
@@ -88,7 +81,6 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         }
         pGuiGraphics.pose().pushPose();
         pGuiGraphics.pose().translate(0, 0, 100);
-        this.enchantmentSelector.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         if (this.selector != null) this.selector.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         pGuiGraphics.pose().popPose();
     }
@@ -98,13 +90,12 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     }
 
     private boolean sliderHovered(double pMouseY) {
-        if (enchantmentSelector.isVisible()) return false;
         float positionY = this.topPos + 12 + -scrollY * (HEIGHT - 21.5f) / maxScroll;
         return MathHelper.isBetween(pMouseY, positionY, positionY + 7.5);
     }
 
     private boolean isAddElementHovered(double pMouseX, double pMouseY) {
-        if (enchantmentSelector.isVisible()) return false;
+        if (selector != null) return false;
         int yPos = (ELEMENT_HEIGHT + 2) * this.elements.size() + (int) scrollY + 12 + this.topPos;
         return MathHelper.is2dBetween(pMouseX, pMouseY, this.width / 2 - 4, yPos, this.width / 2 + 4, yPos + 8);
     }
@@ -112,7 +103,6 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         if (selector != null) return selector.mouseClicked(pMouseX, pMouseY, pButton);
-        if (enchantmentSelector.isVisible()) return enchantmentSelector.mouseClicked(pMouseX, pMouseY, pButton);
 
         if (shouldShowSlider(pMouseX, pMouseY)) {
             if (sliderHovered(pMouseY)) {
@@ -150,16 +140,16 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) {
-        if (!this.enchantmentSelector.isVisible()) {
+        if (this.selector == null) {
             active = null;
             scrolling = false;
-        } else if (this.enchantmentSelector.mouseReleased(pMouseX, pMouseY, pButton)) return true;
+        } else return this.selector.mouseReleased(pMouseX, pMouseY, pButton);
         return super.mouseReleased(pMouseX, pMouseY, pButton);
     }
 
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        if (enchantmentSelector.isVisible()) return enchantmentSelector.mouseScrolled(pMouseX, pMouseY, pDelta);
+        if (selector != null) return selector.mouseScrolled(pMouseX, pMouseY, pDelta);
         if (MathHelper.is2dBetween(pMouseX, pMouseY, this.leftPos + 2, this.topPos + 12, this.leftPos + WIDTH - 2, this.topPos + HEIGHT - 2)) {
             scrollY += (int) (pDelta * ClientModConfig.getScrollScale());
             scrollY = Mth.clamp(scrollY, -maxScroll, 0);
@@ -170,7 +160,6 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
-        if (enchantmentSelector.isVisible()) return enchantmentSelector.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
         if (this.selector != null) return selector.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
         if (scrolling) {
             this.scrollY = (float) (Mth.clamp(pMouseY - (this.topPos + 12), 0, HEIGHT - 14) * -maxScroll / (HEIGHT - 14));
@@ -184,7 +173,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     }
 
     private int getHoveredIndex(int y) {
-        if (enchantmentSelector.isVisible()) return -1;
+        if (selector != null) return -1;
         //y = this.topPos + (ELEMENT_HEIGHT + 2) * index + (int) scrollY + 12
         int index = (topPos + (int) scrollY + 12 - y) / - (ELEMENT_HEIGHT + 2);
         return index < 0 || index >= this.elements.size() ? -1 : index;
@@ -293,7 +282,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
                 this.toggleLevelReq();
             } else if (isEnchantmentAddHovered(relativeX, relativeY)) {
                 active = this;
-                enchantmentSelector.setVisible(true);
+                selector = new ByNameRegistryElementSelectorWidget<>(leftPos + 90, topPos + 20, WIDTH - 180, HEIGHT - 40, Component.translatable("cec.select_enchantment"), font, ForgeRegistries.ENCHANTMENTS, Enchantment::getDescriptionId, this.enchantments::add);
             } else if (isGroupAddHovered(relativeX, relativeY)) {
                 List<EnchantmentGroup> groupValues = new ArrayList<>(List.of(EnchantmentGroup.values()));
                 groupValues.removeAll(this.groups);
@@ -334,13 +323,13 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         }
 
         private boolean isEnchantmentAddHovered(double relativeX, double relativeY) {
-            if (enchantmentSelector.isVisible()) return false;
+            if (selector != null) return false;
             int enchantmentAddY = 11 + enchantments.size() * 10;
             return MathHelper.is2dBetween(relativeX, relativeY, 4, enchantmentAddY, 12, enchantmentAddY + 8);
         }
 
         private boolean isGroupAddHovered(double relativeX, double relativeY) {
-            if (enchantmentSelector.isVisible()) return false;
+            if (selector != null) return false;
             int groupCount = groups.size();
             return groupCount < EnchantmentGroup.values().length &&
                     MathHelper.is2dBetween(relativeX, relativeY, 80, 11 + groupCount * 10, 88, 19 + groupCount * 10);
@@ -375,9 +364,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     @Override
     public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers) {
         if (pKeyCode == 256) {
-            if (this.enchantmentSelector.isVisible())
-                this.enchantmentSelector.setVisible(false);
-            else if (this.selector != null)
+            if (this.selector != null)
                 this.selector = null;
             else this.onClose();
             return true;

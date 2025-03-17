@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * adds one or more effect to the player
- * recommended to use at least 30 ticks because
+ * recommended to use at least 30 ticks because of flickering
  */
 public class SimpleSetMobEffect implements Bonus<SimpleSetMobEffect> {
     private static final Codec<MobEffectInstance> EFFECT_INSTANCE_CODEC = RecordCodecBuilder.create(instance ->
