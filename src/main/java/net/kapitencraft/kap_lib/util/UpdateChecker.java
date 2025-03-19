@@ -13,11 +13,15 @@ import net.kapitencraft.kap_lib.event.custom.RegisterUpdateCheckersEvent;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringRepresentable;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.StartupMessageManager;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.progress.ProgressMeter;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -77,8 +81,8 @@ public class UpdateChecker {
     private record Config(boolean autoUpdate, ReleaseState state) {
         private static final Codec<Config> CODEC = RecordCodecBuilder.create(configInstance -> configInstance
                 .group(
-                        Codec.BOOL.fieldOf("auto_update").forGetter(Config::autoUpdate),
-                        ReleaseState.CODEC.fieldOf("release_state").forGetter(Config::state)
+                        Codec.BOOL.optionalFieldOf("auto_update", false).forGetter(Config::autoUpdate),
+                        ReleaseState.CODEC.optionalFieldOf("release_state", ReleaseState.RELEASE).forGetter(Config::state)
                 ).apply(configInstance, Config::new)
         );
     }
@@ -119,7 +123,7 @@ public class UpdateChecker {
         List<Update> updates = new ArrayList<>();
         int connectionFailed = 0, failed = 0, upToDate = 0, outdated = 0;
         for (Result result : results) {
-            info(String.format("status for '%s': %s, current=%s, target=%s", result.modId, result.type, result.currentVersion, result.targetVersion));
+            result.log();
             if (result.type == Result.Type.OUTDATED) updates.add(result.update);
         }
         info(String.format("Update check completed: %s update(s) available", updates.size()));
@@ -127,8 +131,13 @@ public class UpdateChecker {
             for (Update update : updates) {
                 update.download();
             }
+            //drop system for reload
             info("Ending Programm.");
-            System.exit(0); //drop system for reload
+            if (FMLEnvironment.dist == Dist.CLIENT) {
+                Minecraft.getInstance().stop();
+            } else {
+                System.exit(0);
+            }
         }
     }
 
@@ -235,7 +244,7 @@ public class UpdateChecker {
         }
 
         public void log() {
-            info(modId + " (version = " + (currentVersion == null ? "null" : currentVersion.getCanonical()) + ") found status " + type.name() + ", target = " + (targetVersion == null ? "null" : targetVersion.getCanonical()));
+            info(String.format("status for '%s': %s, current=%s, target=%s", modId, type, currentVersion, targetVersion));
         }
     }
 
@@ -246,6 +255,7 @@ public class UpdateChecker {
 
     private static void downloadAndSaveUpdate(String fileUrl, String fileName, String oldFileName, int size) {
         try {
+            info("Updating '" + fileName + "'");
             File modsDir = new File("./mods");
 
             File oldFile = new File(modsDir, oldFileName);

@@ -41,7 +41,9 @@ public class BowHelper {
     }
 
 
-
+    /**
+     * adds enchantment value modifiers to the given arrow
+     */
     protected static void registerEnchant(ItemStack bow, AbstractArrow arrow) {
         int j = bow.getEnchantmentLevel(Enchantments.POWER_ARROWS);
         if (j > 0) {

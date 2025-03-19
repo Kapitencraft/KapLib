@@ -36,6 +36,9 @@ public class ExtraTags {
     }
 
     public interface EntityTypes {
+        /**
+         * mobs of the end
+         */
         TagKey<EntityType<?>> ENDER_MOBS = forgeKey("ender_mobs");
 
         private static TagKey<EntityType<?>> forgeKey(String path) {
@@ -44,6 +47,9 @@ public class ExtraTags {
     }
 
     public interface Blocks {
+        /**
+         * list of vanilla golem heads.
+         */
         TagKey<Block> VANILLA_GOLEM_HEADS = vanillaKey("golem_heads");
 
         static TagKey<Block> vanillaKey(String path) {

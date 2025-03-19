@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
+import net.kapitencraft.kap_lib.client.cam.rot.Rotator;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
@@ -37,6 +38,7 @@ public interface ModRegistryBuilders {
     RegistryBuilder<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = makeBuilder(ExtraRegistryKeys.TERMINATOR_TYPES);
     RegistryBuilder<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = makeBuilder(ExtraRegistryKeys.FINALIZER_TYPES);
     RegistryBuilder<ActivationTrigger<?>> ACTIVATION_LISTENER_TYPES = makeBuilder(ExtraRegistryKeys.ACTIVATION_TRIGGERS);
+    RegistryBuilder<Rotator.Type<?>> CAMERA_ROTATORS = makeBuilder(ExtraRegistryKeys.CAMERA_ROTATORS);
 
     private static <T> RegistryBuilder<T> makeBuilder(ResourceKey<Registry<T>> location) {
         return new RegistryBuilder<T>().setName(location.location());

@@ -42,11 +42,14 @@ public class ModEventBusEvents {
         event.create(ModRegistryBuilders.ATTRIBUTE_MODIFIER_TYPES);
         event.create(ModRegistryBuilders.COMPONENT_CONTENTS_TYPES);
         event.create(ModRegistryBuilders.DATA_SOURCE_TYPES);
+
         event.create(ModRegistryBuilders.ANIMATION_ELEMENT_TYPES);
         event.create(ModRegistryBuilders.SPAWN_ELEMENT_TYPES);
         event.create(ModRegistryBuilders.ANIMATION_TERMINATOR_TYPES);
         event.create(ModRegistryBuilders.PARTICLE_FINALIZER_TYPES);
         event.create(ModRegistryBuilders.ACTIVATION_LISTENER_TYPES);
+
+        event.create(ModRegistryBuilders.CAMERA_ROTATORS);
     }
 
     @SubscribeEvent

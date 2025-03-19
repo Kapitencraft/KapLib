@@ -12,6 +12,9 @@ public class Color {
 
     public final float r, g, b, a;
 
+    /**
+     * color from r, g, b and a values
+     */
     public Color(float r, float g, float b, float a) {
         this.r = r;
         this.g = g;
@@ -19,10 +22,17 @@ public class Color {
         this.a = a;
     }
 
+    /**
+     * color from vanilla ChatFormatting
+     */
+    @SuppressWarnings("DataFlowIssue")
     public Color(ChatFormatting color) {
         this(color.getColor());
     }
 
+    /**
+     * color from packed 32-bit integer. format ARGB
+     */
     public Color(int packed) {
         this.a = (packed >> 24 & 255) / 255f;
         this.r = (packed >> 16 & 255) / 255f;
@@ -30,6 +40,9 @@ public class Color {
         this.b = (packed & 255) / 255f;
     }
 
+    /**
+     * scales all colors
+     */
     public Color mul(float scale) {
         return new Color(r * scale, g * scale, b * scale, a * scale);
     }
@@ -46,6 +59,9 @@ public class Color {
         return add(other).mul(.5f);
     }
 
+    /**
+     * packs this color into 32-bit ARGB integer
+     */
     public int pack() {
         return MathHelper.RGBAtoInt((int) (this.r * 255), (int) (this.g * 255), (int) (this.b * 255), (int) (this.a * 255));
     }

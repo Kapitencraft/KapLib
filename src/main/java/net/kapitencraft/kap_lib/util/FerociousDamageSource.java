@@ -8,6 +8,9 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * damage source for ferocity
+ */
 public class FerociousDamageSource extends DamageSource {
     public static FerociousDamageSource create(Entity causer, double ferocity, float ferocityDamage) {
         return new FerociousDamageSource(

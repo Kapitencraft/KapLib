@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.util;
 
+/**
+ * 2d vector for integers
+ */
 public class Vec2i {
 
     public final int x, y;

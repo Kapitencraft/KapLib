@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * modifiers that automatically expires after a certain time
+ */
 public class TimedModifier extends AttributeModifier implements IKapLibAttributeModifier {
     public static final Codec<TimedModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("Name").forGetter(AttributeModifier::getName),

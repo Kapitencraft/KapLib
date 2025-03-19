@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
+import net.kapitencraft.kap_lib.client.cam.rot.Rotator;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
@@ -28,9 +29,12 @@ public interface ExtraRegistries {
     IForgeRegistry<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.ATTRIBUTE_MODIFIER_TYPES);
     IForgeRegistry<Codec<? extends ComponentContents>> COMPONENT_CONTENT_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.COMPONENT_CONTENTS_TYPES);
     IForgeRegistry<Codec<? extends DataSource>> DATA_SOURCE_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.DATA_SOURCE_TYPES);
+
     IForgeRegistry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.MODIFICATION_ELEMENT_TYPES);
     IForgeRegistry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.SPAWN_ELEMENT_TYPES);
     IForgeRegistry<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.FINALIZER_TYPES);
     IForgeRegistry<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.TERMINATOR_TYPES);
     IForgeRegistry<ActivationTrigger<?>> ACTIVATION_TRIGGERS = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.ACTIVATION_TRIGGERS);
+
+    IForgeRegistry<Rotator.Type<?>> CAMERA_ROTATORS = RegistryManager.ACTIVE.getRegistry(ExtraRegistryKeys.CAMERA_ROTATORS);
 }

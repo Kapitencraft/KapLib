@@ -11,11 +11,13 @@ import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector2i;
 
 import java.util.List;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
+@ApiStatus.Internal
 public class ScrollableTooltips {
     private static int scrollY = 0;
     private static int initY = 0;

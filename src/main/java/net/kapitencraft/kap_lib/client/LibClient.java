@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.client;
 
+import net.kapitencraft.kap_lib.client.cam.CameraController;
 import net.kapitencraft.kap_lib.client.enchantment_color.EnchantmentColorManager;
 import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimationManager;
@@ -29,4 +30,9 @@ public interface LibClient {
      * handles particle animations
      */
     ParticleAnimationManager animations = new ParticleAnimationManager();
+
+    /**
+     * handles tracking shots
+     */
+    CameraController cameraControl = new CameraController();
 }

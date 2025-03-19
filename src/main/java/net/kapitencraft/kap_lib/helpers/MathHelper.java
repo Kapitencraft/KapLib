@@ -281,6 +281,10 @@ public interface MathHelper {
         return isBetween(selectedIndex, 0, values.size() - 1);
     }
 
+    static Vec3 withRoll(Vec2 rotation, float roll) {
+        return new Vec3(rotation.x, rotation.y, roll);
+    }
+
     enum LineSize {
         THIN,
         THICK
