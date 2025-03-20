@@ -32,28 +32,36 @@ public class ClientTestCommand {
                         .executes(ClientTestCommand::testChroma)
                 ).then(Commands.literal("shake").executes(ClientTestCommand::shakeNoArg)
                         .then(Commands.argument("intensity", FloatArgumentType.floatArg(0, 1)).executes(ClientTestCommand::shakeIntensity)
-                                .then(Commands.argument("strength", FloatArgumentType.floatArg(0, 100)).executes(ClientTestCommand::shakeBoth)
+                                .then(Commands.argument("strength", FloatArgumentType.floatArg(0, 100)).executes(ClientTestCommand::shakeIntensityStrength)
+                                        .then(Commands.argument("speed", FloatArgumentType.floatArg(.01f, 5f)).executes(ClientTestCommand::shakeAll))
                                 )
-
                         )
                 )
         );
     }
 
-    private static int shakeBoth(CommandContext<CommandSourceStack> context) {
-        return shake(FloatArgumentType.getFloat(context, "intensity"), FloatArgumentType.getFloat(context, "strength"));
+    private static int shakeAll(CommandContext<CommandSourceStack> context) {
+        return shake(
+                FloatArgumentType.getFloat(context, "intensity"),
+                FloatArgumentType.getFloat(context, "strength"),
+                FloatArgumentType.getFloat(context, "speed")
+        );
+    }
+
+    private static int shakeIntensityStrength(CommandContext<CommandSourceStack> context) {
+        return shake(FloatArgumentType.getFloat(context, "intensity"), FloatArgumentType.getFloat(context, "strength"), 1.5f);
     }
 
     private static int shakeIntensity(CommandContext<CommandSourceStack> context) {
-        return shake(FloatArgumentType.getFloat(context, "intensity"), 1);
+        return shake(FloatArgumentType.getFloat(context, "intensity"), .5f, 1.5f);
     }
 
     private static int shakeNoArg(CommandContext<CommandSourceStack> commandSourceStackCommandContext) {
-        return shake(.01f, 1);
+        return shake(.01f, .5f, 1.5f);
     }
 
-    private static int shake(float intensity, float strength) {
-        LibClient.cameraControl.shake(intensity, strength);
+    private static int shake(float intensity, float strength, float speed) {
+        LibClient.cameraControl.shake(intensity, strength, speed);
         return 1;
     }
 

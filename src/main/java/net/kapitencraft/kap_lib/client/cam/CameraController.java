@@ -22,8 +22,8 @@ public class CameraController {
 
     private boolean shaking = false;
     private float oShake, shake, shakeVal;
-    private float shakeIntensity;
-    private int shakTime = 0;
+    private float shakeIntensity, shakeFrequenz;
+    private int shakeTime = 0;
 
     public CameraController() {
         MinecraftForge.EVENT_BUS.register(this);
@@ -34,23 +34,24 @@ public class CameraController {
         this.shot = shot;
     }
 
-    public void shake(float intensity, float strength) {
+    public void shake(float intensity, float strength, float frequenz) {
         this.shaking = true;
         this.shakeIntensity = intensity;
         this.shakeVal = strength;
+        this.shakeFrequenz = frequenz;
     }
 
     @SubscribeEvent
     public void tick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        oRot = rot;
-        this.rot = shot.tickRot(ticks++);
+        if (this.shot != null) {
+            oRot = rot;
+            this.rot = shot.tickRot(ticks++);
+        }
         if (shaking) {
             oShake = shake;
 
-            this.shake = Mth.cos(shakTime) * shakeVal;
-
-            this.shake = Mth.cos(shakTime++) * shakeVal;
+            this.shake = Mth.sin(shakeTime++ * shakeFrequenz) * shakeVal;
             shakeVal -= shakeIntensity;
             if (shakeVal <= 0) shaking = false;
         }
@@ -59,9 +60,11 @@ public class CameraController {
     @SubscribeEvent
     public void onViewportComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
         double partialTick = event.getPartialTick();
-        event.setYaw((float) Mth.lerp(partialTick, oRot.x, rot.x));
-        event.setPitch((float) Mth.lerp(partialTick, oRot.y, rot.y));
-        event.setRoll((float) Mth.lerp(partialTick, oRot.z, rot.z));
+        if (this.shot != null) {
+            event.setYaw((float) Mth.lerp(partialTick, oRot.x, rot.x));
+            event.setPitch((float) Mth.lerp(partialTick, oRot.y, rot.y));
+            event.setRoll((float) Mth.lerp(partialTick, oRot.z, rot.z));
+        }
         if (shaking) {
             Vec3 pos = event.getCamera().getPosition();
             event.getCamera().setPosition(pos.add(0, Mth.lerp((float) partialTick, oShake, shake), 0));
