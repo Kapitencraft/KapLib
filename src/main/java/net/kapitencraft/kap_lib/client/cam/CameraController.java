@@ -7,6 +7,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
@@ -15,7 +16,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class CameraController {
     private final Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
     private boolean running = false;
-    private Vec3 oRot, rot;
+    private Vec3 oRot = Vec3.ZERO, rot = Vec3.ZERO;
     private int ticks = 0;
     private TrackingShot shot;
 
@@ -39,12 +40,14 @@ public class CameraController {
         this.shakeVal = strength;
     }
 
-    public void tick() {
+    @SubscribeEvent
+    public void tick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
         oRot = rot;
         this.rot = shot.tickRot(ticks++);
         if (shaking) {
             oShake = shake;
-            this.shake = Mth.cos(shakTime) * shakeVal;
+            this.shake = Mth.cos(shakTime++) * shakeVal;
             shakeVal -= shakeIntensity;
             if (shakeVal <= 0) shaking = false;
         }
