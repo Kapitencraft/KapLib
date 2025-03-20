@@ -1,8 +1,10 @@
 package net.kapitencraft.kap_lib.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.gui.screen.TestScreen;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticleOptions;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
@@ -28,8 +30,31 @@ public class ClientTestCommand {
                         .executes(ClientTestCommand::spawnParticle)
                 ).then(Commands.literal("chroma")
                         .executes(ClientTestCommand::testChroma)
+                ).then(Commands.literal("shake").executes(ClientTestCommand::shakeNoArg)
+                        .then(Commands.argument("intensity", FloatArgumentType.floatArg(0, 1)).executes(ClientTestCommand::shakeIntensity)
+                                .then(Commands.argument("strength", FloatArgumentType.floatArg(0, 100)).executes(ClientTestCommand::shakeBoth)
+                                )
+
+                        )
                 )
         );
+    }
+
+    private static int shakeBoth(CommandContext<CommandSourceStack> context) {
+        return shake(FloatArgumentType.getFloat(context, "intensity"), FloatArgumentType.getFloat(context, "strength"));
+    }
+
+    private static int shakeIntensity(CommandContext<CommandSourceStack> context) {
+        return shake(FloatArgumentType.getFloat(context, "intensity"), 1);
+    }
+
+    private static int shakeNoArg(CommandContext<CommandSourceStack> commandSourceStackCommandContext) {
+        return shake(.01f, 1);
+    }
+
+    private static int shake(float intensity, float strength) {
+        LibClient.cameraControl.shake(intensity, strength);
+        return 1;
     }
 
     private static int testChroma(CommandContext<CommandSourceStack> commandContext) {

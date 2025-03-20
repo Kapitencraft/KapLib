@@ -8,7 +8,6 @@ import net.minecraft.world.phys.Vec3;
 public class TrackingShot {
     private final Rotator[] rotators;
     //TODO implement times and setup rest
-    private final int[] times;
 
     public TrackingShot(Rotator[] rotators) {
         this.rotators = rotators;

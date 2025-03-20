@@ -9,8 +9,6 @@ import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import javax.sound.midi.Track;
-
 /**
  * controls camera loc and rotation overwrites
  */
@@ -21,6 +19,11 @@ public class CameraController {
     private int ticks = 0;
     private TrackingShot shot;
 
+    private boolean shaking = false;
+    private float oShake, shake, shakeVal;
+    private float shakeIntensity;
+    private int shakTime = 0;
+
     public CameraController() {
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -30,9 +33,21 @@ public class CameraController {
         this.shot = shot;
     }
 
+    public void shake(float intensity, float strength) {
+        this.shaking = true;
+        this.shakeIntensity = intensity;
+        this.shakeVal = strength;
+    }
+
     public void tick() {
         oRot = rot;
         this.rot = shot.tickRot(ticks++);
+        if (shaking) {
+            oShake = shake;
+            this.shake = Mth.cos(shakTime) * shakeVal;
+            shakeVal -= shakeIntensity;
+            if (shakeVal <= 0) shaking = false;
+        }
     }
 
     @SubscribeEvent
@@ -41,5 +56,9 @@ public class CameraController {
         event.setYaw((float) Mth.lerp(partialTick, oRot.x, rot.x));
         event.setPitch((float) Mth.lerp(partialTick, oRot.y, rot.y));
         event.setRoll((float) Mth.lerp(partialTick, oRot.z, rot.z));
+        if (shaking) {
+            Vec3 pos = event.getCamera().getPosition();
+            event.getCamera().setPosition(pos.add(0, Mth.lerp((float) partialTick, oShake, shake), 0));
+        }
     }
 }
