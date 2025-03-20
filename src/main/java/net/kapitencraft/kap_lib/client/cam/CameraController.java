@@ -47,6 +47,9 @@ public class CameraController {
         this.rot = shot.tickRot(ticks++);
         if (shaking) {
             oShake = shake;
+
+            this.shake = Mth.cos(shakTime) * shakeVal;
+
             this.shake = Mth.cos(shakTime++) * shakeVal;
             shakeVal -= shakeIntensity;
             if (shakeVal <= 0) shaking = false;
