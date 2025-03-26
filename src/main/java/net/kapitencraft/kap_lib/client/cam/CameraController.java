@@ -22,7 +22,7 @@ public class CameraController {
 
     private boolean shaking = false;
     private float oShake, shake, shakeVal;
-    private float shakeIntensity, shakeFrequenz;
+    private float shakeIntensity, shakeFrequency;
     private int shakeTime = 0;
 
     public CameraController() {
@@ -34,24 +34,24 @@ public class CameraController {
         this.shot = shot;
     }
 
-    public void shake(float intensity, float strength, float frequenz) {
+    public void shake(float intensity, float strength, float frequency) {
         this.shaking = true;
         this.shakeIntensity = intensity;
         this.shakeVal = strength;
-        this.shakeFrequenz = frequenz;
+        this.shakeFrequency = frequency;
     }
 
     @SubscribeEvent
     public void tick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        if (this.shot != null) {
+        if (running) {
             oRot = rot;
             this.rot = shot.tickRot(ticks++);
         }
         if (shaking) {
             oShake = shake;
 
-            this.shake = Mth.sin(shakeTime++ * shakeFrequenz) * shakeVal;
+            this.shake = Mth.sin(shakeTime++ * shakeFrequency) * shakeVal;
             shakeVal -= shakeIntensity;
             if (shakeVal <= 0) shaking = false;
         }

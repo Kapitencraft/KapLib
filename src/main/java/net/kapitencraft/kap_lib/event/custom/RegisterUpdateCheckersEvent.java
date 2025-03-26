@@ -26,7 +26,7 @@ public class RegisterUpdateCheckersEvent extends Event implements IModBusEvent {
      * @param modId the id of the mod
      * @param versionExtractor a pattern able to extract the mod's version from the version string. must contain exactly o
      */
-    public void register(String projectId, String modId, Pattern versionExtractor) {
+    public void register(String modId, String projectId, Pattern versionExtractor) {
         sink.apply(projectId, modId, versionExtractor);
     }
 
@@ -36,6 +36,10 @@ public class RegisterUpdateCheckersEvent extends Event implements IModBusEvent {
      * @see net.kapitencraft.kap_lib.publish.AutoPublisher AutoPublisher
      */
     public void register(String modId) {
-        register(modId, modId, DEFAULT_PATTERN);
+        register(modId, modId);
+    }
+
+    public void register(String modId, String projectId) {
+        register(modId, projectId, DEFAULT_PATTERN);
     }
 }

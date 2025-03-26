@@ -2,6 +2,8 @@ package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
+import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
+import net.minecraft.util.GsonHelper;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -11,6 +13,7 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class AutoPublisher {
     private static final Gson GSON = new GsonBuilder().create();
@@ -212,15 +215,26 @@ public class AutoPublisher {
             Map<String, Object> dependency = GSON.fromJson(object, Map.class);
             if (!dependency.containsKey("project_id")) System.err.println("Dependency missing project id!");
             else if (!dependency.containsKey("file_name")) System.err.println("Dependency missing file name!");
-            else if (!dependency.containsKey("dependency_type")) System.err.println("Dependency missing dependency type");
+            else if (!dependency.containsKey("type")) System.err.println("Dependency missing dependency type");
+            else if (!verifyDependencyType(dependency.get("type"))) System.err.println("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
             else {
                 dependencyData.add(dependency);
+                String name = (String) dependency.get("file_name");
+                String projectId = (String) dependency.get("project_id");
+                int ordinal = dependency.containsKey("ordinal") ? (int) dependency.get("ordinal") : -1;
+                dependency.put("version_id", getDependencyVersionId(projectId, name, ordinal));
                 continue;
             }
             throw new IOException("Dependency Load Failed");
         }
 
         data.put("dependencies", dependencyData);
+    }
+
+    private static final List<String> DEPENDENCY_TYPES = List.of("required", "optional", "incompatible", "embedded");
+
+    private static boolean verifyDependencyType(Object type) {
+        return type instanceof String s && DEPENDENCY_TYPES.contains(s);
     }
 
     private static String getFileSHA512(File file) {
@@ -280,5 +294,21 @@ public class AutoPublisher {
 
     private static String formatVersion(String modVersion, String mcVersion, String fmlVersion) {
         return String.format("v%s-mc%s-FML%s", modVersion, mcVersion, fmlVersion);
+    }
+
+    private static String getDependencyVersionId(String modId, String name, int ordinal) throws IOException {
+        try {
+            Stream<JsonObject> data = ModrinthUtils.readVersions(modId, "AutoPublisherDependency");
+            if (data == null) throw new IllegalStateException("connecting to '" + modId + "' failed");
+            JsonObject[] available = data.filter(object -> GsonHelper.getAsString(object, "version_number").equals(name)).toArray(JsonObject[]::new);
+            if (available.length > 1 && ordinal == -1) {
+                throw new IllegalArgumentException("multiple possible versions available but no ordinal specified!");
+            } else if (ordinal >= available.length || ordinal < 0) {
+                throw new IndexOutOfBoundsException("ordinal out of bounds for version count " + available.length);
+            }
+            return GsonHelper.getAsString(available.length == 1 ? available[0] : available[ordinal], "id");
+        } catch (IOException e) {
+            throw new IOException("unable to read dependency: " + e.getMessage());
+        }
     }
 }

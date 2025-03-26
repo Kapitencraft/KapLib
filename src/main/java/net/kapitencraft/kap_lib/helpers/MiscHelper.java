@@ -4,6 +4,8 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.particle.DamageIndicatorParticleOptions;
+import net.kapitencraft.kap_lib.io.network.ModMessages;
+import net.kapitencraft.kap_lib.io.network.S2C.ActivateShakePacket;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.kapitencraft.kap_lib.util.Color;
 import net.kapitencraft.kap_lib.util.ExtraRarities;
@@ -495,5 +497,14 @@ public class MiscHelper {
             }
         });
         return drops;
+    }
+
+    public static void shakeGround(ServerLevel level, Vec3 pos, float intensity, float strength, float frequency) {
+        float radius = strength / intensity;
+        List<ServerPlayer> targets = level.getEntitiesOfClass(ServerPlayer.class, new AABB(pos, pos).inflate(radius));
+        targets.forEach(p -> {
+            float dist = Mth.sqrt((float) p.distanceToSqr(pos));
+            ModMessages.sendToClientPlayer(new ActivateShakePacket(intensity, strength * (dist / radius), frequency), p);
+        });
     }
 }

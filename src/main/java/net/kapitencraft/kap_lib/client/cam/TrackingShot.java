@@ -21,7 +21,7 @@ public class TrackingShot {
         return new TrackingShot(NetworkHelper.readArray(buf, Rotator[]::new, Rotator::fromNw));
     }
 
-    public Vec3 tickRot(int i) {
+    public Vec3 tickRot(int tick) {
         return null;
     }
 }

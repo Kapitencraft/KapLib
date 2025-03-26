@@ -13,6 +13,7 @@ import net.kapitencraft.kap_lib.event.custom.RegisterUpdateCheckersEvent;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
@@ -147,31 +148,12 @@ public class UpdateChecker {
         try {
             info("running version check on '" + projectId + "'");
             ComparableVersion currentModVersion = new ComparableVersion(modInfo.versionString());
-            String projectVersionURL = PROJECT_URL + projectId + "/version";
-            String requestParams = "?loaders=" +
-                    URLEncoder.encode(JsonHelper.GSON.toJson(new String[] {"forge"}), StandardCharsets.UTF_8) +
-                    "&game_versions=" + URLEncoder.encode(JsonHelper.GSON.toJson(new Object[] {MCPVersion.getMCVersion()}), StandardCharsets.UTF_8);
-            URL url = new URL(projectVersionURL + requestParams);
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("User-Agent", "KapLibAutoUpdater for '" + projectId + "', (kapitencraft@gmail.com)");
-
-            int response = connection.getResponseCode();
-
-            InputStream dataStream;
-            if (response != HttpsURLConnection.HTTP_OK) {
-                LOGGER.warn("connection to {} failed: {}", updateData.modId, response);
+            Stream<JsonObject> versionData = ModrinthUtils.readVersions(projectId, "KapLibAutoUpdater");
+            if (versionData == null) {
+                LOGGER.warn("connection to {} failed", updateData.modId);
                 return Result.connectionFailed(updateData.modId, currentModVersion);
-            } else {
-                dataStream = connection.getInputStream();
             }
-            JsonReader reader = new JsonReader(new InputStreamReader(dataStream));
 
-            JsonArray data = (JsonArray) Streams.parse(reader);
-
-            reader.close();
-
-            Stream<JsonObject> versionData = JsonHelper.castToObjects(data);
             Map<String, JsonObject> newer = versionData.collect(
                     CollectorHelper.toKeyMappedStream(
                             object -> {

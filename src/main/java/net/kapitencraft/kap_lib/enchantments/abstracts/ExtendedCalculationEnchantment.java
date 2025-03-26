@@ -31,7 +31,7 @@ public interface ExtendedCalculationEnchantment extends ModEnchantment {
         return map;
     }
 
-    public static float runWithPriority(ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, DamageSource source) {
+    static float runWithPriority(ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, DamageSource source) {
         Map<ExtendedCalculationEnchantment, Integer> enchantmentIntegerMap = getAllEnchantments(enchanted);
         for (ProcessPriority priority : ProcessPriority.values()) {
             for (ExtendedCalculationEnchantment enchantment : enchantmentIntegerMap.keySet()) {
@@ -58,6 +58,7 @@ public interface ExtendedCalculationEnchantment extends ModEnchantment {
 
     enum CalculationType {
         ONLY_MAGIC(MiscHelper.DamageType.MAGIC),
+        NOT_MAGIC(MiscHelper.DamageType.MELEE, MiscHelper.DamageType.RANGED),
         ONLY_MELEE(MiscHelper.DamageType.MELEE),
         ONLY_RANGED(MiscHelper.DamageType.RANGED),
         ALL(MiscHelper.DamageType.MAGIC, MiscHelper.DamageType.RANGED, MiscHelper.DamageType.MELEE),

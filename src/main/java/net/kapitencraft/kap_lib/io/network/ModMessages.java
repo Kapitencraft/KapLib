@@ -50,6 +50,8 @@ public class ModMessages {
         addMessage(SyncBonusesPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncBonusesPacket::new);
         addMessage(DisplayTotemActivationPacket.class, NetworkDirection.PLAY_TO_CLIENT, DisplayTotemActivationPacket::new);
         addMessage(SendParticleAnimationPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendParticleAnimationPacket::new);
+        addMessage(SendTrackingShotPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendTrackingShotPacket::new);
+        addMessage(ActivateShakePacket.class, NetworkDirection.PLAY_TO_CLIENT, ActivateShakePacket::new);
     }
 
 
