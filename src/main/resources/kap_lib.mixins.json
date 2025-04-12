@@ -14,6 +14,7 @@
     "client.EnchantedBookItemMixin",
     "client.FontSetMixin",
     "client.FontTextureMixin",
+    "client.GameRendererMixin",
     "client.ItemStackMixin",
     "client.ParticleEngineMixin",
     "client.RecipeBookComponentMixin",

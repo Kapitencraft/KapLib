@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
-import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
@@ -36,8 +36,8 @@ public class MoveTowardsElement implements AnimationElement {
     }
 
     @Override
-    public void tick(ParticleConfig object, int tick) {
-        object.setPos(object.<Vec3>getProperty("origin").lerp(targetLoc.get(), tick / (duration - 1f)));
+    public void tick(ParticleConfig object, int tick, double percentage) {
+        object.setPos(object.<Vec3>getProperty("origin").lerp(targetLoc.get(), percentage));
     }
 
     public static class Builder implements AnimationElement.Builder {

@@ -8,7 +8,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public interface ElementTypes {
 
-    DeferredRegister<AnimationElement.Type<?>> REGISTRY = KapLibMod.registry(ExtraRegistryKeys.MODIFICATION_ELEMENT_TYPES);
+    DeferredRegister<AnimationElement.Type<?>> REGISTRY = KapLibMod.registry(ExtraRegistryKeys.MODIFIER_TYPES);
 
     RegistryObject<StartFadeOutElement.Type> START_FADE_OUT = REGISTRY.register("start_fade_out", StartFadeOutElement.Type::new);
     RegistryObject<MoveTowardsElement.Type> MOVE_TOWARDS = REGISTRY.register("move_towards", MoveTowardsElement.Type::new);

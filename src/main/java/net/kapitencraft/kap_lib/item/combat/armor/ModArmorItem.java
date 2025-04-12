@@ -2,7 +2,8 @@ package net.kapitencraft.kap_lib.item.combat.armor;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.item.combat.armor.client.renderer.ArmorRenderer;
+import net.kapitencraft.kap_lib.item.combat.armor.client.model.ArmorModel;
+import net.kapitencraft.kap_lib.item.combat.armor.client.renderer.ArmorModelProvider;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +22,7 @@ import java.util.function.Consumer;
 /**
  * basic armor item.
  * <br>allows for full set effects TODO move to Bonuses?
- * <br>and for custom model implementation (override {@link #withCustomModel()} and {@link #getRenderer(LivingEntity, ItemStack, EquipmentSlot)} to enable
+ * <br>and for custom model implementation (override {@link #withCustomModel()} and {@link #getModel(LivingEntity, ItemStack, EquipmentSlot)} to enable
  */
 public abstract class ModArmorItem extends ArmorItem {
     private static final String FULL_SET_ID = "hadFullSet";
@@ -104,7 +105,8 @@ public abstract class ModArmorItem extends ArmorItem {
     // display / model START
 
     protected boolean withCustomModel() { return false; }
-    protected ArmorRenderer<?> getRenderer(LivingEntity living, ItemStack stack, EquipmentSlot slot) { return null;}
+
+    protected ArmorModelProvider getModelProvider() { return null;}
 
     @Override
     public void initializeClient(@NotNull Consumer<IClientItemExtensions> consumer) {
@@ -112,10 +114,11 @@ public abstract class ModArmorItem extends ArmorItem {
         consumer.accept(new IClientItemExtensions() {
             @Override
             public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity living, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> original) {
-                HumanoidModel<?> armorModel = new HumanoidModel<>(getRenderer(living, stack, slot).makeArmorParts(slot));
-                armorModel.crouching = living.isShiftKeyDown();
+                ArmorModel armorModel = getModelProvider().getModel(living, stack, slot);
+                armorModel.partVisible(slot);
+                armorModel.crouching = original.crouching;
                 armorModel.riding = original.riding;
-                armorModel.young = living.isBaby();
+                armorModel.young = original.young;
                 return armorModel;
             }
         });

@@ -5,8 +5,11 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.kapitencraft.kap_lib.client.LibClient;
+import net.kapitencraft.kap_lib.client.cam.core.TrackingShot;
+import net.kapitencraft.kap_lib.client.cam.modifiers.GlideTowardsModifier;
 import net.kapitencraft.kap_lib.client.gui.screen.TestScreen;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticleOptions;
+import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
@@ -15,8 +18,10 @@ import net.kapitencraft.kap_lib.util.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
@@ -36,8 +41,19 @@ public class ClientTestCommand {
                                         .then(Commands.argument("speed", FloatArgumentType.floatArg(.01f, 5f)).executes(ClientTestCommand::shakeAll))
                                 )
                         )
-                )
+                ).then(Commands.literal("cam").executes(ClientTestCommand::testCameraMotion))
         );
+    }
+
+    private static int testCameraMotion(CommandContext<CommandSourceStack> context) {
+        Player player = Minecraft.getInstance().player;
+        if (player == null) return 0;
+        LibClient.cameraControl.activate(TrackingShot.builder()
+                .addModifier(
+                        new GlideTowardsModifier(PositionTarget.entityEyes(player), PositionTarget.fixed(player.getViewVector(0).scale(20).add(EntityAnchorArgument.Anchor.EYES.apply(player)))), 40)
+                .build()
+        );
+        return 1;
     }
 
     private static int shakeAll(CommandContext<CommandSourceStack> context) {

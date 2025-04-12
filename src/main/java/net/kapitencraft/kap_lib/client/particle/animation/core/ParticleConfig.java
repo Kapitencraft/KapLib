@@ -120,7 +120,8 @@ public class ParticleConfig {
             active.initialize(this);
             elementStartTick = tickCount;
         }
-        active.tick(this, tickCount - elementStartTick);
+        int currentTickCount = tickCount - elementStartTick;
+        active.tick(this, currentTickCount, (double) currentTickCount / (elementLengths[elementIndex] - 1));
         tickers.forEach(c -> c.accept(this, tickCount));
         tickCount++;
         this.sync();

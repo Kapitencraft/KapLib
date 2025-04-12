@@ -1,10 +1,9 @@
 package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
-import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +30,7 @@ public class MoveAwayElement implements AnimationElement {
     }
 
     @Override
-    public void tick(ParticleConfig object, int tick) {
+    public void tick(ParticleConfig object, int tick, double percentage) {
         Vec3 relative = object.pos().subtract(target.get());
         object.setPos(
                 object.pos().add(MathHelper.clampLength(relative, relative.length() + speed))

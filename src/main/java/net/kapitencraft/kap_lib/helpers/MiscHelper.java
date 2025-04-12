@@ -43,9 +43,11 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
@@ -58,6 +60,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -264,10 +267,12 @@ public class MiscHelper {
     }
 
     /**
-     * a method to delay {@code run} by delayTicks
+     * a method to delay {@code run} by delayTicks.
+     * <br><b>do avoid this method if possible. use a level or a current running event you created instead</b>
      * @author Kapitencraft
      * @param delayTicks time (in ticks) to delay
      * @param run runnable to execute at the end of the delay
+     * @see Level#scheduleTick(BlockPos, Block, int)
      */
     public static void schedule(int delayTicks, Runnable run) {
         new Object() {
@@ -278,6 +283,7 @@ public class MiscHelper {
                 this.waitTicks = waitTicks;
                 MinecraftForge.EVENT_BUS.register(this);
             }
+
             @SubscribeEvent
             public void tick(TickEvent.ServerTickEvent event) {
                 if (event.phase == TickEvent.Phase.END) {

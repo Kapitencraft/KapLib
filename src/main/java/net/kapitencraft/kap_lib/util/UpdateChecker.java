@@ -1,9 +1,6 @@
 package net.kapitencraft.kap_lib.util;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,7 +12,6 @@ import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringRepresentable;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,17 +22,13 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.progress.ProgressMeter;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.versions.mcp.MCPVersion;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,7 +38,6 @@ import java.util.stream.Stream;
 public class UpdateChecker {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<String, UpdateData> projectData = new HashMap<>();
-    private static final String PROJECT_URL = "https://api.modrinth.com/v2/project/";
     private static final Config config = loadConfig();
 
     public static class Update {
@@ -122,7 +113,6 @@ public class UpdateChecker {
         info("Starting Update check... (auto update " + (config.autoUpdate ? "enabled" : "disabled") + ")");
         List<Result> results = projectData.keySet().stream().map(UpdateChecker::checkUpdate).toList();
         List<Update> updates = new ArrayList<>();
-        int connectionFailed = 0, failed = 0, upToDate = 0, outdated = 0;
         for (Result result : results) {
             result.log();
             if (result.type == Result.Type.OUTDATED) updates.add(result.update);

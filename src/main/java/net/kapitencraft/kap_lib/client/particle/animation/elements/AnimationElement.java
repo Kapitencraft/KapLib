@@ -2,8 +2,6 @@ package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -35,7 +33,7 @@ public interface AnimationElement {
      */
     int createLength(ParticleConfig config);
 
-    void tick(ParticleConfig object, int tick);
+    void tick(ParticleConfig object, int tick, double percentage);
 
     /**
      * called when this element start taking over the animation of the given config

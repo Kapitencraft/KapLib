@@ -4,7 +4,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimation
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.GroupSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.LineSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.RingSpawner;
-import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.Mth;

@@ -1,76 +1,109 @@
 package net.kapitencraft.kap_lib.item.combat.armor.client.model;
 
+import com.ibm.icu.text.Normalizer2;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 /**
  * pre-made model for armors.
  * <br> extend to make custom armors models
  */
-public class ArmorModel extends EntityModel<LivingEntity> {
-    protected static final CubeDeformation NULL_DEFORM = new CubeDeformation(0);
-    public final ModelPart armorHead;
-    public final ModelPart armorChest;
-    public final ModelPart armorRightArm;
-    public final ModelPart armorLeftArm;
-    public final ModelPart armorRightLeg;
-    public final ModelPart armorLeftLeg;
-    public final ModelPart armorRightBoot;
-    public final ModelPart armorLeftBoot;
+public class ArmorModel extends HumanoidModel<LivingEntity> {
+    public final ModelPart leftBoot;
+    public final ModelPart rightBoot;
 
-
-
-    public ArmorModel(ModelPart root) {
-        armorHead = getSave("armorHead", root);
-        armorChest = getSave("armorBody", root);
-        armorRightArm = getSave("armorRightArm", root);
-        armorLeftArm = getSave("armorLeftArm", root);
-        armorRightLeg = getSave("armorRightLeg", root);
-        armorLeftLeg = getSave("armorLeftLeg", root);
-        armorRightBoot = getSave("armorRightBoot", root);
-        armorLeftBoot = getSave("armorLeftBoot", root);
+    public ArmorModel(ModelPart pRoot) {
+        super(pRoot);
+        this.leftBoot = pRoot.getChild("left_boot");
+        this.rightBoot = pRoot.getChild("right_boot");
     }
 
-    private static ModelPart getSave(String name, ModelPart part) {
-        try {
-            return part.getChild(name);
-        } catch (NoSuchElementException e) {
-            return null;
+    public ArmorModel(ModelPart pRoot, Function<ResourceLocation, RenderType> pRenderType) {
+        super(pRoot, pRenderType);
+        this.leftBoot = pRoot.getChild("left_boot");
+        this.rightBoot = pRoot.getChild("right_boot");
+    }
+
+    @Override
+    public void setAllVisible(boolean pVisible) {
+        super.setAllVisible(pVisible);
+        this.leftBoot.visible = pVisible;
+        this.rightBoot.visible = pVisible;
+    }
+
+    /**
+     * makes only one part visible for rendering
+     */
+    public void partVisible(EquipmentSlot slot) {
+        this.setAllVisible(false);
+        switch (slot) {
+            case HEAD:
+                this.head.visible = true;
+                this.hat.visible = true;
+                break;
+            case CHEST:
+                this.body.visible = true;
+                this.rightArm.visible = true;
+                this.leftArm.visible = true;
+                break;
+            case LEGS:
+                this.leftLeg.visible = true;
+                this.rightLeg.visible = true;
+                break;
+            case FEET:
+                this.leftBoot.visible = true;
+                this.rightBoot.visible = true;
         }
     }
 
     @Override
-    public void setupAnim(@NotNull LivingEntity p_102618_, float p_102619_, float p_102620_, float p_102621_, float p_102622_, float p_102623_) {
+    public void setupAnim(LivingEntity pEntity, float pLimbSwing, float pLimbSwingAmount, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
+        super.setupAnim(pEntity, pLimbSwing, pLimbSwingAmount, pAgeInTicks, pNetHeadYaw, pHeadPitch);
 
+        float f = 1.0F;
+        if (pEntity.getFallFlyingTicks() > 4) {
+            f = (float)pEntity.getDeltaMovement().lengthSqr();
+            f /= 0.2F;
+            f *= f * f;
+        }
+
+        if (f < 1.0F) {
+            f = 1.0F;
+        }
+
+        this.rightBoot.xRot = Mth.cos(pLimbSwing * 0.6662F) * 1.4F * pLimbSwingAmount / f;
+        this.leftBoot.xRot = Mth.cos(pLimbSwing * 0.6662F + (float)Math.PI) * 1.4F * pLimbSwingAmount / f;
+        this.rightBoot.yRot = 0.005F;
+        this.leftBoot.yRot = -0.005F;
+        this.rightBoot.zRot = 0.005F;
+        this.leftBoot.zRot = -0.005F;
+        if (this.riding) {
+            this.rightBoot.xRot = -1.4137167F;
+            this.rightBoot.yRot = ((float)Math.PI / 10F);
+            this.rightBoot.zRot = 0.07853982F;
+            this.leftLeg.xRot = -1.4137167F;
+            this.leftLeg.yRot = (-(float)Math.PI / 10F);
+            this.leftLeg.zRot = -0.07853982F;
+        }
     }
 
     @Override
     public void renderToBuffer(@NotNull PoseStack stack, @NotNull VertexConsumer consumer, int packedLight, int packedOverlay, float r, float g, float b, float a) {
-        armorHead.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        armorChest.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        armorRightArm.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        armorLeftArm.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        armorRightLeg.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        armorLeftLeg.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        armorRightBoot.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        armorLeftBoot.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-    }
-
-    public void makeInvisible(boolean invisible) {
-        armorHead.visible = !invisible;
-        armorChest.visible = !invisible;
-        armorRightArm.visible = !invisible;
-        armorLeftArm.visible = !invisible;
-        armorRightLeg.visible = !invisible;
-        armorLeftLeg.visible = !invisible;
-        armorRightBoot.visible = !invisible;
-        armorLeftBoot.visible = !invisible;
+        super.renderToBuffer(stack, consumer, packedLight, packedOverlay, r, g, b, a);
+        this.leftBoot.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
+        this.rightBoot.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
     }
 }

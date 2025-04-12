@@ -33,24 +33,10 @@ public class ModEventBusEvents {
     }
 
     @SubscribeEvent
-    public static void registerRegistries(NewRegistryEvent event) {
-        event.create(ModRegistryBuilders.REQUESTABLES_BUILDER);
-        event.create(ModRegistryBuilders.REQUIREMENTS_BUILDER);
-        event.create(ModRegistryBuilders.SET_BONUSES);
-        event.create(ModRegistryBuilders.OVERLAY_PROPERTIES);
-        event.create(ModRegistryBuilders.GLYPH_EFFECTS);
-        event.create(ModRegistryBuilders.ATTRIBUTE_MODIFIER_TYPES);
-        event.create(ModRegistryBuilders.COMPONENT_CONTENTS_TYPES);
-        event.create(ModRegistryBuilders.DATA_SOURCE_TYPES);
-
-        event.create(ModRegistryBuilders.ANIMATION_ELEMENT_TYPES);
-        event.create(ModRegistryBuilders.SPAWN_ELEMENT_TYPES);
-        event.create(ModRegistryBuilders.ANIMATION_TERMINATOR_TYPES);
-        event.create(ModRegistryBuilders.PARTICLE_FINALIZER_TYPES);
-        event.create(ModRegistryBuilders.ACTIVATION_LISTENER_TYPES);
-
-        event.create(ModRegistryBuilders.CAMERA_ROTATORS);
+    public static void addRegistries(NewRegistryEvent event) {
+        ModRegistryBuilders.builders.forEach(event::create);
     }
+
 
     @SubscribeEvent
     public static void registerUpdateListener(RegisterUpdateCheckersEvent event) {

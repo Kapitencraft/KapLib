@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.client;
 
-import net.kapitencraft.kap_lib.client.cam.CameraController;
-import net.kapitencraft.kap_lib.client.enchantment_color.EnchantmentColorManager;
+import net.kapitencraft.kap_lib.client.cam.core.CameraController;
 import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimationManager;
 import net.kapitencraft.kap_lib.io.network.ModMessages;

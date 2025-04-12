@@ -99,12 +99,13 @@ public class DamageEvents {
         if (attacker == null || MiscHelper.getDamageType(source) != MiscHelper.DamageType.MELEE) {
             return;
         }
-        if (attacker.getAttribute(ExtraAttributes.FEROCITY.get()) != null) { //TODO implement sounds & particles?
+        if (attacker.getAttribute(ExtraAttributes.FEROCITY.get()) != null) {
             double ferocity = source instanceof FerociousDamageSource damageSource ? damageSource.ferocity : attacker.getAttributeValue(ExtraAttributes.FEROCITY.get());
             if (MathHelper.chance(ferocity / 100, attacker)) {
                 MiscHelper.schedule(40, () -> {
                     float ferocityDamage = (float) (source instanceof FerociousDamageSource ferociousDamageSource ? ferociousDamageSource.damage :
                             source.getEntity() instanceof AbstractArrow arrow ? arrow.getBaseDamage() : attacker.getAttributeValue(Attributes.ATTACK_DAMAGE));
+                    if (attacked.isDeadOrDying()) return;
                     attacked.level().playSound(attacked, attacked.getOnPos(), SoundEvents.IRON_GOLEM_ATTACK, SoundSource.HOSTILE, 1f, 0.5f);
                     attacked.hurt(FerociousDamageSource.create(attacker, (ferocity - 100), ferocityDamage), ferocityDamage);
                 });

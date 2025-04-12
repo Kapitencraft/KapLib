@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.helpers;
 
-import net.kapitencraft.kap_lib.client.cam.rot.FixedRotator;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;

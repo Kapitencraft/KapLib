@@ -11,6 +11,7 @@ import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.RequirementType;
+import net.kapitencraft.kap_lib.spawn_table.SpawnTableManager;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -86,6 +87,7 @@ public class Events {
     public static void addRequirementListener(AddReloadListenerEvent event) {
         event.addListener(RequirementManager.instance = new RequirementManager());
         event.addListener(BonusManager.updateInstance(event.getRegistryAccess()));
+        event.addListener(SpawnTableManager.instance = new SpawnTableManager());
     }
 
     @SubscribeEvent

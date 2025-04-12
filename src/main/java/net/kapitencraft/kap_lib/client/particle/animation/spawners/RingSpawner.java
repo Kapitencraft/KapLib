@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.client.particle.animation.spawners;
 
-import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
-import net.kapitencraft.kap_lib.client.particle.animation.util.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.client.util.rot_target.RotationTarget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
@@ -10,7 +10,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;

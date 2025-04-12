@@ -37,7 +37,7 @@ public interface Spawner {
     void spawn(ParticleSpawnSink sink);
 
     /**
-     * @return the type of this spawner. must be registered to the {@link net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys#SPAWN_ELEMENT_TYPES ExtraRegistryKeys#SPAWN_ELEMENT_TYPES}
+     * @return the type of this spawner. must be registered to the {@link net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys#SPAWNER_TYPES ExtraRegistryKeys#SPAWN_ELEMENT_TYPES}
      */
     @NotNull VisibleSpawner.Type<? extends Spawner> getType();
 

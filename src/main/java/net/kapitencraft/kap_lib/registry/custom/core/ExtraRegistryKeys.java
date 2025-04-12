@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.client.cam.rot.Rotator;
+import net.kapitencraft.kap_lib.client.cam.modifiers.Modifier;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
@@ -12,9 +12,10 @@ import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
-import net.kapitencraft.kap_lib.client.particle.animation.spawners.VisibleSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
+import net.kapitencraft.kap_lib.spawn_table.entries.SpawnPoolEntryType;
+import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.contents.DataSource;
@@ -44,14 +45,18 @@ public interface ExtraRegistryKeys {
     ResourceKey<Registry<Codec<? extends DataSource>>> DATA_SOURCE_TYPES = vanillaRegistry("data_source_types");
 
     //PARTICLE ANIMATION
-    ResourceKey<Registry<AnimationElement.Type<?>>> MODIFICATION_ELEMENT_TYPES = createRegistry("particle_animation/element_types");
-    ResourceKey<Registry<Spawner.Type<?>>> SPAWN_ELEMENT_TYPES = createRegistry("particle_animation/spawn_types");
+    ResourceKey<Registry<AnimationElement.Type<?>>> MODIFIER_TYPES = createRegistry("particle_animation/element_types");
+    ResourceKey<Registry<Spawner.Type<?>>> SPAWNER_TYPES = createRegistry("particle_animation/spawner_types");
     ResourceKey<Registry<ParticleFinalizer.Type<?>>> FINALIZER_TYPES = createRegistry("particle_animation/finalizer_types");
     ResourceKey<Registry<AnimationTerminator.Type<?>>> TERMINATOR_TYPES = createRegistry("particle_animation/terminator_types");
     ResourceKey<Registry<ActivationTrigger<?>>> ACTIVATION_TRIGGERS = createRegistry("particle_animation/activation_triggers");
 
     //CAMERA CONTROL
-    ResourceKey<Registry<Rotator.Type<?>>> CAMERA_ROTATORS = createRegistry("camera/rotators");
+    ResourceKey<Registry<Modifier.Type<?>>> CAMERA_MODIFIERS = createRegistry("camera_modifiers");
+
+    //SPAWN TABLE
+    ResourceKey<Registry<SpawnEntityFunctionType>> FUNCTION_TYPES = createRegistry("spawn_table/function_types");
+    ResourceKey<Registry<SpawnPoolEntryType>> POOL_ENTRY_TYPES = createRegistry("spawn_table/pool_entry_types");
 
     private static <T> ResourceKey<Registry<T>> createRegistry(String id) {
         return ResourceKey.createRegistryKey(KapLibMod.res(id));

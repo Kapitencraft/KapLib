@@ -8,7 +8,10 @@ import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
 import net.kapitencraft.kap_lib.registry.custom.SetBonusTypes;
 import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
+import net.kapitencraft.kap_lib.registry.custom.CameraModifiers;
+import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.*;
+import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaComponentContentTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaDataSourceTypes;
@@ -50,8 +53,7 @@ public class KapLibMod {
     public static final File MAIN = new File("./kap_lib");
     public static final RandomSource RANDOM_SOURCE = RandomSource.create();
 
-    public KapLibMod()
-    {
+    public KapLibMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ExtraAttributes.REGISTRY.register(modEventBus);
@@ -71,11 +73,19 @@ public class KapLibMod {
         FinalizerTypes.REGISTRY.register(modEventBus);
         TerminatorTypes.REGISTRY.register(modEventBus);
         ActivationTriggers.REGISTRY.register(modEventBus);
+
+        CameraModifiers.REGISTRY.register(modEventBus);
+
+        SpawnEntityFunctions.REGISTRY.register(modEventBus);
+        SpawnPoolEntries.REGISTRY.register(modEventBus);
+
         Overlays.REGISTRY.register(modEventBus);
 
         VanillaAttributeModifierTypes.REGISTRY.register(modEventBus);
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);
         VanillaDataSourceTypes.REGISTRY.register(modEventBus);
+
+        //VanillaTestItems.REGISTRY.register(modEventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);

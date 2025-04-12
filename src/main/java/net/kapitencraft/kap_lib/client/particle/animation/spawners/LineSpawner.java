@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.client.particle.animation.spawners;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
-import net.kapitencraft.kap_lib.client.particle.animation.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
@@ -12,7 +12,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Vector;
 
 public class LineSpawner extends VisibleSpawner {
     private final PositionTarget start, end;

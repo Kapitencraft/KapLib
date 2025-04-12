@@ -42,8 +42,11 @@ public class MoveTowardsBBElement implements AnimationElement {
     }
 
     @Override
-    public void tick(ParticleConfig object, int tick) {
-        object.setPos(object.<Vec3>getProperty("origin").lerp(object.<Vec3>getProperty("target").add(ClientHelper.getEntity(entity).position()), (tick + 1f) / duration));
+    public void tick(ParticleConfig object, int tick, double percentage) {
+        object.setPos(object.<Vec3>getProperty("origin")
+                .lerp(object.<Vec3>getProperty("target")
+                        .add(ClientHelper.getEntity(entity).position()), percentage)
+        );
     }
 
     public static class Builder implements AnimationElement.Builder {

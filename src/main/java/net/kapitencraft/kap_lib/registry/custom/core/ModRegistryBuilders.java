@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.client.cam.rot.Rotator;
+import net.kapitencraft.kap_lib.client.cam.modifiers.Modifier;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
@@ -13,17 +13,32 @@ import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
-import net.kapitencraft.kap_lib.client.particle.animation.spawners.VisibleSpawner;
+import net.kapitencraft.kap_lib.spawn_table.entries.SpawnPoolEntryType;
+import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 import org.jetbrains.annotations.ApiStatus;
 
-@ApiStatus.Internal
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * mod registry builders.
+ * <br>add callbacks by hooking up to the {@link NewRegistryEvent} with a high priority listener
+ */
+@SuppressWarnings("unused")
 public interface ModRegistryBuilders {
+    /**
+     * builders list. only used to register the registries. no need to use this yourself
+     */
+    @ApiStatus.Internal
+    List<RegistryBuilder<?>> builders = new ArrayList<>();
 
     RegistryBuilder<OverlayProperties> OVERLAY_PROPERTIES = makeBuilder(ExtraRegistryKeys.OVERLAY_PROPERTIES);
     RegistryBuilder<GlyphEffect> GLYPH_EFFECTS = makeBuilder(ExtraRegistryKeys.GLYPH_EFFECTS);
@@ -33,14 +48,18 @@ public interface ModRegistryBuilders {
     RegistryBuilder<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = makeBuilder(ExtraRegistryKeys.ATTRIBUTE_MODIFIER_TYPES);
     RegistryBuilder<Codec<? extends ComponentContents>> COMPONENT_CONTENTS_TYPES = makeBuilder(ExtraRegistryKeys.COMPONENT_CONTENTS_TYPES);
     RegistryBuilder<Codec<? extends DataSource>> DATA_SOURCE_TYPES = makeBuilder(ExtraRegistryKeys.DATA_SOURCE_TYPES);
-    RegistryBuilder<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = makeBuilder(ExtraRegistryKeys.MODIFICATION_ELEMENT_TYPES);
-    RegistryBuilder<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = makeBuilder(ExtraRegistryKeys.SPAWN_ELEMENT_TYPES);
+    RegistryBuilder<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = makeBuilder(ExtraRegistryKeys.MODIFIER_TYPES);
+    RegistryBuilder<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = makeBuilder(ExtraRegistryKeys.SPAWNER_TYPES);
     RegistryBuilder<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = makeBuilder(ExtraRegistryKeys.TERMINATOR_TYPES);
     RegistryBuilder<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = makeBuilder(ExtraRegistryKeys.FINALIZER_TYPES);
     RegistryBuilder<ActivationTrigger<?>> ACTIVATION_LISTENER_TYPES = makeBuilder(ExtraRegistryKeys.ACTIVATION_TRIGGERS);
-    RegistryBuilder<Rotator.Type<?>> CAMERA_ROTATORS = makeBuilder(ExtraRegistryKeys.CAMERA_ROTATORS);
+    RegistryBuilder<Modifier.Type<?>> CAMERA_ROTATORS = makeBuilder(ExtraRegistryKeys.CAMERA_MODIFIERS);
+    RegistryBuilder<SpawnEntityFunctionType> SPAWN_FUNCTION_TYPE = makeBuilder(ExtraRegistryKeys.FUNCTION_TYPES);
+    RegistryBuilder<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPE = makeBuilder(ExtraRegistryKeys.POOL_ENTRY_TYPES);
 
     private static <T> RegistryBuilder<T> makeBuilder(ResourceKey<Registry<T>> location) {
-        return new RegistryBuilder<T>().setName(location.location());
+        RegistryBuilder<T> builder = new RegistryBuilder<T>().setName(location.location());
+        builders.add(builder);
+        return builder;
     }
 }

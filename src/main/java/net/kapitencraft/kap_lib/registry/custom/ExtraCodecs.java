@@ -14,7 +14,10 @@ import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,4 +69,11 @@ public interface ExtraCodecs {
     }
 
     Codec<UUID> UUID = Codec.STRING.xmap(java.util.UUID::fromString, java.util.UUID::toString);
+    Codec<MobEffectInstance> EFFECT = RecordCodecBuilder.create(instance -> instance.group(
+            ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(MobEffectInstance::getEffect),
+            Codec.INT.optionalFieldOf("duration", 0).forGetter(MobEffectInstance::getDuration),
+            Codec.INT.optionalFieldOf("amplifier", 0).forGetter(MobEffectInstance::getAmplifier),
+            Codec.BOOL.optionalFieldOf("ambient", false).forGetter(MobEffectInstance::isAmbient),
+            Codec.BOOL.optionalFieldOf("visible", true).forGetter(MobEffectInstance::isVisible)
+    ).apply(instance, MobEffectInstance::new));
 }

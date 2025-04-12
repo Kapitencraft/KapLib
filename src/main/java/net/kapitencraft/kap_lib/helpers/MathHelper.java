@@ -521,4 +521,12 @@ public interface MathHelper {
         }
         return min == null ? -1 : min;
     }
+
+    static BlockPos randomOffset(BlockPos pivot, RandomSource source) {
+        int random = source.nextIntBetweenInclusive(0, 8);
+        if (random > 2) random++; //ensure 4 is never hit
+        int xOffset = random / 3 - 1;
+        int zOffset = random % 3 - 1;
+        return pivot.offset(xOffset, 0, zOffset);
+    }
 }
