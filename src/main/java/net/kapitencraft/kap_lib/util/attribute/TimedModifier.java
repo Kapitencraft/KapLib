@@ -18,10 +18,10 @@ import java.util.UUID;
  */
 public class TimedModifier extends AttributeModifier implements IKapLibAttributeModifier {
     public static final Codec<TimedModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("Name").forGetter(AttributeModifier::getName),
-            Codec.DOUBLE.fieldOf("Amount").forGetter(AttributeModifier::getAmount),
-            VanillaAttributeModifierTypes.OPERATION_CODEC.fieldOf("Operation").forGetter(AttributeModifier::getOperation),
-            Codec.INT.fieldOf("Timer").forGetter(TimedModifier::remaining)
+            Codec.STRING.fieldOf("name").forGetter(AttributeModifier::getName),
+            Codec.DOUBLE.fieldOf("amount").forGetter(AttributeModifier::getAmount),
+            VanillaAttributeModifierTypes.OPERATION_CODEC.fieldOf("operation").forGetter(AttributeModifier::getOperation),
+            Codec.INT.fieldOf("timer").forGetter(TimedModifier::remaining)
     ).apply(instance, TimedModifier::new));
 
     private int timer;

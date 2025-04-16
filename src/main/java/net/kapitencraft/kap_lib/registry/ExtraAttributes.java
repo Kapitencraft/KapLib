@@ -63,7 +63,7 @@ public interface ExtraAttributes {
     /**
      * increase maximum mana
      */
-    RegistryObject<Attribute> INTELLIGENCE = register0Max("intel", 0);
+    RegistryObject<Attribute> INTELLIGENCE = register0Max("intelligence", 0);
     /**
      * increases damage dealt by abilities
      */

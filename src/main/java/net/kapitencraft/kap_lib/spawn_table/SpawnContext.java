@@ -24,7 +24,6 @@ public class SpawnContext extends LootContext {
 
    SpawnContext(LootParams pParams, RandomSource pRandom, LootDataResolver pLootDataResolver, SpawnTableManager manager) {
       super(pParams, pRandom, pLootDataResolver);
-
        this.manager = manager;
    }
 

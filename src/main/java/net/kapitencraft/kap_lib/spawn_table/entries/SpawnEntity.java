@@ -3,6 +3,8 @@ package net.kapitencraft.kap_lib.spawn_table.entries;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
@@ -36,7 +38,9 @@ public class SpawnEntity extends SpawnPoolSingletonContainer {
     * stacks.
     */
    public void createEntity(Consumer<Entity> pEntityConsumer, SpawnContext pLootContext) {
-      pEntityConsumer.accept(this.entityType.create(pLootContext.getLevel()));
+      Entity entity = this.entityType.create(pLootContext.getLevel());
+      if (entity == null) KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "entity could not be spawned!");
+      pEntityConsumer.accept(entity);
    }
 
    public static Builder<?> spawnTableEntity(EntityType<?> pEntity) {
@@ -57,7 +61,7 @@ public class SpawnEntity extends SpawnPoolSingletonContainer {
       }
 
       protected SpawnEntity deserialize(JsonObject pObject, JsonDeserializationContext pContext, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
-         EntityType<?> item = JsonHelper.convertToRegistryElement(pObject, "name", ForgeRegistries.ENTITY_TYPES);
+         EntityType<?> item = JsonHelper.getAsRegistryElement(pObject, "name", ForgeRegistries.ENTITY_TYPES);
          return new SpawnEntity(item, pWeight, pQuality, pConditions, pFunctions);
       }
    }

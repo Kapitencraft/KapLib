@@ -2,14 +2,13 @@ package net.kapitencraft.kap_lib.registry.custom.spawn_table;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys;
 import net.kapitencraft.kap_lib.spawn_table.ForgeGsonAdapterFactory;
 import net.kapitencraft.kap_lib.spawn_table.entries.*;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
 public interface SpawnPoolEntries {
-    DeferredRegister<SpawnPoolEntryType> REGISTRY = KapLibMod.registry(ExtraRegistryKeys.POOL_ENTRY_TYPES);
+    DeferredRegister<SpawnPoolEntryType> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.POOL_ENTRY_TYPES);
 
     RegistryObject<SpawnPoolEntryType> ALTERNATIVES = register("alternatives", CompositeEntryBase.createSerializer(AlternativesEntry::new));
     RegistryObject<SpawnPoolEntryType> GROUP = register("group", CompositeEntryBase.createSerializer(EntryGroup::new));

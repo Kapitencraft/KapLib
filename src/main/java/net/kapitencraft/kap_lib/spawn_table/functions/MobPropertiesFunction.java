@@ -20,12 +20,12 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 //TODO add pathfinding property changes
-public class MobSpecificPropertiesFunction extends SpawnEntityConditionalFunction {
+public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
     private final LootContext.EntityTarget attackTarget;
     private final boolean canPickupLoot, persistenceRequired, noAi;
     private final ResourceLocation lootTable;
 
-    protected MobSpecificPropertiesFunction(LootItemCondition[] pPredicates, LootContext.EntityTarget attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, ResourceLocation lootTable) {
+    protected MobPropertiesFunction(LootItemCondition[] pPredicates, LootContext.EntityTarget attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, ResourceLocation lootTable) {
         super(pPredicates);
         this.attackTarget = attackTarget;
         this.canPickupLoot = canPickupLoot;
@@ -56,10 +56,10 @@ public class MobSpecificPropertiesFunction extends SpawnEntityConditionalFunctio
         return SpawnEntityFunctions.MOB_PROPERTIES.get();
     }
 
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<MobSpecificPropertiesFunction> {
+    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<MobPropertiesFunction> {
 
         @Override
-        public void serialize(JsonObject pJson, MobSpecificPropertiesFunction pFunction, JsonSerializationContext pSerializationContext) {
+        public void serialize(JsonObject pJson, MobPropertiesFunction pFunction, JsonSerializationContext pSerializationContext) {
             super.serialize(pJson, pFunction, pSerializationContext);
             if (pFunction.attackTarget != null) pJson.add("attackTarget", pSerializationContext.serialize(pFunction.attackTarget));
             if (pFunction.canPickupLoot) pJson.addProperty("canPickupLoot", true);
@@ -68,13 +68,13 @@ public class MobSpecificPropertiesFunction extends SpawnEntityConditionalFunctio
         }
 
         @Override
-        public MobSpecificPropertiesFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
+        public MobPropertiesFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
             LootContext.EntityTarget attackTarget = pObject.has("attackTarget") ? pDeserializationContext.deserialize(pObject.get("attackTarget"), LootContext.EntityTarget.class) : null;
             boolean canPickupLoot = GsonHelper.getAsBoolean(pObject, "canPickupLoot", false),
                     persistenceRequired = GsonHelper.getAsBoolean(pObject, "persistenceRequired", false),
                     noAi = GsonHelper.getAsBoolean(pObject, "noAi", false);
             ResourceLocation lootTable = pObject.has("loot_table") ? ExtraJsonSerializers.RL.deserialize(pObject.get("loot_table")) : null;
-            return new MobSpecificPropertiesFunction(pConditions,
+            return new MobPropertiesFunction(pConditions,
                     attackTarget,
                     canPickupLoot,
                     persistenceRequired,
@@ -121,7 +121,7 @@ public class MobSpecificPropertiesFunction extends SpawnEntityConditionalFunctio
 
         @Override
         public SpawnEntityFunction build() {
-            return new MobSpecificPropertiesFunction(
+            return new MobPropertiesFunction(
                     getConditions(),
                     attackTarget,
                     canPickupLoot,

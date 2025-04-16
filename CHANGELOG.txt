@@ -1,0 +1,4 @@
+added SpawnTables
+added extensions for language provider
+added Collectors to MapStreams
+fixed Timed Modifier crashing the game due to not being registered

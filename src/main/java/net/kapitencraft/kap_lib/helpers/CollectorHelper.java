@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.helpers;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.minecraft.network.chat.Component;
@@ -56,7 +59,7 @@ public interface CollectorHelper {
      * instead of collecting into a map, this collector collects into a {@link MapStream}
      * @see Collectors#toMap(Function, Function)
      */
-    static <T, K , L>  Collector<T, HashMap<K, L>, MapStream<K , L>> toMapStream(Function<T, K> keyMapper, Function<T, L> valueMapper) {
+    static <T, K, L>  Collector<T, HashMap<K, L>, MapStream<K , L>> toMapStream(Function<T, K> keyMapper, Function<T, L> valueMapper) {
         return Collector.of(HashMap::new, (hashMap, t) -> hashMap.put(keyMapper.apply(t), valueMapper.apply(t)), CollectorHelper::mergeMap, MapStream::of);
     }
 
@@ -82,5 +85,12 @@ public interface CollectorHelper {
     private static <T, K> HashMap<T, K> mergeMap(HashMap<T, K> map, HashMap<T, K> map1) {
         map.putAll(map1);
         return map;
+    }
+
+    static Collector<? super JsonElement, JsonArray, JsonArray> toJsonArray() {
+        return Collector.of(JsonArray::new, JsonArray::add, (array, array2) -> {
+            array.addAll(array2);
+            return array;
+        });
     }
 }

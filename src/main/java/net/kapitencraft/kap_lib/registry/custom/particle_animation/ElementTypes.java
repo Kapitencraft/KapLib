@@ -2,13 +2,13 @@ package net.kapitencraft.kap_lib.registry.custom.particle_animation;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.*;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
 public interface ElementTypes {
 
-    DeferredRegister<AnimationElement.Type<?>> REGISTRY = KapLibMod.registry(ExtraRegistryKeys.MODIFIER_TYPES);
+    DeferredRegister<AnimationElement.Type<?>> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.MODIFIER_TYPES);
 
     RegistryObject<StartFadeOutElement.Type> START_FADE_OUT = REGISTRY.register("start_fade_out", StartFadeOutElement.Type::new);
     RegistryObject<MoveTowardsElement.Type> MOVE_TOWARDS = REGISTRY.register("move_towards", MoveTowardsElement.Type::new);

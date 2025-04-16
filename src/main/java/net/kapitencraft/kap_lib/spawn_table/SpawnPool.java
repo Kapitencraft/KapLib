@@ -48,7 +48,7 @@ public class SpawnPool {
       this.bonusRolls = pBonusRolls;
    }
 
-   private void addRandomEntity(Consumer<Entity> pStackConsumer, SpawnContext pContext) {
+   private void addRandomEntity(Consumer<Entity> pEntityConsumer, SpawnContext pContext) {
       RandomSource randomsource = pContext.getRandom();
       List<SpawnPoolEntry> list = Lists.newArrayList();
       MutableInt mutableint = new MutableInt();
@@ -67,14 +67,14 @@ public class SpawnPool {
       int i = list.size();
       if (mutableint.intValue() != 0 && i != 0) {
          if (i == 1) {
-            list.get(0).createEntity(pStackConsumer, pContext);
+            list.get(0).createEntity(pEntityConsumer, pContext);
          } else {
             int j = randomsource.nextInt(mutableint.intValue());
 
             for(SpawnPoolEntry entry : list) {
                j -= entry.getWeight(pContext.getLuck());
                if (j < 0) {
-                  entry.createEntity(pStackConsumer, pContext);
+                  entry.createEntity(pEntityConsumer, pContext);
                   return;
                }
             }
@@ -95,7 +95,7 @@ public class SpawnPool {
          int i = this.rolls.getInt(pLootContext) + Mth.floor(this.bonusRolls.getFloat(pLootContext) * pLootContext.getLuck());
 
          for(int j = 0; j < i; ++j) {
-            this.addRandomEntity(consumer, pLootContext);
+            this.addRandomEntity(consumer.andThen(pLootContext.getLevel()::addFreshEntity), pLootContext);
          }
 
       }

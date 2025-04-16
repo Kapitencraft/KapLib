@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.registry.vanilla;
 
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.chat.contents.BlockDataSource;
 import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.network.chat.contents.EntityDataSource;
@@ -12,7 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public interface VanillaDataSourceTypes {
 
-    DeferredRegister<Codec<? extends DataSource>> REGISTRY = DeferredRegister.create(ExtraRegistryKeys.DATA_SOURCE_TYPES, "minecraft");
+    DeferredRegister<Codec<? extends DataSource>> REGISTRY = DeferredRegister.create(ExtraRegistries.Keys.DATA_SOURCE_TYPES, "minecraft");
 
     RegistryObject<Codec<EntityDataSource>> ENTITY = REGISTRY.register("entity", VanillaDataSourceTypes::createEntity);
 

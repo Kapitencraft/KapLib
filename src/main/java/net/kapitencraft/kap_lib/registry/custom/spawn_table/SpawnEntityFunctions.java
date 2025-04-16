@@ -2,10 +2,8 @@ package net.kapitencraft.kap_lib.registry.custom.spawn_table;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys;
 import net.kapitencraft.kap_lib.spawn_table.ForgeGsonAdapterFactory;
 import net.kapitencraft.kap_lib.spawn_table.functions.*;
-import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
 import net.minecraft.world.entity.Entity;
@@ -17,10 +15,12 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.function.BiFunction;
 
 public interface SpawnEntityFunctions {
-    DeferredRegister<SpawnEntityFunctionType> REGISTRY = KapLibMod.registry(ExtraRegistryKeys.FUNCTION_TYPES);
+    DeferredRegister<SpawnEntityFunctionType> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.FUNCTION_TYPES);
 
     RegistryObject<SpawnEntityFunctionType> COMMON_PROPERTIES = register("common_properties", new CommonPropertiesFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> MOB_PROPERTIES = register("mob_properties", new MobSpecificPropertiesFunction.Serializer());
+    RegistryObject<SpawnEntityFunctionType> MOB_PROPERTIES = register("mob_properties", new MobPropertiesFunction.Serializer());
+    RegistryObject<SpawnEntityFunctionType> RAIDER_PROPERTIES = register("raider_properties", new RaiderPropertiesFunction.Serializer());
+    RegistryObject<SpawnEntityFunctionType> VILLAGER_PROPERTIES = register("villager_properties", new VillagerPropertiesFunction.Serializer());
     RegistryObject<SpawnEntityFunctionType> SET_NAME = register("set_name", new SetNameFunction.Serializer());
     RegistryObject<SpawnEntityFunctionType> SET_MOTION = register("set_motion", new SetMotionFunction.Serializer());
     RegistryObject<SpawnEntityFunctionType> SET_FACING = register("set_facing", new SetFacingFunction.Serializer());
@@ -31,6 +31,8 @@ public interface SpawnEntityFunctions {
     RegistryObject<SpawnEntityFunctionType> SET_HEALTH = register("set_health", new SetHealthFunction.Serializer());
     RegistryObject<SpawnEntityFunctionType> SET_OWNER = register("set_owner", new SetEntityOwnerFunction.Serializer());
     RegistryObject<SpawnEntityFunctionType> SET_EXPERIENCE_VALUE = register("set_experience_value", new SetExperienceValueFunction.Serializer());
+    RegistryObject<SpawnEntityFunctionType> SET_ATTRIBUTES = register("set_attributes", new SetAttributesFunction.Serializer());
+    RegistryObject<SpawnEntityFunctionType> SET_MERCHANT_TRADES = register("set_merchant_trades", new SetMerchantTradesFunction.Serializer());
     RegistryObject<SpawnEntityFunctionType> ADD_EFFECTS = register("add_effects", new AddEffectsFunction.Serializer());
     RegistryObject<SpawnEntityFunctionType> ADD_PASSENGERS = register("add_passengers", new AddPassengersFunction.Serializer());
 

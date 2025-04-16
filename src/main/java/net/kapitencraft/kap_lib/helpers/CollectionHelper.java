@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -227,5 +228,15 @@ public interface CollectionHelper {
      */
     static <S, T extends S> Stream<T> cast(Stream<S> in, Class<T> clazz) {
         return in.filter(clazz::isInstance).map(clazz::cast);
+    }
+
+
+    /**
+     * @param split the array
+     * @return the element at the highest index
+     */
+    static String getLast(@NotNull String[] split) {
+        if (split.length == 0) throw new IndexOutOfBoundsException("can not get last index from empty array");
+        return split[split.length-1];
     }
 }

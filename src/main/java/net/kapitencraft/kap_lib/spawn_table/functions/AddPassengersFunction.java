@@ -20,10 +20,16 @@ public class AddPassengersFunction extends SpawnEntityConditionalFunction {
         this.pool = pool;
     }
 
+    public static Builder builder(SpawnPool.Builder builder) {
+        return new Builder(builder);
+    }
+
     @Override
     protected Entity run(Entity pEntity, SpawnContext pContext) {
         pEntity.getIndirectPassengers();
-        pool.addRandomEntities(pEntity::addPassenger, pContext);
+        pool.addRandomEntities(entity -> {
+            entity.startRiding(pEntity, true);
+        }, pContext);
         return pEntity;
     }
 

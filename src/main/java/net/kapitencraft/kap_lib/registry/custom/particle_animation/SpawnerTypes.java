@@ -2,13 +2,13 @@ package net.kapitencraft.kap_lib.registry.custom.particle_animation;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.*;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
 public interface SpawnerTypes {
 
-    DeferredRegister<VisibleSpawner.Type<?>> REGISTRY = KapLibMod.registry(ExtraRegistryKeys.SPAWNER_TYPES);
+    DeferredRegister<VisibleSpawner.Type<?>> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.SPAWNER_TYPES);
 
     RegistryObject<RingSpawner.Type> RING = REGISTRY.register("ring", RingSpawner.Type::new);
     RegistryObject<TrackingSpawner.Type> TRACKING = REGISTRY.register("point", TrackingSpawner.Type::new);

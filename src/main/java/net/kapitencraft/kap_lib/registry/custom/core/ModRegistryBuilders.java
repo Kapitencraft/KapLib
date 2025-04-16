@@ -40,22 +40,22 @@ public interface ModRegistryBuilders {
     @ApiStatus.Internal
     List<RegistryBuilder<?>> builders = new ArrayList<>();
 
-    RegistryBuilder<OverlayProperties> OVERLAY_PROPERTIES = makeBuilder(ExtraRegistryKeys.OVERLAY_PROPERTIES);
-    RegistryBuilder<GlyphEffect> GLYPH_EFFECTS = makeBuilder(ExtraRegistryKeys.GLYPH_EFFECTS);
-    RegistryBuilder<IRequestable<?, ?>> REQUESTABLES_BUILDER = makeBuilder(ExtraRegistryKeys.REQUESTABLES);
-    RegistryBuilder<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENTS_BUILDER = makeBuilder(ExtraRegistryKeys.REQ_CONDITIONS);
-    RegistryBuilder<DataPackSerializer<? extends Bonus<?>>> SET_BONUSES = makeBuilder(ExtraRegistryKeys.SET_BONUSES);
-    RegistryBuilder<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = makeBuilder(ExtraRegistryKeys.ATTRIBUTE_MODIFIER_TYPES);
-    RegistryBuilder<Codec<? extends ComponentContents>> COMPONENT_CONTENTS_TYPES = makeBuilder(ExtraRegistryKeys.COMPONENT_CONTENTS_TYPES);
-    RegistryBuilder<Codec<? extends DataSource>> DATA_SOURCE_TYPES = makeBuilder(ExtraRegistryKeys.DATA_SOURCE_TYPES);
-    RegistryBuilder<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = makeBuilder(ExtraRegistryKeys.MODIFIER_TYPES);
-    RegistryBuilder<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = makeBuilder(ExtraRegistryKeys.SPAWNER_TYPES);
-    RegistryBuilder<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = makeBuilder(ExtraRegistryKeys.TERMINATOR_TYPES);
-    RegistryBuilder<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = makeBuilder(ExtraRegistryKeys.FINALIZER_TYPES);
-    RegistryBuilder<ActivationTrigger<?>> ACTIVATION_LISTENER_TYPES = makeBuilder(ExtraRegistryKeys.ACTIVATION_TRIGGERS);
-    RegistryBuilder<Modifier.Type<?>> CAMERA_ROTATORS = makeBuilder(ExtraRegistryKeys.CAMERA_MODIFIERS);
-    RegistryBuilder<SpawnEntityFunctionType> SPAWN_FUNCTION_TYPE = makeBuilder(ExtraRegistryKeys.FUNCTION_TYPES);
-    RegistryBuilder<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPE = makeBuilder(ExtraRegistryKeys.POOL_ENTRY_TYPES);
+    RegistryBuilder<OverlayProperties> OVERLAY_PROPERTIES = makeBuilder(ExtraRegistries.Keys.OVERLAY_PROPERTIES);
+    RegistryBuilder<GlyphEffect> GLYPH_EFFECTS = makeBuilder(ExtraRegistries.Keys.GLYPH_EFFECTS);
+    RegistryBuilder<IRequestable<?, ?>> REQUESTABLES_BUILDER = makeBuilder(ExtraRegistries.Keys.REQUESTABLES);
+    RegistryBuilder<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENTS_BUILDER = makeBuilder(ExtraRegistries.Keys.REQ_CONDITIONS);
+    RegistryBuilder<DataPackSerializer<? extends Bonus<?>>> SET_BONUSES = makeBuilder(ExtraRegistries.Keys.SET_BONUSES);
+    RegistryBuilder<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = makeBuilder(ExtraRegistries.Keys.ATTRIBUTE_MODIFIER_TYPES);
+    RegistryBuilder<Codec<? extends ComponentContents>> COMPONENT_CONTENTS_TYPES = makeBuilder(ExtraRegistries.Keys.COMPONENT_CONTENTS_TYPES);
+    RegistryBuilder<Codec<? extends DataSource>> DATA_SOURCE_TYPES = makeBuilder(ExtraRegistries.Keys.DATA_SOURCE_TYPES);
+    RegistryBuilder<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = makeBuilder(ExtraRegistries.Keys.MODIFIER_TYPES);
+    RegistryBuilder<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = makeBuilder(ExtraRegistries.Keys.SPAWNER_TYPES);
+    RegistryBuilder<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = makeBuilder(ExtraRegistries.Keys.TERMINATOR_TYPES);
+    RegistryBuilder<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = makeBuilder(ExtraRegistries.Keys.FINALIZER_TYPES);
+    RegistryBuilder<ActivationTrigger<?>> ACTIVATION_LISTENER_TYPES = makeBuilder(ExtraRegistries.Keys.ACTIVATION_TRIGGERS);
+    RegistryBuilder<Modifier.Type<?>> CAMERA_ROTATORS = makeBuilder(ExtraRegistries.Keys.CAMERA_MODIFIERS);
+    RegistryBuilder<SpawnEntityFunctionType> SPAWN_FUNCTION_TYPE = makeBuilder(ExtraRegistries.Keys.FUNCTION_TYPES);
+    RegistryBuilder<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPE = makeBuilder(ExtraRegistries.Keys.POOL_ENTRY_TYPES);
 
     private static <T> RegistryBuilder<T> makeBuilder(ResourceKey<Registry<T>> location) {
         RegistryBuilder<T> builder = new RegistryBuilder<T>().setName(location.location());

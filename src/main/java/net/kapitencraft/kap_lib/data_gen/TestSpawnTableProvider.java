@@ -5,10 +5,7 @@ import net.kapitencraft.kap_lib.spawn_table.SpawnPool;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.entries.SpawnEffectCloud;
 import net.kapitencraft.kap_lib.spawn_table.entries.SpawnEntity;
-import net.kapitencraft.kap_lib.spawn_table.functions.AddEffectsFunction;
-import net.kapitencraft.kap_lib.spawn_table.functions.SetArmorFunction;
-import net.kapitencraft.kap_lib.spawn_table.functions.SetEntityOwnerFunction;
-import net.kapitencraft.kap_lib.spawn_table.functions.SetNameFunction;
+import net.kapitencraft.kap_lib.spawn_table.functions.*;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
@@ -18,6 +15,7 @@ import net.minecraft.world.RandomSequences;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -44,10 +42,12 @@ public class TestSpawnTableProvider extends SpawnTableProvider {
         @Override
         public void generate(BiConsumer<ResourceLocation, SpawnTable.Builder> pOutput) {
             pOutput.accept(new ResourceLocation("test:test"), SpawnTable.spawnTable()
-                    .withPool(SpawnPool.spawnPool("dogs")
-                            .add(SpawnEntity.spawnTableEntity(EntityType.WOLF))
-                            .apply(SetEntityOwnerFunction.builder(LootContext.EntityTarget.THIS))
-                            .setRolls(ConstantValue.exactly(10))
+                    .withPool(SpawnPool.spawnPool("zombie")
+                            .add(SpawnEntity.spawnTableEntity(EntityType.ZOMBIE))
+                            .apply(SetArmorFunction.builder().withItem(EquipmentSlot.CHEST, Items.NETHERITE_CHESTPLATE))
+                            .apply(SetAttributesFunction.builder()
+                                    .withAttribute(Attributes.ATTACK_DAMAGE).setBase(100).end()
+                            )
                     )
             );
         }

@@ -56,6 +56,9 @@
   "cooldown.active": "ACTIVE",
   "cooldown.inactive": "INACTIVE",
 
+  "death.attack.ferocity": "%1$s was ferociously murdered by %2$s",
+  "death.attack.ferocity.item": "%1$s was ferociously murdered by %2$s using %3$s",
+
   "dimension_req.display": "May only be used in %1$s",
   "dimension_req.display.inverted": "May not be used in %1$s",
 

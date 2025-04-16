@@ -55,4 +55,9 @@ public class ExtraNumbersLangProvider extends LanguageProvider {
         }
         return s.toString();
     }
+
+    @Override
+    public String getName() {
+        return "EXTRA_NUMBERS";
+    }
 }

@@ -1,0 +1,45 @@
+{
+  "type": "minecraft:command",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "kap_lib:entity",
+          "name": "minecraft:zombie"
+        }
+      ],
+      "functions": [
+        {
+          "armorItems": [
+            null,
+            null,
+            {
+              "bonus_rolls": 1.0,
+              "entries": [
+                {
+                  "type": "minecraft:item",
+                  "name": "minecraft:netherite_chestplate"
+                }
+              ],
+              "rolls": 1.0
+            },
+            null
+          ],
+          "function": "kap_lib:set_armor"
+        },
+        {
+          "function": "kap_lib:set_attributes",
+          "modifiers": {
+            "minecraft:generic.attack_damage": {
+              "base": 100.0
+            }
+          }
+        }
+      ],
+      "name": "zombie",
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "test:test"
+}
