@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.util.attribute.ChangingAttributeModifier;
+import net.kapitencraft.kap_lib.util.attribute.DynamicAttributeModifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -10,7 +10,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.common.ForgeMod;
-import org.w3c.dom.Attr;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -162,14 +161,14 @@ public interface AttributeHelper {
 
     /**
      * adds a modifier that is dependent on the entity
-     * @return the new {@link ChangingAttributeModifier}
+     * @return the new {@link DynamicAttributeModifier}
      */
     static AttributeModifier addLiquidModifier(@Nullable UUID uuid, String name, AttributeModifier.Operation operation, Function<LivingEntity, Double> transfer, LivingEntity living) {
-        if (modUUIDs.containsKey(name) && modUUIDs.get(name) == uuid) return new ChangingAttributeModifier(uuid, name, operation, living, transfer);
+        if (modUUIDs.containsKey(name) && modUUIDs.get(name) == uuid) return new DynamicAttributeModifier(uuid, name, operation, living, transfer);
         else {
             modUUIDs.put(name, Objects.requireNonNullElseGet(uuid, UUID::randomUUID));
         }
-        return new ChangingAttributeModifier(modUUIDs.get(name), name, operation, living, transfer);
+        return new DynamicAttributeModifier(modUUIDs.get(name), name, operation, living, transfer);
     }
 
 

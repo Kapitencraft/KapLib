@@ -22,6 +22,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +62,8 @@ public class ArmorRecipe extends CustomRecipe {
                 return recipe.assemble(pContainer, pRegistryAccess);
             }
         }
-        return ItemStack.EMPTY;    }
+        return ItemStack.EMPTY;
+    }
 
     public List<ShapedRecipe> getAll() {
         return all;
@@ -158,26 +160,24 @@ public class ArmorRecipe extends CustomRecipe {
         public @NotNull ArmorRecipe fromJson(@NotNull ResourceLocation location, @NotNull JsonObject object) {
             String group = GsonHelper.getAsString(object, "group", "");
             Ingredient material = Ingredient.fromJson(object.get("material"));
-            String results = GsonHelper.getAsString(object, "results", null);
             JsonArray unused = GsonHelper.getAsJsonArray(object, "unused", new JsonArray());
             List<ArmorType> unusedSlots = unused.asList().stream().map(JsonElement::getAsString).map(ArmorType::get).toList();
-            MapStream<ArmorType, Item> map = MapStream.create();
+            MapStream<ArmorType, ResourceLocation> map;
             List<ArmorType> toUse = Arrays.stream(ArmorType.values()).filter(armorType -> !unusedSlots.contains(armorType)).toList();
+            String results = GsonHelper.getAsString(object, "results", null);
             if (results != null) {
-                Stream<String> stream = toUse.stream()
+                Stream<ResourceLocation> stream = toUse.stream()
                         .map(ArmorType::getSerializedName)
-                        .map(s -> TextHelper.mergeRegister(results, s));
-                map = MapStream.create(toUse, stream.toList())
-                        .mapValues(ResourceLocation::new)
-                        .mapValues(BuiltInRegistries.ITEM::get);
+                        .map(s -> TextHelper.mergeRegister(results, s))
+                        .map(ResourceLocation::new);
+                map = MapStream.create(toUse, stream.toList());
             } else {
                 JsonArray array = GsonHelper.getAsJsonArray(object, "results", new JsonArray());
                 List<ResourceLocation> locations = array.asList().stream().map(JsonElement::getAsString).map(ResourceLocation::new).toList();
-                MapStream.create(toUse, locations)
-                        .mapValues(BuiltInRegistries.ITEM::get);
+                map = MapStream.create(toUse, locations);
             }
             CraftingBookCategory category = CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(object, "category", null));
-            return new ArmorRecipe(location, category, material, map.mapValues(ItemStack::new).toMap(), group);
+            return new ArmorRecipe(location, category, material, map.mapValues(ForgeRegistries.ITEMS::getValue).mapValues(ItemStack::new).toMap(), group);
         }
 
         @Override

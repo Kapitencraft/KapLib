@@ -2,3 +2,7 @@ added SpawnTables
 added extensions for language provider
 added Collectors to MapStreams
 fixed Timed Modifier crashing the game due to not being registered
+fixed Armor Recipe not working when providing locations using array
+added JEI support for armor and upgrade recipes
+added data-gen for armor and upgrade recipes
+renamed ChangingAttributeModifier to DynamicAttributeModifier

@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
+import net.kapitencraft.kap_lib.registry.custom.AttributeModifierTypes;
 import net.kapitencraft.kap_lib.registry.custom.SetBonusTypes;
 import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
 import net.kapitencraft.kap_lib.registry.custom.CameraModifiers;
@@ -80,6 +81,8 @@ public class KapLibMod {
         SpawnPoolEntries.REGISTRY.register(modEventBus);
 
         Overlays.REGISTRY.register(modEventBus);
+
+        AttributeModifierTypes.REGISTRY.register(modEventBus);
 
         VanillaAttributeModifierTypes.REGISTRY.register(modEventBus);
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);

@@ -69,7 +69,11 @@ public class UpgradeItemRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess pRegistryAccess) {
+    public @NotNull ItemStack getResultItem(@NotNull RegistryAccess pRegistryAccess) {
+        return result;
+    }
+
+    public ItemStack getResult() {
         return result;
     }
 

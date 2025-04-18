@@ -3,7 +3,8 @@ package net.kapitencraft.kap_lib.registry.vanilla;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries.Keys;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.contents.*;
 import net.minecraftforge.registries.DeferredRegister;
@@ -13,7 +14,7 @@ import java.util.Optional;
 
 public interface VanillaComponentContentTypes {
 
-    DeferredRegister<Codec<? extends ComponentContents>> REGISTRY = DeferredRegister.create(ExtraRegistryKeys.COMPONENT_CONTENTS_TYPES, "minecraft");
+    DeferredRegister<Codec<? extends ComponentContents>> REGISTRY = DeferredRegister.create(ExtraRegistries.Keys.COMPONENT_CONTENTS_TYPES, "minecraft");
 
     RegistryObject<Codec<ComponentContents>> EMPTY = REGISTRY.register("empty", () -> Codec.unit(ComponentContents.EMPTY));
 

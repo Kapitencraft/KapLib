@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 import org.slf4j.Marker;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class RequestPacket<T, K> implements SimplePacket {
@@ -32,9 +33,7 @@ public class RequestPacket<T, K> implements SimplePacket {
 
     public static <T, K> IRequestable<T, K> getRequestable(String id) {
         ResourceLocation location = new ResourceLocation(id);
-        IRequestable<T, K> requestable = (IRequestable<T, K>) ExtraRegistries.REQUESTABLES.getValue(location);
-        if (requestable == null) throw new IllegalStateException("unable to read requestable for key '" + id + "'");
-        return requestable;
+        return (IRequestable<T, K>) Objects.requireNonNull(ExtraRegistries.REQUESTABLES.getValue(location), "unable to read requestable for key '" + id + "'");
     }
 
     public static <T, K> String saveRequestable(IRequestable<T, K> requestable) {
@@ -59,7 +58,7 @@ public class RequestPacket<T, K> implements SimplePacket {
                     try {
                         ModMessages.sendToClientPlayer(new RequestDataPacket<>(this.requestId, this.provider, this.provider.pack(this.value, player)), player);
                     } catch (Exception e) {
-                        KapLibMod.LOGGER.warn((Marker) Markers.REQUESTS, "unable to handle Request Packet of provider '{}': {}", ExtraRegistries.REQUESTABLES.getKey(this.provider), e.getMessage());
+                        KapLibMod.LOGGER.warn(Markers.REQUESTS, "unable to handle Request Packet of provider '{}': {}", ExtraRegistries.REQUESTABLES.getKey(this.provider), e.getMessage());
                     }
                 }
         });

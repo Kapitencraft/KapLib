@@ -6,8 +6,8 @@ import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.level.Level;
 
 public abstract class ModFishingRod extends FishingRodItem {
-    public ModFishingRod(Properties p_41285_) {
-        super(p_41285_.stacksTo(1));
+    public ModFishingRod(Properties properties) {
+        super(properties.stacksTo(1));
     }
 
     public abstract ModFishingHook create(Player player, Level level, int luck, int lureSpeed);

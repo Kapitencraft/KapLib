@@ -13,18 +13,18 @@ import java.util.function.Function;
 /**
  * wrapper class for dynamic attribute modifiers that depend on a LivingEntity
  */
-public class ChangingAttributeModifier extends AttributeModifier implements IKapLibAttributeModifier {
+public class DynamicAttributeModifier extends AttributeModifier implements IKapLibAttributeModifier {
     private final LivingEntity living;
     private final Function<LivingEntity, Double> provider;
 
-    public ChangingAttributeModifier(UUID id, String name, Operation operation, LivingEntity living, Function<LivingEntity, Double> provider) {
+    public DynamicAttributeModifier(UUID id, String name, Operation operation, LivingEntity living, Function<LivingEntity, Double> provider) {
         super(id, name, 0, operation);
         this.living = living;
         this.provider = provider;
     }
 
     /**
-     * @return the value provided by the {@link ChangingAttributeModifier#provider provider}
+     * @return the value provided by the {@link DynamicAttributeModifier#provider provider}
      */
     @Override
     public double getAmount() {

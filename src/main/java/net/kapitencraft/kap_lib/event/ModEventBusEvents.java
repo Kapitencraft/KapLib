@@ -4,7 +4,8 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.event.custom.RegisterUpdateCheckersEvent;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.item.misc.AnvilUses;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistryKeys;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries.Keys;
 import net.kapitencraft.kap_lib.registry.custom.core.ModRegistryBuilders;
 import net.kapitencraft.kap_lib.util.UpdateChecker;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
@@ -45,7 +46,7 @@ public class ModEventBusEvents {
 
     @SubscribeEvent
     public void onRegister(RegisterEvent event) {
-        event.register(ExtraRegistryKeys.ATTRIBUTE_MODIFIER_TYPES, new ResourceLocation("default"), VanillaAttributeModifierTypes::createVanillaCodec);
+        event.register(ExtraRegistries.Keys.ATTRIBUTE_MODIFIER_TYPES, new ResourceLocation("default"), VanillaAttributeModifierTypes::createVanillaCodec);
     }
 
 }

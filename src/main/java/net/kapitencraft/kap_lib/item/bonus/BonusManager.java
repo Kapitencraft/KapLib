@@ -262,8 +262,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     private Map<ResourceLocation, BonusElement> getBonusesForItem(ItemStack stack, boolean ignoreHidden) {
-        Map<ResourceLocation, BonusElement> itemBonuses = MapStream
-                .of(Objects.requireNonNullElse(this.itemBonuses.get(stack.getItem()), Map.of()))
+        Map<ResourceLocation, BonusElement> itemBonuses =
+                MapStream.of(Objects.requireNonNullElse(this.itemBonuses.get(stack.getItem()), Map.of()))
                 .filterValues(bonusElement -> !bonusElement.hidden || ignoreHidden, null)
                 .toMap();
         Map<ResourceLocation, SetBonusElement> setBonuses = MapStream.of(this.sets).filter((location, setBonusElement) ->

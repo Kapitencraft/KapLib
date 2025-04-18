@@ -91,8 +91,6 @@ public class OverlayManager {
     private final Map<RegistryObject<OverlayProperties>, Function<OverlayProperties, Overlay>> constructors = new HashMap<>();
     public final Map<RegistryObject<OverlayProperties>, Overlay> map = new HashMap<>();
 
-
-    private final ConfigureOverlaysScreen screen = new ConfigureOverlaysScreen();
     private final List<Overlay> visible = new ArrayList<>(), invisible = new ArrayList<>();
 
     private final Map<ResourceLocation, OverlayProperties> loadedPositions = new HashMap<>();

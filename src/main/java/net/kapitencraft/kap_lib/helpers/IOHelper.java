@@ -78,6 +78,7 @@ public class IOHelper {
             if (!file.exists()) return defaulted.get();
             return get(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
         } catch (IOException e) {
+            KapLibMod.LOGGER.warn("unable to load file: " + file.getPath());
         }
         return defaulted.get();
     }
@@ -116,14 +117,6 @@ public class IOHelper {
      */
     private static JsonReader createReader(File file) throws FileNotFoundException {
         return new JsonReader(new FileReader(file));
-    }
-
-    /**
-     * create a JsonWriter of the given file
-     * @throws FileNotFoundException if the file doesn't exist
-     */
-    private static JsonWriter createWriter(File file) throws IOException {
-        return new JsonWriter(new FileWriter(file));
     }
 
     /**
