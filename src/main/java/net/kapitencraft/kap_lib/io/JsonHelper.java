@@ -63,15 +63,15 @@ public interface JsonHelper {
     static ItemStack getAsItemStack(JsonObject object) {
         Item item = JsonHelper.getAsRegistryElement(object, "item", ForgeRegistries.ITEMS);
         int count = GsonHelper.getAsInt(object, "count", 1);
-        CompoundTag tag = CraftingHelper.getNBT(object.get("tag"));
+        CompoundTag tag = object.has("tag") ? CraftingHelper.getNBT(object.get("tag")) : null;
         return new ItemStack(item, count, tag);
     }
 
     static void addItemStack(JsonObject pObject, String name, ItemStack stack) {
         JsonObject object = new JsonObject();
         addRegistryElement(object, "item", stack.getItem(), ForgeRegistries.ITEMS);
-        if (stack.getCount() != 1) pObject.addProperty("count", stack.getCount());
-        if (stack.getTag() != null) pObject.addProperty("tag", stack.getTag().toString());
+        if (stack.getCount() != 1) object.addProperty("count", stack.getCount());
+        if (stack.getTag() != null) object.addProperty("tag", stack.getTag().toString());
         pObject.add(name, object);
     }
 }

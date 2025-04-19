@@ -6,38 +6,35 @@
       "entries": [
         {
           "type": "kap_lib:entity",
-          "name": "minecraft:zombie"
+          "name": "minecraft:villager"
         }
       ],
       "functions": [
         {
-          "armorItems": [
-            null,
-            null,
-            {
-              "bonus_rolls": 1.0,
-              "entries": [
-                {
-                  "type": "minecraft:item",
-                  "name": "minecraft:netherite_chestplate"
-                }
-              ],
-              "rolls": 1.0
-            },
-            null
-          ],
-          "function": "kap_lib:set_armor"
+          "biome_type": "minecraft:taiga",
+          "function": "kap_lib:villager_properties",
+          "level": 4,
+          "profession": "minecraft:cleric"
         },
         {
-          "function": "kap_lib:set_attributes",
-          "modifiers": {
-            "minecraft:generic.attack_damage": {
-              "base": 100.0
+          "function": "kap_lib:set_merchant_trades",
+          "offers": [
+            {
+              "costA": {
+                "item": "minecraft:nether_star"
+              },
+              "maxUses": 20,
+              "priceMultiplier": 0.3,
+              "result": {
+                "count": 10,
+                "item": "minecraft:netherite_ingot"
+              },
+              "xp": 5
             }
-          }
+          ]
         }
       ],
-      "name": "zombie",
+      "name": "villager",
       "rolls": 1.0
     }
   ],

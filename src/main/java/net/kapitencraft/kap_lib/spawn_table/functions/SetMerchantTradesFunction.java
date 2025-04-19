@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
@@ -43,7 +44,7 @@ public class SetMerchantTradesFunction extends SpawnEntityConditionalFunction {
 
     @Override
     public SpawnEntityFunctionType getType() {
-        return null;
+        return SpawnEntityFunctions.SET_MERCHANT_TRADES.get();
     }
 
     public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetMerchantTradesFunction> {
@@ -93,6 +94,10 @@ public class SetMerchantTradesFunction extends SpawnEntityConditionalFunction {
             offer.setSpecialPriceDiff(specialPriceDiff);
             return offer;
         }
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {

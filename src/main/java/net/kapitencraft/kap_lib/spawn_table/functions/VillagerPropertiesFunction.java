@@ -37,9 +37,10 @@ public class VillagerPropertiesFunction extends SpawnEntityConditionalFunction {
     protected Entity run(Entity pEntity, SpawnContext pContext) {
         if (pEntity instanceof Villager villager) {
             VillagerData data = villager.getVillagerData();
-            if (type != null) data.setType(type);
-            if (profession != null) data.setProfession(profession);
-            if (level != null) data.setLevel(level);
+            if (type != null) data = data.setType(type);
+            if (profession != null) data = data.setProfession(profession);
+            if (level != null) data = data.setLevel(level);
+            villager.setVillagerData(data);
         }
         return pEntity;
     }
@@ -66,6 +67,10 @@ public class VillagerPropertiesFunction extends SpawnEntityConditionalFunction {
             Integer level = JsonHelper.getAsOptionalInt(pObject, "level");
             return new VillagerPropertiesFunction(pConditions, type, profession, level);
         }
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {

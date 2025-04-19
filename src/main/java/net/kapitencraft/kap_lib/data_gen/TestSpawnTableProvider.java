@@ -16,8 +16,12 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -42,11 +46,12 @@ public class TestSpawnTableProvider extends SpawnTableProvider {
         @Override
         public void generate(BiConsumer<ResourceLocation, SpawnTable.Builder> pOutput) {
             pOutput.accept(new ResourceLocation("test:test"), SpawnTable.spawnTable()
-                    .withPool(SpawnPool.spawnPool("zombie")
-                            .add(SpawnEntity.spawnTableEntity(EntityType.ZOMBIE))
-                            .apply(SetArmorFunction.builder().withItem(EquipmentSlot.CHEST, Items.NETHERITE_CHESTPLATE))
-                            .apply(SetAttributesFunction.builder()
-                                    .withAttribute(Attributes.ATTACK_DAMAGE).setBase(100).end()
+                    .withPool(SpawnPool.spawnPool("villager")
+                            .add(SpawnEntity.spawnTableEntity(EntityType.VILLAGER))
+                            .apply(VillagerPropertiesFunction.builder()
+                                    .setProfession(VillagerProfession.CLERIC).setLevel(4).setType(VillagerType.TAIGA)
+                            ).apply(SetMerchantTradesFunction.builder()
+                                    .addOffer(new MerchantOffer(new ItemStack(Items.NETHER_STAR), new ItemStack(Items.NETHERITE_INGOT, 10), 20, 5, .3f))
                             )
                     )
             );
