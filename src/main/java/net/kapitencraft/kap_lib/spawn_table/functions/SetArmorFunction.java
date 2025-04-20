@@ -26,12 +26,11 @@ import net.minecraftforge.common.ForgeHooks;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-@Deprecated(since = "currently disabled due to bugs. will be fixed in a later version")
 public class SetArmorFunction extends SpawnEntityConditionalFunction {
-    private final LootPool[] armorItems;
+    private final LootTable[] armorItems;
     private final float[] armorDropChances;
 
-    protected SetArmorFunction(LootItemCondition[] pPredicates, LootPool[] armorItems, float[] armorDropChances) {
+    protected SetArmorFunction(LootItemCondition[] pPredicates, LootTable[] armorItems, float[] armorDropChances) {
         super(pPredicates);
         this.armorItems = armorItems;
         this.armorDropChances = armorDropChances;
@@ -44,8 +43,9 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
             for (int i = 0; i < armor.length; i++) {
                 EquipmentSlot slot = armor[i];
                 if (armorItems[i] != null) {
-                    armorItems[i].addRandomItems(
-                            stack -> pEntity.setItemSlot(slot, stack), pContext);
+                    armorItems[i].getRandomItems(pContext,
+                            stack -> pEntity.setItemSlot(slot, stack)
+                    );
                 }
                 if (armorDropChances != null) {
                     mob.setDropChance(slot, armorDropChances[i]);
@@ -76,7 +76,7 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
             //if (local.get() == null) local.set(new ArrayDeque<>());
             //local.get().add(new ForgeHooks.LootTableContext(KapLibMod.res("spawn_table/function/set_armor"), true));
             //if (ForgeHooks.lootContext.get() == null) ForgeHooks.lootContext.set(new ArrayDeque<>());
-            LootPool[] armorItems = pObject.has("armorItems") ? pDeserializationContext.deserialize(pObject.get("armorItems"), LootPool[].class) : new LootPool[4];
+            LootTable[] armorItems = pObject.has("armorItems") ? pDeserializationContext.deserialize(pObject.get("armorItems"), LootTable[].class) : new LootTable[4];
             float[] armorChances = pObject.has("armorChances") ? pDeserializationContext.deserialize(pObject.get("armorChances"), float[].class) : null;
             return new SetArmorFunction(pConditions, armorItems, armorChances);
         }
@@ -87,12 +87,12 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
-        private final LootPool[] items = new LootPool[4];
+        private final LootTable[] items = new LootTable[4];
         private float[] dropChances = null;
 
         public Builder withItem(EquipmentSlot slot, LootPool.Builder entry) {
             if (!slot.isArmor()) throw new IllegalArgumentException("can not set armor item of non-armor slot");
-            items[slot.getIndex()] = entry.setRolls(ConstantValue.exactly(1)).setBonusRolls(ConstantValue.exactly(1)).build();
+            items[slot.getIndex()] = LootTable.lootTable().withPool(entry.setRolls(ConstantValue.exactly(1)).setBonusRolls(ConstantValue.exactly(1))).build();
             return this;
         }
 

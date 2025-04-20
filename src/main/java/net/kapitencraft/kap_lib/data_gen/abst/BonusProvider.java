@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 /**
  * data generator for item bonuses
@@ -50,10 +51,14 @@ public abstract class BonusProvider implements DataProvider {
         return this.setBuilders.get(name);
     }
 
-    protected ItemBuilder createItemBonus(Item item, String path) {
+    protected ItemBuilder createItemBonus(Item item, String name) {
         ItemBuilder builder = new ItemBuilder();
-        this.itemBuilders.putIfAbsent(item, path, builder);
+        this.itemBuilders.putIfAbsent(item, name, builder);
         return builder;
+    }
+
+    protected ItemBuilder createItemBonus(Supplier<Item> supplier, String name) {
+        return this.createItemBonus(supplier.get(), name);
     }
 
     public abstract void register();
@@ -130,8 +135,8 @@ public abstract class BonusProvider implements DataProvider {
             return this;
         }
 
-        public SetBuilder armor(Map<ArmorItem.Type, RegistryObject<? extends ModArmorItem>> armors) {
-            for (Map.Entry<ArmorItem.Type, RegistryObject<? extends ModArmorItem>> piece : armors.entrySet()) {
+        public SetBuilder armor(Map<ArmorItem.Type, ? extends RegistryObject<? extends ModArmorItem>> armors) {
+            for (Map.Entry<ArmorItem.Type, ? extends RegistryObject<? extends ModArmorItem>> piece : armors.entrySet()) {
                 this.slot(piece.getKey().getSlot(), new SlotBuilder().add(piece.getValue().get()));
             }
             return this;

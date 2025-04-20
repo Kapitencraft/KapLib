@@ -164,26 +164,6 @@ tasks.register('autoPublish', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('gitVersionUpdate', Exec) {
-    group = 'version control'
-    description = 'automatically update git after publish'
-
-    def commitFile = file('CHANGELOG.txt')
-
-    exec {
-        commandLine 'git', 'add', '.'
-    }
-
-    exec {
-        commandLine 'git', 'commit', '-F', commitFile.absolutePath
-        isIgnoreExitValue()
-    }
-
-    exec {
-        commandLine 'git', 'push'
-    }
-}
-
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
 // When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.

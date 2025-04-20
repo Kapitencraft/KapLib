@@ -1,3 +1,1 @@
-added ModArmorItem#createRegistry to create full armor-sets with armor type map directly for a registry
-added DataGenSerializer#unit for simple unit serializers
-fixed BaseAttributeUUIDs not working
+fixed BonusProvider$SetBuilder#armor not working with custom registered armor maps
