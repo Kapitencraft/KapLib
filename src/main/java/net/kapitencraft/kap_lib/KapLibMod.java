@@ -89,7 +89,7 @@ public class KapLibMod {
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);
         VanillaDataSourceTypes.REGISTRY.register(modEventBus);
 
-        VanillaTestItems.REGISTRY.register(modEventBus);
+        //VanillaTestItems.REGISTRY.register(modEventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
