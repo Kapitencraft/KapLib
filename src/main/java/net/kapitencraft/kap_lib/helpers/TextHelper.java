@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -25,6 +26,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.rmi.MarshalledObject;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -301,17 +303,6 @@ public class TextHelper {
             }
         }
         return builder.toString();
-    }
-
-    public static String getRegistryNameForSlot(EquipmentSlot slot) {
-        HashMap<EquipmentSlot, String> hashMap = new HashMap<>();
-        hashMap.put(EquipmentSlot.HEAD, "helmet");
-        hashMap.put(EquipmentSlot.CHEST, "chestplate");
-        hashMap.put(EquipmentSlot.LEGS, "leggings");
-        hashMap.put(EquipmentSlot.FEET, "boots");
-        hashMap.put(EquipmentSlot.MAINHAND, "mainhand");
-        hashMap.put(EquipmentSlot.OFFHAND, "offhand");
-        return hashMap.get(slot);
     }
 
     public static String makeGrammar(String toName) {

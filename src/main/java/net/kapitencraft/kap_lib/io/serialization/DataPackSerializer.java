@@ -21,6 +21,10 @@ public class DataPackSerializer<T> extends JsonSerializer<T> {
         this.writer = writer;
     }
 
+    public static <T> DataPackSerializer<T> unit(Supplier<T> sup) {
+        return new DataPackSerializer<>(Codec.unit(sup), sup, buf -> sup.get(), (buf, t) -> {});
+    }
+
     public void toNetwork(FriendlyByteBuf buf, T value) {
         writer.accept(buf, value);
     }

@@ -2,8 +2,10 @@ package net.kapitencraft.kap_lib.item.combat.armor;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.item.combat.armor.client.model.ArmorModel;
-import net.kapitencraft.kap_lib.item.combat.armor.client.renderer.ArmorModelProvider;
+import net.kapitencraft.kap_lib.item.combat.armor.client.provider.ArmorModelProvider;
+import net.minecraft.Util;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -15,14 +17,21 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * basic armor item.
  * <br>allows for full set effects TODO move to Bonuses?
- * <br>and for custom model implementation (override {@link #withCustomModel()} and {@link #getModel(LivingEntity, ItemStack, EquipmentSlot)} to enable
+ * <br>and for custom model implementation (override {@link #withCustomModel()} and {@link #getModelProvider()} to enable
  */
 public abstract class ModArmorItem extends ArmorItem {
     private static final String FULL_SET_ID = "hadFullSet";
@@ -133,4 +142,13 @@ public abstract class ModArmorItem extends ArmorItem {
     }
 
     // display / model END
+
+    public static <T extends ModArmorItem> Map<Type, RegistryObject<T>> createRegistry(DeferredRegister<Item> registry, String registryName, Function<Type, T> creator) {
+        return Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
+            for (Type type : Type.values()) {
+                map.put(type, registry.register(registryName + "_" + type.getName(), () -> creator.apply(type)));
+            }
+        });
+    }
+
 }

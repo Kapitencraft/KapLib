@@ -15,9 +15,9 @@ import net.minecraft.world.level.Level;
 /**
  * example Requirement provider
  */
-public class ModItemRequirementsProvider extends RequirementProvider<Item> {
+public class TestItemRequirements extends RequirementProvider<Item> {
 
-    protected ModItemRequirementsProvider(PackOutput output) {
+    protected TestItemRequirements(PackOutput output) {
         super(output, KapLibMod.MOD_ID, RequirementType.ITEM);
     }
 

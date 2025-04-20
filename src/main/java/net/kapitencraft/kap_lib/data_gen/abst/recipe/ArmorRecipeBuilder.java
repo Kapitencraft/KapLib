@@ -16,6 +16,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -29,16 +30,16 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class ArmorRecipeBuilder extends CraftingRecipeBuilder implements RecipeBuilder {
-    private final Map<EquipmentSlot, ? extends RegistryObject<? extends Item>> items;
+    private final Map<ArmorItem.Type, ? extends RegistryObject<? extends Item>> items;
     private final Advancement.Builder advancement = Advancement.Builder.advancement();
     private String group;
     private Ingredient material;
 
-    private ArmorRecipeBuilder(Map<EquipmentSlot, ? extends RegistryObject<? extends Item>> items) {
+    private ArmorRecipeBuilder(Map<ArmorItem.Type, ? extends RegistryObject<? extends Item>> items) {
         this.items = items;
     }
 
-    public static ArmorRecipeBuilder create(Map<EquipmentSlot, ? extends RegistryObject<? extends Item>> items) {
+    public static ArmorRecipeBuilder create(Map<ArmorItem.Type, ? extends RegistryObject<? extends Item>> items) {
         return new ArmorRecipeBuilder(items);
     }
 
@@ -104,7 +105,8 @@ public class ArmorRecipeBuilder extends CraftingRecipeBuilder implements RecipeB
                 pRecipeId.withPrefix("recipes/combat/"),
                 this.group,
                 this.material,
-                this.items)
+                this.items
+                )
         );
     }
 
@@ -114,9 +116,9 @@ public class ArmorRecipeBuilder extends CraftingRecipeBuilder implements RecipeB
         private final ResourceLocation advancementId;
         private final String group;
         private final Ingredient material;
-        private final Map<EquipmentSlot, ? extends RegistryObject<? extends Item>> items;
+        private final Map<ArmorItem.Type, ? extends RegistryObject<? extends Item>> items;
 
-        private Result(ResourceLocation id, Advancement.Builder advancement, ResourceLocation advancementId, String group, Ingredient material, Map<EquipmentSlot, ? extends RegistryObject<? extends Item>> items) {
+        private Result(ResourceLocation id, Advancement.Builder advancement, ResourceLocation advancementId, String group, Ingredient material, Map<ArmorItem.Type, ? extends RegistryObject<? extends Item>> items) {
             super(CraftingBookCategory.EQUIPMENT);
             this.id = id;
             this.advancement = advancement;
@@ -153,19 +155,19 @@ public class ArmorRecipeBuilder extends CraftingRecipeBuilder implements RecipeB
         }
 
         private void serializeItemDefinition(JsonObject object) {
-            boolean[] saveAsString = new boolean[] {true};
-            String[] typeDef = new String[1];
-            this.items.forEach((slot, registryObject) -> {
-                ArmorRecipe.ArmorType type = ArmorRecipe.ArmorType.fromEquipmentSlot(slot);
-                ResourceLocation location = registryObject.getId();
+            boolean saveAsString = true;
+            String typeDef = null;
+            for (Map.Entry<ArmorItem.Type, ? extends RegistryObject<? extends Item>> entry : this.items.entrySet()) {
+                ArmorRecipe.ArmorType type = ArmorRecipe.ArmorType.fromEquipmentSlot(entry.getKey());
+                ResourceLocation location = entry.getValue().getId();
                 String typeSuffix = "_" + type.getSerializedName();
-                if (!location.getPath().endsWith(typeSuffix)) saveAsString[0] = false;
-                if (saveAsString[0] && typeDef[0] == null) typeDef[0] = location.withPath(s -> s.substring(0, s.length() - typeSuffix.length())).toString();
+                if (!location.getPath().endsWith(typeSuffix)) saveAsString = false;
+                if (saveAsString && typeDef == null) typeDef = location.withPath(s -> s.substring(0, s.length() - typeSuffix.length())).toString();
 
-            });
+            }
 
-            if (saveAsString[0]) {
-                object.addProperty("results", typeDef[0]);
+            if (saveAsString) {
+                object.addProperty("results", typeDef);
             } else {
                 JsonArray array = new JsonArray();
                 this.items.values().stream().map(RegistryObject::getId).map(ResourceLocation::toString).forEach(array::add);

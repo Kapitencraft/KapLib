@@ -22,14 +22,10 @@ public class SpawnContext extends LootContext {
    private final Map<ResourceLocation, DynamicSpawn> dynamicSpawns = new HashMap<>();
    private final SpawnTableManager manager;
 
-   SpawnContext(LootParams pParams, RandomSource pRandom, LootDataResolver pLootDataResolver, SpawnTableManager manager) {
-      super(pParams, pRandom, pLootDataResolver);
-       this.manager = manager;
-   }
 
    SpawnContext(LootParams params, RandomSource randomsource, LootDataManager lootData, ResourceLocation queriedLootTableId, SpawnTableManager manager) {
-      super(params, randomsource, lootData, queriedLootTableId);
-       this.manager = manager;
+      super(params, randomsource, lootData);
+      this.manager = manager;
    }
 
    public void addDynamicSpawn(ResourceLocation pName, Consumer<Entity> pConsumer) {
@@ -54,7 +50,6 @@ public class SpawnContext extends LootContext {
       public Builder(SpawnContext context) {
          this.params = context.params;
          this.random = context.random;
-         this.queriedLootTableId = context.queriedLootTableId;
       }
 
       public SpawnContext.Builder withOptionalRandomSeed(long pSeed) {

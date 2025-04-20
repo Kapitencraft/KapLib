@@ -16,6 +16,7 @@ import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaComponentContentTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaDataSourceTypes;
+import net.kapitencraft.kap_lib.registry.vanilla.VanillaTestItems;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -88,7 +89,7 @@ public class KapLibMod {
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);
         VanillaDataSourceTypes.REGISTRY.register(modEventBus);
 
-        //VanillaTestItems.REGISTRY.register(modEventBus);
+        VanillaTestItems.REGISTRY.register(modEventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);

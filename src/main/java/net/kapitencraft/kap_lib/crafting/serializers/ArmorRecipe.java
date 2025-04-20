@@ -18,6 +18,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -99,14 +100,8 @@ public class ArmorRecipe extends CustomRecipe {
         BOOTS("boots",
                 of(List.of(true, false, true, true, false, true), true));
 
-        public static ArmorType fromEquipmentSlot(EquipmentSlot slot) {
-            return switch (slot) {
-                case FEET -> BOOTS;
-                case LEGS -> LEGGINGS;
-                case CHEST -> CHESTPLATE;
-                case HEAD -> HELMET;
-                default -> throw new IllegalArgumentException("equipment slot '" + slot.getName() + "' can not be converted to armor type");
-            };
+        public static ArmorType fromEquipmentSlot(ArmorItem.Type type) {
+            return valueOf(type.getName());
         }
 
         public static final EnumCodec<ArmorType> CODEC = StringRepresentable.fromEnum(ArmorType::values);

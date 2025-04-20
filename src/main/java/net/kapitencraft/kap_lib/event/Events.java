@@ -47,10 +47,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * event listeners for KapLib.
@@ -129,7 +126,7 @@ public class Events {
                         CompoundTag tag = new CompoundTag();
                         int level = bow.getEnchantmentLevel(enchantment);
                         tag.putInt("Level", level);
-                        arrowTag.put(ForgeRegistries.ENCHANTMENTS.getKey(enchantment).toString(), bowEnchantment.write(tag, level, bow, living, arrow));
+                        arrowTag.put(Objects.requireNonNull(ForgeRegistries.ENCHANTMENTS.getKey(enchantment), "unknown enchantment: " + enchantment).toString(), bowEnchantment.write(tag, level, bow, living, arrow));
                         if (bowEnchantment.shouldTick()) arrowHelper.get(arrow.level().dimension()).add(arrow.getUUID());
                     }
                 }

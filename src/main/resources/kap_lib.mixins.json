@@ -36,6 +36,7 @@
     "DataSourceMixin",
     "DiggerItemMixin",
     "EnchantmentMixin",
+    "EnderManMixin",
     "FishingHookMixin",
     "FishingRodMixin",
     "InventoryMixin",

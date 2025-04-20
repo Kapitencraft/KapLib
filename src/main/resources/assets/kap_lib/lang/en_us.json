@@ -129,6 +129,8 @@
   "style.bold": "Bold",
   "style.underlined": "Underlined",
 
+  "tooltip.can_hit_enderman": "Hits Enderman",
+
   "overlay.stats": "Player Stats",
   "overlay.stats.protection": "Protection: %1$s%%",
   "overlay.stats.ehp": "Effective HP: %1$s",

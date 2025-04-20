@@ -26,7 +26,7 @@ import net.minecraftforge.common.ForgeHooks;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-//TODO fix StackOverflow
+@Deprecated(since = "currently disabled due to bugs. will be fixed in a later version")
 public class SetArmorFunction extends SpawnEntityConditionalFunction {
     private final LootPool[] armorItems;
     private final float[] armorDropChances;
@@ -71,10 +71,11 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SetArmorFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            ThreadLocal<Deque<ForgeHooks.LootTableContext>> local = ForgeHooks.lootContext;
-            if (local.get() == null) local.set(new ArrayDeque<>());
-            local.get().add(new ForgeHooks.LootTableContext(KapLibMod.res("spawn_table/function/set_armor"), true));
-            if (ForgeHooks.lootContext.get() == null) ForgeHooks.lootContext.set(new ArrayDeque<>());
+            //TODO fix
+            //ThreadLocal<Deque<ForgeHooks.LootTableContext>> local = ForgeHooks.lootContext;
+            //if (local.get() == null) local.set(new ArrayDeque<>());
+            //local.get().add(new ForgeHooks.LootTableContext(KapLibMod.res("spawn_table/function/set_armor"), true));
+            //if (ForgeHooks.lootContext.get() == null) ForgeHooks.lootContext.set(new ArrayDeque<>());
             LootPool[] armorItems = pObject.has("armorItems") ? pDeserializationContext.deserialize(pObject.get("armorItems"), LootPool[].class) : new LootPool[4];
             float[] armorChances = pObject.has("armorChances") ? pDeserializationContext.deserialize(pObject.get("armorChances"), float[].class) : null;
             return new SetArmorFunction(pConditions, armorItems, armorChances);

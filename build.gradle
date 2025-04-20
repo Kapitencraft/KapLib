@@ -39,7 +39,7 @@ minecraft {
     //
     // Use non-default mappings at your own risk. They may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: mapping_channel, version: mapping_version
+    mappings channel: 'parchment', version: "${parchment_version}-${mc_version}"
 
     // When true, this property will have all Eclipse/IntelliJ IDEA run configurations run the "prepareX" task for the given run configuration before launching the game.
     // In most cases, it is not necessary to enable.
@@ -162,6 +162,26 @@ tasks.register('autoPublish', JavaExec) {
     mainClass = 'net.kapitencraft.kap_lib.publish.AutoPublisher'
 
     classpath = sourceSets.main.runtimeClasspath
+}
+
+tasks.register('gitVersionUpdate', Exec) {
+    group = 'version control'
+    description = 'automatically update git after publish'
+
+    def commitFile = file('CHANGELOG.txt')
+
+    exec {
+        commandLine 'git', 'add', '.'
+    }
+
+    exec {
+        commandLine 'git', 'commit', '-F', commitFile.absolutePath
+        isIgnoreExitValue()
+    }
+
+    exec {
+        commandLine 'git', 'push'
+    }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

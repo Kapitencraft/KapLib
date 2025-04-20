@@ -9,6 +9,7 @@ import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
+import net.kapitencraft.kap_lib.item.combat.armor.ModArmorItem;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -17,8 +18,10 @@ import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -26,6 +29,10 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * data generator for item bonuses
+ * <br> use {@link #simpleItem} or {@link #createSetBonus} to create bonuses
+ */
 public abstract class BonusProvider implements DataProvider {
     private final PackOutput output;
     private final String modId;
@@ -97,8 +104,7 @@ public abstract class BonusProvider implements DataProvider {
         return main;
     }
 
-    private <T extends Bonus<T>> JsonObject saveSet(SetBuilder builder) {
-        T bonus = (T) builder.getBonus();
+    private JsonObject saveSet(SetBuilder builder) {
         JsonObject main = saveItem(null, builder);
         {
             JsonObject items = new JsonObject();
@@ -113,7 +119,7 @@ public abstract class BonusProvider implements DataProvider {
 
     @Override
     public @NotNull String getName() {
-        return "Sets of '" + modId + "'";
+        return "Bonuses of '" + modId + "'";
     }
 
     protected class SetBuilder extends ItemBuilder {
@@ -121,6 +127,13 @@ public abstract class BonusProvider implements DataProvider {
 
         public SetBuilder slot(EquipmentSlot slot, SlotBuilder builder) {
             content.putIfAbsent(slot, builder);
+            return this;
+        }
+
+        public SetBuilder armor(Map<ArmorItem.Type, RegistryObject<? extends ModArmorItem>> armors) {
+            for (Map.Entry<ArmorItem.Type, RegistryObject<? extends ModArmorItem>> piece : armors.entrySet()) {
+                this.slot(piece.getKey().getSlot(), new SlotBuilder().add(piece.getValue().get()));
+            }
             return this;
         }
 
@@ -139,8 +152,14 @@ public abstract class BonusProvider implements DataProvider {
         }
     }
 
+    /**
+     * slot builder. extends TagAppender to allow for tags to be used as item selector
+     */
     protected class SlotBuilder extends TagsProvider.TagAppender<Item> {
 
+        /**
+         *
+         */
         protected SlotBuilder() {
             super(new TagBuilder(), modId);
         }
@@ -150,6 +169,9 @@ public abstract class BonusProvider implements DataProvider {
             return this;
         }
 
+        /**
+         * adds all the given items as possible for the builder
+         */
         public SlotBuilder addAll(Item... items) {
             for (Item item : items) {
                 this.add(item);
@@ -157,6 +179,9 @@ public abstract class BonusProvider implements DataProvider {
             return this;
         }
 
+        /**
+         * adds this tag to the builder
+         */
         public @NotNull SlotBuilder addTag(@NotNull TagKey<Item> tagKey) {
             super.addTag(tagKey);
             return this;

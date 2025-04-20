@@ -35,8 +35,9 @@ public class TimeSelectorElement extends ListElement {
     public static class Builder extends Element.Builder<TimeSelectorElement, Builder> {
         private Consumer<Long> onTimeSet;
 
-        public void setOnTimeSet(Consumer<Long> onTimeSet) {
+        public Builder onTimeSet(Consumer<Long> onTimeSet) {
             this.onTimeSet = onTimeSet;
+            return this;
         }
 
         @Override

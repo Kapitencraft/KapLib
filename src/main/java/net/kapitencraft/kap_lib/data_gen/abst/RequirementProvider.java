@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public abstract class RequirementProvider<T> implements DataProvider {
     private final PackOutput output;
@@ -31,6 +32,10 @@ public abstract class RequirementProvider<T> implements DataProvider {
 
     protected void add(T element, ReqCondition<?> condition) {
         this.requirements.put(element, condition);
+    }
+
+    protected void add(Supplier<T> supplier, ReqCondition<?> condition) {
+        this.add(supplier.get(), condition);
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.client.particle.DamageIndicatorParticle;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticle;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterUniformsEvent;
+import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -46,6 +47,7 @@ public class ModEventBusClientEvents {
                 return living.getUseItem() != stack ? 0.0F : (float)((stack.getUseDuration() - living.getUseItemRemainingTicks()) / 20.0F  * living.getAttributeValue(ExtraAttributes.DRAW_SPEED.get()) / 100);
             }
         });
+        BaseAttributeUUIDs.init();
     }
 
     @SubscribeEvent

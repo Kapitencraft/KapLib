@@ -12,10 +12,15 @@ import net.kapitencraft.kap_lib.util.ExtraRarities;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
@@ -29,6 +34,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -53,6 +59,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -512,5 +519,23 @@ public class MiscHelper {
             float dist = Mth.sqrt((float) p.distanceToSqr(pos));
             ModMessages.sendToClientPlayer(new ActivateShakePacket(intensity, strength * (dist / radius), frequency), p);
         });
+    }
+
+    /**
+     * you may ask why.
+     * <br> but I ask <i>why not</i>
+     * gets an array of all items in the given tag
+     * @param access access to
+     * @param tag the tag to get all elements of
+     * @return an array of all items in the tag
+     */
+    public static Item[] getItemsFromTag(RegistryAccess access, TagKey<Item> tag) {
+        return access.registryOrThrow(ForgeRegistries.Keys.ITEMS)
+                .getTag(tag).orElseThrow(NullPointerException::new).contents().stream().map(Holder::value)
+                .toArray(Item[]::new);
+    }
+
+    public static Holder<net.minecraft.world.damagesource.DamageType> lookupDamageTypeHolder(Level level, ResourceKey<net.minecraft.world.damagesource.DamageType> key) {
+        return level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key);
     }
 }

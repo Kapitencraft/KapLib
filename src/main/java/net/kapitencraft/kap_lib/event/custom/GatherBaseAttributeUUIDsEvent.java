@@ -6,11 +6,20 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * used to register new Base Attributes.
- * use {@link BaseAttributeUUIDs#register(UUID, Attribute)} to register the UUIDs
- * fired on the mod bus
+ * fired on the mod bus only on the client
  */
+//TODO finally implement
 public class GatherBaseAttributeUUIDsEvent extends Event implements IModBusEvent {
+
+    public void register(UUID uuid, Attribute attribute) {
+        BaseAttributeUUIDs.register(uuid, attribute);
+    }
+
+    public void register(UUID uuid, Supplier<Attribute> supplier) {
+        register(uuid, supplier.get());
+    }
 }
