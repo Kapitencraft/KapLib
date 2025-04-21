@@ -172,6 +172,7 @@ tasks.register('gitUpdate', Task) {
 
     exec {
         commandLine 'git', 'commit', '-m', 'update ' + mod_version
+        ignoreExitValue = true
     }
 }
 
