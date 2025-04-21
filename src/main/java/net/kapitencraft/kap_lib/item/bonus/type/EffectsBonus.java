@@ -23,7 +23,7 @@ import java.util.List;
  * adds one or more effect to the player
  * recommended to use at least 30 ticks because of flickering
  */
-public class SimpleSetMobEffect implements Bonus<SimpleSetMobEffect> {
+public class EffectsBonus implements Bonus<EffectsBonus> {
     private static final Codec<MobEffectInstance> EFFECT_INSTANCE_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(MobEffectInstance::getEffect),
@@ -32,9 +32,9 @@ public class SimpleSetMobEffect implements Bonus<SimpleSetMobEffect> {
             ).apply(instance, MobEffectInstance::new)
     );
 
-    public static final Codec<SimpleSetMobEffect> CODEC = EFFECT_INSTANCE_CODEC.listOf().xmap(SimpleSetMobEffect::new, SimpleSetMobEffect::getEffects);
+    public static final Codec<EffectsBonus> CODEC = EFFECT_INSTANCE_CODEC.listOf().xmap(EffectsBonus::new, EffectsBonus::getEffects);
 
-    public SimpleSetMobEffect(List<MobEffectInstance> effects) {
+    public EffectsBonus(List<MobEffectInstance> effects) {
         this.effects.addAll(effects);
     }
 
@@ -45,13 +45,13 @@ public class SimpleSetMobEffect implements Bonus<SimpleSetMobEffect> {
     private final List<MobEffectInstance> effects = new ArrayList<>();
 
     @Override
-    public DataPackSerializer<SimpleSetMobEffect> getSerializer() {
+    public DataPackSerializer<EffectsBonus> getSerializer() {
         return SetBonusTypes.SIMPLE_MOB_EFFECT.get();
     }
 
     @Override
     public void additionalToNetwork(FriendlyByteBuf buf) {
-        buf.writeCollection(this.effects, SimpleSetMobEffect::writeEffect);
+        buf.writeCollection(this.effects, EffectsBonus::writeEffect);
     }
 
     @Override
@@ -87,8 +87,8 @@ public class SimpleSetMobEffect implements Bonus<SimpleSetMobEffect> {
         //other information ignored
     }
 
-    public static SimpleSetMobEffect fromNetwork(FriendlyByteBuf buf) {
-        return new SimpleSetMobEffect(buf.readCollection(ArrayList::new, SimpleSetMobEffect::readEffect));
+    public static EffectsBonus fromNetwork(FriendlyByteBuf buf) {
+        return new EffectsBonus(buf.readCollection(ArrayList::new, EffectsBonus::readEffect));
     }
 
     private static MobEffectInstance readEffect(FriendlyByteBuf buf) {

@@ -57,7 +57,7 @@ public abstract class BonusProvider implements DataProvider {
         return builder;
     }
 
-    protected ItemBuilder createItemBonus(Supplier<Item> supplier, String name) {
+    protected ItemBuilder createItemBonus(Supplier<? extends Item> supplier, String name) {
         return this.createItemBonus(supplier.get(), name);
     }
 

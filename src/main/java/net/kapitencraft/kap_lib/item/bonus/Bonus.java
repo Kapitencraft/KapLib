@@ -11,6 +11,7 @@ import net.kapitencraft.kap_lib.item.IEventListener;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -103,7 +104,7 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
      * @param living the entity applied to
      * @return all attribute modifiers this bonus should apply to the given entity
      */
-    default @Nullable Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living) {return null;}
+    default @Nullable Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living, EquipmentSlot slot) {return null;}
 
     /**
      * @param attacked the attack target

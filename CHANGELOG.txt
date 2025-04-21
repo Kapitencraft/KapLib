@@ -1,1 +1,0 @@
-fixed armor provider showing the entire armor instead of only for the given slot
