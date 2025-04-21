@@ -1,1 +1,1 @@
-fixed BonusProvider$SetBuilder#armor not working with custom registered armor maps
+fixed armor provider showing the entire armor instead of only for the given slot

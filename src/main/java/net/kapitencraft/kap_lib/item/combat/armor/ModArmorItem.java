@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.item.combat.armor;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.item.combat.armor.client.model.ArmorModel;
 import net.kapitencraft.kap_lib.item.combat.armor.client.provider.ArmorModelProvider;
 import net.minecraft.Util;
@@ -22,8 +21,6 @@ import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -31,7 +28,7 @@ import java.util.function.Function;
 /**
  * basic armor item.
  * <br>allows for full set effects TODO move to Bonuses?
- * <br>and for custom model implementation (override {@link #withCustomModel()} and {@link #getModelProvider()} to enable
+ * <br>and for custom model implementation (override {@link #withCustomModel()} and {@link #createModelProvider()} to enable
  */
 public abstract class ModArmorItem extends ArmorItem {
     private static final String FULL_SET_ID = "hadFullSet";
@@ -115,15 +112,21 @@ public abstract class ModArmorItem extends ArmorItem {
 
     protected boolean withCustomModel() { return false; }
 
-    protected ArmorModelProvider getModelProvider() { return null;}
+    /**
+     * @return the model provider to use
+     * no need to cache, this implementation does that already
+     */
+    protected ArmorModelProvider createModelProvider() { return null;}
 
     @Override
     public void initializeClient(@NotNull Consumer<IClientItemExtensions> consumer) {
         if (!withCustomModel()) return;
         consumer.accept(new IClientItemExtensions() {
+            private final ArmorModelProvider provider = createModelProvider();
+
             @Override
             public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity living, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> original) {
-                ArmorModel armorModel = getModelProvider().getModel(living, stack, slot);
+                ArmorModel armorModel = provider.getModel(living, stack, slot);
                 armorModel.partVisible(slot);
                 armorModel.crouching = original.crouching;
                 armorModel.riding = original.riding;

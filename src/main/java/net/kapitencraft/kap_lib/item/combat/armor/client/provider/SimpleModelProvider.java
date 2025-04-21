@@ -19,6 +19,7 @@ public class SimpleModelProvider implements ArmorModelProvider {
 
     @Override
     public ArmorModel getModel(LivingEntity living, ItemStack stack, EquipmentSlot slot) {
+        model.partVisible(slot);
         return model;
     }
 }
