@@ -164,7 +164,7 @@ tasks.register('autoPublish', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-tasks.register('gitUpdate', Exec) {
+tasks.register('gitUpdate', Task) {
 
     exec {
         commandLine 'git', 'add', '.'
@@ -173,7 +173,7 @@ tasks.register('gitUpdate', Exec) {
     exec {
         commandLine 'git', 'commit', '-m', 'update ' + mod_version
     }
- }
+}
 
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
