@@ -6,8 +6,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -50,6 +52,18 @@ public class ModTagsProvider {
         @Override
         protected void addTags(HolderLookup.Provider pProvider) {
             this.tag(ExtraTags.DamageTypes.MAGIC).add(DamageTypes.MAGIC, DamageTypes.INDIRECT_MAGIC, DamageTypes.DRAGON_BREATH, DamageTypes.SONIC_BOOM);
+        }
+    }
+
+    public static class Item extends ItemTagsProvider {
+
+        public Item(PackOutput p_275343_, CompletableFuture<HolderLookup.Provider> p_275729_, CompletableFuture<TagLookup<net.minecraft.world.level.block.Block>> p_275322_, String modId, @Nullable ExistingFileHelper existingFileHelper) {
+            super(p_275343_, p_275729_, p_275322_, modId, existingFileHelper);
+        }
+
+        @Override
+        protected void addTags(HolderLookup.Provider pProvider) {
+
         }
     }
 }

@@ -3,14 +3,11 @@ package net.kapitencraft.kap_lib.helpers;
 import com.google.gson.*;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.codecs.PrimitiveCodec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.io.JsonHelper;
@@ -19,7 +16,6 @@ import net.kapitencraft.kap_lib.stream.Consumers;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import org.checkerframework.checker.units.qual.K;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -64,7 +60,7 @@ public class IOHelper {
     /**
      * get the data result or the defaulted if the data result is empty
      */
-    public static <T> T get(DataResult<T> result, @NotNull Supplier<T> defaulted) {
+    public static <T> T orElse(DataResult<T> result, @NotNull Supplier<T> defaulted) {
         Optional<T> optional = result.result();
         return optional.orElseGet(defaulted);
     }
@@ -76,7 +72,8 @@ public class IOHelper {
     public static <T> T loadFile(File file, Codec<T> codec, Supplier<T> defaulted) {
         try {
             if (!file.exists()) return defaulted.get();
-            return get(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
+
+            return orElse(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
         } catch (IOException e) {
             KapLibMod.LOGGER.warn("unable to load file: " + file.getPath());
         }
@@ -90,7 +87,7 @@ public class IOHelper {
                 saveFile(file, codec, defaulted.get());
                 return defaulted.get();
             }
-            return get(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
+            return orElse(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
         } catch (IOException e) {
         }
         return defaulted.get();
@@ -128,7 +125,7 @@ public class IOHelper {
         try {
             createFile(file);
             FileWriter writer = new FileWriter(file);
-            writer.write(JsonHelper.GSON.toJson(get(codec.encodeStart(JsonOps.INSTANCE, in), JsonObject::new)));
+            writer.write(JsonHelper.GSON.toJson(orElse(codec.encodeStart(JsonOps.INSTANCE, in), JsonObject::new)));
             writer.close();
         } catch (Exception e) {
             KapLibMod.LOGGER.warn("unable to save file: {}", e.getMessage());

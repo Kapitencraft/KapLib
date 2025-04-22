@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.helpers;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Contract;
@@ -238,5 +237,21 @@ public interface CollectionHelper {
     static String getLast(@NotNull String[] split) {
         if (split.length == 0) throw new IndexOutOfBoundsException("can not get last index from empty array");
         return split[split.length-1];
+    }
+
+    static <K, V> Multimap<K, V> fromListMap(Map<K, List<V>> map) {
+        ImmutableMultimap.Builder<K, V> builder = new ImmutableMultimap.Builder<>();
+        for (Map.Entry<K, List<V>> kListEntry : map.entrySet()) {
+            builder.putAll(kListEntry.getKey(), kListEntry.getValue());
+        }
+        return builder.build();
+    }
+
+    static <K, V> Map<K, List<V>> fromMultimap(Multimap<K, V> multimap) {
+        ImmutableMap.Builder<K, List<V>> builder = new ImmutableMap.Builder<>();
+        for (K k : multimap.keySet()) {
+            builder.put(k, ImmutableList.copyOf(multimap.get(k)));
+        }
+        return builder.build();
     }
 }

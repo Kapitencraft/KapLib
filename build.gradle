@@ -109,6 +109,7 @@ minecraft {
         }
 
         data {
+            property 'forge.logging.console.level', 'debug'
             // example of overriding the workingDirectory set in configureEach above
             workingDirectory project.file('run-data')
 

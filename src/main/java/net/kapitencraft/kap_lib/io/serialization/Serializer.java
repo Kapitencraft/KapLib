@@ -22,12 +22,12 @@ public abstract class Serializer<T, K extends DynamicOps<T>, L> {
     abstract T getSerializeDefault();
 
     public T serialize(@NotNull L value) {
-        return IOHelper.get(codec.encodeStart(generator, value), this::getSerializeDefault);
+        return IOHelper.orElse(codec.encodeStart(generator, value), this::getSerializeDefault);
     }
 
     public L deserialize(T object) {
         if (object == null) return defaulted.get();
-        return IOHelper.get(codec.parse(generator, object), MiscHelper.nonNullOr(defaulted, ()-> null));
+        return IOHelper.orElse(codec.parse(generator, object), MiscHelper.nonNullOr(defaulted, ()-> null));
     }
 
     public Codec<L> getCodec() {

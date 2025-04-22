@@ -7,7 +7,7 @@ import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
 import net.kapitencraft.kap_lib.registry.custom.AttributeModifierTypes;
-import net.kapitencraft.kap_lib.registry.custom.SetBonusTypes;
+import net.kapitencraft.kap_lib.registry.custom.BonusTypes;
 import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
 import net.kapitencraft.kap_lib.registry.custom.CameraModifiers;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
@@ -16,7 +16,6 @@ import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaComponentContentTypes;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaDataSourceTypes;
-import net.kapitencraft.kap_lib.registry.vanilla.VanillaTestItems;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -67,7 +66,7 @@ public class KapLibMod {
         ExtraMobEffects.REGISTRY.register(modEventBus);
 
         RequirementTypes.REGISTRY.register(modEventBus);
-        SetBonusTypes.REGISTRY.register(modEventBus);
+        BonusTypes.REGISTRY.register(modEventBus);
         GlyphEffects.REGISTRY.register(modEventBus);
 
         ElementTypes.REGISTRY.register(modEventBus);

@@ -3,26 +3,32 @@ package net.kapitencraft.kap_lib.data_gen;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.data_gen.abst.BonusProvider;
 import net.kapitencraft.kap_lib.item.bonus.type.EffectsBonus;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class ModBonusProvider extends BonusProvider {
-    public ModBonusProvider(PackOutput output) {
-        super(output, KapLibMod.MOD_ID);
+public class TestBonusProvider extends BonusProvider {
+
+    public TestBonusProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> pLookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
+        super(output, KapLibMod.MOD_ID, pLookupProvider, existingFileHelper);
     }
 
     @Override
     public void register() {
         this.createSetBonus("test")
-                .slot(EquipmentSlot.HEAD, this.simpleItem(Items.DIAMOND_HELMET))
-                .slot(EquipmentSlot.CHEST, this.simpleItem(Items.DIAMOND_CHESTPLATE))
-                .slot(EquipmentSlot.LEGS, this.simpleItem(Items.DIAMOND_LEGGINGS))
-                .slot(EquipmentSlot.FEET, this.simpleItem(Items.DIAMOND_BOOTS))
+                .slot(EquipmentSlot.HEAD, Items.DIAMOND_HELMET)
+                .slot(EquipmentSlot.CHEST, Items.DIAMOND_CHESTPLATE)
+                .slot(EquipmentSlot.LEGS, Items.DIAMOND_LEGGINGS)
+                .slot(EquipmentSlot.FEET, Items.DIAMOND_BOOTS)
                 .setBonus(
                         new EffectsBonus(
                                 List.of(

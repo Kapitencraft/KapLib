@@ -29,7 +29,4 @@ public interface IDataGenElement<T extends IDataGenElement<T>> {
     JsonObject toJson();
 
     DataPackSerializer<T> getSerializer();
-
-    void additionalToNetwork(FriendlyByteBuf buf);
-
 }

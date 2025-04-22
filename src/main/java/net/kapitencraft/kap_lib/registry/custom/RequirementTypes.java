@@ -13,6 +13,6 @@ public interface RequirementTypes {
 
     DeferredRegister<DataPackSerializer<? extends ReqCondition<?>>> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.REQ_CONDITIONS);
 
-    RegistryObject<DataPackSerializer<StatReqCondition>> STAT_REQ = REGISTRY.register("stat_req", () -> ReqCondition.createSerializer(StatReqCondition.CODEC, StatReqCondition::fromNetwork));
-    RegistryObject<DataPackSerializer<DimensionReqCondition>> DIMENSION = REGISTRY.register("dimension", () -> ReqCondition.createSerializer(DimensionReqCondition.CODEC, DimensionReqCondition::fromNetwork));
+    RegistryObject<DataPackSerializer<StatReqCondition>> STAT_REQ = REGISTRY.register("stat_req", () -> StatReqCondition.SERIALIZER);
+    RegistryObject<DataPackSerializer<DimensionReqCondition>> DIMENSION = REGISTRY.register("dimension", () -> DimensionReqCondition.SERIALIZER);
 }

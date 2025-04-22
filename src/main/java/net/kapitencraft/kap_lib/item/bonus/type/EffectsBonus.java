@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
-import net.kapitencraft.kap_lib.registry.custom.SetBonusTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -32,7 +31,9 @@ public class EffectsBonus implements Bonus<EffectsBonus> {
             ).apply(instance, MobEffectInstance::new)
     );
 
-    public static final Codec<EffectsBonus> CODEC = EFFECT_INSTANCE_CODEC.listOf().xmap(EffectsBonus::new, EffectsBonus::getEffects);
+    private static final Codec<EffectsBonus> CODEC = EFFECT_INSTANCE_CODEC.listOf().xmap(EffectsBonus::new, EffectsBonus::getEffects);
+
+    public static final DataPackSerializer<EffectsBonus> SERIALIZER = new DataPackSerializer<>(CODEC, EffectsBonus::fromNetwork, EffectsBonus::toNetwork);
 
     public EffectsBonus(List<MobEffectInstance> effects) {
         this.effects.addAll(effects);
@@ -46,12 +47,7 @@ public class EffectsBonus implements Bonus<EffectsBonus> {
 
     @Override
     public DataPackSerializer<EffectsBonus> getSerializer() {
-        return SetBonusTypes.SIMPLE_MOB_EFFECT.get();
-    }
-
-    @Override
-    public void additionalToNetwork(FriendlyByteBuf buf) {
-        buf.writeCollection(this.effects, EffectsBonus::writeEffect);
+        return SERIALIZER;
     }
 
     @Override
@@ -89,6 +85,10 @@ public class EffectsBonus implements Bonus<EffectsBonus> {
 
     public static EffectsBonus fromNetwork(FriendlyByteBuf buf) {
         return new EffectsBonus(buf.readCollection(ArrayList::new, EffectsBonus::readEffect));
+    }
+
+    private static void toNetwork(FriendlyByteBuf buf, EffectsBonus bonus) {
+        buf.writeCollection(bonus.effects, EffectsBonus::writeEffect);
     }
 
     private static MobEffectInstance readEffect(FriendlyByteBuf buf) {

@@ -1,10 +1,12 @@
 package net.kapitencraft.kap_lib.item.bonus;
 
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
@@ -14,6 +16,7 @@ import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.requirements.BonusRequirementType;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
@@ -37,6 +40,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -62,6 +67,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return instance;
     }
 
+    private Optional<BonusLookup> getLookup(LivingEntity living) {
+        if (lookupMap.containsKey(living)) return Optional.of(lookupMap.get(living));
+        return Optional.empty();
+    }
+
     private BonusLookup getOrCreateLookup(LivingEntity living) {
         lookupMap.computeIfAbsent(living, BonusLookup::new);
         return lookupMap.get(living);
@@ -70,7 +80,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     @SubscribeEvent
     public void onLivingEquipmentChange(LivingEquipmentChangeEvent event) {
         LivingEntity entity = event.getEntity();
-        if (entity.level().isClientSide()) return; //ONLY SERVERSIDE
         BonusLookup bonusLookup = getOrCreateLookup(entity);
         bonusLookup.removeEquipment(Pair.of(event.getFrom(), event.getSlot()));
         bonusLookup.addEquipment(Pair.of(event.getTo(), event.getSlot()));
@@ -79,7 +88,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     @SubscribeEvent
     public void onLivingTick(LivingEvent.LivingTickEvent event) {
         if (event.getEntity().level().isClientSide()) return; //ONLY SERVERSIDE
-        getOrCreateLookup(event.getEntity()).tick();
+        getLookup(event.getEntity()).ifPresent(BonusLookup::tick); //only tick when necessary
     }
 
     public static final Codec<List<TagEntry>> TAG_ENTRY_LOADER_CODEC = TagEntry.CODEC.listOf();
@@ -121,7 +130,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
         public void tick() {
             this.activeItemBonuses.forEach((element, integer) -> {
-                element.getBonus().onTick(integer.getIntValue(), target);
+                Bonus<?> bonus = element.getBonus();
+                if (bonus.isEffectTick(integer.getIntValue(), target))
+                    bonus.onTick(integer.getIntValue(), target);
                 integer.setValue(integer.getIntValue() + 1);
             });
         }
@@ -131,9 +142,13 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             for (Pair<ItemStack, EquipmentSlot> pair : removed) {
                 Map<ResourceLocation, BonusElement> bonuses = getBonusesForItem(pair.getFirst(), false);
                 bonuses.values().forEach(element -> {
-                    element.getBonus().onRemove(target);
+                    Bonus<?> bonus = element.getBonus();
+                    bonus.onRemove(target);
+                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
+                    if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
                     if (element instanceof SetBonusElement) {
                         List<EquipmentSlot> data = setData.get(element);
+
                         activeItemBonuses.remove(element);
                         data.remove(pair.getSecond());
                         if (data.isEmpty()) setData.remove(element);
@@ -155,7 +170,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                             return;
                         }
                     }
-                    element.getBonus().onApply(target);
+                    Bonus<?> bonus = element.getBonus();
+                    bonus.onApply(target);
+                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
+                    if (modifiers != null && !modifiers.isEmpty()) target.getAttributes().addTransientAttributeModifiers(modifiers);
                     activeItemBonuses.put(element, Reference.of(0));
                 });
             }
@@ -183,12 +201,15 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     private void readItemElement(ResourceLocation location, JsonElement element) {
         try {
             JsonObject main = element.getAsJsonObject();
+
+            DataResult<Bonus<?>> result = ExtraCodecs.BONUS.parse(JsonOps.INSTANCE, main);
+
+            Bonus<?> bonus = result.getOrThrow(false, s -> {});
+
             ResourceLocation itemLocation = new ResourceLocation(GsonHelper.getAsString(main, "item"));
             Item item = ForgeRegistries.ITEMS.getValue(itemLocation);
             if (item == null) throw new IllegalArgumentException("unknown Item: " + itemLocation);
-            DataPackSerializer<? extends Bonus<?>> serializer = readFromString(GsonHelper.getAsString(main, "type"));
 
-            Bonus<?> bonus = serializer.deserialize(main.get("data"));
             boolean hidden = main.has("hidden") && GsonHelper.getAsBoolean(main, "hidden");
             addItemIfAbsent(item);
             this.itemBonuses.putIfAbsent(item, location, new BonusElement(hidden, bonus));
@@ -201,35 +222,21 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         try {
             JsonObject main = jsonElement.getAsJsonObject();
 
-            //read Item Tags
-            Map<EquipmentSlot, TagKey<Item>> itemsForSlot = new HashMap<>();
-            {
-                JsonObject items = GsonHelper.getAsJsonObject(main, "items");
-                Map<ResourceLocation, List<TagLoader.EntryWithSource>> tagEntriesForBonus = new HashMap<>();
-                for (EquipmentSlot slot : EquipmentSlot.values()) {
-                    if (!items.has(slot.getName())) continue;
-                    ResourceLocation locationForSlot = new ResourceLocation(location.getNamespace(), "set/" + location.getPath() + "/" + slot.getName());
-                    JsonArray itemElements = GsonHelper.getAsJsonArray(items, slot.getName());
-                    List<TagEntry> tagEntries = TAG_ENTRY_LOADER_CODEC.parse(JsonOps.INSTANCE, itemElements).getOrThrow(false, string -> KapLibMod.LOGGER.error(Markers.BONUS_MANAGER, "error loading bonus '{}': {}", location, string));
-                    tagEntriesForBonus.put(locationForSlot,
-                            tagEntries.stream()
-                                    .map(tagEntry -> new TagLoader.EntryWithSource(tagEntry, locationForSlot.toString()))
-                                    .toList()
-                    );
-                    itemsForSlot.put(slot, TagKey.create(Registries.ITEM, locationForSlot));
-                }
-                if (tagEntriesForBonus.size() < 2) throw new IllegalStateException("set bonuses require at least two used slots to work");
-                TagLoader<Holder<Item>> loader = new TagLoader<>(ForgeRegistries.ITEMS::getHolder, "set_bonuses");
-                Registry<Item> registry = this.access.registryOrThrow(Registries.ITEM);
-                loader.build(tagEntriesForBonus).forEach((tagLocation, holders) -> {
-                    TagKey<Item> tagKey = TagKey.create(Registries.ITEM, tagLocation);
-                    registry.getOrCreateTag(tagKey).bind(List.copyOf(holders));
-                });
-            }
-            //read Set Type and configuration
-            DataPackSerializer<? extends Bonus<?>> serializer = readFromString(GsonHelper.getAsString(main, "type"));
+            DataResult<Bonus<?>> result = ExtraCodecs.BONUS.parse(JsonOps.INSTANCE, main);
 
-            Bonus<?> bonus = serializer.deserialize(main.get("data"));
+            Bonus<?> bonus = result.getOrThrow(false, s -> {});
+
+            //TODO fix
+            //read Item Tags
+            Map<EquipmentSlot, TagKey<Item>> itemsForSlot = new EnumMap<>(EquipmentSlot.class);
+            {
+                JsonArray array = GsonHelper.getAsJsonArray(main, "slots");
+                for (JsonElement element : array) {
+                    EquipmentSlot slot = EquipmentSlot.byName(element.getAsString());
+                    itemsForSlot.put(slot, TagKey.create(Registries.ITEM, location.withPath(s -> "set/" + s + "/" + slot.getName())));
+                }
+            }
+
             boolean hidden = main.has("hidden") && GsonHelper.getAsBoolean(main, "hidden");
             this.sets.put(location, new SetBonusElement(hidden, bonus, itemsForSlot));
         } catch (Exception e) {
@@ -262,8 +269,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     private Map<ResourceLocation, BonusElement> getBonusesForItem(ItemStack stack, boolean ignoreHidden) {
-        Map<ResourceLocation, BonusElement> itemBonuses =
-                MapStream.of(Objects.requireNonNullElse(this.itemBonuses.get(stack.getItem()), Map.of()))
+        Map<ResourceLocation, BonusElement> itemBonuses = MapStream
+                .of(Objects.requireNonNullElse(this.itemBonuses.get(stack.getItem()), Map.of()))
                 .filterValues(bonusElement -> !bonusElement.hidden || ignoreHidden, null)
                 .toMap();
         Map<ResourceLocation, SetBonusElement> setBonuses = MapStream.of(this.sets).filter((location, setBonusElement) ->

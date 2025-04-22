@@ -49,7 +49,7 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
         return createComponent(stat, (StatType<T>) type, (Function<T, Component>) mapper);
     }
 
-    private static  <T> Component createComponent(Stat<?> stat, StatType<T> otherType, Function<T, Component> mapper) {
+    private static <T> Component createComponent(Stat<?> stat, StatType<T> otherType, Function<T, Component> mapper) {
         StatType<?> type = stat.getType();
         if (type == otherType) {
             T t = (T) stat.getValue();
@@ -78,11 +78,15 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
         return type.get(value);
     }
 
-    public static final Codec<StatReqCondition> CODEC = RecordCodecBuilder.create(instance ->
+    private static final Codec<StatReqCondition> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    STAT_CODEC.fieldOf("stat").forGetter(s -> s.stat),
+                    STAT_CODEC.fieldOf("stat").forGetter(StatReqCondition::getStat),
                     Codec.INT.fieldOf("minCount").forGetter(StatReqCondition::getMinLevel)
             ).apply(instance, StatReqCondition::new)
+    );
+
+    public static final DataPackSerializer<StatReqCondition> SERIALIZER = new DataPackSerializer<>(
+            CODEC, StatReqCondition::fromNetwork, StatReqCondition::toNetwork
     );
 
     protected final Stat<?> stat;
@@ -94,23 +98,17 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
 
     private <T> Component forStatType(Stat<T> stat) {
         StatType<T> type = stat.getType();
-        Component component;
-        for (Map.Entry<StatType<?>, Function<?, Component>> entry : STATS_TO_NAME_MAPPER.entrySet()) {
-            component = readComponent(stat, entry.getKey(), entry.getValue());
-            if (component != null) return component;
-        }
-        return null;
+        return readComponent(stat, type, STATS_TO_NAME_MAPPER.get(type));
     }
 
     @Override
     public DataPackSerializer<StatReqCondition> getSerializer() {
-        return RequirementTypes.STAT_REQ.get();
+        return SERIALIZER;
     }
 
-    @Override
-    public void additionalToNetwork(FriendlyByteBuf buf) {
-        buf.writeUtf(getStatSerializedName(this.stat));
-        buf.writeInt(this.minLevel);
+    public static void toNetwork(FriendlyByteBuf buf, StatReqCondition condition) {
+        buf.writeUtf(getStatSerializedName(condition.stat));
+        buf.writeInt(condition.minLevel);
     }
 
     public static StatReqCondition fromNetwork(FriendlyByteBuf buf) {

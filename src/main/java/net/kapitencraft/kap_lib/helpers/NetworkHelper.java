@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.helpers;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -7,9 +9,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.checkerframework.checker.units.qual.K;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.IntFunction;
@@ -71,5 +75,13 @@ public class NetworkHelper {
 
     public static Entity entityFromNw(FriendlyByteBuf buf) {
         return ClientHelper.getEntity(buf.readInt());
+    }
+
+    public static <K, V> void writeMultimap(FriendlyByteBuf buf, Multimap<K, V> multimap, FriendlyByteBuf.Writer<K> keyWriter, FriendlyByteBuf.Writer<V> valueWriter) {
+        buf.writeMap(CollectionHelper.fromMultimap(multimap), keyWriter, (buf1, vs) -> buf1.writeCollection(vs, valueWriter));
+    }
+
+    public static <K, V> Multimap<K, V> readMultimap(FriendlyByteBuf buf, FriendlyByteBuf.Reader<K> keyReader, FriendlyByteBuf.Reader<V> valueReader) {
+        return CollectionHelper.fromListMap(buf.readMap(keyReader, buf1 -> buf1.readCollection(ArrayList::new, valueReader)));
     }
 }

@@ -1,17 +1,13 @@
 package net.kapitencraft.kap_lib.item.bonus;
 
 import com.google.common.collect.Multimap;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
-import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
 import net.kapitencraft.kap_lib.item.IEventListener;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -19,18 +15,12 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 
-public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventListener {
+public interface Bonus<T extends Bonus<T>> extends IEventListener {
 
-    static <T extends Bonus<T>> DataPackSerializer<T> createSerializer(Codec<T> codec, FriendlyByteBuf.Reader<T> factory) {
-        return IDataGenElement.createSerializer(codec, factory);
-    }
-
-    @Override
     default void toNetwork(FriendlyByteBuf buf) {
         buf.writeRegistryId(ExtraRegistries.BONUS_SERIALIZER, this.getSerializer());
-        additionalToNetwork(buf);
+        this.getSerializer().toNetwork(buf, (T) this);
     }
 
     static Bonus<?> fromNw(FriendlyByteBuf buf) {
@@ -38,16 +28,8 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
         return serializer.fromNetwork(buf);
     }
 
-    @Override
-    default JsonObject toJson() {
-        JsonObject object = new JsonObject();
-        object.add("data", getSerializer().serialize((T) this));
-        object.addProperty("type", Objects.requireNonNull(ExtraRegistries.BONUS_SERIALIZER.getKey(this.getSerializer()), String.format("unknown requirement type: %s", this.getClass().getCanonicalName())).toString());
-        return object;
-    }
-
     /**
-     * called whenever a LivingEntity equips this bonus
+     * called whenever a LivingEntity equips an item with this bonus
      * @param living the entity this bonus applied to
      */
     default void onApply(LivingEntity living) {
@@ -104,7 +86,7 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
      * @param living the entity applied to
      * @return all attribute modifiers this bonus should apply to the given entity
      */
-    default @Nullable Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living, EquipmentSlot slot) {return null;}
+    default @Nullable Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living) {return null;}
 
     /**
      * @param attacked the attack target
@@ -129,5 +111,9 @@ public interface Bonus<T extends Bonus<T>> extends IDataGenElement<T>, IEventLis
         return damage;
     }
 
+    /**
+     * add tooltip lines to the item this bonus is applied to
+     * @param currentTooltip current tooltip of the item this bonus is applied to. only add, not remove entries
+     */
     void addDisplay(List<Component> currentTooltip);
 }

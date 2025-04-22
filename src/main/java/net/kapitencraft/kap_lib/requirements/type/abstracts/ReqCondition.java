@@ -37,7 +37,7 @@ public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGe
     //network
     public final void toNetwork(FriendlyByteBuf byteBuf) {
         byteBuf.writeRegistryId(ExtraRegistries.REQUIREMENT_TYPES, this.getSerializer());
-        additionalToNetwork(byteBuf);
+        this.getSerializer().toNetwork(byteBuf, (T) this);
     }
 
     public final JsonObject toJson() {

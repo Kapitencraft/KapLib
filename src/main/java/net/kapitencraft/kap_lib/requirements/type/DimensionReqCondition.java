@@ -19,10 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
-    public static final Codec<DimensionReqCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    private static final Codec<DimensionReqCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).listOf().fieldOf("dimensions").forGetter(i -> i.dimensions),
             Codec.BOOL.fieldOf("inverted").forGetter(i -> i.inverted)
             ).apply(instance, DimensionReqCondition::new)
+    );
+
+    public static final DataPackSerializer<DimensionReqCondition> SERIALIZER = new DataPackSerializer<>(
+            CODEC, DimensionReqCondition::fromNetwork, DimensionReqCondition::toNetwork
     );
 
     private final List<ResourceKey<Level>> dimensions;
@@ -33,6 +37,7 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
         this.inverted = inverted;
     }
 
+    @SafeVarargs
     public DimensionReqCondition(ResourceKey<Level>... dimensions) {
         this(List.of(dimensions), false);
     }
@@ -45,10 +50,9 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
         return Component.translatable(key, TextHelper.chain(dimensionsBaked, true));
     }
 
-    @Override
-    public void additionalToNetwork(FriendlyByteBuf buf) {
-        buf.writeCollection(dimensions, FriendlyByteBuf::writeResourceKey);
-        buf.writeBoolean(this.inverted);
+    public static void toNetwork(FriendlyByteBuf buf, DimensionReqCondition condition) {
+        buf.writeCollection(condition.dimensions, FriendlyByteBuf::writeResourceKey);
+        buf.writeBoolean(condition.inverted);
     }
 
     public static DimensionReqCondition fromNetwork(FriendlyByteBuf buf) {
@@ -62,6 +66,6 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
 
     @Override
     public DataPackSerializer<DimensionReqCondition> getSerializer() {
-        return RequirementTypes.DIMENSION.get();
+        return SERIALIZER;
     }
 }

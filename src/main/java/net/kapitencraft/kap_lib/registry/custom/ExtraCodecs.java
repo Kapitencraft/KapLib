@@ -1,12 +1,11 @@
 package net.kapitencraft.kap_lib.registry.custom;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.codecs.PrimitiveCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.io.serialization.Serializer;
+import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibComponentContents;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibDataSource;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeModifier;
@@ -14,7 +13,6 @@ import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -43,8 +41,11 @@ public interface ExtraCodecs {
                 }
                 return components;
             });
+
     Codec<DataSource> DATA_SOURCE = ExtraRegistries.DATA_SOURCE_TYPES.getCodec().dispatchStable(IKapLibDataSource::codecFromVanilla, Function.identity());
+
     Codec<AttributeModifier> ATTRIBUTE_MODIFIER = ExtraRegistries.ATTRIBUTE_MODIFIER_TYPES.getCodec().dispatchStable(IKapLibAttributeModifier::codecFromVanilla, Function.identity());
+
     /**
      * style mixin serializing custom glyph effects
      * <br> due to style being loaded before registries are, it can't be implemented into the style codec itself
@@ -69,6 +70,7 @@ public interface ExtraCodecs {
     }
 
     Codec<UUID> UUID = Codec.STRING.xmap(java.util.UUID::fromString, java.util.UUID::toString);
+
     Codec<MobEffectInstance> EFFECT = RecordCodecBuilder.create(instance -> instance.group(
             ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(MobEffectInstance::getEffect),
             Codec.INT.optionalFieldOf("duration", 0).forGetter(MobEffectInstance::getDuration),
@@ -76,4 +78,6 @@ public interface ExtraCodecs {
             Codec.BOOL.optionalFieldOf("ambient", false).forGetter(MobEffectInstance::isAmbient),
             Codec.BOOL.optionalFieldOf("visible", true).forGetter(MobEffectInstance::isVisible)
     ).apply(instance, MobEffectInstance::new));
+
+    Codec<Bonus<?>> BONUS = ExtraRegistries.BONUS_SERIALIZER.getCodec().dispatchStable(Bonus::getSerializer, s -> s.getCodec().fieldOf("data").codec());
 }

@@ -14,20 +14,7 @@ import javax.annotation.Nullable;
 
 public interface IEventListener {
 
-    void onEntityKilled(LivingEntity killed, LivingEntity user, MiscHelper.DamageType type);
-
     void onUse();
-
-
-    @Nullable
-    Cooldown getCooldown();
-
-    @Nullable
-    Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living, EquipmentSlot slot);
-
-    float onEntityHurt(LivingEntity hurt, LivingEntity user, MiscHelper.DamageType type, float damage);
-
-    float onTakeDamage(LivingEntity hurt, LivingEntity source, MiscHelper.DamageType type, float damage);
 
     void onTick(int tickCount, @NotNull LivingEntity entity);
 
@@ -35,4 +22,15 @@ public interface IEventListener {
 
     void onRemove(LivingEntity living);
 
+    @Nullable
+    Cooldown getCooldown();
+
+    @Nullable
+    Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living);
+
+    void onEntityKilled(LivingEntity killed, LivingEntity user, MiscHelper.DamageType type);
+
+    float onEntityHurt(LivingEntity hurt, LivingEntity user, MiscHelper.DamageType type, float damage);
+
+    float onTakeDamage(LivingEntity hurt, LivingEntity source, MiscHelper.DamageType type, float damage);
 }
