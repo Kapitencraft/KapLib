@@ -47,8 +47,8 @@ public class KapLibMod {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final Marker MARKER = Markers.getMarker("KapLib");
 
-    public static ResourceLocation res(String sub) {
-        return new ResourceLocation(MOD_ID, sub);
+    public static ResourceLocation res(String path) {
+        return new ResourceLocation(MOD_ID, path);
     }
 
     public static final File MAIN = new File("./kap_lib");
