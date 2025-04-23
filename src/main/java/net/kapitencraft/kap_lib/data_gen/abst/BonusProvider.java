@@ -101,8 +101,10 @@ public abstract class BonusProvider extends ItemTagsProvider {
             itemExecutors.add(DataProvider.saveStable(pOutput, saveItem(item, itemBuilder), path));
         });
 
+        CompletableFuture<?> future = super.run(pOutput);
+
         return CompletableFuture.allOf(
-                super.run(pOutput),
+                future,
                 CompletableFuture.allOf(setExecutors.toArray(CompletableFuture[]::new)),
                 CompletableFuture.allOf(itemExecutors.toArray(CompletableFuture[]::new))
         );
