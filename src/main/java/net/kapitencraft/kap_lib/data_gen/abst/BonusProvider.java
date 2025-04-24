@@ -55,7 +55,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
      * @param existingFileHelper existing file helper
      */
     public BonusProvider(PackOutput output, String modId, CompletableFuture<HolderLookup.Provider> pLookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, pLookupProvider, new CompletableFuture<>(), modId, existingFileHelper);
+        super(output, pLookupProvider, CompletableFuture.completedFuture(TagLookup.empty()), modId, existingFileHelper);
         this.output = output;
         this.modId = modId;
     }
@@ -196,7 +196,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
          *
          */
         protected SetSlotBuilder(String setName, EquipmentSlot slot) {
-            this.key = TagKey.create(Registries.ITEM, KapLibMod.res("set/" + setName + slot.getName()));
+            this.key = TagKey.create(Registries.ITEM, KapLibMod.res("set/" + setName + "/" + slot.getName()));
             this.builder = new TagBuilder();
         }
 
