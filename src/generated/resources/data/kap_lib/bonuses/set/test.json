@@ -8,9 +8,9 @@
     }
   ],
   "slots": [
-    "head",
-    "legs",
     "chest",
-    "feet"
+    "legs",
+    "feet",
+    "head"
   ]
 }
