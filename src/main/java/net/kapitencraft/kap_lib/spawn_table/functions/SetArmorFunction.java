@@ -71,11 +71,6 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SetArmorFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            //TODO fix
-            //ThreadLocal<Deque<ForgeHooks.LootTableContext>> local = ForgeHooks.lootContext;
-            //if (local.get() == null) local.set(new ArrayDeque<>());
-            //local.get().add(new ForgeHooks.LootTableContext(KapLibMod.res("spawn_table/function/set_armor"), true));
-            //if (ForgeHooks.lootContext.get() == null) ForgeHooks.lootContext.set(new ArrayDeque<>());
             LootTable[] armorItems = pObject.has("armorItems") ? pDeserializationContext.deserialize(pObject.get("armorItems"), LootTable[].class) : new LootTable[4];
             float[] armorChances = pObject.has("armorChances") ? pDeserializationContext.deserialize(pObject.get("armorChances"), float[].class) : null;
             return new SetArmorFunction(pConditions, armorItems, armorChances);

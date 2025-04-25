@@ -59,6 +59,8 @@
   "death.attack.ferocity": "%1$s was ferociously murdered by %2$s",
   "death.attack.ferocity.item": "%1$s was ferociously murdered by %2$s using %3$s",
 
+  "desc.missing": "No Description found :C",
+
   "dimension_req.display": "May only be used in %1$s",
   "dimension_req.display.inverted": "May not be used in %1$s",
 
@@ -81,7 +83,6 @@
   "enchantment_group.curse": "Curse",
   "enchantment_group.ultimate": "Ultimate",
 
-  "ench_desc.missing": "No Description found :C",
   "ench_desc.shift": "press [Shift] for enchantment descriptions",
 
   "generic.ability_damage": "§cAbility Damage",

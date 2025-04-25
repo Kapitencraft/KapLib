@@ -17,6 +17,7 @@ import java.util.UUID;
 public class CurseforgePublish {
     private static final String API_URL = "https://minecraft.curseforge.com/api/projects/";
 
+    //TODO make working
     static boolean publish(AutoPublisher.Config config) {
         String modId = config.modId();
         String modName = config.modName();
@@ -37,7 +38,7 @@ public class CurseforgePublish {
             String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, fmlVersion);
 
             File mainFile = new File(fileBase + ".jar");
-            String mainHash = AutoPublisher.getFileSHA512(mainFile); //TODO figure out while hash not used
+            String mainHash = AutoPublisher.getFileSHA512(mainFile);
 
 
             try (OutputStream outputStream = connection.getOutputStream();

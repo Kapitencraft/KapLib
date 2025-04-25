@@ -58,6 +58,11 @@ public class EffectsBonus implements Bonus<EffectsBonus> {
     }
 
     @Override
+    public boolean isEffectTick(int tickCount, LivingEntity living) {
+        return true;
+    }
+
+    @Override
     public void addDisplay(List<Component> tooltip) {
         tooltip.add(Component.translatable("bonus_type.simple_mob_effect.def").withStyle(ChatFormatting.BLUE));
         for(MobEffectInstance mobeffectinstance : effects) {

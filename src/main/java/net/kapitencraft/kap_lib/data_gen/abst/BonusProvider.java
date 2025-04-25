@@ -39,7 +39,7 @@ import java.util.function.Supplier;
 /**
  * data generator for item bonuses
  */
-//TODO fix provider hard-stuck
+//TODO make write direct
 public abstract class BonusProvider extends ItemTagsProvider {
     private final PackOutput output;
     private final String modId;
@@ -111,9 +111,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
     private <T extends Bonus<T>> JsonObject saveItem(Item item, ItemBuilder itemBuilder) {
         T bonus = (T) itemBuilder.getBonus();
         JsonObject main = new JsonObject();
-        if (itemBuilder.isHidden()) {
-            main.addProperty("hidden", true);
-        }
+        if (itemBuilder.isHidden()) main.addProperty("hidden", true);
         {
             DataPackSerializer<T> serializer = bonus.getSerializer();
             main.add("data", serializer.serialize(bonus));

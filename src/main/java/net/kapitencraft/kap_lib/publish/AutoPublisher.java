@@ -118,6 +118,7 @@ public class AutoPublisher {
     private static String changelog;
 
     static String createChangelog() throws FileNotFoundException {
+        //TODO extend changelog capabilities
         if (changelog == null) {
             BufferedReader reader = new BufferedReader(new FileReader(CHANGE_LOG));
             List<String> additions = new ArrayList<>();
@@ -126,7 +127,7 @@ public class AutoPublisher {
             List<String> removes = new ArrayList<>();
             List<String> uncategorized = new ArrayList<>();
             List<String> knownErrors = new ArrayList<>();
-            reader.lines().map(String::trim).forEach(s -> {
+            reader.lines().forEach(s -> {
                 if (s.isEmpty()) return;
                 if (s.startsWith("added ")) additions.add(s.substring(6));
                 else if (s.startsWith("removed ")) removes.add(s.substring(7));

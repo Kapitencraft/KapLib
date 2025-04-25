@@ -14,6 +14,7 @@ import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.InventoryHelper;
+import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
@@ -142,17 +143,19 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             for (Pair<ItemStack, EquipmentSlot> pair : removed) {
                 Map<ResourceLocation, BonusElement> bonuses = getBonusesForItem(pair.getFirst(), false);
                 bonuses.values().forEach(element -> {
-                    Bonus<?> bonus = element.getBonus();
-                    bonus.onRemove(target);
-                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
-                    if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
-                    if (element instanceof SetBonusElement) {
+                    if (element instanceof SetBonusElement setBonusElement) {
                         List<EquipmentSlot> data = setData.get(element);
+                        //skip if element isn't actually the equipped item
+                        if (!setBonusElement.requiresSlot(pair.getSecond()) || !setBonusElement.matchesItem(pair.getSecond(), pair.getFirst())) return;
 
                         activeItemBonuses.remove(element);
                         data.remove(pair.getSecond());
                         if (data.isEmpty()) setData.remove(element);
                     } else activeItemBonuses.remove(element);
+                    Bonus<?> bonus = element.getBonus();
+                    bonus.onRemove(target);
+                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
+                    if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
                 });
             }
         }
@@ -172,7 +175,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     }
                     Bonus<?> bonus = element.getBonus();
                     bonus.onApply(target);
-                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
+                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(target);
                     if (modifiers != null && !modifiers.isEmpty()) target.getAttributes().addTransientAttributeModifiers(modifiers);
                     activeItemBonuses.put(element, Reference.of(0));
                 });
@@ -226,7 +229,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
             Bonus<?> bonus = result.getOrThrow(false, s -> {});
 
-            //TODO fix
             //read Item Tags
             Map<EquipmentSlot, TagKey<Item>> itemsForSlot = new EnumMap<>(EquipmentSlot.class);
             {
@@ -248,10 +250,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         if (!itemBonuses.containsKey(item)) {
             itemBonuses.put(item, new HashMap<>());
         }
-    }
-
-    private void addElementForItem(Item item, ResourceLocation location, BonusElement element) {
-        addItemIfAbsent(item);
     }
 
     public static List<Component> getBonusDisplay(ItemStack stack, @Nullable LivingEntity living) {
@@ -297,16 +295,16 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     private List<Component> decorateBonus(@Nullable LivingEntity living, ResourceLocation bonusLocation, BonusElement element) {
         List<Component> decoration = new ArrayList<>();
         boolean enabled = RequirementManager.instance.meetsRequirements(BonusRequirementType.INSTANCE, element, living);
-        decoration.add(getBonusTitle(enabled, living, bonusLocation, element));
-        Bonus<?> bonus = element.bonus;
-        bonus.addDisplay(decoration);
-        ClientHelper.addReqContent(decoration::add, BonusRequirementType.INSTANCE, element, living);
+        String nameKey = (element instanceof SetBonusElement ? "set." : "") + "bonus." + bonusLocation.getNamespace() + "." + bonusLocation.getPath();
+        decoration.add(getBonusTitle(enabled, living, nameKey, element));
+        decoration.addAll(TextHelper.getDescriptionOrEmpty(nameKey, null));
+        if (!enabled) ClientHelper.addReqContent(decoration::add, BonusRequirementType.INSTANCE, element, living);
         return decoration;
     }
 
-    private Component getBonusTitle(boolean enabled, @Nullable LivingEntity living, ResourceLocation location, BonusElement element) {
-        boolean set = element instanceof SetBonusElement setBonusElement;
-        MutableComponent name = Component.translatable((set ? "set." : "") + "bonus." + location.getNamespace() + "." + location.getPath());
+    private Component getBonusTitle(boolean enabled, @Nullable LivingEntity living, String title, BonusElement element) {
+        boolean set = element instanceof SetBonusElement;
+        MutableComponent name = Component.translatable(title);
         MutableComponent start = Component.translatable((set ? "set." : "") + "bonus.name").withStyle((enabled ? ChatFormatting.GOLD : ChatFormatting.DARK_GRAY), ChatFormatting.BOLD);
         MutableComponent join1 = start.append(": ").append(name);
         if (element instanceof SetBonusElement setBonusElement) {
@@ -428,7 +426,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     public static BonusManager fromNw(FriendlyByteBuf buf) {
         BonusManager manager = new BonusManager(null);
         manager.sets.putAll(buf.readMap(FriendlyByteBuf::readResourceLocation, SetBonusElement::fromNw));
-        manager.itemBonuses.putAll(buf.readMap(FriendlyByteBuf::readRegistryId, buf1 -> buf1.readMap(FriendlyByteBuf::readResourceLocation, BonusElement::fromNw)));
+        manager.itemBonuses.putAll(buf.readMap(buf1 -> buf1.readRegistryIdUnsafe(ForgeRegistries.ITEMS), buf1 -> buf1.readMap(FriendlyByteBuf::readResourceLocation, BonusElement::fromNw)));
         return manager;
     }
 }

@@ -12,7 +12,6 @@ import java.util.function.Supplier;
  * used to register new Base Attributes.
  * fired on the mod bus only on the client
  */
-//TODO finally implement
 public class GatherBaseAttributeUUIDsEvent extends Event implements IModBusEvent {
 
     public void register(UUID uuid, Attribute attribute) {

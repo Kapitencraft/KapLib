@@ -87,9 +87,7 @@ public class EnchantmentDescriptionManager {
     }
 
     public static void addTooltipForEnchant(ItemStack stack, List<Component> list, Enchantment enchantment, Player player, int level) {
-        List<Component> description = getDescription(stack, enchantment, level);
-        if (description.isEmpty()) list.add(Component.translatable("ench_desc.missing").withStyle(ChatFormatting.DARK_GRAY));
-        else list.addAll(description);
+        list.addAll(getDescription(stack, enchantment, level));
     }
 
     public static boolean fromBook(Item item) {
@@ -99,7 +97,7 @@ public class EnchantmentDescriptionManager {
     public static List<Component> getDescription(ItemStack stack, Enchantment ench, int level) {
         Object[] objects = ench instanceof ModEnchantment modEnchantment ? modEnchantment.getDescriptionMods(level) : new Object[]{level};
         Stream<String> stream = Arrays.stream(objects).map(String::valueOf);
-        return TextHelper.getDescriptionList(ench.getDescriptionId(), component -> component.withStyle(ChatFormatting.DARK_GRAY), stream.map(TextHelper::wrapInRed).toArray());
+        return TextHelper.getDescriptionOrEmpty(ench.getDescriptionId(), component -> component.withStyle(ChatFormatting.DARK_GRAY), stream.map(TextHelper::wrapInRed).toArray());
     }
 
     //APPLICABLE DISPLAY START

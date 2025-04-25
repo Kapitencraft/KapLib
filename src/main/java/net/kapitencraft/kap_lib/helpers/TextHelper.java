@@ -105,6 +105,11 @@ public class TextHelper {
         }, styleMods, args);
     }
 
+    public static List<Component> getDescriptionOrEmpty(String name, @Nullable UnaryOperator<MutableComponent> styleMods, Object... args) {
+        List<Component> components = getDescriptionList(name, styleMods, args);
+        return components.isEmpty() ? List.of(Component.translatable("desc.missing")) : components;
+    }
+
     public static String wrapInObfuscation(String source) {
         return wrapInFormatting(source, ChatFormatting.OBFUSCATED);
     }
