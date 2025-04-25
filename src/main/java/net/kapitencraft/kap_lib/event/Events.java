@@ -83,7 +83,7 @@ public class Events {
     @SubscribeEvent
     public static void addRequirementListener(AddReloadListenerEvent event) {
         event.addListener(RequirementManager.instance = new RequirementManager());
-        event.addListener(BonusManager.updateInstance(event.getRegistryAccess()));
+        event.addListener(BonusManager.updateInstance());
         event.addListener(SpawnTableManager.instance = new SpawnTableManager());
     }
 

@@ -31,8 +31,8 @@ import org.jetbrains.annotations.Nullable;
 public class DamageIndicatorParticle extends Particle {
     public static final double MAX_MOVEMENT = 0.35;
 
-    protected DamageIndicatorParticle(ClientLevel p_107234_, double p_107235_, double p_107236_, double p_107237_, double amount, double damageType, float rangeOffset) {
-        super(p_107234_, p_107235_, p_107236_, p_107237_);
+    protected DamageIndicatorParticle(ClientLevel level, double x, double y, double z, double amount, double damageType, float rangeOffset) {
+        super(level, x, y, z);
 
         this.text = amount == Float.MAX_VALUE ? "INFINITE" : KapLibMod.doubleFormat(amount);
         this.color = TextHelper.damageIndicatorColorFromDouble(damageType).getColor();
@@ -62,7 +62,7 @@ public class DamageIndicatorParticle extends Particle {
 
 
     @Override
-    public void render(@NotNull VertexConsumer p_107261_, @NotNull Camera camera, float partialTicks) {
+    public void render(@NotNull VertexConsumer consumer, @NotNull Camera camera, float partialTicks) {
         Vec3 camPos = camera.getPosition();
         float particleX = (float) (Mth.lerp(partialTicks, this.xo, this.x) - camPos.x());
         float particleY = (float) (Mth.lerp(partialTicks, this.yo, this.y) - camPos.y());
@@ -75,7 +75,6 @@ public class DamageIndicatorParticle extends Particle {
         double distanceFromCam = new Vec3(particleX, particleY, particleZ).length();
 
         double inc = Mth.clamp(distanceFromCam / 32f, 0, 5f);
-
 
         poseStack.translate(0, (1 + inc / 4f) * Mth.lerp(partialTicks, this.prevVisualDY, this.visualDY), 0);
 

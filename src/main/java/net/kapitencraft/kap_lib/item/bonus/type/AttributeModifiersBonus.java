@@ -37,7 +37,6 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus> {
         this.modifiers = modifiers;
     }
 
-
     private Multimap<Attribute, AttributeModifier> getModifiers() {
         return modifiers;
     }
@@ -70,6 +69,10 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus> {
                 (buf1, attribute) -> buf1.writeRegistryIdUnsafe(ForgeRegistries.ATTRIBUTES, attribute),
                 (buf1, modifier) -> buf1.writeJsonWithCodec(ExtraCodecs.ATTRIBUTE_MODIFIER, modifier)
         );
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {
