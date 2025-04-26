@@ -100,7 +100,7 @@ public class TextHelper {
         return getAllMatchingFilter(integer -> {
             String descId = name + ".desc";
             if (!I18n.exists(descId)) descId += "ription";
-            if (integer != 0) descId += integer;
+            if (integer != 0) descId += "." + integer;
             return descId;
         }, styleMods, args);
     }

@@ -166,13 +166,15 @@ tasks.register('autoPublish', JavaExec) {
 
 tasks.register('gitUpdate', Task) {
 
-    exec {
-        commandLine 'git', 'add', '.'
-    }
+    doLast {
+        exec {
+            commandLine 'git', 'add', '.'
+        }
 
-    exec {
-        commandLine 'git', 'commit', '-m', 'update ' + mod_version
-        ignoreExitValue = true //ensure it doesn't crash when there's nothing to commit
+        exec {
+            commandLine 'git', 'commit', '-m', 'update ' + mod_version
+            ignoreExitValue = true //ensure it doesn't crash when there's nothing to commit
+        }
     }
 }
 

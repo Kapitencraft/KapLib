@@ -46,15 +46,9 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus> {
         return SERIALIZER;
     }
 
-    //TODO implement
     @Override
     public @Nullable Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living) {
         return modifiers;
-    }
-
-    @Override
-    public void addDisplay(List<Component> currentTooltip) {
-
     }
 
     private static AttributeModifiersBonus fromNetwork(FriendlyByteBuf buf) {

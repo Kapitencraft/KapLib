@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.mixin.classes;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.kapitencraft.kap_lib.helpers.AttributeHelper;
+import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -40,7 +41,7 @@ public abstract class DiggerItemMixin extends Item {
         if (slot == EquipmentSlot.MAINHAND) {
             HashMultimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
             multimap.putAll(this.defaultModifiers);
-            multimap.put(ExtraAttributes.MINING_SPEED.get(), AttributeHelper.createModifier("Digger Item Speed Modifier", AttributeModifier.Operation.ADDITION, getSpeed()));
+            multimap.put(ExtraAttributes.MINING_SPEED.get(), new AttributeModifier(BaseAttributeUUIDs.MINING_SPEED, "Digger Modifier", getSpeed(), AttributeModifier.Operation.ADDITION));
             return multimap;
         }
         return super.getDefaultAttributeModifiers(slot);

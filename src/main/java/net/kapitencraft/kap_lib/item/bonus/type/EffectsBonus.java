@@ -62,25 +62,6 @@ public class EffectsBonus implements Bonus<EffectsBonus> {
         return true;
     }
 
-    @Override
-    public void addDisplay(List<Component> tooltip) {
-        tooltip.add(Component.translatable("bonus_type.simple_mob_effect.def").withStyle(ChatFormatting.BLUE));
-        for(MobEffectInstance mobeffectinstance : effects) {
-            MutableComponent mutablecomponent = Component.translatable(mobeffectinstance.getDescriptionId());
-            MobEffect mobeffect = mobeffectinstance.getEffect();
-
-            if (mobeffectinstance.getAmplifier() > 0) {
-                mutablecomponent = Component.translatable("potion.withAmplifier", mutablecomponent, Component.translatable("potion.potency." + mobeffectinstance.getAmplifier()));
-            }
-
-            if (!mobeffectinstance.endsWithin(20)) {
-                mutablecomponent = Component.translatable("potion.withDuration", mutablecomponent, MobEffectUtil.formatDuration(mobeffectinstance, 1));
-            }
-
-            tooltip.add(mutablecomponent.withStyle(mobeffect.getCategory().getTooltipFormatting()));
-        }
-    }
-
     private static void writeEffect(FriendlyByteBuf buf, MobEffectInstance instance) {
         buf.writeRegistryId(ForgeRegistries.MOB_EFFECTS, instance.getEffect());
         buf.writeInt(instance.getDuration());

@@ -110,10 +110,4 @@ public interface Bonus<T extends Bonus<T>> extends IEventListener {
     default float onTakeDamage(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
         return damage;
     }
-
-    /**
-     * add tooltip lines to the item this bonus is applied to
-     * @param currentTooltip current tooltip of the item this bonus is applied to. only add, not remove entries
-     */
-    void addDisplay(List<Component> currentTooltip);
 }

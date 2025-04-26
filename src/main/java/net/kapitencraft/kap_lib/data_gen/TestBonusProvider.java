@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 public class TestBonusProvider extends BonusProvider {
 
     public TestBonusProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> pLookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, KapLibMod.MOD_ID, pLookupProvider, existingFileHelper);
+        super(output, "test", pLookupProvider, existingFileHelper);
     }
 
     @Override

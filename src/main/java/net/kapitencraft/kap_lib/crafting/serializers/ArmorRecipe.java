@@ -101,7 +101,7 @@ public class ArmorRecipe extends CustomRecipe {
                 of(List.of(true, false, true, true, false, true), true));
 
         public static ArmorType fromEquipmentSlot(ArmorItem.Type type) {
-            return valueOf(type.getName());
+            return valueOf(type.getName().toUpperCase());
         }
 
         public static final EnumCodec<ArmorType> CODEC = StringRepresentable.fromEnum(ArmorType::values);

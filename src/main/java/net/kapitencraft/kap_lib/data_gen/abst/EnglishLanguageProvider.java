@@ -14,8 +14,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public abstract class EnglishLanguageProvider extends LanguageProvider {
-    public EnglishLanguageProvider(PackOutput output, String modid) {
-        super(output, modid, "en_us");
+    /**
+     * if FML would have just made it protected like any sane person would
+     */
+    private final String modId;
+
+    public EnglishLanguageProvider(PackOutput output, String modId) {
+        super(output, modId, "en_us");
+        this.modId = modId;
     }
 
     public void addDeathMessage(String msgId, String msg) {
@@ -27,10 +33,16 @@ public abstract class EnglishLanguageProvider extends LanguageProvider {
         addItem(item, TextHelper.makeGrammar(item.getId().getPath()));
     }
 
-    public void addEnchantmentWithDescription(RegistryObject<Enchantment> enchantment, String description) {
+    public void bonusWithTranslation(boolean set, String key, String name, String... description) {
+        String translationKey = (set ? "set." : "") + "bonus." + modId + "." + key;
+        this.add(translationKey, name);
+        translation(translationKey, description);
+    }
+
+    public void addEnchantmentWithDescription(RegistryObject<Enchantment> enchantment, String... description) {
         String id = enchantment.get().getDescriptionId();
         add(id, TextHelper.makeGrammar(enchantment.getId().getPath()));
-        add(id + ".desc", description);
+        translation(id, description);
     }
 
     public void addAttribute(RegistryObject<Attribute> attribute, @Nullable ChatFormatting color) {
@@ -39,5 +51,12 @@ public abstract class EnglishLanguageProvider extends LanguageProvider {
         add(id, name);
         String descriptionId = attribute.get().getDescriptionId();
         if (!id.equals(descriptionId)) add(descriptionId, name);
+    }
+
+    protected void translation(String baseName, String... description) {
+        baseName += ".desc";
+        for (int i = 0; i < description.length; i++) {
+            this.add(baseName + (i == 0 ? "" : "." + i), description[i]);
+        }
     }
 }

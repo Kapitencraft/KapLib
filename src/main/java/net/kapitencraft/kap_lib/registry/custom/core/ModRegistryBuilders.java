@@ -44,7 +44,7 @@ public interface ModRegistryBuilders {
     RegistryBuilder<GlyphEffect> GLYPH_EFFECTS = makeBuilder(ExtraRegistries.Keys.GLYPH_EFFECTS);
     RegistryBuilder<IRequestable<?, ?>> REQUESTABLES_BUILDER = makeBuilder(ExtraRegistries.Keys.REQUESTABLES);
     RegistryBuilder<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENTS_BUILDER = makeBuilder(ExtraRegistries.Keys.REQ_CONDITIONS);
-    RegistryBuilder<DataPackSerializer<? extends Bonus<?>>> SET_BONUSES = makeBuilder(ExtraRegistries.Keys.SET_BONUSES);
+    RegistryBuilder<DataPackSerializer<? extends Bonus<?>>> SET_BONUSES = makeBuilder(ExtraRegistries.Keys.BONUS_SERIALIZERS);
     RegistryBuilder<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = makeBuilder(ExtraRegistries.Keys.ATTRIBUTE_MODIFIER_TYPES);
     RegistryBuilder<Codec<? extends ComponentContents>> COMPONENT_CONTENTS_TYPES = makeBuilder(ExtraRegistries.Keys.COMPONENT_CONTENTS_TYPES);
     RegistryBuilder<Codec<? extends DataSource>> DATA_SOURCE_TYPES = makeBuilder(ExtraRegistries.Keys.DATA_SOURCE_TYPES);

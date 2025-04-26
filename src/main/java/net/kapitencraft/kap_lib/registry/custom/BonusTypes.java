@@ -11,7 +11,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public interface BonusTypes {
 
-    DeferredRegister<DataPackSerializer<? extends Bonus<?>>> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.SET_BONUSES);
+    DeferredRegister<DataPackSerializer<? extends Bonus<?>>> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.BONUS_SERIALIZERS);
 
     RegistryObject<DataPackSerializer<EffectsBonus>> SIMPLE_MOB_EFFECT = REGISTRY.register("simple_mob_effect", ()-> EffectsBonus.SERIALIZER);
     RegistryObject<DataPackSerializer<AttributeModifiersBonus>> ATTRIBUTE_MODIFIERS = REGISTRY.register("attribute_modifiers", () -> AttributeModifiersBonus.SERIALIZER);

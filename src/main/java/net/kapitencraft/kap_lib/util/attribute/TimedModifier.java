@@ -1,16 +1,11 @@
 package net.kapitencraft.kap_lib.util.attribute;
 
-import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeModifier;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**

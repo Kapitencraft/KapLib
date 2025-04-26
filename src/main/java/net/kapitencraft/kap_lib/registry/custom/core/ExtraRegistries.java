@@ -33,7 +33,7 @@ public interface ExtraRegistries {
     IForgeRegistry<GlyphEffect> GLYPH_EFFECTS = reg(Keys.GLYPH_EFFECTS);
     IForgeRegistry<IRequestable<?, ?>> REQUESTABLES = reg(Keys.REQUESTABLES);
     IForgeRegistry<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
-    IForgeRegistry<DataPackSerializer<? extends Bonus<?>>> BONUS_SERIALIZER = reg(Keys.SET_BONUSES);
+    IForgeRegistry<DataPackSerializer<? extends Bonus<?>>> BONUS_SERIALIZER = reg(Keys.BONUS_SERIALIZERS);
     IForgeRegistry<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = reg(Keys.ATTRIBUTE_MODIFIER_TYPES);
     IForgeRegistry<Codec<? extends ComponentContents>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
     IForgeRegistry<Codec<? extends DataSource>> DATA_SOURCE_TYPES = reg(Keys.DATA_SOURCE_TYPES);
@@ -61,7 +61,7 @@ public interface ExtraRegistries {
         ResourceKey<Registry<GlyphEffect>> GLYPH_EFFECTS = createRegistry("glyph_effects");
         ResourceKey<Registry<IRequestable<?, ?>>> REQUESTABLES = createRegistry("requestables");
         ResourceKey<Registry<DataPackSerializer<? extends ReqCondition<?>>>> REQ_CONDITIONS = createRegistry("requirement_conditions");
-        ResourceKey<Registry<DataPackSerializer<? extends Bonus<?>>>> SET_BONUSES = createRegistry("set_bonuses");
+        ResourceKey<Registry<DataPackSerializer<? extends Bonus<?>>>> BONUS_SERIALIZERS = createRegistry("bonus_serializers");
         ResourceKey<Registry<Codec<? extends AttributeModifier>>> ATTRIBUTE_MODIFIER_TYPES = vanillaRegistry("attribute_modifier_types");
         ResourceKey<Registry<Codec<? extends ComponentContents>>> COMPONENT_CONTENTS_TYPES = vanillaRegistry("component_contents_types");
         /**
