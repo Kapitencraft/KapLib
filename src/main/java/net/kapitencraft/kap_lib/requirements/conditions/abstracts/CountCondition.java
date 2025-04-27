@@ -1,14 +1,9 @@
-package net.kapitencraft.kap_lib.requirements.type.abstracts;
+package net.kapitencraft.kap_lib.requirements.conditions.abstracts;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
 import java.util.function.ToIntFunction;
 
 public abstract class CountCondition<T extends CountCondition<T>> extends ReqCondition<T> {

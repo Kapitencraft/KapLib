@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.requirements.type.abstracts;
+package net.kapitencraft.kap_lib.requirements.conditions.abstracts;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;

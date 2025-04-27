@@ -9,7 +9,10 @@ import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.event.custom.RegisterRequirementTypesEvent;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
-import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
+import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
+import net.kapitencraft.kap_lib.requirements.type.BonusRequirementType;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
+import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -59,6 +62,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     /**
      * gets all requirements applied to the given value of the given type
      */
+    @SuppressWarnings("unchecked")
     public <T> Collection<ReqCondition<?>> getReqs(RequirementType<T> type, T t) {
         Element<T> element = (Element<T>) this.elements.get(type.getName());
         return element != null ? element.requirements.get(t) : List.of();
@@ -72,13 +76,13 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     }
 
     public static boolean meetsItemRequirementsFromEvent(LivingEvent event, EquipmentSlot slot) {
-        return instance.meetsRequirements(RequirementType.ITEM, event.getEntity().getItemBySlot(slot).getItem(), event.getEntity());
+        return instance.meetsRequirements(RegistryReqType.ITEM, event.getEntity().getItemBySlot(slot).getItem(), event.getEntity());
     }
 
     private void registerTypes() {
         this.types.add(RequirementType.ITEM);
         this.types.add(RequirementType.ENCHANTMENT);
-        this.types.add(BonusRequirementType.INSTANCE);
+        this.types.add(RequirementType.BONUS);
         MinecraftForge.EVENT_BUS.post(new RegisterRequirementTypesEvent(this.types::add));
         typesForNames = this.types.stream().collect(CollectorHelper.createMapForKeys(RequirementType::getName));
     }
@@ -133,6 +137,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <T> Element<T> fromNetwork(FriendlyByteBuf buf) {
         RequirementType<T> type = (RequirementType<T>) typesForNames.get(buf.readUtf());
         Element<T> element = new Element<>(type);

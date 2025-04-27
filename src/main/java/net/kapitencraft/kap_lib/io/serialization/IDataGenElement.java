@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.io.serialization;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
+import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.minecraft.network.FriendlyByteBuf;
 
 /**

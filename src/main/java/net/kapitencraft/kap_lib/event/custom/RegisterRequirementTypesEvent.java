@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.event.custom;
 
-import net.kapitencraft.kap_lib.requirements.RequirementType;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
+import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraftforge.eventbus.api.Event;
 
 import java.util.function.Consumer;

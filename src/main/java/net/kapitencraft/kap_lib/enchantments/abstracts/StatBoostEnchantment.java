@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+//TODO add reqs
 public interface StatBoostEnchantment extends ModEnchantment {
     List<EquipmentSlot> slots();
 

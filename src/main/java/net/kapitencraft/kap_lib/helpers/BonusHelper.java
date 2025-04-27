@@ -2,9 +2,12 @@ package net.kapitencraft.kap_lib.helpers;
 
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ExtendedAbilityEnchantment;
+import net.kapitencraft.kap_lib.requirements.RequirementManager;
+import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.function.BiConsumer;
@@ -22,6 +25,7 @@ public interface BonusHelper {
         doForSlot((stack, slot) -> MapStream.of(stack.getAllEnchantments())
                         .filterKeys(ExtendedAbilityEnchantment.class::isInstance)
                         .mapKeys(ExtendedAbilityEnchantment.class::cast)
+                        .filter((extendedAbilityEnchantment, integer) -> RequirementManager.instance.meetsRequirements(RequirementType.ENCHANTMENT, (Enchantment) extendedAbilityEnchantment, living))
                         .forEach((enchantment, integer) -> enchantment.onTick(living, integer)),
                 living,
                 (stack, slot) -> stack.isEnchanted() && LivingEntity.getEquipmentSlotForItem(stack) == slot

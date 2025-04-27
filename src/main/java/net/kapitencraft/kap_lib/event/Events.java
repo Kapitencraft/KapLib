@@ -10,7 +10,8 @@ import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.RequirementType;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
+import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTableManager;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.core.particles.ParticleTypes;
@@ -97,7 +98,7 @@ public class Events {
 
     @SubscribeEvent
     public static void addReqDisplay(ItemTooltipEvent event) {
-        ClientHelper.addReqContent(event.getToolTip()::add, RequirementType.ITEM, event.getItemStack().getItem(), event.getEntity());
+        ClientHelper.addReqContent(event.getToolTip()::add, RegistryReqType.ITEM, event.getItemStack().getItem(), event.getEntity());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -122,7 +123,7 @@ public class Events {
                     arrowTag.putBoolean("HitsEnderMan", true);
                 }
                 for (Enchantment enchantment : bow.getAllEnchantments().keySet()) {
-                    if (enchantment instanceof ModBowEnchantment bowEnchantment) {
+                    if (enchantment instanceof ModBowEnchantment bowEnchantment && RequirementManager.instance.meetsRequirements(RequirementType.ENCHANTMENT, enchantment, living)) {
                         CompoundTag tag = new CompoundTag();
                         int level = bow.getEnchantmentLevel(enchantment);
                         tag.putInt("Level", level);

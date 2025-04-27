@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManage
 import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
+import net.kapitencraft.kap_lib.mixin.duck.MixinSelfProvider;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.ListTag;
@@ -37,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mixin(ItemStack.class)
-public abstract class ItemStackMixin {
+public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
 
     @Shadow public abstract boolean is(TagKey<Item> pTag);
 
@@ -51,10 +52,6 @@ public abstract class ItemStackMixin {
     @Shadow public abstract Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot pSlot);
 
     @Shadow @Final public static DecimalFormat ATTRIBUTE_MODIFIER_FORMAT;
-
-    private ItemStack self() {
-        return (ItemStack) (Object) this;
-    }
 
     @Redirect(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;appendEnchantmentNames(Ljava/util/List;Lnet/minecraft/nbt/ListTag;)V"))
     private void appendEnchantmentNames(List<Component> pTooltipComponents, ListTag pStoredEnchantments, Player player) {

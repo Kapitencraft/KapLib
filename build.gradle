@@ -165,6 +165,11 @@ tasks.register('autoPublish', JavaExec) {
 }
 
 tasks.register('gitUpdate', Task) {
+    def publishConfig = file('run/PublishCache.txt')
+
+    if (publishConfig.exists()) {
+        if (mod_version == publishConfig.text) throw new IllegalStateException("Version ID already published")
+    }
 
     doLast {
         exec {

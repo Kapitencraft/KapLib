@@ -3,8 +3,8 @@ package net.kapitencraft.kap_lib.data_gen.abst;
 import com.google.gson.JsonObject;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.requirements.RequirementType;
-import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
+import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -20,11 +20,11 @@ import java.util.function.Supplier;
 public abstract class RequirementProvider<T> implements DataProvider {
     private final PackOutput output;
     private final String modId;
-    private final RequirementType<T> type;
+    private final RegistryReqType<T> type;
 
     private final Map<T, ReqCondition<?>> requirements = new HashMap<>();
 
-    protected RequirementProvider(PackOutput output, String modId, RequirementType<T> type) {
+    protected RequirementProvider(PackOutput output, String modId, RegistryReqType<T> type) {
         this.output = output;
         this.modId = modId;
         this.type = type;

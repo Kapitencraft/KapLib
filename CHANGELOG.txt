@@ -1,4 +1,7 @@
-removed Bonus#addDisplay as it is now done using reference
-Digger Items (axe, pickaxe, shovel, hoe) will now show the players mining speed in their modifiers just as they do with attack damage and speed
-renamed ExtraRegistries.Keys.BONUS_TYPES -> BONUS_SERIALIZERS
-fixed Armor Recipes not being data generatable
+kap_lib:set_fire spawn table function now allows for visual fire configuration
+fixed CustomStatReqCondition not working
+renamed RequirementType -> RegistryRegType
+extracted RequirementType to interface
+fixed Enchantments not needing condition
+renamed ModArmorItem -> AbstractArmorItem
+removed ArmorItem tick effects. use Bonuses instead

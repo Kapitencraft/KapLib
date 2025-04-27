@@ -1,6 +1,8 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
+import net.kapitencraft.kap_lib.requirements.RequirementManager;
+import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -35,7 +37,7 @@ public interface ExtendedCalculationEnchantment extends ModEnchantment {
         Map<ExtendedCalculationEnchantment, Integer> enchantmentIntegerMap = getAllEnchantments(enchanted);
         for (ProcessPriority priority : ProcessPriority.values()) {
             for (ExtendedCalculationEnchantment enchantment : enchantmentIntegerMap.keySet()) {
-                if (enchantment.priority() == priority) {
+                if (enchantment.priority() == priority && RequirementManager.instance.meetsRequirements(RequirementType.ENCHANTMENT, (Enchantment) enchantment, attacker)) {
                     damage = enchantment.tryExecute(enchantmentIntegerMap.get(enchantment), enchanted, attacker, attacked, damage, type, source);
                 }
             }

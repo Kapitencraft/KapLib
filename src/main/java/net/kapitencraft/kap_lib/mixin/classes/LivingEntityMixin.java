@@ -8,7 +8,7 @@ import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeMap;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ExtraMobEffects;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.RequirementType;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -21,7 +21,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.extensions.IForgeLivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -54,7 +53,7 @@ public abstract class LivingEntityMixin extends Entity implements ICooldownable 
 
     @Inject(method = "updateFallFlying", at = @At(value = "HEAD"), cancellable = true)
     private void checkRequirements(CallbackInfo ci) {
-        if (!level().isClientSide() && !RequirementManager.instance.meetsRequirements(RequirementType.ITEM, getItemBySlot(EquipmentSlot.CHEST).getItem(), self())) {
+        if (!level().isClientSide() && !RequirementManager.instance.meetsRequirements(RegistryReqType.ITEM, getItemBySlot(EquipmentSlot.CHEST).getItem(), self())) {
             setSharedFlag(7, false);
             ci.cancel();
         }

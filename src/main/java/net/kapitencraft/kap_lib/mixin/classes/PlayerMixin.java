@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.mixin.classes;
 import net.kapitencraft.kap_lib.event.custom.LivingStartGlidingEvent;
 import net.kapitencraft.kap_lib.item.combat.LibSwordItem;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.RequirementType;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -39,7 +39,7 @@ public abstract class PlayerMixin implements IForgePlayer {
     @Inject(method = "tryToStartFallFlying", at = @At("HEAD"), cancellable = true)
     public void checkGlideAllowed(CallbackInfoReturnable<Boolean> cir) {
         ItemStack stack = self().getItemBySlot(EquipmentSlot.CHEST);
-        if (!RequirementManager.instance.meetsRequirements(RequirementType.ITEM, stack.getItem(), self())) {
+        if (!RequirementManager.instance.meetsRequirements(RegistryReqType.ITEM, stack.getItem(), self())) {
             cir.setReturnValue(false);
         }
         LivingStartGlidingEvent event = new LivingStartGlidingEvent(self(), stack);

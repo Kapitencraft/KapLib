@@ -5,7 +5,7 @@ import net.kapitencraft.kap_lib.entity.fishing.ModFishingHook;
 import net.kapitencraft.kap_lib.event.custom.ModifyFishingHookStatsEvent;
 import net.kapitencraft.kap_lib.item.tools.fishing.ModFishingRod;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.RequirementType;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -35,7 +35,7 @@ public abstract class FishingRodMixin extends Item implements Vanishable {
     @Redirect(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
     public boolean spawnHook(Level level, Entity entity, Level ignored, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!RequirementManager.instance.meetsRequirements(RequirementType.ITEM, stack.getItem(), player)) {
+        if (!RequirementManager.instance.meetsRequirements(RegistryReqType.ITEM, stack.getItem(), player)) {
             return false;
         }
 

@@ -10,7 +10,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
-import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
+import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;

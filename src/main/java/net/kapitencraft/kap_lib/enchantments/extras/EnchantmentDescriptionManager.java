@@ -9,7 +9,7 @@ import net.kapitencraft.kap_lib.event.custom.client.RegisterEnchantmentApplicabl
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
-import net.kapitencraft.kap_lib.requirements.RequirementType;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
@@ -72,7 +72,7 @@ public class EnchantmentDescriptionManager {
                 }
                 tooltips.add(component);
                 if (Screen.hasShiftDown()) EnchantmentDescriptionManager.addTooltipForEnchant(stack, tooltips, ench, player, level);
-                ClientHelper.addReqContent(tooltips::add, RequirementType.ENCHANTMENT, ench, player);
+                ClientHelper.addReqContent(tooltips::add, RegistryReqType.ENCHANTMENT, ench, player);
             });
         }
     }

@@ -1,11 +1,10 @@
-package net.kapitencraft.kap_lib.requirements.type;
+package net.kapitencraft.kap_lib.requirements.conditions;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
-import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
-import net.kapitencraft.kap_lib.requirements.type.abstracts.ReqCondition;
+import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;

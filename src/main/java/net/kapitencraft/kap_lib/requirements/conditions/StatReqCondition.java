@@ -1,10 +1,9 @@
-package net.kapitencraft.kap_lib.requirements.type;
+package net.kapitencraft.kap_lib.requirements.conditions;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
-import net.kapitencraft.kap_lib.registry.custom.RequirementTypes;
-import net.kapitencraft.kap_lib.requirements.type.abstracts.CountCondition;
+import net.kapitencraft.kap_lib.requirements.conditions.abstracts.CountCondition;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -13,22 +12,34 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatType;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.spongepowered.asm.mixin.injection.modify.LocalVariableDiscriminator;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 /**
  * only use when Stat is entry from block mined, item used, -picked up or -crafted as well as entity killed <br>
  * otherwise use {@link CustomStatReqCondition}
  */
 public class StatReqCondition extends CountCondition<StatReqCondition> {
+    public static ToIntFunction<LivingEntity> createCountExtractor(Stat<?> stat) {
+        return value -> !(value instanceof Player) ? -1 :
+                value instanceof ServerPlayer sP ?
+                        sP.getStats().getValue(stat) :
+                        ((LocalPlayer) value).getStats().getValue(stat);
+    }
+
     private static final Map<StatType<?>, Function<?, Component>> STATS_TO_NAME_MAPPER = createStats();
 
     private static Map<StatType<?>, Function<?, Component>> createStats() {
@@ -92,7 +103,7 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
     protected final Stat<?> stat;
 
     public StatReqCondition(Stat<?> stat, int level) {
-        super(value -> !(value instanceof Player) ? -1 : value instanceof ServerPlayer player ? player.getStats().getValue(stat) : ((LocalPlayer) value).getStats().getValue(stat), level);
+        super(createCountExtractor(stat), level);
         this.stat = stat;
     }
 
@@ -106,7 +117,7 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
         return SERIALIZER;
     }
 
-    public static void toNetwork(FriendlyByteBuf buf, StatReqCondition condition) {
+    private static void toNetwork(FriendlyByteBuf buf, StatReqCondition condition) {
         buf.writeUtf(getStatSerializedName(condition.stat));
         buf.writeInt(condition.minLevel);
     }

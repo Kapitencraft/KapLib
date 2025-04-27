@@ -19,7 +19,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
-//TODO add pathfinding property changes
 public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
     private final LootContext.EntityTarget attackTarget;
     private final boolean canPickupLoot, persistenceRequired, noAi;

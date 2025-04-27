@@ -6,15 +6,12 @@ import net.kapitencraft.kap_lib.item.combat.armor.client.model.ArmorModel;
 import net.kapitencraft.kap_lib.item.combat.armor.client.provider.ArmorModelProvider;
 import net.minecraft.Util;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -27,49 +24,14 @@ import java.util.function.Function;
 
 /**
  * basic armor item.
- * <br>allows for full set effects TODO move to Bonuses?
- * <br>and for custom model implementation (override {@link #withCustomModel()} and {@link #createModelProvider()} to enable
+ * <br>for custom model implementation (override {@link #withCustomModel()} and {@link #createModelProvider()} to enable
  */
-public abstract class ModArmorItem extends ArmorItem {
-    private static final String FULL_SET_ID = "hadFullSet";
-    protected int fullSetTick = 0;
+public abstract class AbstractArmorItem extends ArmorItem {
 
-    public ModArmorItem(ArmorMaterial pMaterial, Type pType, Properties pProperties) {
+    public AbstractArmorItem(ArmorMaterial pMaterial, Type pType, Properties pProperties) {
         super(pMaterial, pType, pProperties);
     }
 
-
-    public boolean equals(ArmorItem item) {
-        return this == item || item.getMaterial() == this.getMaterial();
-    }
-
-    @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotID, boolean isSelected) {
-        if (entity instanceof LivingEntity living) {
-            CompoundTag tag = living.getPersistentData();
-            if (this.isFullSetActive(living)) {
-                if (this.getEquipmentSlot() == EquipmentSlot.CHEST) {
-                    if (this.fullSetTick == 0) {
-                        if (!level.isClientSide) this.initFullSetTick(stack, level, living);
-                        tag.putBoolean(FULL_SET_ID, true);
-                        tag.putString("lastFullSet", this.getMaterial().getName());
-                    }
-                    this.fullSetTick++;
-                    if (level.isClientSide) {
-                        this.clientFullSetTick(stack, level, living);
-                    } else {
-                        this.fullSetTick(stack, level, living);
-                    }
-                }
-            } else {
-                if (living.getPersistentData().getBoolean(FULL_SET_ID)) {
-                    if (!level.isClientSide) postFullSetTick(stack, level, living);
-                    tag.putBoolean(FULL_SET_ID, false);
-                }
-                fullSetTick = 0;
-            }
-        }
-    }
     public boolean isFullSetActive(LivingEntity living) {
         return isFullSetActive(living, this.getMaterial());
     }
@@ -90,11 +52,6 @@ public abstract class ModArmorItem extends ArmorItem {
         ArmorItem feet = living.getItemBySlot(EquipmentSlot.FEET).getItem() instanceof ArmorItem armorItem ? armorItem : null;
         return (head != null && legs != null && feet != null) && (head.getMaterial() == materials && chest.getMaterial() == materials && legs.getMaterial() == materials && feet.getMaterial() == materials);
     }
-
-    protected void fullSetTick(ItemStack stack, Level level, LivingEntity living) {}
-    protected void initFullSetTick(ItemStack stack, Level level, LivingEntity living) {}
-    protected void postFullSetTick(ItemStack stack, Level level, LivingEntity living) {}
-    protected void clientFullSetTick(ItemStack stack, Level level, LivingEntity living) {}
 
     public Multimap<Attribute, AttributeModifier> getAttributeMods(EquipmentSlot slot) {return null;}
 
@@ -146,10 +103,16 @@ public abstract class ModArmorItem extends ArmorItem {
 
     // display / model END
 
-    public static <T extends ModArmorItem> Map<Type, RegistryObject<T>> createRegistry(DeferredRegister<Item> registry, String registryName, Function<Type, T> creator) {
+    /**
+     * @param registry the Register to add to
+     * @param baseName the base name of the armor
+     * @param creator a lambda function to create an instance of the armor, mostly a method reference to the constructor
+     * @return a Map mapping the ArmorType to the RegObj for the slot
+     */
+    public static <T extends AbstractArmorItem> Map<Type, RegistryObject<T>> createRegistry(DeferredRegister<Item> registry, String baseName, Function<Type, T> creator) {
         return Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
             for (Type type : Type.values()) {
-                map.put(type, registry.register(registryName + "_" + type.getName(), () -> creator.apply(type)));
+                map.put(type, registry.register(baseName + "_" + type.getName(), () -> creator.apply(type)));
             }
         });
     }

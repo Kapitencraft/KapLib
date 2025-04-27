@@ -7,7 +7,7 @@ import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
-import net.kapitencraft.kap_lib.item.combat.armor.ModArmorItem;
+import net.kapitencraft.kap_lib.item.combat.armor.AbstractArmorItem;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.Util;
 import net.minecraft.core.HolderLookup;
@@ -160,8 +160,8 @@ public abstract class BonusProvider extends ItemTagsProvider {
             return this.slot(slot, supplier.get());
         }
 
-        public SetBuilder armor(Map<ArmorItem.Type, ? extends RegistryObject<? extends ModArmorItem>> armors) {
-            for (Map.Entry<ArmorItem.Type, ? extends RegistryObject<? extends ModArmorItem>> piece : armors.entrySet()) {
+        public SetBuilder armor(Map<ArmorItem.Type, ? extends RegistryObject<? extends AbstractArmorItem>> armors) {
+            for (Map.Entry<ArmorItem.Type, ? extends RegistryObject<? extends AbstractArmorItem>> piece : armors.entrySet()) {
                 EquipmentSlot slot = piece.getKey().getSlot();
                 this.slot(slot, piece.getValue());
             }

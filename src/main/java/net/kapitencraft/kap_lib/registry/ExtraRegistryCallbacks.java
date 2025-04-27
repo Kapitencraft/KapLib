@@ -15,7 +15,7 @@ public interface ExtraRegistryCallbacks {
     class EnchantmentCallback implements IForgeRegistry.AddCallback<Enchantment> {
         @Override
         public void onAdd(IForgeRegistryInternal<Enchantment> owner, RegistryManager stage, int id, ResourceKey<Enchantment> key, Enchantment obj, @Nullable Enchantment oldObj) {
-            if (oldObj instanceof ModBowEnchantment bowEnchantment) {
+            if (oldObj instanceof ModBowEnchantment) {
                 ModBowEnchantment.executionMap.remove(key.location());
             }
             if (obj instanceof ModBowEnchantment bowEnchantment) {
