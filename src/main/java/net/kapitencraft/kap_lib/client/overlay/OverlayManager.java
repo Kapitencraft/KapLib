@@ -152,7 +152,7 @@ public class OverlayManager {
                 Vec2 renderLocation = renderHolder.getLoc(screenWidth, screenHeight);
                 graphics.pose().translate(renderLocation.x, renderLocation.y, 0);
                 graphics.pose().scale(holder.getXScale(), holder.getYScale(), 0);
-                renderHolder.render(graphics, screenWidth, screenHeight, entity);
+                renderHolder.render(forgeGui, graphics, screenWidth, screenHeight, entity);
                 graphics.pose().popPose();
             });
         }

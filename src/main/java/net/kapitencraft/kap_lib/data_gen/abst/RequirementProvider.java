@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
+import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -20,11 +21,11 @@ import java.util.function.Supplier;
 public abstract class RequirementProvider<T> implements DataProvider {
     private final PackOutput output;
     private final String modId;
-    private final RegistryReqType<T> type;
+    private final RequirementType<T> type;
 
     private final Map<T, ReqCondition<?>> requirements = new HashMap<>();
 
-    protected RequirementProvider(PackOutput output, String modId, RegistryReqType<T> type) {
+    protected RequirementProvider(PackOutput output, String modId, RequirementType<T> type) {
         this.output = output;
         this.modId = modId;
         this.type = type;

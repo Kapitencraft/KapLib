@@ -1,7 +1,3 @@
-kap_lib:set_fire spawn table function now allows for visual fire configuration
-fixed CustomStatReqCondition not working
-renamed RequirementType -> RegistryRegType
-extracted RequirementType to interface
-fixed Enchantments not needing condition
-renamed ModArmorItem -> AbstractArmorItem
-removed ArmorItem tick effects. use Bonuses instead
+fixed Requirement Provider not using base class RequirementType
+fixed license being ARR instead of MIT
+added ForgeGui as first parameter to Overlay#render

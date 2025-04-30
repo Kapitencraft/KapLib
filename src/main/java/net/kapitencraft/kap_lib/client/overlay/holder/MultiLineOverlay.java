@@ -6,6 +6,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 import java.util.List;
 import java.util.function.Function;
@@ -33,10 +34,10 @@ public class MultiLineOverlay extends Overlay {
     }
 
     @Override
-    public void render(GuiGraphics graphics, float width, float height, LocalPlayer player) {
+    public void render(ForgeGui gui, GuiGraphics graphics, float width, float height, LocalPlayer player) {
         for (int i = 0; i < list.size(); i++) {
             Function<LocalPlayer, Component> mapper = list.get(i);
-            renderString(graphics, mapper.apply(player), -yChange * i);
+            graphics.drawString(gui.getFont(), mapper.apply(player), 0, -(int) yChange * i, -1);
         }
     }
 }

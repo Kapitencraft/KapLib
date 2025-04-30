@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 /**
  * an overlay element. attach it to the OverlayController
@@ -41,14 +42,6 @@ public abstract class Overlay {
         this.properties.addY(offset);
     }
 
-
-    /**
-     * renders the Component relative to this.pos.x and this.pos.y + y
-     */
-    protected void renderString(GuiGraphics graphics, Component toWrite, float y) {
-        graphics.drawString(Minecraft.getInstance().font, toWrite, 0, (int) y, -1);
-    }
-
     /**
      * creates a new {@link ResizeBox} for this Overlay
      */
@@ -75,7 +68,7 @@ public abstract class Overlay {
     /**
      * render this overlay
      */
-    public abstract void render(GuiGraphics graphics, float posX, float posY, LocalPlayer player);
+    public abstract void render(ForgeGui gui, GuiGraphics graphics, float posX, float posY, LocalPlayer player);
 
     /**
      * @return the PositionHolder this object contains
