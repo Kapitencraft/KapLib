@@ -92,7 +92,7 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
         public void serializeCustom(JsonObject pObject, SpawnEffectCloud pContainer, JsonSerializationContext pConditions) {
             super.serializeCustom(pObject, pContainer, pConditions);
             if (pContainer.potion != null) pObject.addProperty("potion", Objects.requireNonNull(ForgeRegistries.POTIONS.getKey(pContainer.potion), "unknown potion: " + pContainer.potion.getName("")).toString());
-            if (pContainer.effects != null) pObject.add("effects", AddEffectsFunction.EFFECT_SERIALIZER.serialize(List.of(pContainer.effects)));
+            if (pContainer.effects != null) pObject.add("effects", AddEffectsFunction.EFFECT_SERIALIZER.encode(List.of(pContainer.effects)));
             if (pContainer.duration != 600) pObject.addProperty("duration", pContainer.duration);
             if (pContainer.radius != 3) pObject.addProperty("radius", pContainer.radius);
             if (pContainer.radiusOnUse != -.5f) pObject.addProperty("radiusOnUse", pContainer.radiusOnUse);
@@ -106,7 +106,7 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
         @Override
         protected SpawnEffectCloud deserialize(JsonObject pObject, JsonDeserializationContext pContext, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
             Potion potion = pObject.has("potion") ? Potion.byName(GsonHelper.getAsString(pObject, "potion")) : null;
-            MobEffectInstance[] effects = pObject.has("effects") ? AddEffectsFunction.EFFECT_SERIALIZER.deserialize(pObject.get("effects")).toArray(MobEffectInstance[]::new) : null;
+            MobEffectInstance[] effects = pObject.has("effects") ? AddEffectsFunction.EFFECT_SERIALIZER.parse(pObject.get("effects")).toArray(MobEffectInstance[]::new) : null;
             int duration = GsonHelper.getAsInt(pObject, "duration", 600);
             float radius = GsonHelper.getAsFloat(pObject, "radius", 3);
             float radiusOnUse = GsonHelper.getAsFloat(pObject, "radiusOnUse", -.5f);

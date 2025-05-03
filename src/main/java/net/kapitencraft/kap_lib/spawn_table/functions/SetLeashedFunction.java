@@ -61,14 +61,14 @@ public class SetLeashedFunction extends SpawnEntityConditionalFunction {
         @Override
         public void serialize(JsonObject pJson, SetLeashedFunction pFunction, JsonSerializationContext pSerializationContext) {
             super.serialize(pJson, pFunction, pSerializationContext);
-            if (pFunction.pos != null) pJson.add("pos", ExtraJsonSerializers.BLOCKPOS.serialize(pFunction.pos));
+            if (pFunction.pos != null) pJson.add("pos", ExtraJsonSerializers.BLOCKPOS.encode(pFunction.pos));
             else if (pFunction.entity != null) pJson.add("entity", pSerializationContext.serialize(pFunction.entity));
         }
 
         @Override
         public SetLeashedFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
             LootContext.EntityTarget target = pObject.has("entity") ? pDeserializationContext.deserialize(pObject.get("entity"), LootContext.EntityTarget.class) : null;
-            BlockPos blockPos = pObject.has("pos") ? ExtraJsonSerializers.BLOCKPOS.deserialize(pObject.get("pos")) : null;
+            BlockPos blockPos = pObject.has("pos") ? ExtraJsonSerializers.BLOCKPOS.parse(pObject.get("pos")) : null;
             return new SetLeashedFunction(pConditions, blockPos, target);
         }
     }

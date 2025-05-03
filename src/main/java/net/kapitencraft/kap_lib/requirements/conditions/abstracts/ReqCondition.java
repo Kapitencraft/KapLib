@@ -2,6 +2,8 @@ package net.kapitencraft.kap_lib.requirements.conditions.abstracts;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
+import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
@@ -24,9 +26,15 @@ public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGe
     }
     //data-gen
     public static <T extends ReqCondition<T>> ReqCondition<T> readFromJson(JsonObject object) {
-        DataPackSerializer<T> serializer = (DataPackSerializer<T>) ExtraRegistries.REQUIREMENT_TYPES.getValue(new ResourceLocation(GsonHelper.getAsString(object, "type")));
-        if (serializer == null) throw new NullPointerException("unknown requirement type: '" + GsonHelper.getAsString(object, "type") + "'");
-        return serializer.deserialize(GsonHelper.getAsJsonObject(object, "data"));
+        try {
+            DataPackSerializer<T> serializer = (DataPackSerializer<T>) ExtraRegistries.REQUIREMENT_TYPES.getValue(new ResourceLocation(GsonHelper.getAsString(object, "type")));
+            if (serializer == null)
+                throw new NullPointerException("unknown requirement type: '" + GsonHelper.getAsString(object, "type") + "'");
+            return Objects.requireNonNull(serializer.parseOrThrow(GsonHelper.getAsJsonObject(object, "data")));
+        } catch (Exception e) {
+            KapLibMod.LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "error loading bonus: {}", e.getMessage());
+            return null;
+        }
     }
 
     private Component displayCache;
@@ -42,7 +50,7 @@ public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGe
 
     public final JsonObject toJson() {
         JsonObject object = new JsonObject();
-        object.add("data", getSerializer().serialize((T) this));
+        object.add("data", getSerializer().encode((T) this));
         object.addProperty("type", Objects.requireNonNull(ExtraRegistries.REQUIREMENT_TYPES.getKey(this.getSerializer()), String.format("unknown requirement type: %s", this.getClass().getCanonicalName())).toString());
         return object;
     }

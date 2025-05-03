@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.event.custom;
 
+import net.kapitencraft.kap_lib.item.misc.AnvilUses;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
 
@@ -11,4 +13,13 @@ import java.util.function.BiPredicate;
  * use {@link net.kapitencraft.kap_lib.item.misc.AnvilUses#registerAnvilUse(BiPredicate, BiConsumer, int) AnvilUses#registerAnvilUse()} to register new ones
  */
 public class RegisterAnvilUsesEvent extends Event implements IModBusEvent {
+
+    /**
+     * @param bothPredicate predicate for both anvil inputs
+     * @param resultConsumer results. modify the left stack
+     * @param xpCost the amount of XP this anvil use should take
+     */
+    public void registerAnvilUse(BiPredicate<ItemStack, ItemStack> bothPredicate, BiConsumer<ItemStack, ItemStack> resultConsumer, int xpCost) {
+        AnvilUses.registerAnvilUse(bothPredicate, resultConsumer, xpCost);
+    }
 }

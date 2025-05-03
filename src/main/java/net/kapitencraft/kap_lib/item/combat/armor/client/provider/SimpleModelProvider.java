@@ -10,6 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * model provider that uses a single model and uses part visibility to ensure only the necessary part of the model is visible
+ */
 public class SimpleModelProvider implements ArmorModelProvider {
     private final ArmorModel model;
 

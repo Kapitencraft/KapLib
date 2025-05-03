@@ -40,7 +40,7 @@ public interface JsonHelper {
     }
 
     static Vec3 getAsVec3(JsonObject pObject, String id) {
-        return ExtraJsonSerializers.VEC_3.deserialize(pObject.get(id));
+        return ExtraJsonSerializers.VEC_3.parse(pObject.get(id));
     }
 
     static @Nullable Boolean getAsOptionalBool(JsonObject pObject, String name) {

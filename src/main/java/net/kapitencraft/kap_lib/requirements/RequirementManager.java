@@ -15,6 +15,7 @@ import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.ChainedJsonException;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -124,8 +125,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
         }
 
         private void addElement(T value, ReqCondition<?> condition) {
-            if (condition == null) throw new IllegalStateException("empty condition detected!");
-            this.requirements.put(value, condition);
+            if (condition != null) this.requirements.put(value, condition);
         }
 
         private void toNetwork(FriendlyByteBuf buf) {

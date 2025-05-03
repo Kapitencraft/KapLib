@@ -22,12 +22,12 @@ public class TestSwordItem extends LibSwordItem {
     @Override
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
         HashMultimap<Attribute, AttributeModifier> modifiers = HashMultimap.create(super.getAttributeModifiers(slot, stack));
-        modifiers.put(Attributes.LUCK, new AttributeModifier(BaseAttributeUUIDs.LUCK, "BaseAttributeUUIDs check", 20, AttributeModifier.Operation.ADDITION));
+        if (slot == EquipmentSlot.MAINHAND) modifiers.put(Attributes.LUCK, new AttributeModifier(BaseAttributeUUIDs.LUCK, "BaseAttributeUUIDs check", 20, AttributeModifier.Operation.ADDITION));
         return modifiers;
     }
 
     @Override
-    public ResourceKey<DamageType> getType() {
+    public ResourceKey<DamageType> getDamageType() {
         return DamageTypes.FIREBALL;
     }
 }

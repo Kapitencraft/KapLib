@@ -7,8 +7,11 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * register items to be checked for enchantment display and the character to be displayed.
+ * character must be registered to the {@code kap_lib:enchantment_applicable} font
+ */
 public class RegisterEnchantmentApplicableCharsEvent extends Event {
     private final List<Pair<Item, Character>> data;
     private final List<Item> keys = new ArrayList<>();

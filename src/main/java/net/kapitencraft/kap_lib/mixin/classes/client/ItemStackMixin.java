@@ -1,10 +1,15 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import com.google.common.collect.Multimap;
+import com.mojang.datafixers.util.Pair;
+import net.kapitencraft.kap_lib.collection.BiCollectors;
 import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManager;
+import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
+import net.kapitencraft.kap_lib.item.modifier_display.ItemModifiersDisplayExtension;
+import net.kapitencraft.kap_lib.item.modifier_display.ModifierDisplayManager;
 import net.kapitencraft.kap_lib.mixin.duck.MixinSelfProvider;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.ChatFormatting;
@@ -12,6 +17,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.tags.PaintingVariantTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobType;
@@ -34,6 +40,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -77,11 +84,17 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
     @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shouldShowInTooltip(ILnet/minecraft/world/item/ItemStack$TooltipPart;)Z", ordinal = 4), locals = LocalCapture.CAPTURE_FAILHARD)
     private void addAttributeTooltip(Player pPlayer, TooltipFlag pIsAdvanced, CallbackInfoReturnable<List<Component>> cir, List<Component> list, MutableComponent mutablecomponent, int j) {
         if (shouldShowInTooltip(j, ItemStack.TooltipPart.MODIFIERS)) {
+            List<ItemModifiersDisplayExtension> extensions = ModifierDisplayManager.getExtensions(pPlayer, self());
             for(EquipmentSlot equipmentslot : EquipmentSlot.values()) {
                 Multimap<Attribute, AttributeModifier> multimap = this.getAttributeModifiers(equipmentslot);
                 if (!multimap.isEmpty()) {
                     list.add(CommonComponents.EMPTY);
                     list.add(Component.translatable("item.modifiers." + equipmentslot.getName()).withStyle(ChatFormatting.GRAY));
+
+                    List<Pair<ItemModifiersDisplayExtension, Multimap<Attribute, AttributeModifier>>> extensionData = extensions
+                            .stream()
+                            .collect(CollectorHelper.toValueMappedStream(e -> e.getModifiers(equipmentslot)))
+                            .collect(BiCollectors.toPairList());
 
                     for(Map.Entry<Attribute, AttributeModifier> entry : multimap.entries()) {
                         AttributeModifier modifier = entry.getValue();
@@ -112,14 +125,24 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
                             d1 = d0 * 100.0D;
                         }
 
+                        MutableComponent c;
                         if (flag) {
-                            list.add(CommonComponents.space().append(Component.translatable("attribute.modifier.equals." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
+                            //Base Values
+                            c = CommonComponents.space().append(Component.translatable("attribute.modifier.equals." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN);
                         } else if (d0 > 0.0D) {
-                            list.add(Component.translatable("attribute.modifier.plus." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.BLUE));
+                            c = Component.translatable("attribute.modifier.plus." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.BLUE);
                         } else if (d0 < 0.0D) {
                             d1 *= -1.0D;
-                            list.add(Component.translatable("attribute.modifier.take." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.RED));
+                            c = Component.translatable("attribute.modifier.take." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.RED);
+                        } else continue;
+                        for (Pair<ItemModifiersDisplayExtension, Multimap<Attribute, AttributeModifier>> pair : extensionData) {
+                            for (AttributeModifier attributeModifier : pair.getSecond().get(entry.getKey())) {
+                                if (attributeModifier.getOperation() == modifier.getOperation()) {
+                                    c = c.append(CommonComponents.SPACE).append(pair.getFirst().createComponent(attributeModifier.getAmount()));
+                                }
+                            }
                         }
+                        list.add(c);
                     }
                 }
             }

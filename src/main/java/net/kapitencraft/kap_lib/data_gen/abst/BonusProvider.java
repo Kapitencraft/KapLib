@@ -114,7 +114,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
         if (itemBuilder.isHidden()) main.addProperty("hidden", true);
         {
             DataPackSerializer<T> serializer = bonus.getSerializer();
-            main.add("data", serializer.serialize(bonus));
+            main.add("data", serializer.encode(bonus));
         }
 
         if (item != null) main.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item), "unknown item with class: " + item.getClass().getCanonicalName()).toString());

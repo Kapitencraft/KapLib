@@ -25,6 +25,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -207,8 +208,9 @@ public class DamageEvents {
             if (!event.isCanceled()) for (ItemStack stack : totems) {
                 ModTotemItem totemItem = (ModTotemItem) stack.getItem();
                 if (totemItem.onUse(player, event.getSource())) {
-                    event.setCanceled(true);
                     if (player.getHealth() <= 0) throw new IllegalStateException("Player wasn't revived!"); //ensure player being revived by the totem (e.g. health boost)
+                    player.awardStat(Stats.ITEM_USED.get(totemItem));
+                    event.setCanceled(true);
                     ModMessages.sendToClientPlayer(new DisplayTotemActivationPacket(stack.copy(), player.getId()), player);
                     stack.shrink(1);
                     break;

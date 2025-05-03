@@ -49,12 +49,12 @@ public class AddEffectsFunction extends SpawnEntityConditionalFunction {
         @Override
         public void serialize(JsonObject pJson, AddEffectsFunction pFunction, JsonSerializationContext pSerializationContext) {
             super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.add("effects", EFFECT_SERIALIZER.serialize(List.of(pFunction.effects)));
+            pJson.add("effects", EFFECT_SERIALIZER.encode(List.of(pFunction.effects)));
         }
 
         @Override
         public AddEffectsFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            MobEffectInstance[] effects = EFFECT_SERIALIZER.deserialize(pObject.get("effects")).toArray(MobEffectInstance[]::new);
+            MobEffectInstance[] effects = EFFECT_SERIALIZER.parse(pObject.get("effects")).toArray(MobEffectInstance[]::new);
             return new AddEffectsFunction(pConditions, effects);
         }
     }

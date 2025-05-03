@@ -65,7 +65,7 @@ public abstract class AbstractArmorItem extends ArmorItem {
         return builder;
     }
 
-    // display / model START
+    //region display / model
 
     protected boolean withCustomModel() { return false; }
 
@@ -101,7 +101,7 @@ public abstract class AbstractArmorItem extends ArmorItem {
         return new ResourceLocation(nameSpace, "textures/models/armor/custom/" + id + ".png").toString();
     }
 
-    // display / model END
+    //endregion
 
     /**
      * @param registry the Register to add to

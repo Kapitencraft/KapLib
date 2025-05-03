@@ -5,10 +5,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Event;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * called whenever a player starts using a FishingHook
- * <br> used to calculate changes on fishing hooks stats
+ * <br> used to calculate changes on fishing hooks stats like {@link #lureSpeed}, {@link #luck} and {@link #hookSpeed}
  */
 public class ModifyFishingHookStatsEvent extends Event {
     public final Entity hook;
@@ -19,6 +20,9 @@ public class ModifyFishingHookStatsEvent extends Event {
      * lure-speed of the hook. values {@code >= 600} instantly attract fish
      */
     public final IntegerModifierCollector lureSpeed;
+    /**
+     * luck of the hook. higher values mean better loot
+     */
     public final IntegerModifierCollector luck;
     /**
      * increases the hook speed of the hook. <br>
@@ -26,6 +30,7 @@ public class ModifyFishingHookStatsEvent extends Event {
      */
     public final IntegerModifierCollector hookSpeed;
 
+    @ApiStatus.Internal
     public ModifyFishingHookStatsEvent(Entity hook, Player player, int lureSpeed, int luck, ItemStack fishingRod) {
         this.hook = hook;
         this.player = player;

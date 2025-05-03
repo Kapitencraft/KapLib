@@ -10,5 +10,10 @@ public abstract class LibSwordItem extends SwordItem {
         super(pTier, pAttackDamageModifier, pAttackSpeedModifier, pProperties);
     }
 
-    public abstract ResourceKey<DamageType> getType();
+    /**
+     * @return the {@link ResourceKey} to the damage type this sword should use when attacking entities
+     * defaults to {@link net.minecraft.world.damagesource.DamageTypes#PLAYER_ATTACK DamageTypes#PLAYER_ATTACK}
+     *
+     */
+    public abstract ResourceKey<DamageType> getDamageType();
 }

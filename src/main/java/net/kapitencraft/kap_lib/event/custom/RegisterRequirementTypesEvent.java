@@ -16,6 +16,9 @@ public class RegisterRequirementTypesEvent extends Event {
         this.consumer = consumer;
     }
 
+    /**
+     * adds this requirement type to the manager
+     */
     public void add(RequirementType<?> type) {
         consumer.accept(type);
     }

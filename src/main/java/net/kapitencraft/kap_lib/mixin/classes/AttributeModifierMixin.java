@@ -4,15 +4,12 @@ import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.io.serialization.NbtSerializer;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeModifier;
 import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Unique;
-
-import java.util.function.Function;
 
 @Mixin(AttributeModifier.class)
 public class AttributeModifierMixin implements IKapLibAttributeModifier {
@@ -49,7 +46,7 @@ public class AttributeModifierMixin implements IKapLibAttributeModifier {
      */
     @Overwrite
     public CompoundTag save() {
-        return (CompoundTag) createSerializer().serialize(self());
+        return (CompoundTag) createSerializer().encode(self());
     }
 
     /**
@@ -58,6 +55,6 @@ public class AttributeModifierMixin implements IKapLibAttributeModifier {
      */
     @Overwrite
     public static AttributeModifier load(CompoundTag pNbt) {
-        return createSerializer().deserialize(pNbt);
+        return createSerializer().parse(pNbt);
     }
 }

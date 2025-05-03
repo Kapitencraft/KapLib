@@ -1,3 +1,8 @@
-fixed Requirement Provider not using base class RequirementType
-fixed license being ARR instead of MIT
-added ForgeGui as first parameter to Overlay#render
+added Serializer#parseOrThrow
+renamed Serializer#deserialize -> #parse (deprecated, use #parseOrThrow)
+renamed Serializer#serialize -> #encode
+removed FetchItemBonusesEvent
+added RegisterBonusProvidersEvent. see jDocs for more info
+fixed custom Totems not getting use stat awards when triggered
+Anvil uses are now registered directly to the registry event instead of calling AnvilUses#registerAnvilUse
+renamed LibSwordItem#getType -> #getDamageType

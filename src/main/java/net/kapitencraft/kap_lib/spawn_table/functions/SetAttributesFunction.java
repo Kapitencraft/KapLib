@@ -70,7 +70,7 @@ public final class SetAttributesFunction extends SpawnEntityConditionalFunction 
                 JsonObject object = element.getAsJsonObject();
                 AttributeModifier[] modifiers = object.has("modifiers") ?
                         JsonHelper.castToObjects(GsonHelper.getAsJsonArray(object, "modifiers"))
-                                .map(SERIALIZER::deserialize).toArray(AttributeModifier[]::new) :
+                                .map(SERIALIZER::parse).toArray(AttributeModifier[]::new) :
                         new AttributeModifier[0];
                 Double base = object.has("base") ? GsonHelper.getAsDouble(object, "base") : null;
                 return new Modifiers(modifiers, base);
@@ -90,7 +90,7 @@ public final class SetAttributesFunction extends SpawnEntityConditionalFunction 
             if (this.modifiers.length > 0) {
                 JsonArray array = new JsonArray();
                 for (AttributeModifier modifier : this.modifiers) {
-                    array.add(SERIALIZER.serialize(modifier));
+                    array.add(SERIALIZER.encode(modifier));
                 }
                 object.add("modifiers", array);
             }

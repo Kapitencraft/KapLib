@@ -9,7 +9,7 @@ import org.apache.logging.log4j.util.TriConsumer;
 import java.util.regex.Pattern;
 
 /**
- * used to register update checkers for Modrinth
+ * used to register update checkers for Modrinth mods
  */
 public class RegisterUpdateCheckersEvent extends Event implements IModBusEvent {
     private final Consumers.C3<String, String, Pattern> sink;

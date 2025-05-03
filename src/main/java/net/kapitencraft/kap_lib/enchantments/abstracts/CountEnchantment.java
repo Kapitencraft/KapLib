@@ -34,7 +34,7 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
     default double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, DamageSource source, float attackStrenghtScale) {
         CompoundTag attackerTag = IOHelper.getOrCreateTag(attacker.getPersistentData(), "CountEnchantment");
         String mapName = this.mapName();
-        HashMap<UUID, Integer> map = new HashMap<>(SERIALIZER.deserialize(attackerTag.contains(mapName, 10) ? attackerTag.get(mapName) : new CompoundTag()));
+        HashMap<UUID, Integer> map = new HashMap<>(SERIALIZER.parse(attackerTag.contains(mapName, 10) ? attackerTag.get(mapName) : new CompoundTag()));
         map.putIfAbsent(attacked.getUUID(), 1);
         int i = map.get(attacked.getUUID());
         if (i >= this.getCountAmount(level)) {
@@ -49,7 +49,7 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
             }
         }
         map.put(attacked.getUUID(), i);
-        attackerTag.put(mapName, SERIALIZER.serialize(map));
+        attackerTag.put(mapName, SERIALIZER.encode(map));
         return damageAmount;
     }
 

@@ -26,12 +26,12 @@ public class JsonSerializer<T> extends Serializer<JsonElement, JsonOps, T> imple
 
     @Override
     public void serialize(@NotNull JsonObject jsonObject, @NotNull T t, @NotNull JsonSerializationContext context) {
-        JsonObject object = (JsonObject) serialize(t);
+        JsonObject object = (JsonObject) encode(t);
         object.asMap().forEach(jsonObject::add);
     }
 
     @Override
     public @NotNull T deserialize(@NotNull JsonObject object, @NotNull JsonDeserializationContext context) {
-        return deserialize(object);
+        return parse(object);
     }
 }

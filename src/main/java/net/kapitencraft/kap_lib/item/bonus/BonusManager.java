@@ -6,19 +6,18 @@ import com.google.common.collect.Multimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
+import net.kapitencraft.kap_lib.event.custom.RegisterBonusProvidersEvent;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
-import net.kapitencraft.kap_lib.requirements.type.BonusRequirementType;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.kapitencraft.kap_lib.util.Color;
@@ -61,7 +60,6 @@ import java.util.stream.Collectors;
 public class BonusManager extends SimpleJsonResourceReloadListener {
 
     public static BonusManager instance;
-
     public static BonusManager updateInstance() {
         if (instance != null) MinecraftForge.EVENT_BUS.unregister(instance);
         return instance = new BonusManager();
@@ -82,8 +80,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         LivingEntity entity = event.getEntity();
         BonusLookup bonusLookup = getOrCreateLookup(entity);
         bonusLookup.equipmentChange(event.getSlot(), event.getFrom(), event.getTo());
-        bonusLookup.removeEquipment(Pair.of(event.getFrom(), event.getSlot()));
-        bonusLookup.addEquipment(Pair.of(event.getTo(), event.getSlot()));
     }
 
     @SubscribeEvent
@@ -91,6 +87,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         if (event.getEntity().level().isClientSide()) return; //ONLY SERVERSIDE
         getLookup(event.getEntity()).ifPresent(BonusLookup::tick); //only tick when necessary
     }
+
+    private final Map<ResourceLocation, Function<ItemStack, AbstractBonusElement>> providers;
 
     private final Map<ResourceLocation, SetBonusElement> sets = new HashMap<>();
     private final Map<ResourceLocation, BonusElement> bonusData = new HashMap<>();
@@ -103,6 +101,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     public BonusElement getItemBonus(ResourceLocation location) {
         return Objects.requireNonNull(bonusData.get(location), "unknown item bonus: '" + location + "'");
+    }
+
+    public List<AbstractBonusElement> getAllActive(LivingEntity living) {
+        return this.getLookup(living).map(BonusLookup::allActive).orElse(ImmutableList.of());
     }
 
     @Deprecated
@@ -120,7 +122,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     private class BonusLookup {
         private final LivingEntity target;
-        private final Map<BonusElement, Reference<Integer>> activeBonuses = new HashMap<>();
+        private final Map<AbstractBonusElement, Reference<Integer>> activeBonuses = new HashMap<>();
         private final Map<SetBonusElement, List<EquipmentSlot>> setData = new HashMap<>();
 
         private BonusLookup(LivingEntity target) {
@@ -139,54 +141,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             });
         }
 
-        @SafeVarargs
-        public final void removeEquipment(Pair<ItemStack, EquipmentSlot>... removed) {
-            for (Pair<ItemStack, EquipmentSlot> pair : removed) {
-                Map<ResourceLocation, BonusElement> bonuses = getBonusesForItem(pair.getFirst(), false);
-                bonuses.values().forEach(element -> {
-                    if (element instanceof SetBonusElement setBonusElement) {
-                        List<EquipmentSlot> data = setData.get(element);
-                        //skip if element isn't actually the equipped item
-                        if (!setBonusElement.requiresSlot(pair.getSecond()) || !setBonusElement.matchesItem(pair.getSecond(), pair.getFirst())) return;
-
-                        activeBonuses.remove(element);
-                        data.remove(pair.getSecond());
-                        if (data.isEmpty()) setData.remove(element);
-                    } else activeBonuses.remove(element);
-                    Bonus<?> bonus = element.getBonus();
-                    bonus.onRemove(target);
-                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
-                    if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
-                });
-            }
-        }
-
-        @SafeVarargs
-        public final void addEquipment(Pair<ItemStack, EquipmentSlot>... added) {
-            for (Pair<ItemStack, EquipmentSlot> pair : added) {
-                Map<ResourceLocation, BonusElement> bonuses = getBonusesForItem(pair.getFirst(), false);
-                bonuses.values().forEach(element -> {
-                    if (element instanceof SetBonusElement setElement) {
-                        setData.putIfAbsent(setElement, new ArrayList<>());
-                        List<EquipmentSlot> data = setData.get(element);
-                        data.add(pair.getSecond());
-                        if (!new HashSet<>(data).containsAll(setElement.itemsForSlot.keySet())) {
-                            return;
-                        }
-                    }
-                    Bonus<?> bonus = element.getBonus();
-                    bonus.onApply(target);
-                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(target);
-                    if (modifiers != null && !modifiers.isEmpty()) target.getAttributes().addTransientAttributeModifiers(modifiers);
-                    activeBonuses.put(element, Reference.of(0));
-                });
-            }
-        }
-
         public void equipmentChange(EquipmentSlot slot, @NotNull ItemStack from, @NotNull ItemStack to) {
-            List<BonusElement> previous = ImmutableList.copyOf(getBonusesForItem(from, true).values());
-            List<BonusElement> next = ImmutableList.copyOf(getBonusesForItem(to, true).values());
-            for (BonusElement element : previous) {
+            List<AbstractBonusElement> previous = ImmutableList.copyOf(getBonusesForItem(from, true).values());
+            List<AbstractBonusElement> next = ImmutableList.copyOf(getBonusesForItem(to, true).values());
+            for (AbstractBonusElement element : previous) {
                 if (!next.contains(element)) {
                     if (element instanceof SetBonusElement setBonusElement) {
                         List<EquipmentSlot> data = setData.get(element);
@@ -203,7 +161,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
                 }
             }
-            for (BonusElement element : next) {
+            for (AbstractBonusElement element : next) {
                 if (!previous.contains(element)) {
                     if (element instanceof SetBonusElement setElement) {
                         if (!setElement.requiresSlot(slot) || !setElement.matchesItem(slot, to)) continue;
@@ -223,11 +181,19 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                 }
             }
         }
+
+        public List<AbstractBonusElement> allActive() {
+            return ImmutableList.copyOf(activeBonuses.keySet());
+        }
     }
 
     public BonusManager() {
         super(JsonHelper.GSON, "bonuses");
         MinecraftForge.EVENT_BUS.register(this);
+        Map<ResourceLocation, Function<ItemStack, AbstractBonusElement>> providers = new HashMap<>();
+        var event = new RegisterBonusProvidersEvent(providers);
+        MinecraftForge.EVENT_BUS.post(event);
+        this.providers = ImmutableMap.copyOf(providers);
     }
 
     @Override
@@ -297,7 +263,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     public static List<Component> getBonusDisplay(ItemStack stack, @Nullable LivingEntity living) {
         if (instance == null) return List.of();
-        Map<ResourceLocation, BonusElement> available = instance.getBonusesForItem(stack, true);
+        Map<ResourceLocation, AbstractBonusElement> available = instance.getBonusesForItem(stack, true);
 
         List<Component> components = new ArrayList<>();
 
@@ -305,7 +271,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return components;
     }
 
-    private Map<ResourceLocation, BonusElement> getBonusesForItem(ItemStack stack, boolean ignoreHidden) {
+    private Map<ResourceLocation, AbstractBonusElement> getBonusesForItem(ItemStack stack, boolean ignoreHidden) {
         Map<ResourceLocation, BonusElement> itemBonuses = MapStream
                 .of(Objects.requireNonNullElse(this.itemBonuses.get(stack.getItem()), Map.of()))
                 .filterValues(bonusElement -> !bonusElement.hidden || ignoreHidden, null)
@@ -313,10 +279,21 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         Map<ResourceLocation, SetBonusElement> setBonuses = MapStream.of(this.sets).filter((location, setBonusElement) ->
             setBonusElement.itemsForSlot.values().stream().anyMatch(stack::is)
         ).toMap();
-        ImmutableMap.Builder<ResourceLocation, BonusElement> allBonuses = new ImmutableMap.Builder<>();
+        Map<ResourceLocation, AbstractBonusElement> extended = getAllExtended(stack);
+        ImmutableMap.Builder<ResourceLocation, AbstractBonusElement> allBonuses = new ImmutableMap.Builder<>();
         allBonuses.putAll(itemBonuses);
         allBonuses.putAll(setBonuses);
+        allBonuses.putAll(extended);
         return allBonuses.build();
+    }
+
+    private Map<ResourceLocation, AbstractBonusElement> getAllExtended(ItemStack stack) {
+        Map<ResourceLocation, AbstractBonusElement> extended = new HashMap<>();
+        this.providers.forEach((location, provider) -> {
+            AbstractBonusElement e = provider.apply(stack);
+            if (e != null) extended.put(location, e);
+        });
+        return extended;
     }
 
     @Deprecated
@@ -332,7 +309,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return bonuses;
     }
 
-    private List<Component> decorateBonus(@Nullable LivingEntity living, ResourceLocation bonusLocation, BonusElement element) {
+    private List<Component> decorateBonus(@Nullable LivingEntity living, ResourceLocation bonusLocation, AbstractBonusElement element) {
         List<Component> decoration = new ArrayList<>();
         boolean enabled = RequirementManager.instance.meetsRequirements(RequirementType.BONUS, element, living);
         String nameKey = (element instanceof SetBonusElement ? "set." : "") + "bonus." + bonusLocation.getNamespace() + "." + bonusLocation.getPath();
@@ -342,7 +319,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return decoration;
     }
 
-    private Component getBonusTitle(boolean enabled, @Nullable LivingEntity living, String title, BonusElement element) {
+    private Component getBonusTitle(boolean enabled, @Nullable LivingEntity living, String title, AbstractBonusElement element) {
         boolean set = element instanceof SetBonusElement;
         MutableComponent name = Component.translatable(title);
         MutableComponent start = Component.translatable((set ? "set." : "") + "bonus.name").withStyle((enabled ? ChatFormatting.GOLD : ChatFormatting.DARK_GRAY), ChatFormatting.BOLD);
@@ -423,7 +400,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         }
     }
 
-    public static class BonusElement {
+    public static class BonusElement implements AbstractBonusElement {
         private final boolean hidden;
         private final Bonus<?> bonus;
         private final ResourceLocation id;

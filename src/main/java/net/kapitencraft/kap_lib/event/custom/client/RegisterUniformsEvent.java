@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 /**
  * used for registering custom Uniforms for shaders to use <br>
  * only clientside, can not be canceled
+ * <br>for example see {@link net.kapitencraft.kap_lib.event.ModEventBusClientEvents#registerUniforms(RegisterUniformsEvent) ModEventBusClientEvents#registerUniforms}
  */
 @OnlyIn(Dist.CLIENT)
 public class RegisterUniformsEvent extends Event implements IModBusEvent {

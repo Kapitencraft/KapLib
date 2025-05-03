@@ -51,7 +51,7 @@ public abstract class PlayerMixin implements IForgePlayer {
     public DamageSource extendDamageSource(DamageSources instance, Player pPlayer) {
         ItemStack sword = pPlayer.getMainHandItem();
         if (sword.getItem() instanceof LibSwordItem libSwordItem) {
-            return instance.source(libSwordItem.getType(), pPlayer);
+            return instance.source(libSwordItem.getDamageType(), pPlayer);
         }
         return instance.playerAttack(pPlayer);
     }

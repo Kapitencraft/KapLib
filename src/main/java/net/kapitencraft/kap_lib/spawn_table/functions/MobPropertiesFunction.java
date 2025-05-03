@@ -72,7 +72,7 @@ public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
             boolean canPickupLoot = GsonHelper.getAsBoolean(pObject, "canPickupLoot", false),
                     persistenceRequired = GsonHelper.getAsBoolean(pObject, "persistenceRequired", false),
                     noAi = GsonHelper.getAsBoolean(pObject, "noAi", false);
-            ResourceLocation lootTable = pObject.has("loot_table") ? ExtraJsonSerializers.RL.deserialize(pObject.get("loot_table")) : null;
+            ResourceLocation lootTable = pObject.has("loot_table") ? ExtraJsonSerializers.RL.parse(pObject.get("loot_table")) : null;
             return new MobPropertiesFunction(pConditions,
                     attackTarget,
                     canPickupLoot,
