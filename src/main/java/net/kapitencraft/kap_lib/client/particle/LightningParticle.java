@@ -8,7 +8,6 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -17,17 +16,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LightningParticle extends Particle {
-    private final Vec3 start, end;
-    private final long seed;
-    private float alphaO;
 
     private static final ParticleRenderType RENDER_TYPE = new ParticleRenderType() {
         @Override
         public void begin(BufferBuilder pBuilder, TextureManager pTextureManager) {
             RenderSystem.disableBlend();
             RenderSystem.depthMask(true);
-            RenderSystem.setShader(GameRenderer::getParticleShader);
-            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
+            RenderSystem.setShader(GameRenderer::getRendertypeLightningShader);
             pBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
 
         }
@@ -38,12 +33,18 @@ public class LightningParticle extends Particle {
         }
     };
 
+    private final Vec3 start, end;
+    private final long seed;
+    private float alphaO;
+
+
     protected LightningParticle(ClientLevel pLevel, Vec3 start, Vec3 end) {
         super(pLevel, 0, 0, 0);
         this.start = start;
         this.end = end;
         this.seed = RandomSource.create().nextLong();
         this.alpha = .3f;
+        this.lifetime = 100;
     }
 
     @Override

@@ -8,6 +8,7 @@ import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.cam.core.TrackingShot;
 import net.kapitencraft.kap_lib.client.cam.modifiers.GlideTowardsModifier;
 import net.kapitencraft.kap_lib.client.gui.screen.TestScreen;
+import net.kapitencraft.kap_lib.client.particle.LightningParticleOptions;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticleOptions;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
@@ -21,6 +22,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
@@ -32,7 +34,11 @@ public class ClientTestCommand {
                     .then(Commands.literal("screen")
                         .executes(ClientHelper.createScreenCommand(TestScreen::new))
                 ).then(Commands.literal("particle")
-                        .executes(ClientTestCommand::spawnParticle)
+                        .then(Commands.literal("shield")
+                                .executes(ClientTestCommand::spawnShieldParticle)
+                        ).then(Commands.literal("lightning")
+                                .executes(ClientTestCommand::spawnLightningParticle)
+                        )
                 ).then(Commands.literal("chroma")
                         .executes(ClientTestCommand::testChroma)
                 ).then(Commands.literal("shake").executes(ClientTestCommand::shakeNoArg)
@@ -86,14 +92,25 @@ public class ClientTestCommand {
         return 1;
     }
 
-    private static int spawnParticle(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    private static int spawnShieldParticle(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         context.getSource().getEntityOrException()
                 .level()
                 .addParticle(
                         new ShimmerShieldParticleOptions(100, 50, Minecraft.getInstance().player.getId(), 5, 10, 1000, new Color(0xFFFF0000), new Color(0xFF00FF00), .01f, UUID.randomUUID()),
                         true, 0, 0, 0, 0, 0, 0
-                        );
+                );
         CommandHelper.sendSuccess(context.getSource(), "success!");
+        return 1;
+    }
+
+
+    private static int spawnLightningParticle(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        Entity entity = context.getSource().getEntityOrException();
+        entity.level()
+                .addParticle(
+                        new LightningParticleOptions(entity.position(), entity.getViewVector(0).scale(20).add(entity.position())),
+                        true, 0, 0, 0, 0, 0, 0
+                );
         return 1;
     }
 }
