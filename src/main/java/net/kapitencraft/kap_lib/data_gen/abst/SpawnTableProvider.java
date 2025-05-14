@@ -74,7 +74,7 @@ public class SpawnTableProvider implements DataProvider {
             ResourceLocation key = p_278900_.getKey();
             SpawnTable table = p_278900_.getValue();
             Path path = this.pathProvider.json(key);
-            return DataProvider.saveStable(pOutput, SpawnTable.DATA_TYPE.parser().toJsonTree(table), path);
+            return DataProvider.saveStable(pOutput, SpawnTable.PARSER.toJsonTree(table), path);
          }).toArray(CompletableFuture[]::new));
       }
    }

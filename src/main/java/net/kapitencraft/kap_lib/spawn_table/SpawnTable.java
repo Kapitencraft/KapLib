@@ -8,23 +8,28 @@ import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import org.apache.commons.lang3.ArrayUtils;
-import org.jetbrains.annotations.ApiStatus;
+import org.apache.commons.lang3.function.TriFunction;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class SpawnTable {
-   public static final LootDataType<SpawnTable> DATA_TYPE = new LootDataType<>(SpawnDeserializers.createSpawnTableSerializer().create(), SpawnTableProvider::getSpawnTableSerializer, "spawn_tables", createValidator());
+   public static final Gson PARSER = SpawnDeserializers.createSpawnTableSerializer().create();
+   public static final TriFunction<ResourceLocation, JsonElement, ResourceManager, Optional<SpawnTable>> CREATOR =
+           SpawnTableProvider.getSpawnTableSerializer(PARSER, "spawn_tables");
+   //public static final LootDataType<SpawnTable> DATA_TYPE = new LootDataType<>(PARSER, SpawnTableProvider::getSpawnTableSerializer, "spawn_tables", createValidator());
 
    private static LootDataType.Validator<SpawnTable> createValidator() {
       return (context, dataId, table) ->
@@ -49,9 +54,10 @@ public class SpawnTable {
       this.compositeFunction = SpawnEntityFunctions.compose(pFunctions);
    }
 
-   private LootContext.VisitedEntry<?> createContextVisitedEntry() {
-      return new LootContext.VisitedEntry<>(DATA_TYPE, this);
-   }
+   //TODO fix AT bug
+   //private LootContext.VisitedEntry<?> createContextVisitedEntry() {
+   //   return new LootContext.VisitedEntry<>(DATA_TYPE, this);
+   //}
 
    public void getRandomEntities(LootParams pParams, long pSeed, Consumer<Entity> pOutput) {
       this.getRandomEntities((new SpawnContext.Builder(pParams)).withOptionalRandomSeed(pSeed).create(this.randomSequence)).forEach(pOutput);
@@ -84,18 +90,18 @@ public class SpawnTable {
     */
    private ObjectArrayList<Entity> getRandomEntities(SpawnContext pContext) {
       ObjectArrayList<Entity> objectarraylist = new ObjectArrayList<>();
-      LootContext.VisitedEntry<?> visitedentry = this.createContextVisitedEntry();
-      if (pContext.pushVisitedElement(visitedentry)) {
+      //LootContext.VisitedEntry<?> visitedEntry = this.createContextVisitedEntry();
+      //if (pContext.pushVisitedElement(visitedEntry)) {
          Consumer<Entity> consumer = SpawnEntityFunction.decorate(this.compositeFunction, objectarraylist::add, pContext);
 
          for(SpawnPool pool : this.pools) {
             pool.addRandomEntities(consumer, pContext);
          }
 
-         pContext.popVisitedElement(visitedentry);
-      } else {
-         LOGGER.warn("Detected infinite loop in loot tables");
-      }
+      //   pContext.popVisitedElement(visitedEntry);
+      //} else {
+      //   LOGGER.warn("Detected infinite loop in loot tables");
+      //}
       return objectarraylist;
    }
 

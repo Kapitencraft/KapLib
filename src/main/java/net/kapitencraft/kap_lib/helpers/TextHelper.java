@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.helpers;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.kapitencraft.kap_lib.util.Reference;
 import net.kapitencraft.kap_lib.util.Vec2i;
 import net.minecraft.ChatFormatting;
@@ -348,5 +350,14 @@ public class TextHelper {
             return toReturn;
         }
         return input;
+    }
+
+    public static Vec3 readVec3(StringReader pReader) throws CommandSyntaxException {
+        pReader.expect('(');
+        double x = pReader.readDouble();
+        double y = pReader.readDouble();
+        double z = pReader.readDouble();
+        pReader.expect(')');
+        return new Vec3(x, y, z);
     }
 }

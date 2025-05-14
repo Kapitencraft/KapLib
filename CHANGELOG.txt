@@ -1,1 +1,4 @@
 added simplified Capability
+added SimpleParticleRenderType. uses a rendertype to render the particle
+moved armor model & model provider to package client/armor
+fixed custom armor model always rendering body with leggings and leggings with feet

@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.item.combat.armor.client.model;
+package net.kapitencraft.kap_lib.client.armor;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

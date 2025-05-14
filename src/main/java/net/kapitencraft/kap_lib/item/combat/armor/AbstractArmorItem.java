@@ -2,10 +2,11 @@ package net.kapitencraft.kap_lib.item.combat.armor;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.item.combat.armor.client.model.ArmorModel;
-import net.kapitencraft.kap_lib.item.combat.armor.client.provider.ArmorModelProvider;
+import net.kapitencraft.kap_lib.client.armor.ArmorModel;
+import net.kapitencraft.kap_lib.client.armor.provider.ArmorModelProvider;
 import net.minecraft.Util;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -82,13 +83,28 @@ public abstract class AbstractArmorItem extends ArmorItem {
             private final ArmorModelProvider provider = createModelProvider();
 
             @Override
-            public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity living, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> original) {
+            public @NotNull ArmorModel getHumanoidArmorModel(LivingEntity living, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> original) {
                 ArmorModel armorModel = provider.getModel(living, stack, slot);
                 armorModel.partVisible(slot);
                 armorModel.crouching = original.crouching;
                 armorModel.riding = original.riding;
                 armorModel.young = original.young;
                 return armorModel;
+            }
+
+            @Override
+            public @NotNull Model getGenericArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+                //fixes visibility bug because forge pain
+                ArmorModel model = getHumanoidArmorModel(livingEntity, itemStack, equipmentSlot, original);
+                copyModelProperties(original, model);
+                return model;
+            }
+
+            @SuppressWarnings("unchecked")
+            private <T extends LivingEntity> void copyModelProperties(HumanoidModel<T> original, ArmorModel replacement) {
+                original.copyPropertiesTo((HumanoidModel<T>) replacement);
+                replacement.rightBoot.copyFrom(original.rightLeg);
+                replacement.leftBoot.copyFrom(original.leftLeg);
             }
         });
     }
@@ -116,5 +132,4 @@ public abstract class AbstractArmorItem extends ArmorItem {
             }
         });
     }
-
 }

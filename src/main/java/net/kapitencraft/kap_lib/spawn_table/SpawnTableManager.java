@@ -25,7 +25,7 @@ public class SpawnTableManager extends SimpleJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
         ImmutableMap.Builder<ResourceLocation, SpawnTable> map = new ImmutableMap.Builder<>();
         pObject.forEach((location, element) -> {
-            Optional<SpawnTable> optional = SpawnTable.DATA_TYPE.deserialize(location, element, pResourceManager);
+            Optional<SpawnTable> optional = SpawnTable.CREATOR.apply(location, element, pResourceManager);
             optional.ifPresent(table -> map.put(location, table));
         });
         this.spawnTables = map.build();

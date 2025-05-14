@@ -5,6 +5,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -19,20 +20,20 @@ public class LightningParticleOptions extends ParticleType<LightningParticleOpti
 
     ).apply(lightningParticleOptionsInstance, LightningParticleOptions::new));
 
-    public Vec3 getStart() {
-        return start;
-    }
-
-    public Vec3 getEnd() {
-        return end;
-    }
-
     private final Vec3 start, end;
 
     public LightningParticleOptions(Vec3 start, Vec3 end) {
         super(true, new Deserializer());
         this.start = start;
         this.end = end;
+    }
+
+    public Vec3 getStart() {
+        return start;
+    }
+
+    public Vec3 getEnd() {
+        return end;
     }
 
     @Override
@@ -47,21 +48,23 @@ public class LightningParticleOptions extends ParticleType<LightningParticleOpti
     }
 
     @Override
-    public String writeToString() {
-        return "";
+    public @NotNull String writeToString() {
+        return start.toString() + "-" + end.toString();
     }
 
     @Override
-    public Codec<LightningParticleOptions> codec() {
+    public @NotNull Codec<LightningParticleOptions> codec() {
         return CODEC;
     }
 
     private static class Deserializer implements ParticleOptions.Deserializer<LightningParticleOptions> {
 
         @Override
-        public LightningParticleOptions fromCommand(ParticleType<LightningParticleOptions> pParticleType, StringReader pReader) throws CommandSyntaxException {
-
-            return null;
+        public @NotNull LightningParticleOptions fromCommand(ParticleType<LightningParticleOptions> pParticleType, StringReader pReader) throws CommandSyntaxException {
+            Vec3 start = TextHelper.readVec3(pReader);
+            pReader.expect('-');
+            Vec3 end = TextHelper.readVec3(pReader);
+            return new LightningParticleOptions(start, end);
         }
 
         @Override

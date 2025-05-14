@@ -11,8 +11,6 @@ import net.minecraftforge.common.data.LanguageProvider;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 public abstract class EnglishLanguageProvider extends LanguageProvider {
     /**
      * if FML would have just made it protected like any sane person would

@@ -1,47 +1,45 @@
-package net.kapitencraft.kap_lib.client.particle;
+package net.kapitencraft.kap_lib.client.lightning;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.Camera;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LightningParticle extends Particle {
-    private static final ParticleRenderType RENDER_TYPE = new SimpleParticleRenderType(RenderType.lightning());
-
+public class LightningHolder {
     private final List<Vector3f> vertexes;
-    private float alphaO;
+    private float alpha = .3f, alphaO;
+    private final int lifetime;
+    private int age;
 
-    protected LightningParticle(ClientLevel pLevel, Vec3 start, Vec3 end) {
-        super(pLevel, 0, 0, 0);
-        this.vertexes = createVertexes(start, end);
-        this.setBoundingBox(new AABB(start, end));
-        this.alpha = .3f;
-        this.lifetime = Integer.MAX_VALUE;
+    public LightningHolder(Vec3 start, Vec3 end, int lifetime) {
+        this.lifetime = lifetime;
+        this.vertexes = this.createVertexes(start, end);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
-    //TODO make rotate
     private List<Vector3f> createVertexes(Vec3 start, Vec3 end) {
-        Vec3 diff = end.subtract(start);
-        double length = diff.length();
-        float size = (float) length / 7;
+        Vec2 offset = MathHelper.createTargetRotationFromPos(start, end);
+        Quaternionf rot = new Quaternionf().rotateX(offset.x).rotateY(offset.y);
+
         RandomSource pSource = RandomSource.create();
         long seed = pSource.nextLong();
         float[] afloat = new float[8];
@@ -57,8 +55,9 @@ public class LightningParticle extends Particle {
         }
 
         List<Vector3f> vertexes = new ArrayList<>();
+
         for(int j = 0; j < 4; ++j) {
-            RandomSource s = RandomSource.create(seed);
+            RandomSource source1 = RandomSource.create(seed);
             for(int k = 0; k < 3; ++k) {
                 int l = 7 - k;
                 int i1 = 0;
@@ -74,15 +73,15 @@ public class LightningParticle extends Particle {
                     float f4 = f2;
                     float f5 = f3;
                     if (k == 0) {
-                        f2 += (float)(s.nextInt(5) - 2);
-                        f3 += (float)(s.nextInt(5) - 2);
+                        f2 += (float)(source1.nextInt(11) - 5);
+                        f3 += (float)(source1.nextInt(11) - 5);
                     } else {
-                        f2 += (float)(s.nextInt(15) - 7);
-                        f3 += (float)(s.nextInt(15) - 7);
+                        f2 += (float)(source1.nextInt(31) - 15);
+                        f3 += (float)(source1.nextInt(31) - 15);
                     }
 
-                    float f10 = 0.05F + j * 0.1F;
-                    float f11 = 0.05F + j * 0.1F;
+                    float f10 = 0.1F + j * 0.2F;
+                    float f11 = 0.1F + j * 0.2F;
 
                     if (k == 0) {
                         f10 *= j1 * 0.1F + 1.0F;
@@ -95,22 +94,22 @@ public class LightningParticle extends Particle {
                         boolean p_115287_ = i < 2;
                         Vector3f pos1 = new Vector3f(
                                 f2 + (p_115285_ ? f11 : -f11),
-                                j1 * 4,
+                                j1 * 8,
                                 f3 + (p_115286_ ? f11 : -f11)
                         );
                         Vector3f pos2 = new Vector3f(
                                 f4 + (p_115285_ ? f10 : -f10),
-                                (j1 + 1) * size,
+                                (j1 + 1) * 8,
                                 f5 + (p_115286_ ? f10 : -f10)
                         );
                         Vector3f pos3 = new Vector3f(
                                 f4 + (p_115287_ ? f10 : -f10),
-                                (j1 + 1) * size,
+                                (j1 + 1) * 8,
                                 f5 + (p_115285_ ? f10 : -f10)
                         );
                         Vector3f pos4 = new Vector3f(
                                 f2 + (p_115287_ ? f11 : -f11),
-                                j1 * size,
+                                j1 * 8,
                                 f3 + (p_115285_ ? f11 : -f11)
                         );
                         vertexes.add(pos1);
@@ -121,40 +120,36 @@ public class LightningParticle extends Particle {
                 }
             }
         }
-        Vec2 rot = MathHelper.createTargetRotationFromPos(start, end);
-        Quaternionf rotation = new Quaternionf().rotateX(rot.x).rotateY(rot.y);
-        return vertexes.stream().map(v -> v.rotate(rotation).add((float) start.x, (float) start.y, (float) start.z)).toList();
+        return vertexes.stream().map(v -> v.rotate(rot).add((float) start.x, (float) start.y, (float) start.z)).toList();
     }
 
-    @Override
-    public void render(@NotNull VertexConsumer pBuffer, @NotNull Camera pRenderInfo, float pPartialTicks) {
+    @SubscribeEvent
+    public void renderProxy(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
+        this.render(event.getPoseStack().last().pose(),
+                Minecraft.getInstance().renderBuffers().bufferSource(),
+                event.getPartialTick()
+        );
+    }
+
+    public void render(Matrix4f pose, @NotNull MultiBufferSource source, float pPartialTicks) {
         float alpha = Mth.clamp(pPartialTicks, alphaO, this.alpha);
-        Vec3 camPos = pRenderInfo.getPosition();
-        this.vertexes.forEach(vector3f ->
-                        pBuffer.vertex(vector3f.x - camPos.x, vector3f.y - camPos.y, vector3f.z - camPos.z)
-                                .color(.45f, .45f, .5f, alpha)
+        VertexConsumer consumer = source.getBuffer(RenderType.lightning());
+        this.vertexes.stream().map(Vector3f::new)
+                .forEach(vector3f ->
+                        consumer.vertex(pose, vector3f.x, vector3f.y, vector3f.z)
+                                .color(.45f, .45f, .5f, .3f)
                                 .endVertex()
                 );
     }
 
-    @Override
-    public void tick() {
-        if (this.age++ > this.lifetime) this.remove();
-
-        this.alphaO = alpha;
-        //this.alpha = age * .3f / lifetime;
-    }
-
-    @Override
-    public @NotNull ParticleRenderType getRenderType() {
-        return RENDER_TYPE;
-    }
-
-    public static class Provider implements ParticleProvider<LightningParticleOptions> {
-
-        @Override
-        public @Nullable Particle createParticle(LightningParticleOptions pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            return new LightningParticle(pLevel, pType.getStart(), pType.getEnd());
+    @SubscribeEvent
+    public void tick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (this.age++ >= this.lifetime) {
+            MinecraftForge.EVENT_BUS.unregister(this);
         }
+        this.alphaO = alpha;
+        this.alpha = (1 - (float) age / lifetime) * .3f;
     }
 }

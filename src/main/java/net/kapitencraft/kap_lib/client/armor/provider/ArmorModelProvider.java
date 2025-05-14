@@ -1,6 +1,6 @@
-package net.kapitencraft.kap_lib.item.combat.armor.client.provider;
+package net.kapitencraft.kap_lib.client.armor.provider;
 
-import net.kapitencraft.kap_lib.item.combat.armor.client.model.ArmorModel;
+import net.kapitencraft.kap_lib.client.armor.ArmorModel;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;

@@ -55,7 +55,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-//TODO possibly convert to DataPack registry?
 @Mod.EventBusSubscriber
 public class BonusManager extends SimpleJsonResourceReloadListener {
 

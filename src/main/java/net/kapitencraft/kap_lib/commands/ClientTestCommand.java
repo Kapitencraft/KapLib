@@ -8,6 +8,7 @@ import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.cam.core.TrackingShot;
 import net.kapitencraft.kap_lib.client.cam.modifiers.GlideTowardsModifier;
 import net.kapitencraft.kap_lib.client.gui.screen.TestScreen;
+import net.kapitencraft.kap_lib.client.lightning.LightningHolder;
 import net.kapitencraft.kap_lib.client.particle.LightningParticleOptions;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticleOptions;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
@@ -20,10 +21,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
@@ -106,11 +110,14 @@ public class ClientTestCommand {
 
     private static int spawnLightningParticle(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Entity entity = context.getSource().getEntityOrException();
-        entity.level()
-                .addParticle(
-                        new LightningParticleOptions(entity.position(), entity.getViewVector(0).scale(20).add(entity.position())),
+        //new LightningHolder(new Vec3(0, 0, -10), new Vec3(10, 0, 0), 100);
+        Level level = entity.level();
+        level.addParticle(
+                        new LightningParticleOptions(new Vec3(0, 0, -10), new Vec3(10, 0, 0)),
                         true, 0, 0, 0, 0, 0, 0
                 );
+        level.addParticle(ParticleTypes.FLAME, 0, 0, -10, 0, 0, 0);
+        level.addParticle(ParticleTypes.FLAME, 10, 0, 0, 0, 0, 0);
         return 1;
     }
 }
