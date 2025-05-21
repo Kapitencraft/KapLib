@@ -125,7 +125,7 @@ public class SelectChatColorWidget extends PositionedWidget {
 
         @Override
         public void render(GuiGraphics graphics, int x, int y, int width) {
-            graphics.fill(ModRenderTypes.GUI_CHROMA, x, y, x + width, y + width, 0);
+            graphics.fill(ModRenderTypes.FILL_CHROMA, x, y, x + width, y + width, 0);
         }
 
         @Override

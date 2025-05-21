@@ -71,7 +71,7 @@ public class EnchantmentDescriptionManager {
                     }
                 }
                 tooltips.add(component);
-                if (Screen.hasShiftDown()) EnchantmentDescriptionManager.addTooltipForEnchant(stack, tooltips, ench, player, level);
+                if (Screen.hasShiftDown()) EnchantmentDescriptionManager.addTooltipForEnchant(tooltips, ench, player, level);
                 ClientHelper.addReqContent(tooltips::add, RegistryReqType.ENCHANTMENT, ench, player);
             });
         }
@@ -86,15 +86,15 @@ public class EnchantmentDescriptionManager {
         return s;
     }
 
-    public static void addTooltipForEnchant(ItemStack stack, List<Component> list, Enchantment enchantment, Player player, int level) {
-        list.addAll(getDescription(stack, enchantment, level));
+    public static void addTooltipForEnchant(List<Component> list, Enchantment enchantment, Player player, int level) {
+        list.addAll(getDescription(enchantment, level));
     }
 
     public static boolean fromBook(Item item) {
         return item instanceof EnchantedBookItem;
     }
 
-    public static List<Component> getDescription(ItemStack stack, Enchantment ench, int level) {
+    public static List<Component> getDescription(Enchantment ench, int level) {
         Object[] objects = ench instanceof ModEnchantment modEnchantment ? modEnchantment.getDescriptionMods(level) : new Object[]{level};
         Stream<String> stream = Arrays.stream(objects).map(String::valueOf);
         return TextHelper.getDescriptionOrEmpty(ench.getDescriptionId(), component -> component.withStyle(ChatFormatting.DARK_GRAY), stream.map(TextHelper::wrapInRed).toArray());

@@ -1,23 +1,17 @@
 package net.kapitencraft.kap_lib.client.particle;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.*;
-import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -27,108 +21,81 @@ public class LightningParticle extends Particle {
     private static final ParticleRenderType RENDER_TYPE = new SimpleParticleRenderType(RenderType.lightning());
 
     private final List<Vector3f> vertexes;
-    private float alphaO;
 
-    protected LightningParticle(ClientLevel pLevel, Vec3 start, Vec3 end) {
+    protected LightningParticle(ClientLevel pLevel, Vec3 start, Vec3 end, int segments, float displacement, float width) {
         super(pLevel, 0, 0, 0);
-        this.vertexes = createVertexes(start, end);
+        this.vertexes = createVertexes(start, end, segments, displacement, width);
         this.setBoundingBox(new AABB(start, end));
         this.alpha = .3f;
-        this.lifetime = Integer.MAX_VALUE;
+        this.lifetime = 1000;
     }
 
-    //TODO make rotate
-    private List<Vector3f> createVertexes(Vec3 start, Vec3 end) {
-        Vec3 diff = end.subtract(start);
-        double length = diff.length();
-        float size = (float) length / 7;
-        RandomSource pSource = RandomSource.create();
-        long seed = pSource.nextLong();
-        float[] afloat = new float[8];
-        float[] afloat1 = new float[8];
-        float f = 0.0F;
-        float f1 = 0.0F;
+    private List<Vector3f> createVertexes(Vec3 start, Vec3 end, int segments, float displacement, float width) {
+        List<Vec3> points = new ArrayList<>();
+        points.add(start);
 
-        for (int i = 7; i >= 0; --i) {
-            afloat[i] = f;
-            afloat1[i] = f1;
-            f += (float)(pSource.nextInt(11) - 5);
-            f1 += (float)(pSource.nextInt(11) - 5);
+        Vec3 direction = end.subtract(start);
+        Vec3 dirNorm = direction.normalize();
+
+        // Create a perpendicular basis (u, v) to apply offset in a plane
+        Vec3 arbitrary = new Vec3(0, 1, 0);
+        if (Math.abs(dirNorm.y) > 0.99f) {
+            arbitrary = new Vec3(1, 0, 0); // avoid colinearity
         }
+        Vec3 u = dirNorm.cross(arbitrary).normalize();
+        Vec3 v = dirNorm.cross(u).normalize();
+        RandomSource source = RandomSource.create();
 
-        List<Vector3f> vertexes = new ArrayList<>();
-        for(int j = 0; j < 4; ++j) {
-            RandomSource s = RandomSource.create(seed);
-            for(int k = 0; k < 3; ++k) {
-                int l = 7 - k;
-                int i1 = 0;
+        List<Vec3> positions = new ArrayList<>();
+        for (int i = 1; i < segments; i++) {
+            float t = (float) i / segments;
 
-                if (k > 0) {
-                    i1 = l - 2;
-                }
+            // Linear interpolation
+            Vec3 point = start.add(direction.scale(t));
 
-                float f2 = afloat[l] - f;
-                float f3 = afloat1[l] - f1;
+            // Fade offset toward endpoints
+            float fade = 1.0f - Math.abs(0.5f - t) * 2.0f;
 
-                for(int j1 = l; j1 >= i1; --j1) {
-                    float f4 = f2;
-                    float f5 = f3;
-                    if (k == 0) {
-                        f2 += (float)(s.nextInt(5) - 2);
-                        f3 += (float)(s.nextInt(5) - 2);
-                    } else {
-                        f2 += (float)(s.nextInt(15) - 7);
-                        f3 += (float)(s.nextInt(15) - 7);
-                    }
+            // Random offset in the plane perpendicular to the direction
+            float offsetU = (source.nextFloat() - 0.5f) * 2.0f * displacement * fade;
+            float offsetV = (source.nextFloat() - 0.5f) * 2.0f * displacement * fade;
 
-                    float f10 = 0.05F + j * 0.1F;
-                    float f11 = 0.05F + j * 0.1F;
+            points.add(point.add(u.scale(offsetU).add(v.scale(offsetV))));
+        }
+        points.add(end);
 
-                    if (k == 0) {
-                        f10 *= j1 * 0.1F + 1.0F;
-                        f11 *= (j1 - 1.0F) * 0.1F + 1.0F;
-                    }
+        float sizeScale = .7f / width;
 
-                    for (int i = 0; i < 4; i++) {
-                        boolean p_115285_ = i != 0 && i != 3;
-                        boolean p_115286_ = i > 1;
-                        boolean p_115287_ = i < 2;
-                        Vector3f pos1 = new Vector3f(
-                                f2 + (p_115285_ ? f11 : -f11),
-                                j1 * 4,
-                                f3 + (p_115286_ ? f11 : -f11)
-                        );
-                        Vector3f pos2 = new Vector3f(
-                                f4 + (p_115285_ ? f10 : -f10),
-                                (j1 + 1) * size,
-                                f5 + (p_115286_ ? f10 : -f10)
-                        );
-                        Vector3f pos3 = new Vector3f(
-                                f4 + (p_115287_ ? f10 : -f10),
-                                (j1 + 1) * size,
-                                f5 + (p_115285_ ? f10 : -f10)
-                        );
-                        Vector3f pos4 = new Vector3f(
-                                f2 + (p_115287_ ? f11 : -f11),
-                                j1 * size,
-                                f3 + (p_115285_ ? f11 : -f11)
-                        );
-                        vertexes.add(pos1);
-                        vertexes.add(pos2);
-                        vertexes.add(pos3);
-                        vertexes.add(pos4);
-                    }
-                }
+
+        List<Vec3> vertexes = new ArrayList<>();
+        for (int i = 1; i < points.size(); i++) {
+            Vec3 oldPos = points.get(i - 1);
+            Vec3 pos = points.get(i);
+
+            for (int j = 0; j < 4; j++) {
+                float f10 = (.1f + j * 0.2F) * sizeScale;
+
+                float f11 = (0.1F + j * 0.2F) * sizeScale;
+
+                quad(vertexes, pos, oldPos, u, v, f10, f11, false, false, true, false);
+                quad(vertexes, pos, oldPos, u, v, f10, f11, true, false, true, true);
+                quad(vertexes, pos, oldPos, u, v, f10, f11, true, true, false, true);
+                quad(vertexes, pos, oldPos, u, v, f10, f11, false, true, false, false);
             }
+
         }
-        Vec2 rot = MathHelper.createTargetRotationFromPos(start, end);
-        Quaternionf rotation = new Quaternionf().rotateX(rot.x).rotateY(rot.y);
-        return vertexes.stream().map(v -> v.rotate(rotation).add((float) start.x, (float) start.y, (float) start.z)).toList();
+        return vertexes.stream().map(Vec3::toVector3f).toList();
+    }
+
+    private void quad(List<Vec3> positions, Vec3 start, Vec3 stop, Vec3 u, Vec3 v, float p_115283_, float p_115284_, boolean p_115285_, boolean p_115286_, boolean p_115287_, boolean p_115288_) {
+        positions.add(start.add(u.scale(p_115285_ ? p_115284_ : -p_115284_)).add(v.scale(p_115286_ ? p_115284_ : -p_115284_)));
+        positions.add(stop.add(u.scale(p_115285_ ? p_115283_ : -p_115283_)).add(v.scale(p_115286_ ? p_115283_ : -p_115283_)));
+        positions.add(stop.add(u.scale(p_115287_ ? p_115283_ : -p_115283_)).add(v.scale(p_115288_ ? p_115283_ : -p_115283_)));
+        positions.add(start.add(u.scale(p_115287_ ? p_115284_ : -p_115284_)).add(v.scale(p_115288_ ? p_115284_ : -p_115284_)));
     }
 
     @Override
     public void render(@NotNull VertexConsumer pBuffer, @NotNull Camera pRenderInfo, float pPartialTicks) {
-        float alpha = Mth.clamp(pPartialTicks, alphaO, this.alpha);
         Vec3 camPos = pRenderInfo.getPosition();
         this.vertexes.forEach(vector3f ->
                         pBuffer.vertex(vector3f.x - camPos.x, vector3f.y - camPos.y, vector3f.z - camPos.z)
@@ -140,9 +107,6 @@ public class LightningParticle extends Particle {
     @Override
     public void tick() {
         if (this.age++ > this.lifetime) this.remove();
-
-        this.alphaO = alpha;
-        //this.alpha = age * .3f / lifetime;
     }
 
     @Override
@@ -154,7 +118,7 @@ public class LightningParticle extends Particle {
 
         @Override
         public @Nullable Particle createParticle(LightningParticleOptions pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            return new LightningParticle(pLevel, pType.getStart(), pType.getEnd());
+            return new LightningParticle(pLevel, pType.getStart(), pType.getEnd(), pType.getSegments(), pType.getDisplacement(), pType.getWidth());
         }
     }
 }

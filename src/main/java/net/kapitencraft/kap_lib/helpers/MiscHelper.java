@@ -241,17 +241,15 @@ public class MiscHelper {
      * @deprecated use custom achievement triggers
      */
     @Deprecated(forRemoval = true)
-    public static boolean awardAchievement(Player player, String achievementName) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            ServerAdvancementManager manager = serverPlayer.server.getAdvancements();
-            Advancement adv = manager.getAdvancement(new ResourceLocation(achievementName));
-            PlayerAdvancements advancements = serverPlayer.getAdvancements();
-            if (adv != null) {
-                AdvancementProgress progress = advancements.getOrStartProgress(adv);
-                if (!progress.isDone()) {
-                    for (String s : progress.getRemainingCriteria()) advancements.award(adv, s);
-                    return true;
-                }
+    public static boolean awardAchievement(ServerPlayer player, ResourceLocation achievementName) {
+        ServerAdvancementManager manager = player.server.getAdvancements();
+        Advancement adv = manager.getAdvancement(achievementName);
+        PlayerAdvancements advancements = player.getAdvancements();
+        if (adv != null) {
+            AdvancementProgress progress = advancements.getOrStartProgress(adv);
+            if (!progress.isDone()) {
+                for (String s : progress.getRemainingCriteria()) advancements.award(adv, s);
+                return true;
             }
         }
         return false;

@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.client.shaders;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
@@ -27,7 +28,7 @@ public class ModRenderTypes extends RenderType {
         return create("chromatic", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256, false, true, rendertype$state);
     }
 
-    public static RenderType GUI_CHROMA = create("chroma", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, true,
+    public static RenderType FILL_CHROMA = create("chroma", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, true,
             CompositeState.builder()
                     .setShaderState(ModShaderStateShards.GUI_CHROMA)
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
