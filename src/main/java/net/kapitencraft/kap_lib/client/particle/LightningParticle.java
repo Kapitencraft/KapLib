@@ -12,6 +12,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -46,7 +47,6 @@ public class LightningParticle extends Particle {
         Vec3 v = dirNorm.cross(u).normalize();
         RandomSource source = RandomSource.create();
 
-        List<Vec3> positions = new ArrayList<>();
         for (int i = 1; i < segments; i++) {
             float t = (float) i / segments;
 
@@ -64,7 +64,7 @@ public class LightningParticle extends Particle {
         }
         points.add(end);
 
-        float sizeScale = .7f / width;
+        float sizeScale = width / .7f; //.7 is base size
 
 
         List<Vec3> vertexes = new ArrayList<>();
@@ -75,7 +75,7 @@ public class LightningParticle extends Particle {
             for (int j = 0; j < 4; j++) {
                 float f10 = (.1f + j * 0.2F) * sizeScale;
 
-                float f11 = (0.1F + j * 0.2F) * sizeScale;
+                float f11 = (.1F + j * 0.2F) * sizeScale;
 
                 quad(vertexes, pos, oldPos, u, v, f10, f11, false, false, true, false);
                 quad(vertexes, pos, oldPos, u, v, f10, f11, true, false, true, true);
