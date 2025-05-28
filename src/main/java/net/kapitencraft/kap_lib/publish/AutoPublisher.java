@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.publish;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
@@ -127,6 +129,7 @@ public class AutoPublisher {
             List<String> removes = new ArrayList<>();
             List<String> uncategorized = new ArrayList<>();
             List<String> knownErrors = new ArrayList<>();
+
             reader.lines().forEach(s -> {
                 if (s.isEmpty()) return;
                 if (s.startsWith("added ")) additions.add(s.substring(6));

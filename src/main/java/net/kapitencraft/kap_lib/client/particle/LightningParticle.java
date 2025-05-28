@@ -12,7 +12,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -21,7 +20,7 @@ import java.util.List;
 public class LightningParticle extends Particle {
     private static final ParticleRenderType RENDER_TYPE = new SimpleParticleRenderType(RenderType.lightning());
 
-    private final List<Vector3f> vertexes;
+    private final Vector3f[] vertexes;
 
     protected LightningParticle(ClientLevel pLevel, Vec3 start, Vec3 end, int segments, float displacement, float width) {
         super(pLevel, 0, 0, 0);
@@ -31,7 +30,7 @@ public class LightningParticle extends Particle {
         this.lifetime = 1000;
     }
 
-    private List<Vector3f> createVertexes(Vec3 start, Vec3 end, int segments, float displacement, float width) {
+    private Vector3f[] createVertexes(Vec3 start, Vec3 end, int segments, float displacement, float width) {
         List<Vec3> points = new ArrayList<>();
         points.add(start);
 
@@ -84,7 +83,7 @@ public class LightningParticle extends Particle {
             }
 
         }
-        return vertexes.stream().map(Vec3::toVector3f).toList();
+        return vertexes.stream().map(Vec3::toVector3f).toArray(Vector3f[]::new);
     }
 
     private void quad(List<Vec3> positions, Vec3 start, Vec3 stop, Vec3 u, Vec3 v, float p_115283_, float p_115284_, boolean p_115285_, boolean p_115286_, boolean p_115287_, boolean p_115288_) {
@@ -97,11 +96,11 @@ public class LightningParticle extends Particle {
     @Override
     public void render(@NotNull VertexConsumer pBuffer, @NotNull Camera pRenderInfo, float pPartialTicks) {
         Vec3 camPos = pRenderInfo.getPosition();
-        this.vertexes.forEach(vector3f ->
-                        pBuffer.vertex(vector3f.x - camPos.x, vector3f.y - camPos.y, vector3f.z - camPos.z)
-                                .color(.45f, .45f, .5f, alpha)
-                                .endVertex()
-                );
+        for (Vector3f vertex : this.vertexes) {
+            pBuffer.vertex(vertex.x - camPos.x, vertex.y - camPos.y, vertex.z - camPos.z)
+                    .color(.45f, .45f, .5f, alpha)
+                    .endVertex();
+        }
     }
 
     @Override

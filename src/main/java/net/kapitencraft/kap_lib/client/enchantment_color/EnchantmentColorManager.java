@@ -2,16 +2,12 @@ package net.kapitencraft.kap_lib.client.enchantment_color;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
-import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManager;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.registry.GlyphEffects;
-import net.kapitencraft.kap_lib.util.range.simple.IntegerNumberRange;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.enchantment.Enchantment;
 import org.jetbrains.annotations.ApiStatus;
@@ -44,7 +40,7 @@ public class EnchantmentColorManager {
 
     private static @NotNull File getOrCreateFile() {
         if (PERSISTENT_FILE == null) {
-            PERSISTENT_FILE = new File(KapLibMod.MAIN, "enchantment_colors_config.json");
+            PERSISTENT_FILE = new File(KapLibMod.ROOT, "enchantment_colors_config.json");
         }
         return PERSISTENT_FILE;
     }

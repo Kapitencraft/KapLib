@@ -3,6 +3,8 @@ package net.kapitencraft.kap_lib.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import net.kapitencraft.kap_lib.client.ExtraComponents;
+import net.kapitencraft.kap_lib.client.particle.LightningParticle;
 import net.kapitencraft.kap_lib.client.particle.animation.AnimationUtils;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimation;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.RotateElement;
@@ -19,17 +21,26 @@ import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTableManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * server tests.
@@ -52,8 +63,23 @@ public class ServerTestCommand {
                         )
                 ).then(Commands.literal("spawn_table")
                         .executes(ServerTestCommand::testSpawnTable)
-        )
+                ).then(Commands.literal("player_head")
+                        .executes(ServerTestCommand::testPlayerHeadGlyph)
+                )
         );
+    }
+
+    private static int testPlayerHeadGlyph(CommandContext<CommandSourceStack> context) {
+        return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
+            MinecraftServer server = Objects.requireNonNull(player.getServer());
+            List<ServerPlayer> players = server.getPlayerList().getPlayers();
+            MutableComponent text = Component.empty();
+            for (ServerPlayer p : players) {
+                text.append(ExtraComponents.playerHead(p.getUUID()));
+            }
+            player.sendSystemMessage(text);
+            return 1;
+        });
     }
 
     private static int testSpawnTable(CommandContext<CommandSourceStack> context) {

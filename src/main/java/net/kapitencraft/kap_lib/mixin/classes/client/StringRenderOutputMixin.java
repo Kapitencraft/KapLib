@@ -28,11 +28,14 @@ public abstract class StringRenderOutputMixin {
 
     @Shadow @Final private boolean dropShadow;
 
-    @Shadow public float r;
+    @Shadow
+    private float r;
 
-    @Shadow public float g;
+    @Shadow
+    private float g;
 
-    @Shadow public float b;
+    @Shadow
+    private float b;
 
     @Redirect(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;renderType(Lnet/minecraft/client/gui/Font$DisplayMode;)Lnet/minecraft/client/renderer/RenderType;"))
     public RenderType changeRender(BakedGlyph instance, Font.DisplayMode pDisplayMode, int pIndex, Style pStyle, int pId) {

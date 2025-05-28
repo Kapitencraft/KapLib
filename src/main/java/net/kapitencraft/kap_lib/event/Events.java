@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.event;
 
+import net.kapitencraft.kap_lib.client.ExtraComponents;
+import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.collection.Queue;
 import net.kapitencraft.kap_lib.cooldown.ICooldownable;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
@@ -34,6 +36,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.GameShuttingDownEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
@@ -42,6 +45,7 @@ import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -89,6 +93,12 @@ public class Events {
     }
 
     @SubscribeEvent
+    public static void appendPlayerHead(PlayerEvent.NameFormat event) {
+        event.setDisplayname(ExtraComponents.playerHead(event.getEntity().getUUID()).append(event.getDisplayname()));
+    }
+
+
+    @SubscribeEvent
     public static void playerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             ModMessages.sendToClientPlayer(new SyncRequirementsPacket(RequirementManager.instance), serverPlayer);
@@ -112,6 +122,14 @@ public class Events {
     }
 
     private static final Map<ResourceKey<Level>, Queue<UUID>> arrowHelper = new HashMap<>();
+
+    @SubscribeEvent
+    public static void onLevelUnload(LevelEvent.Unload event) {
+        if (!event.getLevel().isClientSide()) {
+            Level level = (Level) event.getLevel();
+            arrowHelper.remove(level.dimension()); //clear arrow holder when dimension gets unloaded
+        }
+    }
 
     @SubscribeEvent
     public static void joinLevelEvent(EntityJoinLevelEvent event) {
@@ -153,6 +171,7 @@ public class Events {
     @SubscribeEvent
     public static void leaveLevelEvent(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player) {
+            //save mana to reset back to when re-joining
             player.getPersistentData().putDouble("Mana", player.getAttributeValue(ExtraAttributes.MANA.get()));
         }
     }
@@ -181,6 +200,11 @@ public class Events {
             double vitality = living.getAttributeValue(ExtraAttributes.VITALITY.get());
             event.setAmount(event.getAmount() * (1 + (float) vitality / 100));
         }
+    }
+
+    @SubscribeEvent
+    public static void onGameShuttingDown(GameShuttingDownEvent event) {
+        PlayerHeadAllocator.getInstance().shutDown();
     }
 
 

@@ -58,7 +58,7 @@ public class UpdateChecker {
     }
 
     private static Config loadConfig() {
-        File file = new File(KapLibMod.MAIN, "update_checker_config.json");
+        File file = new File(KapLibMod.ROOT, "update_checker_config.json");
         return IOHelper.loadOrCreateFile(file, Config.CODEC, () -> new Config(false, ReleaseState.RELEASE));
     }
 
@@ -138,50 +138,47 @@ public class UpdateChecker {
         try {
             info("running version check on '" + projectId + "'");
             ComparableVersion currentModVersion = new ComparableVersion(modInfo.versionString());
-            Stream<JsonObject> versionData = ModrinthUtils.readVersions(projectId, "KapLibAutoUpdater");
-            if (versionData == null) {
+            Stream<JsonObject> rawVersionData = ModrinthUtils.readVersions(projectId, "KapLibAutoUpdater");
+            if (rawVersionData == null) {
                 LOGGER.warn("connection to {} failed", updateData.modId);
                 return Result.connectionFailed(updateData.modId, currentModVersion);
             }
 
-            Map<String, JsonObject> newer = versionData.collect(
+            Map<ComparableVersion, JsonObject> versionData = rawVersionData.collect(
                     CollectorHelper.toKeyMappedStream(
                             object -> {
-                                Matcher matcher = updateData.versionExtractor.matcher(GsonHelper.getAsString(object, "version_number"));
+                                String versionNumber = GsonHelper.getAsString(object, "version_number");
+                                Matcher matcher = updateData.versionExtractor.matcher(versionNumber);
                                 if (matcher.matches()) {
                                     return matcher.group(1);
                                 }
+                                LOGGER.warn("unable to extract version from '{}' of mod {}", versionNumber, updateData.modId);
                                 return null;
                             }
                     )
             )
                     .filterKeys(Objects::nonNull)
-                    .mapKeys(ComparableVersion::new)
-                    .filterValues(jsonObject -> config.state.is(GsonHelper.getAsString(jsonObject, "version_type")), null)
-                    .filterKeys(comparableVersion -> currentModVersion.compareTo(comparableVersion) < 0)
-                    .mapKeys(ComparableVersion::toString)
-                    .toMap();
-            if (newer.isEmpty()) {
-                return Result.upToDate(updateData.modId, currentModVersion); //there's no newer versions, so we can skip the rest
-            }
-            ComparableVersion newest = null;
-            for (String s : newer.keySet()) {
-                ComparableVersion v = new ComparableVersion(s);
-                if (newest == null || v.compareTo(newest) > 0) {
-                    newest = v;
-                }
-            }
+                    .mapKeys(ComparableVersion::new).toMap();
 
-            JsonObject newestVersionData = newer.get(newest.toString());
-            JsonObject primaryFile = getPrimaryFile(newestVersionData);
-            String fileUrl = GsonHelper.getAsString(primaryFile, "url");
-            String fileName = GsonHelper.getAsString(primaryFile, "filename");
-            int size = GsonHelper.getAsInt(primaryFile, "size");
-            return Result.outdated(
-                    currentModVersion,
-                    newest,
-                    new Update(fileUrl, fileName, modInfo.getFile().getFileName(), size),
-                    updateData.modId);
+            List<ComparableVersion> versions = new ArrayList<>(versionData.keySet());
+            versions.sort(ComparableVersion::compareTo);
+
+            ComparableVersion newest = versions.get(versions.size() - 1);
+            int compare = newest.compareTo(currentModVersion);
+            if (compare > 0) {
+                JsonObject newestVersionData = versionData.get(newest);
+                JsonObject primaryFile = getPrimaryFile(newestVersionData);
+                String fileUrl = GsonHelper.getAsString(primaryFile, "url");
+                String fileName = GsonHelper.getAsString(primaryFile, "filename");
+                int size = GsonHelper.getAsInt(primaryFile, "size");
+                return Result.outdated(
+                        currentModVersion,
+                        newest,
+                        new Update(fileUrl, fileName, modInfo.getFile().getFileName(), size),
+                        updateData.modId);
+            } else if (compare == 0)
+                return Result.upToDate(updateData.modId, currentModVersion);
+            return Result.ahead(updateData.modId, currentModVersion, newest);
         } catch (IOException e) {
             LOGGER.warn("error checking for update on project '{}'", updateData.modId);
         } catch (IllegalStateException | IndexOutOfBoundsException e) {
@@ -192,15 +189,20 @@ public class UpdateChecker {
 
     private record Result(@NotNull String modId, ComparableVersion currentVersion, ComparableVersion targetVersion, Update update, Type type) {
 
-        public static Result outdated(ComparableVersion currentModVersion, ComparableVersion newest, Update update, String modId) {
-            return new Result(modId, currentModVersion, newest, update, Type.OUTDATED);
-        }
-
         private enum Type {
             CONNECTION_FAILED,
             FAILED,
             UP_TO_DATE,
-            OUTDATED
+            OUTDATED,
+            AHEAD
+        }
+
+        public static Result outdated(ComparableVersion currentModVersion, ComparableVersion newest, Update update, String modId) {
+            return new Result(modId, currentModVersion, newest, update, Type.OUTDATED);
+        }
+
+        public static Result ahead(String modId, ComparableVersion currentModVersion, ComparableVersion newest) {
+            return new Result(modId, currentModVersion, newest, null, Type.AHEAD);
         }
 
         public static Result connectionFailed(String modId, ComparableVersion currentModVersion) {

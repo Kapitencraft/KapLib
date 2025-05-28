@@ -75,7 +75,7 @@ public class OverlayManager {
 
     private static @NotNull File getOrCreateFile() {
         if (PERSISTENT_FILE == null) {
-            PERSISTENT_FILE = new File(KapLibMod.MAIN, "overlay_config.json");
+            PERSISTENT_FILE = new File(KapLibMod.ROOT, "overlay_config.json");
         }
         return PERSISTENT_FILE;
     }

@@ -96,6 +96,11 @@ minecraft {
             args '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
         }
 
+        kaupenClient {
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--uuid', '665ad10f-5548-4985-986b-b642732ddce0'
+        }
+
         server {
             property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'

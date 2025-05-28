@@ -55,8 +55,14 @@ public class ClientModConfig {
         SHOW_LIFE_STEAL_PARTICLE = BUILDER
                 .comment("determines whether to display life steal particles")
                 .define("show_life_steal_particle", true);
+
+        CACHE_PLAYER_HEADS = BUILDER
+                .comment("determines whether the player heads texture will be cached for further use")
+                .comment("may help when playing on servers with many and always the same players")
+                .define("cache_player_heads", false);
     }
 
+    private static final ForgeConfigSpec.BooleanValue CACHE_PLAYER_HEADS;
     private static final ForgeConfigSpec.BooleanValue ENABLE_DAMAGE_INDICATOR;
     private static final ForgeConfigSpec.IntValue DAMAGE_INDICATOR_LIFETIME;
 
@@ -89,8 +95,13 @@ public class ClientModConfig {
         return PING_COLOR.get();
     }
 
+    //TODO implement
     public static boolean lifeStealParticleEnabled() {
         return SHOW_LIFE_STEAL_PARTICLE.get();
+    }
+
+    public static boolean cachePlayerHeads() {
+        return CACHE_PLAYER_HEADS.get();
     }
 
     public static double getScrollScale() {

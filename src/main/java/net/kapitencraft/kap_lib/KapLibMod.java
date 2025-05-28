@@ -53,12 +53,18 @@ public class KapLibMod {
         return new ResourceLocation(MOD_ID, path);
     }
 
-    public static final File MAIN = new File("./kap_lib");
+    /**
+     * root file for any cache data related to KapLib
+     * should not be used outside the actual project
+     */
+    @ApiStatus.Internal
+    public static final File ROOT = new File("./kap_lib");
     public static final RandomSource RANDOM_SOURCE = RandomSource.create();
 
     public KapLibMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        ExtraComponentContents.REGISTRY.register(modEventBus);
         ExtraAttributes.REGISTRY.register(modEventBus);
         ExtraLootModifiers.REGISTRY.register(modEventBus);
         ExtraLootItemConditions.REGISTRY.register(modEventBus);

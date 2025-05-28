@@ -4,11 +4,12 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.kapitencraft.kap_lib.client.ExtraComponents;
 import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.cam.core.TrackingShot;
 import net.kapitencraft.kap_lib.client.cam.modifiers.GlideTowardsModifier;
+import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.client.gui.screen.TestScreen;
-import net.kapitencraft.kap_lib.client.lightning.LightningHolder;
 import net.kapitencraft.kap_lib.client.particle.LightningParticleOptions;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticleOptions;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
@@ -51,8 +52,25 @@ public class ClientTestCommand {
                                         .then(Commands.argument("speed", FloatArgumentType.floatArg(.01f, 5f)).executes(ClientTestCommand::shakeAll))
                                 )
                         )
-                ).then(Commands.literal("cam").executes(ClientTestCommand::testCameraMotion))
+                ).then(Commands.literal("cam").executes(ClientTestCommand::testCameraMotion)
+                ).then(Commands.literal("glyph").executes(ClientTestCommand::testGlyphs)
+                        .then(Commands.literal("reset").executes(ClientTestCommand::resetGlyphs)
+                        )
+                )
         );
+    }
+
+    private static int resetGlyphs(CommandContext<CommandSourceStack> context) {
+        PlayerHeadAllocator.getInstance().reset();
+        return 1;
+    }
+
+    private static int testGlyphs(CommandContext<CommandSourceStack> context) {
+        Player player = Minecraft.getInstance().player;
+        UUID uuid = player.getUUID();
+
+        player.sendSystemMessage(ExtraComponents.playerHead(uuid));
+        return 1;
     }
 
     private static int testCameraMotion(CommandContext<CommandSourceStack> context) {

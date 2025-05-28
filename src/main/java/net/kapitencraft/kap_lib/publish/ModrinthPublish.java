@@ -38,7 +38,6 @@ public class ModrinthPublish {
             String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, fmlVersion);
 
             File mainFile = new File(fileBase + ".jar");
-            String mainHash = getFileSHA512(mainFile); //TODO figure out while hash not used
 
 
             try (OutputStream outputStream = connection.getOutputStream();
@@ -70,7 +69,6 @@ public class ModrinthPublish {
             } else {
                 dataStream = connection.getInputStream();
             }
-            BufferedReader in = new BufferedReader(new InputStreamReader(dataStream));
 
             JsonReader reader = new JsonReader(new InputStreamReader(dataStream));
 

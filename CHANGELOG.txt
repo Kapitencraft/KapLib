@@ -2,4 +2,7 @@ added simplified Capability
 added SimpleParticleRenderType. uses a rendertype to render the particle
 moved armor model & model provider to package client/armor
 fixed custom armor model always rendering body with leggings and leggings with feet
+fixed error with arrow helper queue crashing the game when changing worlds
 renamed ModRenderTypes#GUI_CHROMA to #FILL_CHROMA to prevent misunderstandings
+added PlayerHead glyphs (access via ExtraComponents#playerHead)
+reworked update checker
