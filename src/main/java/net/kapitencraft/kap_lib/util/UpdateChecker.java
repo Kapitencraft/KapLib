@@ -135,6 +135,10 @@ public class UpdateChecker {
     private static Result checkUpdate(String projectId) {
         UpdateData updateData = projectData.get(projectId);
         IModFileInfo modInfo = ModList.get().getModFileById(updateData.modId);
+        if (modInfo == null) {
+            LOGGER.warn("no mod under id '{}' found", updateData.modId);
+            return Result.unknown(updateData.modId);
+        }
         try {
             info("running version check on '" + projectId + "'");
             ComparableVersion currentModVersion = new ComparableVersion(modInfo.versionString());
@@ -194,7 +198,13 @@ public class UpdateChecker {
             FAILED,
             UP_TO_DATE,
             OUTDATED,
+            UNKNOWN,
             AHEAD
+        }
+
+
+        public static Result unknown(String modId) {
+            return new Result(modId, null, null, null, Type.UNKNOWN);
         }
 
         public static Result outdated(ComparableVersion currentModVersion, ComparableVersion newest, Update update, String modId) {

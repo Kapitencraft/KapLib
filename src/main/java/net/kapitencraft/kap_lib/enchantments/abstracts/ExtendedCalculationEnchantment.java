@@ -33,7 +33,7 @@ public interface ExtendedCalculationEnchantment extends ModEnchantment {
         return map;
     }
 
-    static float runWithPriority(ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, DamageSource source) {
+    static float runWithPriority(ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, float damage, MiscHelper.DamageType type, DamageSource source) {
         Map<ExtendedCalculationEnchantment, Integer> enchantmentIntegerMap = getAllEnchantments(enchanted);
         for (ProcessPriority priority : ProcessPriority.values()) {
             for (ExtendedCalculationEnchantment enchantment : enchantmentIntegerMap.keySet()) {
@@ -42,10 +42,10 @@ public interface ExtendedCalculationEnchantment extends ModEnchantment {
                 }
             }
         }
-        return (float) damage;
+        return damage;
     }
 
-    default double tryExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, MiscHelper.DamageType type, DamageSource source) {
+    default float tryExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, float damage, MiscHelper.DamageType type, DamageSource source) {
         if (this.type().contains(type)) {
             float attackStrengthScale = 1;
             if (attacker instanceof Player p) {
@@ -56,7 +56,7 @@ public interface ExtendedCalculationEnchantment extends ModEnchantment {
         return damage;
     }
 
-    double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damage, DamageSource source, float attackStrengthScale);
+    float execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, float damage, DamageSource source, float attackStrengthScale);
 
     enum CalculationType {
         ONLY_MAGIC(MiscHelper.DamageType.MAGIC),
