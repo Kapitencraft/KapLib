@@ -31,7 +31,7 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
     int getCountAmount(int level);
 
     @Override
-    default double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, DamageSource source, float attackStrenghtScale) {
+    default float execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, float damageAmount, DamageSource source, float attackStrenghtScale) {
         CompoundTag attackerTag = IOHelper.getOrCreateTag(attacker.getPersistentData(), "CountEnchantment");
         String mapName = this.mapName();
         HashMap<UUID, Integer> map = new HashMap<>(SERIALIZER.parse(attackerTag.contains(mapName, 10) ? attackerTag.get(mapName) : new CompoundTag()));
@@ -53,7 +53,7 @@ public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeapo
         return damageAmount;
     }
 
-    double mainExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, int curHit, DamageSource source, float attackStrenghtScale);
+    float mainExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, float damageAmount, int curHit, DamageSource source, float attackStrenghtScale);
 
     enum CountType {
         /**
