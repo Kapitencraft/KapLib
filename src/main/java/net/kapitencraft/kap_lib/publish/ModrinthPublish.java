@@ -121,7 +121,7 @@ public class ModrinthPublish {
         data.put("loaders", new String[] {"forge"});
         data.put("game_versions", new String[]{mcVersion});
         data.put("version_type", "release");
-        addDependencies(dependencies, data);
+        addDependencies(dependencies, data, mcVersion);
         data.put("featured", true);
         data.put("status", "listed");
         data.put("project_id", projectId);
@@ -135,7 +135,7 @@ public class ModrinthPublish {
         return AutoPublisher.GSON.toJson(data);
     }
 
-    private static void addDependencies(JsonObject[] dependencies, Map<String, Object> data) throws IOException {
+    private static void addDependencies(JsonObject[] dependencies, Map<String, Object> data, String gameVersion) throws IOException {
         List<Map<String, Object>> dependencyData = new ArrayList<>();
 
         for (JsonObject object : dependencies) {
@@ -149,7 +149,7 @@ public class ModrinthPublish {
                 String name = (String) dependency.get("file_name");
                 String projectId = (String) dependency.get("project_id");
                 int ordinal = dependency.containsKey("ordinal") ? (int) dependency.get("ordinal") : -1;
-                dependency.put("version_id", getDependencyVersionId(projectId, name, ordinal));
+                dependency.put("version_id", getDependencyVersionId(projectId, gameVersion, name, ordinal));
                 continue;
             }
             throw new IOException("Dependency Load Failed");
@@ -176,9 +176,9 @@ public class ModrinthPublish {
         }
     }
 
-    private static String getDependencyVersionId(String modId, String name, int ordinal) throws IOException {
+    private static String getDependencyVersionId(String modId, String gameVersion, String name, int ordinal) throws IOException {
         try {
-            Stream<JsonObject> data = ModrinthUtils.readVersions(modId, "AutoPublisherDependency");
+            Stream<JsonObject> data = ModrinthUtils.readVersions(modId, gameVersion, "AutoPublisherDependency");
             if (data == null) throw new IllegalStateException("connecting to '" + modId + "' failed");
             JsonObject[] available = data.filter(object -> GsonHelper.getAsString(object, "version_number").equals(name)).toArray(JsonObject[]::new);
             if (available.length > 1 && ordinal == -1) {

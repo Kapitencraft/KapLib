@@ -22,6 +22,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.progress.ProgressMeter;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
+import net.minecraftforge.versions.mcp.MCPVersion;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -142,7 +143,7 @@ public class UpdateChecker {
         try {
             info("running version check on '" + projectId + "'");
             ComparableVersion currentModVersion = new ComparableVersion(modInfo.versionString());
-            Stream<JsonObject> rawVersionData = ModrinthUtils.readVersions(projectId, "KapLibAutoUpdater");
+            Stream<JsonObject> rawVersionData = ModrinthUtils.readVersions(projectId, MCPVersion.getMCVersion(), "KapLibAutoUpdater");
             if (rawVersionData == null) {
                 LOGGER.warn("connection to {} failed", updateData.modId);
                 return Result.connectionFailed(updateData.modId, currentModVersion);

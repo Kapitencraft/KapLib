@@ -22,12 +22,12 @@ public class ModrinthUtils {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final String PROJECT_URL = "https://api.modrinth.com/v2/project/";
 
-    public static Stream<JsonObject> readVersions(String projectId, String agentName) throws IOException {
+    public static Stream<JsonObject> readVersions(String projectId, String gameVersion, String agentName) throws IOException {
 
         String projectVersionURL = PROJECT_URL + projectId + "/version";
         String requestParams = "?loaders=" +
                 URLEncoder.encode(JsonHelper.GSON.toJson(new String[]{"forge"}), StandardCharsets.UTF_8) +
-                "&game_versions=" + URLEncoder.encode(JsonHelper.GSON.toJson(new Object[]{MCPVersion.getMCVersion()}), StandardCharsets.UTF_8);
+                "&game_versions=" + URLEncoder.encode(JsonHelper.GSON.toJson(new Object[]{gameVersion}), StandardCharsets.UTF_8);
         URL url = new URL(projectVersionURL + requestParams);
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.setRequestMethod("GET");

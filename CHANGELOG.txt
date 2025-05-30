@@ -1,2 +1,1 @@
-added lifetime parameter to LightningParticle
-removed LightningHolder. use LightningParticle instead
+fixed AutoPublisher not working with dependencies
