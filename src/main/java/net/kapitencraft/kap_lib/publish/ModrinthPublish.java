@@ -146,7 +146,7 @@ public class ModrinthPublish {
             else if (!verifyDependencyType(dependency.get("type"))) System.err.println("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
             else {
                 dependencyData.add(dependency);
-                String name = (String) dependency.get("file_name");
+                String name = (String) dependency.get("version_name");
                 String projectId = (String) dependency.get("project_id");
                 int ordinal = dependency.containsKey("ordinal") ? (int) dependency.get("ordinal") : -1;
                 dependency.put("version_id", getDependencyVersionId(projectId, gameVersion, name, ordinal));
