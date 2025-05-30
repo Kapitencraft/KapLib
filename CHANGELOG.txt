@@ -1,1 +1,1 @@
-fixed AutoPublish dependencies not working
+fixed AutoPublish not working correctly (hopefully fr this time)

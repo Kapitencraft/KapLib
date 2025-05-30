@@ -148,7 +148,7 @@ public class ModrinthPublish {
                 dependencyData.add(dependency);
                 String name = (String) dependency.get("version_name");
                 String projectId = (String) dependency.get("project_id");
-                int ordinal = dependency.containsKey("ordinal") ? (int) dependency.get("ordinal") : -1;
+                int ordinal = dependency.containsKey("ordinal") ? (int) dependency.get("ordinal") : 0;
                 dependency.put("version_id", getDependencyVersionId(projectId, gameVersion, name, ordinal));
                 continue;
             }
@@ -181,12 +181,10 @@ public class ModrinthPublish {
             Stream<JsonObject> data = ModrinthUtils.readVersions(modId, gameVersion, "AutoPublisherDependency");
             if (data == null) throw new IllegalStateException("connecting to '" + modId + "' failed");
             JsonObject[] available = data.filter(object -> GsonHelper.getAsString(object, "version_number").equals(name)).toArray(JsonObject[]::new);
-            if (available.length > 1 && ordinal == -1) {
-                throw new IllegalArgumentException("multiple possible versions available but no ordinal specified!");
-            } else if (ordinal >= available.length || ordinal < 0) {
-                throw new IndexOutOfBoundsException("ordinal out of bounds for version count " + available.length);
+            if (ordinal >= available.length || ordinal < 0) {
+                throw new IndexOutOfBoundsException(String.format("ordinal %s out of bounds for version count %s", ordinal , available.length));
             }
-            return GsonHelper.getAsString(available.length == 1 ? available[0] : available[ordinal], "id");
+            return GsonHelper.getAsString(available[ordinal], "id");
         } catch (IOException e) {
             throw new IOException("unable to read dependency: " + e.getMessage());
         }
