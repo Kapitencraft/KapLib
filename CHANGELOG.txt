@@ -1,3 +1,2 @@
-added RANGED_WEAPONS Enchantment Category to ExtraEnchantmentCategories
-ExtendedCalculationEnchantment now uses float for damage
-added mod-id check for UpdateChecker
+added lifetime parameter to LightningParticle
+removed LightningHolder. use LightningParticle instead

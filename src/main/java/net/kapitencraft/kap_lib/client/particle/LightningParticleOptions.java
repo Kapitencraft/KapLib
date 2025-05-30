@@ -19,19 +19,21 @@ public class LightningParticleOptions extends ParticleType<LightningParticleOpti
             Vec3.CODEC.fieldOf("start").forGetter(LightningParticleOptions::getStart),
             Vec3.CODEC.fieldOf("end").forGetter(LightningParticleOptions::getEnd),
             Codec.INT.fieldOf("segments").forGetter(LightningParticleOptions::getSegments),
+            Codec.INT.fieldOf("lifetime").forGetter(LightningParticleOptions::getLifetime),
             Codec.FLOAT.fieldOf("displacement").forGetter(LightningParticleOptions::getDisplacement),
             Codec.FLOAT.fieldOf("width").forGetter(LightningParticleOptions::getWidth)
     ).apply(lightningParticleOptionsInstance, LightningParticleOptions::new));
 
     private final Vec3 start, end;
-    private final int segments;
+    private final int segments, lifetime;
     private final float displacement, width;
 
-    public LightningParticleOptions(Vec3 start, Vec3 end, @Range(from = 2, to = 255) int segments, float displacement, float width) {
+    public LightningParticleOptions(Vec3 start, Vec3 end, @Range(from = 2, to = 255) int segments, int lifetime, float displacement, float width) {
         super(true, new Deserializer());
         this.start = start;
         this.end = end;
         this.segments = segments;
+        this.lifetime = lifetime;
         this.displacement = displacement;
         this.width = width;
     }
@@ -80,6 +82,10 @@ public class LightningParticleOptions extends ParticleType<LightningParticleOpti
         return width;
     }
 
+    public int getLifetime() {
+        return lifetime;
+    }
+
     private static class Deserializer implements ParticleOptions.Deserializer<LightningParticleOptions> {
 
         @Override
@@ -90,10 +96,12 @@ public class LightningParticleOptions extends ParticleType<LightningParticleOpti
             pReader.expect(' ');
             int segments = pReader.readInt();
             pReader.expect(' ');
+            int lifetime = pReader.readInt();
+            pReader.expect(' ');
             float displacement = pReader.readFloat();
             pReader.expect(' ');
             float width = pReader.readFloat();
-            return new LightningParticleOptions(start, end, segments, displacement, width);
+            return new LightningParticleOptions(start, end, segments, lifetime, displacement, width);
         }
 
         @Override
@@ -101,7 +109,7 @@ public class LightningParticleOptions extends ParticleType<LightningParticleOpti
             Vec3 start = NetworkHelper.readVec3(pBuffer);
             Vec3 end = NetworkHelper.readVec3(pBuffer);
             int segments = pBuffer.readByte() & 255;
-            return new LightningParticleOptions(start, end, segments, pBuffer.readFloat(), pBuffer.readFloat());
+            return new LightningParticleOptions(start, end, segments, pBuffer.readInt(), pBuffer.readFloat(), pBuffer.readFloat());
         }
     }
 }

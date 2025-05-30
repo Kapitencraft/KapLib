@@ -22,12 +22,12 @@ public class LightningParticle extends Particle {
 
     private final Vector3f[] vertexes;
 
-    protected LightningParticle(ClientLevel pLevel, Vec3 start, Vec3 end, int segments, float displacement, float width) {
+    protected LightningParticle(ClientLevel pLevel, Vec3 start, Vec3 end, int segments, int lifetime, float displacement, float width) {
         super(pLevel, 0, 0, 0);
         this.vertexes = createVertexes(start, end, segments, displacement, width);
         this.setBoundingBox(new AABB(start, end));
         this.alpha = .3f;
-        this.lifetime = 1000;
+        this.lifetime = lifetime;
     }
 
     private Vector3f[] createVertexes(Vec3 start, Vec3 end, int segments, float displacement, float width) {
@@ -117,7 +117,7 @@ public class LightningParticle extends Particle {
 
         @Override
         public @Nullable Particle createParticle(LightningParticleOptions pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            return new LightningParticle(pLevel, pType.getStart(), pType.getEnd(), pType.getSegments(), pType.getDisplacement(), pType.getWidth());
+            return new LightningParticle(pLevel, pType.getStart(), pType.getEnd(), pType.getSegments(), pType.getLifetime(), pType.getDisplacement(), pType.getWidth());
         }
     }
 }

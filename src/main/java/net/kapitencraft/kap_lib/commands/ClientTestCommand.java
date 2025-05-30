@@ -131,7 +131,7 @@ public class ClientTestCommand {
         //new LightningHolder(new Vec3(0, 0, -10), new Vec3(10, 0, 0), 100);
         Level level = entity.level();
         level.addParticle(
-                        new LightningParticleOptions(new Vec3(0, 0, -10), new Vec3(10, 0, 0), 5, 1.5f, .2f),
+                        new LightningParticleOptions(new Vec3(0, 0, -10), new Vec3(10, 0, 0), 5, 1000, 1.5f, .2f),
                         true, 0, 0, 0, 0, 0, 0
         );
         level.addParticle(ParticleTypes.FLAME, 0, 0, -10, 0, 0, 0);
