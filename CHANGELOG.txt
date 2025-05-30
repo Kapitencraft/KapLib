@@ -1,1 +1,1 @@
-fixed AutoPublish not working correctly (hopefully fr this time)
+fixed auto publish dependencies not working because of "type" -> "dependency_type"
