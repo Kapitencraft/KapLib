@@ -141,7 +141,7 @@ public class ModrinthPublish {
         for (JsonObject object : dependencies) {
             Map<String, Object> dependency = AutoPublisher.GSON.fromJson(object, Map.class);
             if (!dependency.containsKey("project_id")) System.err.println("Dependency missing project id!");
-            else if (!dependency.containsKey("file_name")) System.err.println("Dependency missing file name!");
+            else if (!dependency.containsKey("version_name")) System.err.println("Dependency missing file name!");
             else if (!dependency.containsKey("type")) System.err.println("Dependency missing dependency type");
             else if (!verifyDependencyType(dependency.get("type"))) System.err.println("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
             else {

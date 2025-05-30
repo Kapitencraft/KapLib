@@ -1,1 +1,1 @@
-fixed AutoPublisher not working with dependencies
+renamed publish_config.json / dependencies / file_name -> . / version_name
