@@ -1,1 +1,1 @@
-fixed CapabilityProvider#fallback being package private, making it impossible to be used
+fixed unnecessary `getCapability` override in CapabilityProvider

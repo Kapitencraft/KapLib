@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.item.capability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -12,6 +13,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -41,6 +43,11 @@ public abstract class CapabilityProvider<D, C extends AbstractCapability<D>> imp
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
+        return this.capability.orEmpty(cap, lazy);
+    }
+
+    @Override
+    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         return this.capability.orEmpty(cap, lazy);
     }
 
