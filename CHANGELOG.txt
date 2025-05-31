@@ -1,1 +1,1 @@
-fixed auto publish dependencies not working because of "type" -> "dependency_type"
+fixed CapabilityProvider#fallback being package private, making it impossible to be used

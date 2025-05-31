@@ -66,5 +66,5 @@ public abstract class CapabilityProvider<D, C extends AbstractCapability<D>> imp
     /**
      * @return a value to use when deserialization fails
      */
-    abstract D fallback();
+    protected abstract D fallback();
 }
