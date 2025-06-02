@@ -24,7 +24,12 @@ public class NullableCodec<T> implements Codec<T> {
 
     @Override
     public <T1> DataResult<T1> encode(T input, DynamicOps<T1> ops, T1 prefix) {
+        if (input == null) return DataResult.success(ops.empty());
+        return codec.encode(input, ops, prefix);
+    }
 
-        return null;
+    @Override
+    public String toString() {
+        return "Nullable[" + codec + "]";
     }
 }
