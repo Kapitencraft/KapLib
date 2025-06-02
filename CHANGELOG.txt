@@ -1,1 +1,3 @@
-fixed unnecessary `getCapability` override in CapabilityProvider
+added SyncCapabilityToPlayerPacket.createPacket method to simplify
+fixed MappedCooldowns accepting cooldowns with 0 duration
+added ExtraCodecs#nullable see jDocs for more info
