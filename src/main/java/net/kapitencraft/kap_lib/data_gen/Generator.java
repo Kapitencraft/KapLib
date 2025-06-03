@@ -24,7 +24,7 @@ public class Generator {
         generator.addProvider(true, new ModRegistriesProvider(output, lookupProvider));
         generator.addProvider(true, new ModTagsProvider.Block(output, lookupProvider, helper));
         generator.addProvider(true, new ModTagsProvider.EntityTypes(output, lookupProvider));
-        generator.addProvider(false, new ModTagsProvider.DamageType(output, lookupProvider, helper));
+        generator.addProvider(true, new ModTagsProvider.DamageType(output, lookupProvider, helper));
         generator.addProvider(true, new TestSpawnTableProvider(output));
         generator.addProvider(true, new TestBonusProvider(output, lookupProvider, helper));
         generator.addProvider(true, new TestLanguageProvider(output));
