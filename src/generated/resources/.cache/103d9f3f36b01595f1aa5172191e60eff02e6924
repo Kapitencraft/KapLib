@@ -1,2 +1,4 @@
-// 1.20.1	2025-03-15T12:16:16.5970065	Registries
+// 1.20.1	2025-06-03T21:14:10.9254227	Registries
 7bc915782cb2d5bca27dc7ecc669a7a7a3e5ce55 data/kap_lib/damage_type/ferocity.json
+c69778a1407de469d4d2b49341e3b0a70572a55a data/kap_lib/damage_type/mana_overflow.json
+0b417d16cacc328d9a0baa5967830438b1d7a662 data/kap_lib/damage_type/mana_overflow_self.json

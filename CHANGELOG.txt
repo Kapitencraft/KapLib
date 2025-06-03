@@ -1,1 +1,4 @@
-fixed NullableCodec not able to decode anything
+fixed a typo considering requirements bonuses
+added SyncCapabilityToPlayerPacket.createPacket method to simplify
+fixed MappedCooldowns saving cooldowns with 0 duration
+fixed set bonuses not working due to mismatch in tag namespace

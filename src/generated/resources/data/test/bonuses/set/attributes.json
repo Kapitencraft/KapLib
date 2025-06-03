@@ -1,0 +1,23 @@
+{
+  "type": "kap_lib:attribute_modifiers",
+  "data": {
+    "entries": {
+      "minecraft:generic.luck": [
+        {
+          "type": "minecraft:default",
+          "amount": 20.0,
+          "name": "TestBonusLuck",
+          "operation": 0,
+          "uuid": "a0c140be-bb83-484c-9319-44be7e3a14dd"
+        }
+      ]
+    }
+  },
+  "slots": [
+    "head",
+    "feet",
+    "legs",
+    "mainhand",
+    "chest"
+  ]
+}

@@ -16,6 +16,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagBuilder;
 import net.minecraft.tags.TagEntry;
 import net.minecraft.tags.TagKey;
@@ -139,7 +140,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
         return "Bonuses of '" + modId + "'";
     }
 
-    protected static class SetBuilder extends ItemBuilder {
+    protected class SetBuilder extends ItemBuilder {
         private final Map<EquipmentSlot, SetSlotBuilder> content = new HashMap<>();
         private final String name;
 
@@ -186,7 +187,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
     /**
      * slot builder. extends TagAppender to allow for tags to be used as item selector
      */
-    protected static class SetSlotBuilder {
+    protected class SetSlotBuilder {
         private final TagKey<Item> key;
         private final TagBuilder builder;
 
@@ -194,7 +195,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
          *
          */
         protected SetSlotBuilder(String setName, EquipmentSlot slot) {
-            this.key = TagKey.create(Registries.ITEM, KapLibMod.res("set/" + setName + "/" + slot.getName()));
+            this.key = TagKey.create(Registries.ITEM, new ResourceLocation(BonusProvider.this.modId, "set/" + setName + "/" + slot.getName()));
             this.builder = new TagBuilder();
         }
 

@@ -7,6 +7,7 @@ import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +26,7 @@ public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGe
         return IDataGenElement.fromNetwork(buf);
     }
     //data-gen
+    @SuppressWarnings("unchecked")
     public static <T extends ReqCondition<T>> ReqCondition<T> readFromJson(JsonObject object) {
         try {
             DataPackSerializer<T> serializer = (DataPackSerializer<T>) ExtraRegistries.REQUIREMENT_TYPES.getValue(new ResourceLocation(GsonHelper.getAsString(object, "type")));
@@ -32,7 +34,7 @@ public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGe
                 throw new NullPointerException("unknown requirement type: '" + GsonHelper.getAsString(object, "type") + "'");
             return Objects.requireNonNull(serializer.parseOrThrow(GsonHelper.getAsJsonObject(object, "data")));
         } catch (Exception e) {
-            KapLibMod.LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "error loading bonus: {}", e.getMessage());
+             RequirementManager.LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "error loading requirement: {}", e.getMessage());
             return null;
         }
     }

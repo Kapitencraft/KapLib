@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.requirements;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
+import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.collection.MapStream;
@@ -25,10 +26,13 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.logging.LogManager;
 
 public class RequirementManager extends SimpleJsonResourceReloadListener {
+    public static final  Logger LOGGER = LogUtils.getLogger();
     public static RequirementManager instance;
 
     //sync
@@ -120,7 +124,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
                         .mapValues(ReqCondition::readFromJson)
                         .forEach(this::addElement);
             } catch (Exception e) {
-                KapLibMod.LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "error loading requirements for type '{}': {}", this.type.getName(), e.getMessage());
+                LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "error loading requirements for type '{}': {}", this.type.getName(), e.getMessage());
             }
         }
 

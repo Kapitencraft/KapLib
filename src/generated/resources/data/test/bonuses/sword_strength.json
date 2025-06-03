@@ -1,0 +1,11 @@
+{
+  "type": "kap_lib:simple_mob_effect",
+  "data": [
+    {
+      "amplifier": 10,
+      "duration": 5,
+      "effect": "minecraft:strength"
+    }
+  ],
+  "item": "minecraft:netherite_sword"
+}

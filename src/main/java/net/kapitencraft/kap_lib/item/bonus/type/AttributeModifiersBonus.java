@@ -28,8 +28,8 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
     private static final Codec<Multimap<Attribute, AttributeModifier>> ENTRIES_CODEC = Codec.unboundedMap(ForgeRegistries.ATTRIBUTES.getCodec(), ExtraCodecs.ATTRIBUTE_MODIFIER.listOf()).xmap(CollectionHelper::fromListMap, CollectionHelper::fromMultimap);
     private static final Codec<AttributeModifiersBonus> CODEC = RecordCodecBuilder.create(attributeModifiersBonusInstance -> attributeModifiersBonusInstance.group(
             ENTRIES_CODEC.fieldOf("entries").forGetter(AttributeModifiersBonus::getModifiers),
-            Type.CODEC.fieldOf("bracket_type").forGetter(AttributeModifiersBonus::getType),
-            ExtraCodecs.EFFECT_SERIALIZING_STYLE.fieldOf("style").forGetter(AttributeModifiersBonus::getStyle)
+            Type.CODEC.optionalFieldOf("bracket_type", Type.NONE).forGetter(AttributeModifiersBonus::getType),
+            ExtraCodecs.EFFECT_SERIALIZING_STYLE.optionalFieldOf("style", Style.EMPTY).forGetter(AttributeModifiersBonus::getStyle)
     ).apply(attributeModifiersBonusInstance, AttributeModifiersBonus::new));
 
     public static final DataPackSerializer<AttributeModifiersBonus> SERIALIZER = new DataPackSerializer<>(
@@ -99,8 +99,8 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
 
     public static class Builder {
         private final Multimap<Attribute, AttributeModifier> modifiers = HashMultimap.create();
-        private Type type;
-        private Style style;
+        private Type type = Type.NONE;
+        private Style style = Style.EMPTY;
 
         public Builder addModifier(Attribute attribute, AttributeModifier modifier) {
             this.modifiers.put(attribute, modifier);
@@ -124,6 +124,7 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
             return this;
         }
 
+        //TODO either remove or fix null codec issue
         public Builder setDisplayStyle(UnaryOperator<Style> style) {
             this.style = style.apply(Style.EMPTY);
             return this;

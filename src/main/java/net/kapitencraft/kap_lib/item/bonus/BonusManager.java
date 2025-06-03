@@ -262,7 +262,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     public static List<Component> getBonusDisplay(ItemStack stack, @Nullable LivingEntity living) {
         if (instance == null) return List.of();
-        Map<ResourceLocation, AbstractBonusElement> available = instance.getBonusesForItem(stack, true);
+        Map<ResourceLocation, AbstractBonusElement> available = instance.getBonusesForItem(stack, false);
 
         List<Component> components = new ArrayList<>();
 

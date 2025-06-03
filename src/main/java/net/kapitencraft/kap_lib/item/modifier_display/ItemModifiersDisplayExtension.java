@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.item.modifier_display;
 
 import com.google.common.collect.Multimap;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.StringRepresentable;
@@ -18,6 +19,7 @@ public interface ItemModifiersDisplayExtension {
 
     default Component createComponent(double value) {
         Type type = getType();
+        if (type == Type.NONE) return CommonComponents.EMPTY;
         return Component.literal(type.open +
                 (value < 0 ? "" : "+") +  ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value) +
                 type.close
@@ -31,6 +33,7 @@ public interface ItemModifiersDisplayExtension {
     Type getType();
 
     enum Type implements StringRepresentable {
+        NONE(' ', ' '),
         CURLY('{', '}'),
         SQUARE('[', ']'),
         DEFAULT('(', ')'),

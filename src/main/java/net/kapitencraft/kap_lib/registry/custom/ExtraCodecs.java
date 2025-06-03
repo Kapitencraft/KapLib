@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.io.serialization.NullableCodec;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibComponentContents;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibDataSource;
@@ -81,13 +80,4 @@ public interface ExtraCodecs {
     ).apply(instance, MobEffectInstance::new));
 
     Codec<Bonus<?>> BONUS = ExtraRegistries.BONUS_SERIALIZER.getCodec().dispatchStable(Bonus::getSerializer, s -> s.getCodec().fieldOf("data").codec());
-
-    /**
-     * @param base the base, not nullable codec
-     * @param fallback the value used when the data was null
-     * @return a codec with nullable support
-     */
-    static <T> Codec<T> nullable(Codec<T> base, Supplier<T> fallback) {
-        return new NullableCodec<>(base, fallback);
-    }
 }

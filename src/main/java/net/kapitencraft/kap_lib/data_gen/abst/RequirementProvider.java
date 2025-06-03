@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.data_gen.abst;
 import com.google.gson.JsonObject;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
+import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
@@ -55,7 +56,7 @@ public abstract class RequirementProvider<T> implements DataProvider {
         this.requirements.forEach((t, condition) -> {
             ResourceLocation elementId = this.type.getId(t);
             if (elementId == null) {
-                KapLibMod.LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "could not find element {} in requirement type '{}'; skipping!", t.getClass().getCanonicalName(), this.type.getName());
+                RequirementManager.LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "could not find element {} in requirement type '{}'; skipping!", t.getClass().getCanonicalName(), this.type.getName());
                 return;
             }
             json.add(elementId.toString(), condition.toJson());
