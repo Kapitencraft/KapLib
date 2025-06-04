@@ -135,15 +135,16 @@ public class ModrinthPublish {
         return AutoPublisher.GSON.toJson(data);
     }
 
+    @SuppressWarnings("unchecked")
     private static void addDependencies(JsonObject[] dependencies, Map<String, Object> data, String gameVersion) throws IOException {
         List<Map<String, Object>> dependencyData = new ArrayList<>();
 
         for (JsonObject object : dependencies) {
             Map<String, Object> dependency = AutoPublisher.GSON.fromJson(object, Map.class);
-            if (!dependency.containsKey("project_id")) System.err.println("Dependency missing project id!");
-            else if (!dependency.containsKey("version_name")) System.err.println("Dependency missing file name!");
-            else if (!dependency.containsKey("dependency_type")) System.err.println("Dependency missing dependency type");
-            else if (!verifyDependencyType(dependency.get("dependency_type"))) System.err.println("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
+            if (!dependency.containsKey("project_id")) AutoPublisher.LOGGER.error("Dependency missing project id!");
+            else if (!dependency.containsKey("version_name")) AutoPublisher.LOGGER.error("Dependency missing file name!");
+            else if (!dependency.containsKey("dependency_type")) AutoPublisher.LOGGER.error("Dependency missing dependency type");
+            else if (!verifyDependencyType(dependency.get("dependency_type"))) AutoPublisher.LOGGER.error("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
             else {
                 dependencyData.add(dependency);
                 String name = (String) dependency.get("version_name");

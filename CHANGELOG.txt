@@ -1,4 +1,0 @@
-added SyncCapabilityToPlayerPacket.createPacket method to simplify
-fixed a typo considering requirements bonuses
-fixed MappedCooldowns saving cooldowns with 0 duration
-fixed set bonuses not working due to mismatch in tag namespace

@@ -1,29 +1,34 @@
 package net.kapitencraft.kap_lib.publish;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
-import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
-import net.minecraft.util.GsonHelper;
+import com.mojang.logging.LogUtils;
+import net.kapitencraft.kap_lib.KapLibMod;
+import org.slf4j.Logger;
 
-import javax.net.ssl.HttpsURLConnection;
+import javax.json.Json;
 import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.stream.Stream;
+import java.util.logging.LogManager;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AutoPublisher {
     static final Gson GSON = new GsonBuilder().create();
+    static final Logger LOGGER = LogUtils.getLogger();
 
     private static final File CONFIG = new File("build/resources/main/publish_config.json");
     static final File AUTHENTICATION = new File("run/AuthCache.txt");
     private static final File DATA_CACHE = new File("run/PublishCache.txt");
-    static final File CHANGE_LOG = new File("CHANGELOG.txt");
+    static final File CHANGE_LOG = new File("publish/changelog.txt");
+    static final File CATEGORIES = new File("publish/categories.json");
 
     record Config(String email, String author,
                           String modId, String modName,
@@ -70,15 +75,14 @@ public class AutoPublisher {
         String modVersion = config.modVersion;
         String mcVersion = config.mcVersion;
         String fmlVersion = config.fmlVersion;
-        System.out.println("Auto Publish activated with args:");
-        System.out.printf("modId=\"%s\", modName=\"%s\", modVersion=%s, mcVersion=%s, fmlVersion=%s", modId, modName, modVersion, mcVersion, fmlVersion);
-        System.out.println();
+        LOGGER.info("Auto Publish activated with args:");
+        LOGGER.info("modId=\"{}\", modName=\"{}\", modVersion={}, mcVersion={}, fmlVersion={}", modId, modName, modVersion, mcVersion, fmlVersion);
 
         try {
             if (DATA_CACHE.exists()) {
                 String lastVersion = new String(Files.readAllBytes(DATA_CACHE.toPath()));
                 if (lastVersion.equals(modVersion)) {
-                    System.err.println("last published version matches current version"); //do not upload the same version twice
+                    LOGGER.error("last published version matches current version"); //do not upload the same version twice
                     return;
                 }
             }
@@ -87,7 +91,7 @@ public class AutoPublisher {
                 clearChangelog();
             }
         } catch (Exception e) {
-            System.err.println("Error accessing API:");
+            LOGGER.error("Error accessing API:");
             e.printStackTrace(System.err);
         }
     }
@@ -102,8 +106,6 @@ public class AutoPublisher {
         FileWriter writer = new FileWriter(CHANGE_LOG);
         writer.close();
     }
-
-    private static final List<String> DEPENDENCY_TYPES = List.of("required", "optional", "incompatible", "embedded");
 
     static String getFileSHA512(File file) {
         try {
@@ -120,51 +122,13 @@ public class AutoPublisher {
     private static String changelog;
 
     static String createChangelog() throws FileNotFoundException {
-        //TODO extend changelog capabilities
         if (changelog == null) {
             BufferedReader reader = new BufferedReader(new FileReader(CHANGE_LOG));
-            List<String> additions = new ArrayList<>();
-            List<String> moves = new ArrayList<>();
-            List<String> fixes = new ArrayList<>();
-            List<String> removes = new ArrayList<>();
-            List<String> uncategorized = new ArrayList<>();
-            List<String> knownErrors = new ArrayList<>();
-
-            reader.lines().forEach(s -> {
-                if (s.isEmpty()) return;
-                if (s.startsWith("added ")) additions.add(s.substring(6));
-                else if (s.startsWith("removed ")) removes.add(s.substring(7));
-                else if (s.startsWith("moved ")) moves.add(s.substring(6));
-                else if (s.startsWith("modified ")) moves.add(s.substring(9));
-                else if (s.startsWith("fixed ")) fixes.add(s.substring(6));
-                else if (s.startsWith("known error: ")) knownErrors.add(s.substring(13));
-                else uncategorized.add(s);
-            });
-            StringBuilder changelogBuilder = new StringBuilder();
-            addElements(changelogBuilder, additions, "Added");
-            addElements(changelogBuilder, moves, "Moved");
-            addElements(changelogBuilder, fixes, "Fixed");
-            addElements(changelogBuilder, removes, "Removed");
-            addElements(changelogBuilder, knownErrors, "Known Errors");
-            addElements(changelogBuilder, uncategorized, "Uncategorized");
-            changelog = changelogBuilder.toString();
+            Changelog log = new Changelog();
+            reader.lines().forEach(log::parse);
+            changelog = log.toHtml();
         }
         return changelog;
-    }
-
-    private static void addElements(StringBuilder dataSink, List<String> data, String name) {
-        if (data.isEmpty()) return; //skip not used headers
-        dataSink.append("<h2>");
-        dataSink.append(name);
-        dataSink.append("</h2>");
-        dataSink.append("<ol>\n");
-        for (String addition : data) {
-            dataSink.append("\t<li>");
-            dataSink.append(addition);
-            dataSink.append("</li>\n");
-        }
-        dataSink.append("</ol>\n");
-
     }
 
     static String formatVersion(String modVersion, String mcVersion, String fmlVersion) {
@@ -182,5 +146,105 @@ public class AutoPublisher {
             }
         }
         return authString[modrinth ? 0 : 1];
+    }
+
+    private static class Changelog {
+        private static final List<Category> categories = gatherCategories();
+
+        private static List<Category> gatherCategories() {
+            List<Category> categories = new ArrayList<>();
+            categories.add(Category.FIXED);
+            categories.add(Category.ADDED);
+            categories.add(Category.REMOVED);
+            categories.add(Category.MOVED);
+            categories.add(Category.KNOWN_ERROR);
+
+            loadCategoryFile(categories);
+
+            return ImmutableList.copyOf(categories);
+        }
+
+        private static final Gson GSON = new GsonBuilder().registerTypeAdapter(Category.class, new Category.Deserializer()).create();
+
+        private static void loadCategoryFile(List<Category> categories) {
+            try {
+                if (!CATEGORIES.exists() || !CATEGORIES.isFile()) return;
+                Category[] categories1 = GSON.fromJson(new JsonReader(new FileReader(CATEGORIES)), Category[].class);
+                categories.addAll(Arrays.asList(categories1));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
+        private final Multimap<Category, String> content;
+
+        private Changelog() {
+            this.content = HashMultimap.create();
+        }
+
+        public void add(Category category, String name) {
+            this.content.put(category, name);
+        }
+
+        public void parse(String s) {
+            if (s.isEmpty()) return;
+            a: {
+                for (Category category : categories) {
+                    Matcher matcher = category.pattern.matcher(s);
+                    if (matcher.find()) {
+                        this.add(category, s.substring(matcher.end()));
+                        break a;
+                    }
+                }
+                add(Category.UNCATEGORIZED, s);
+            }
+        }
+
+        public String toHtml() {
+            StringBuilder builder = new StringBuilder();
+            for (Category category : this.content.keySet()) {
+                addElements(builder, this.content.get(category), category.title);
+            }
+            return builder.toString();
+        }
+
+        private static void addElements(StringBuilder dataSink, Collection<String> data, String name) {
+            if (data.isEmpty()) return; //skip not used headers
+            dataSink.append("<h2>");
+            dataSink.append(name);
+            dataSink.append("</h2>");
+            dataSink.append("<ol>\n");
+            for (String addition : data) {
+                dataSink.append("\t<li>");
+                dataSink.append(addition);
+                dataSink.append("</li>\n");
+            }
+            dataSink.append("</ol>\n");
+
+        }
+
+        private record Category(Pattern pattern, String title) {
+            public static final Category ADDED = new Category(Pattern.compile("^added"), "Added");
+            public static final Category REMOVED = new Category(Pattern.compile("^removed"), "Removed");
+            public static final Category MOVED = new Category(Pattern.compile("^(moved)|(modified)"), "Moved");
+            public static final Category FIXED = new Category(Pattern.compile("^fixed"), "Fixed");
+            public static final Category KNOWN_ERROR = new Category(Pattern.compile("^known error:"), "Known Errors");
+            public static final Category UNCATEGORIZED = new Category(Pattern.compile(""), "Uncategorized");
+
+            private static class Deserializer implements JsonDeserializer<Category> {
+
+                @Override
+                public Category deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                    if (jsonElement.isJsonObject()) {
+                        JsonObject object = (JsonObject) jsonElement;
+                        if (!object.has("pattern")) throw new JsonParseException("missing 'pattern' field");
+                        if (!object.has("title")) throw new JsonParseException("missing 'title' field");
+                        return new Category(Pattern.compile(object.getAsJsonPrimitive("pattern").getAsString()), object.getAsJsonPrimitive("title").getAsString());
+                    }
+                    throw new JsonParseException("Category is not object");
+                }
+            }
+        }
     }
 }

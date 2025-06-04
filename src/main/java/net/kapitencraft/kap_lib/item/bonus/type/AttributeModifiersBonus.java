@@ -124,7 +124,6 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
             return this;
         }
 
-        //TODO either remove or fix null codec issue
         public Builder setDisplayStyle(UnaryOperator<Style> style) {
             this.style = style.apply(Style.EMPTY);
             return this;

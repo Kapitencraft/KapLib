@@ -40,7 +40,6 @@ import java.util.function.Supplier;
 /**
  * data generator for item bonuses
  */
-//TODO make write direct
 public abstract class BonusProvider extends ItemTagsProvider {
     private final PackOutput output;
     private final String modId;
