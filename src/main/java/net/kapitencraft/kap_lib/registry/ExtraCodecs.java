@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.registry.custom;
+package net.kapitencraft.kap_lib.registry;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public interface ExtraCodecs {
     Codec<ComponentContents> COMPONENT_TYPES = ExtraRegistries.COMPONENT_CONTENT_TYPES.getCodec().dispatchStable(IKapLibComponentContents::codecFromVanilla, Function.identity());

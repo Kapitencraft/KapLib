@@ -119,7 +119,7 @@ public class ConfigureOverlaysScreen extends MenuableScreen {
             int arrowId = boxes.stream().map(box -> box.getCursorType(mouseX, mouseY))
                     .filter(i -> i != GLFW.GLFW_ARROW_CURSOR) //ensure to only scan for non-default cursors
                     .findFirst().orElse(GLFW.GLFW_ARROW_CURSOR);
-            ClientHelper.changeCursorType(arrowId);
+           ClientHelper.changeCursorType(arrowId);
         }
     }
 

@@ -8,6 +8,8 @@ import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.co
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
+import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
+import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
@@ -56,6 +58,8 @@ public interface ModRegistryBuilders {
     RegistryBuilder<Modifier.Type<?>> CAMERA_ROTATORS = makeBuilder(ExtraRegistries.Keys.CAMERA_MODIFIERS);
     RegistryBuilder<SpawnEntityFunctionType> SPAWN_FUNCTION_TYPE = makeBuilder(ExtraRegistries.Keys.FUNCTION_TYPES);
     RegistryBuilder<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPE = makeBuilder(ExtraRegistries.Keys.POOL_ENTRY_TYPES);
+    RegistryBuilder<WearableSlot> WEARABLE_SLOT = makeBuilder(ExtraRegistries.Keys.WEARABLE_SLOTS).add(new ModRegistryCallbacks.WearableSlotsAddCallback()).add(new ModRegistryCallbacks.WearableSlotsCreateCallback());
+    RegistryBuilder<InventoryPageType<?>> INVENTORY_PAGE = makeBuilder(ExtraRegistries.Keys.INVENTORY_PAGES);
 
     private static <T> RegistryBuilder<T> makeBuilder(ResourceKey<Registry<T>> location) {
         RegistryBuilder<T> builder = new RegistryBuilder<T>().setName(location.location());

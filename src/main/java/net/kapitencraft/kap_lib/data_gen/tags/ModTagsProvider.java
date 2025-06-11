@@ -2,6 +2,8 @@ package net.kapitencraft.kap_lib.data_gen.tags;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.data_gen.ModDamageTypes;
+import net.kapitencraft.kap_lib.registry.TestItems;
+import net.kapitencraft.kap_lib.registry.custom.WearableSlots;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -66,13 +68,13 @@ public class ModTagsProvider {
 
     public static class Item extends ItemTagsProvider {
 
-        public Item(PackOutput p_275343_, CompletableFuture<HolderLookup.Provider> p_275729_, CompletableFuture<TagLookup<net.minecraft.world.level.block.Block>> p_275322_, String modId, @Nullable ExistingFileHelper existingFileHelper) {
-            super(p_275343_, p_275729_, p_275322_, modId, existingFileHelper);
+        public Item(PackOutput p_275343_, CompletableFuture<HolderLookup.Provider> p_275729_, CompletableFuture<TagLookup<net.minecraft.world.level.block.Block>> p_275322_, @Nullable ExistingFileHelper existingFileHelper) {
+            super(p_275343_, p_275729_, p_275322_, KapLibMod.MOD_ID, existingFileHelper);
         }
 
         @Override
         protected void addTags(HolderLookup.Provider pProvider) {
-
+            tag(WearableSlots.BELT.get().getTypeKey()).add(TestItems.OBJECT.get());
         }
     }
 }

@@ -5,18 +5,23 @@ import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.collection.BiCollectors;
 import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManager;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
+import net.kapitencraft.kap_lib.inventory.wearable.IWearable;
+import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.item.modifier_display.ItemModifiersDisplayExtension;
 import net.kapitencraft.kap_lib.item.modifier_display.ModifierDisplayManager;
 import net.kapitencraft.kap_lib.mixin.duck.MixinSelfProvider;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.PaintingVariantTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -33,6 +38,7 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -86,67 +92,88 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
         if (shouldShowInTooltip(j, ItemStack.TooltipPart.MODIFIERS)) {
             List<ItemModifiersDisplayExtension> extensions = ModifierDisplayManager.getExtensions(pPlayer, self());
             for(EquipmentSlot equipmentslot : EquipmentSlot.values()) {
-                Multimap<Attribute, AttributeModifier> multimap = this.getAttributeModifiers(equipmentslot);
-                if (!multimap.isEmpty()) {
-                    list.add(CommonComponents.EMPTY);
-                    list.add(Component.translatable("item.modifiers." + equipmentslot.getName()).withStyle(ChatFormatting.GRAY));
-
-                    List<Pair<ItemModifiersDisplayExtension, Multimap<Attribute, AttributeModifier>>> extensionData = extensions
-                            .stream()
-                            .collect(CollectorHelper.toValueMappedStream(e -> e.getModifiers(equipmentslot)))
-                            .collect(BiCollectors.toPairList());
-
-                    for(Map.Entry<Attribute, AttributeModifier> entry : multimap.entries()) {
-                        AttributeModifier modifier = entry.getValue();
-                        double d0 = modifier.getAmount();
-                        boolean flag = false;
-                        if (pPlayer != null) {
-                            if (modifier.getId() == Item.BASE_ATTACK_DAMAGE_UUID) {
-                                d0 += pPlayer.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
-                                d0 += EnchantmentHelper.getDamageBonus(self(), MobType.UNDEFINED);
-                                flag = true;
-                            } else if (modifier.getId() == Item.BASE_ATTACK_SPEED_UUID) {
-                                d0 += pPlayer.getAttributeBaseValue(Attributes.ATTACK_SPEED);
-                                flag = true;
-                            } else if (BaseAttributeUUIDs.get(modifier.getId()) == entry.getKey()) {
-                                d0 += pPlayer.getAttributeBaseValue(entry.getKey());
-                                flag = true;
-                            }
-                        }
-
-                        double d1;
-                        if (modifier.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && modifier.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
-                            if (entry.getKey().equals(Attributes.KNOCKBACK_RESISTANCE)) {
-                                d1 = d0 * 10.0D;
-                            } else {
-                                d1 = d0;
-                            }
-                        } else {
-                            d1 = d0 * 100.0D;
-                        }
-
-                        MutableComponent c;
-                        if (flag) {
-                            //Base Values
-                            c = CommonComponents.space().append(Component.translatable("attribute.modifier.equals." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN);
-                        } else if (d0 > 0.0D) {
-                            c = Component.translatable("attribute.modifier.plus." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.BLUE);
-                        } else if (d0 < 0.0D) {
-                            d1 *= -1.0D;
-                            c = Component.translatable("attribute.modifier.take." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.RED);
-                        } else continue;
-                        for (Pair<ItemModifiersDisplayExtension, Multimap<Attribute, AttributeModifier>> pair : extensionData) {
-                            for (AttributeModifier attributeModifier : pair.getSecond().get(entry.getKey())) {
-                                if (attributeModifier.getOperation() == modifier.getOperation()) {
-                                    c = c.append(CommonComponents.SPACE).append(pair.getFirst().createComponent(attributeModifier.getAmount()));
-                                }
-                            }
-                        }
-                        list.add(c);
-                    }
+                appendModifiersDisplay(list, pPlayer,
+                        this.getAttributeModifiers(equipmentslot),
+                        "item.modifiers." + equipmentslot.getName(),
+                        extensions.stream()
+                                .collect(CollectorHelper.toValueMappedStream(e -> e.getModifiers(equipmentslot)))
+                                .collect(BiCollectors.toPairList())
+                );
+            }
+            if (self().getItem() instanceof IWearable wearable) {
+                for (Map.Entry<ResourceKey<WearableSlot>, WearableSlot> slotEntry : ExtraRegistries.WEARABLE_SLOTS.getEntries()) {
+                    appendModifiersDisplay(list, pPlayer,
+                            wearable.getModifiers(slotEntry.getValue(), self()),
+                            "item.modifiers.wearable." + getWearableKey(slotEntry.getKey()),
+                            List.of() //TODO add display extensions
+                    );
                 }
             }
         }
+    }
+
+    @Unique
+    private static String getWearableKey(ResourceKey<WearableSlot> key) {
+        ResourceLocation location = key.location();
+        return location.getNamespace() + "." + location.getPath();
+    }
+
+    @Unique
+    private void appendModifiersDisplay(List<Component> list, Player pPlayer, Multimap<Attribute, AttributeModifier> multimap, String translation, List<Pair<ItemModifiersDisplayExtension, Multimap<Attribute, AttributeModifier>>> extensionData) {
+        if (!multimap.isEmpty()) {
+            list.add(CommonComponents.EMPTY);
+            list.add(Component.translatable(translation).withStyle(ChatFormatting.GRAY));
+
+            for(Map.Entry<Attribute, AttributeModifier> entry : multimap.entries()) {
+                AttributeModifier modifier = entry.getValue();
+                double d0 = modifier.getAmount();
+                boolean flag = false;
+                if (pPlayer != null) {
+                    if (modifier.getId() == Item.BASE_ATTACK_DAMAGE_UUID) {
+                        d0 += pPlayer.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
+                        d0 += EnchantmentHelper.getDamageBonus(self(), MobType.UNDEFINED);
+                        flag = true;
+                    } else if (modifier.getId() == Item.BASE_ATTACK_SPEED_UUID) {
+                        d0 += pPlayer.getAttributeBaseValue(Attributes.ATTACK_SPEED);
+                        flag = true;
+                    } else if (BaseAttributeUUIDs.get(modifier.getId()) == entry.getKey()) {
+                        d0 += pPlayer.getAttributeBaseValue(entry.getKey());
+                        flag = true;
+                    }
+                }
+
+                double d1;
+                if (modifier.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && modifier.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
+                    if (entry.getKey().equals(Attributes.KNOCKBACK_RESISTANCE)) {
+                        d1 = d0 * 10.0D;
+                    } else {
+                        d1 = d0;
+                    }
+                } else {
+                    d1 = d0 * 100.0D;
+                }
+
+                MutableComponent c;
+                if (flag) {
+                    //Base Values
+                    c = CommonComponents.space().append(Component.translatable("attribute.modifier.equals." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN);
+                } else if (d0 > 0.0D) {
+                    c = Component.translatable("attribute.modifier.plus." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.BLUE);
+                } else if (d0 < 0.0D) {
+                    d1 *= -1.0D;
+                    c = Component.translatable("attribute.modifier.take." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.RED);
+                } else continue;
+                for (Pair<ItemModifiersDisplayExtension, Multimap<Attribute, AttributeModifier>> pair : extensionData) {
+                    for (AttributeModifier attributeModifier : pair.getSecond().get(entry.getKey())) {
+                        if (attributeModifier.getOperation() == modifier.getOperation()) {
+                            c = c.append(CommonComponents.SPACE).append(pair.getFirst().createComponent(attributeModifier.getAmount()));
+                        }
+                    }
+                }
+                list.add(c);
+            }
+        }
+
     }
 
     @Redirect(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shouldShowInTooltip(ILnet/minecraft/world/item/ItemStack$TooltipPart;)Z", ordinal = 4))

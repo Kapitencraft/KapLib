@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.registry;
+package net.kapitencraft.kap_lib.registry.custom;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;

@@ -2,11 +2,10 @@ package net.kapitencraft.kap_lib.client.enchantment_color;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

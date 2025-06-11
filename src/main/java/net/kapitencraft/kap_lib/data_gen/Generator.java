@@ -4,6 +4,7 @@ import net.kapitencraft.kap_lib.data_gen.tags.ModTagsProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.TagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -24,7 +25,8 @@ public class Generator {
         generator.addProvider(true, new ModRegistriesProvider(output, lookupProvider));
         generator.addProvider(true, new ModTagsProvider.Block(output, lookupProvider, helper));
         generator.addProvider(true, new ModTagsProvider.EntityTypes(output, lookupProvider));
-        generator.addProvider(true, new ModTagsProvider.DamageType(output, lookupProvider, helper));
+        generator.addProvider(false, new ModTagsProvider.DamageType(output, lookupProvider, helper));
+        generator.addProvider(true, new ModTagsProvider.Item(output, lookupProvider, CompletableFuture.completedFuture(TagsProvider.TagLookup.empty()), helper));
         generator.addProvider(true, new TestSpawnTableProvider(output));
         generator.addProvider(true, new TestBonusProvider(output, lookupProvider, helper));
         generator.addProvider(true, new TestLanguageProvider(output));

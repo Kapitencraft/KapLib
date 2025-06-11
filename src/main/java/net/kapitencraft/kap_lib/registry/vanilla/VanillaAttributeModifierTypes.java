@@ -2,14 +2,11 @@ package net.kapitencraft.kap_lib.registry.vanilla;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.helpers.IOHelper;
-import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
-
-import java.util.UUID;
 
 public interface VanillaAttributeModifierTypes {
     static Codec<AttributeModifier> createVanillaCodec() {

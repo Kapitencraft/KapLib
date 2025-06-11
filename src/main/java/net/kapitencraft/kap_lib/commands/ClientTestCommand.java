@@ -16,7 +16,7 @@ import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.registry.GlyphEffects;
+import net.kapitencraft.kap_lib.registry.custom.GlyphEffects;
 import net.kapitencraft.kap_lib.util.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;

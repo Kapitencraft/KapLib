@@ -2,8 +2,7 @@ package net.kapitencraft.kap_lib.mixin.classes;
 
 import com.google.gson.*;
 import net.kapitencraft.kap_lib.io.serialization.JsonSerializer;
-import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
-import net.kapitencraft.kap_lib.registry.vanilla.VanillaComponentContentTypes;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -15,7 +14,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.lang.reflect.Type;
 

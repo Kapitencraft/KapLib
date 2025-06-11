@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
@@ -119,7 +120,7 @@ public abstract class Element implements Renderable {
         }
 
         @Override
-        public String getSerializedName() {
+        public @NotNull String getSerializedName() {
             return serializedName;
         }
     }
@@ -127,6 +128,7 @@ public abstract class Element implements Renderable {
     public abstract static class Builder<T extends Element, I extends Builder<T, I>> {
         protected Component name;
 
+        @SuppressWarnings("unchecked")
         public I setName(Component name) {
             this.name = name;
             return (I) this;

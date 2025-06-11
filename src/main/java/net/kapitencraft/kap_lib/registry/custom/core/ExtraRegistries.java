@@ -7,6 +7,8 @@ import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
+import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
+import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
@@ -49,6 +51,9 @@ public interface ExtraRegistries {
     IForgeRegistry<SpawnEntityFunctionType> SPAWN_FUNCTION_TYPES = reg(Keys.FUNCTION_TYPES);
     IForgeRegistry<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPES = reg(Keys.POOL_ENTRY_TYPES);
 
+    IForgeRegistry<WearableSlot> WEARABLE_SLOTS = reg(Keys.WEARABLE_SLOTS);
+    IForgeRegistry<InventoryPageType<?>> INVENTORY_PAGES = reg(Keys.INVENTORY_PAGES);
+
     private static <T> IForgeRegistry<T> reg(ResourceKey<Registry<T>> key) {
         return RegistryManager.ACTIVE.getRegistry(key);
     }
@@ -82,6 +87,10 @@ public interface ExtraRegistries {
         //SPAWN TABLE
         ResourceKey<Registry<SpawnEntityFunctionType>> FUNCTION_TYPES = createRegistry("spawn_table/function_types");
         ResourceKey<Registry<SpawnPoolEntryType>> POOL_ENTRY_TYPES = createRegistry("spawn_table/pool_entry_types");
+
+        ResourceKey<Registry<WearableSlot>> WEARABLE_SLOTS = createRegistry("wearable_slots");
+
+        ResourceKey<Registry<InventoryPageType<?>>> INVENTORY_PAGES = createRegistry("inventory_pages");
 
         private static <T> ResourceKey<Registry<T>> createRegistry(String id) {
             return ResourceKey.createRegistryKey(KapLibMod.res(id));

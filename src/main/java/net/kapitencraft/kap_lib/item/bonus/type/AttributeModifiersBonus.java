@@ -10,7 +10,7 @@ import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.item.modifier_display.ItemModifiersDisplayExtension;
-import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.EquipmentSlot;

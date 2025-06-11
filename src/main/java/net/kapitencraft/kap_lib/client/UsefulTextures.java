@@ -3,13 +3,19 @@ package net.kapitencraft.kap_lib.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.Slot;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public interface UsefulTextures {
     ResourceLocation CHECK_MARK = getGuiLocation("checkmark.png");
     ResourceLocation CROSS = KapLibMod.res("textures/gui/red_cross.png");
+    ResourceLocation SLOT = KapLibMod.res("textures/gui/slot_background.png");
     ResourceLocation SLIDER = getGuiLocation("container/loom.png");
     ResourceLocation ARROWS = getGuiLocation("server_selection.png");
     private static ResourceLocation getGuiLocation(String path) {
@@ -84,5 +90,14 @@ public interface UsefulTextures {
     static void renderCheckBoxWithText(GuiGraphics graphics, int x, int y, int backgroundColor, boolean active, Font font, int textColor, Component text, boolean dropShadow) {
         renderCheckBox(graphics, x, y, backgroundColor, active);
         graphics.drawString(font, text, x + 11, y, textColor, dropShadow);
+    }
+
+    /**
+     * note that slots are put relative to the top left of the container background image, not the top left of the screen, which this method requires
+     * @param slotY the y position of the slot
+     * @param slotX the x position of the slot.
+     */
+    static void renderSlotBackground(GuiGraphics graphics, int slotX, int slotY) {
+        graphics.blit(SLOT, slotX - 1, slotY - 1, 0, 0, 18, 18, 18, 18);
     }
 }

@@ -1,31 +1,18 @@
 package net.kapitencraft.kap_lib.event;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.ModBEWLR;
 import net.kapitencraft.kap_lib.client.particle.DamageIndicatorParticle;
 import net.kapitencraft.kap_lib.client.particle.LightningParticle;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticle;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
-import net.kapitencraft.kap_lib.event.custom.client.RegisterItemModifiersDisplayExtensionsEvent;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterUniformsEvent;
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
+import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderers;
 import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
-import net.kapitencraft.kap_lib.item.modifier_display.ItemModifiersDisplayExtension;
 import net.kapitencraft.kap_lib.item.modifier_display.ModifierDisplayManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
-import net.kapitencraft.kap_lib.registry.vanilla.VanillaTestItems;
-import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
@@ -74,29 +61,7 @@ public class ModEventBusClientEvents {
     }
 
     @SubscribeEvent
-    public static void onRegisterItemModifiersDisplayExtensions(RegisterItemModifiersDisplayExtensionsEvent event) {
-        if (KapLibMod.DEBUG) event.register((living, stack) -> {
-            if (stack.getItem() == VanillaTestItems.TEST_SWORD.get()) return new ItemModifiersDisplayExtension() {
-                private static final HashMultimap<Attribute, AttributeModifier> modifiers = Util.make(HashMultimap.create(), m -> {
-                    m.put(Attributes.ATTACK_DAMAGE, AttributeHelper.createModifier("TestDisplay", AttributeModifier.Operation.ADDITION, 20));
-                });
-
-                @Override
-                public Multimap<Attribute, AttributeModifier> getModifiers(EquipmentSlot slot) {
-                    return slot == EquipmentSlot.MAINHAND ? modifiers : null;
-                }
-
-                @Override
-                public Style getStyle() {
-                    return Style.EMPTY.withColor(ChatFormatting.LIGHT_PURPLE);
-                }
-
-                @Override
-                public Type getType() {
-                    return Type.POINTY;
-                }
-            };
-            return null;
-        });
+    public static void onFMLClientSetup(FMLClientSetupEvent event) {
+        InventoryPageRenderers.init();
     }
 }

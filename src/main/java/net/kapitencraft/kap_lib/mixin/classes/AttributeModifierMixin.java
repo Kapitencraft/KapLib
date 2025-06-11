@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.mixin.classes;
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.io.serialization.NbtSerializer;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeModifier;
-import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;

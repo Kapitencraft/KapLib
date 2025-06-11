@@ -5,7 +5,7 @@ import net.kapitencraft.kap_lib.client.overlay.holder.SimpleOverlay;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
-import net.kapitencraft.kap_lib.registry.Overlays;
+import net.kapitencraft.kap_lib.registry.custom.Overlays;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;

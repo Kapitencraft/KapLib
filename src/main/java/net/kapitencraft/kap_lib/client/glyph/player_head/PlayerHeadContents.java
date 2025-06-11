@@ -2,13 +2,12 @@ package net.kapitencraft.kap_lib.client.glyph.player_head;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibComponentContents;
-import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 
-import java.text.Normalizer;
 import java.util.Optional;
 import java.util.UUID;
 

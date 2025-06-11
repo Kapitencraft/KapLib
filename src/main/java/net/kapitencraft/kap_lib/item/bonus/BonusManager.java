@@ -17,7 +17,7 @@ import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
-import net.kapitencraft.kap_lib.registry.custom.ExtraCodecs;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.kapitencraft.kap_lib.util.Color;
@@ -119,6 +119,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return bonuses;
     }
 
+    //TODO add wearable slots
     private class BonusLookup {
         private final LivingEntity target;
         private final Map<AbstractBonusElement, Reference<Integer>> activeBonuses = new HashMap<>();

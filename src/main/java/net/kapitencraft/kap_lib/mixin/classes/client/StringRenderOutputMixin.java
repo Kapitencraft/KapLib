@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.mixin.classes.client;
 import net.kapitencraft.kap_lib.client.font.effect.EffectSettings;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.registry.GlyphEffects;
+import net.kapitencraft.kap_lib.registry.custom.GlyphEffects;
 import net.kapitencraft.kap_lib.mixin.duck.IChromatic;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;

@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(AnvilMenu.class)
 public class AnvilMenuMixin {
 
-    @Shadow public int repairItemCountCost;
-
     @Redirect(method = "createResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/DataSlot;get()I", ordinal = 1))
     private int disableAnvilCap(DataSlot instance) {
         if (ServerModConfig.disableAnvilLimit()) return 0;
