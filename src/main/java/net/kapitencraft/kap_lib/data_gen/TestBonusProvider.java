@@ -1,12 +1,12 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.data_gen.abst.BonusProvider;
 import net.kapitencraft.kap_lib.item.bonus.type.AttributeModifiersBonus;
 import net.kapitencraft.kap_lib.item.bonus.type.EffectsBonus;
+import net.kapitencraft.kap_lib.registry.TestItems;
+import net.kapitencraft.kap_lib.registry.custom.WearableSlots;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -32,6 +32,7 @@ public class TestBonusProvider extends BonusProvider {
                 .slot(EquipmentSlot.CHEST, Items.DIAMOND_CHESTPLATE)
                 .slot(EquipmentSlot.LEGS, Items.DIAMOND_LEGGINGS)
                 .slot(EquipmentSlot.FEET, Items.DIAMOND_BOOTS)
+                .slot(WearableSlots.BELT, TestItems.OBJECT)
                 .setBonus(
                         new EffectsBonus(
                                 List.of(

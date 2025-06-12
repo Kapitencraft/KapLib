@@ -2,9 +2,9 @@ package net.kapitencraft.kap_lib.data_gen.abst;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
+import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.item.combat.armor.AbstractArmorItem;
@@ -126,10 +126,15 @@ public abstract class BonusProvider extends ItemTagsProvider {
         JsonObject main = saveItem(null, builder);
         {
             JsonArray array = new JsonArray();
-            for (EquipmentSlot slot : builder.content.keySet()) {
+            for (EquipmentSlot slot : builder.equipmentContent.keySet()) {
                 array.add(slot.getName());
             }
-            main.add("slots", array);
+            main.add("equipment_slots", array);
+            JsonArray wearables = new JsonArray();
+            for (WearableSlot slot : builder.wearableContent.keySet()) {
+                wearables.add(ExtraRegistries.WEARABLE_SLOTS.getKey(slot).toString());
+            }
+            main.add("wearable_slots", wearables);
         }
         return main;
     }
@@ -140,7 +145,8 @@ public abstract class BonusProvider extends ItemTagsProvider {
     }
 
     protected class SetBuilder extends ItemBuilder {
-        private final Map<EquipmentSlot, SetSlotBuilder> content = new HashMap<>();
+        private final Map<EquipmentSlot, SetSlotBuilder> equipmentContent = new HashMap<>();
+        private final Map<WearableSlot, SetSlotBuilder> wearableContent = new HashMap<>();
         private final String name;
 
         protected SetBuilder(String name) {
@@ -148,7 +154,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
         }
 
         public SetBuilder slot(EquipmentSlot slot, Consumer<SetSlotBuilder> builder) {
-            content.putIfAbsent(slot, Util.make(new SetSlotBuilder(name, slot), builder));
+            equipmentContent.putIfAbsent(slot, Util.make(new SetSlotBuilder(new ResourceLocation(BonusProvider.this.modId, "set/" + name + "/" + slot.getName())), builder));
             return this;
         }
 
@@ -168,6 +174,36 @@ public abstract class BonusProvider extends ItemTagsProvider {
             return this;
         }
 
+        public SetBuilder slot(WearableSlot slot, Consumer<SetSlotBuilder> builder) {
+            ResourceLocation location = ExtraRegistries.WEARABLE_SLOTS.getKey(slot);
+            if (location == null) throw new IllegalArgumentException("unregistered wearable slot detected!");
+            wearableContent.putIfAbsent(slot, Util.make(new SetSlotBuilder(new ResourceLocation(BonusProvider.this.modId, "set/" + name + "/wearable/" + location.getNamespace() + "/" + location.getPath())), builder));
+            return this;
+        }
+
+        public SetBuilder slot(RegistryObject<WearableSlot> slot, Item item) {
+            return this.slot(slot, setSlotBuilder -> setSlotBuilder.add(item));
+        }
+
+        public SetBuilder slot(RegistryObject<WearableSlot> slot, Supplier<? extends Item> supplier) {
+            return this.slot(slot, supplier.get());
+        }
+
+        public SetBuilder slot(RegistryObject<WearableSlot> slot, Consumer<SetSlotBuilder> builder) {
+            ResourceLocation location = slot.getId();
+            if (location == null) throw new IllegalArgumentException("unregistered wearable slot detected!");
+            wearableContent.putIfAbsent(slot.get(), Util.make(new SetSlotBuilder(new ResourceLocation(BonusProvider.this.modId, "set/" + name + "/wearable/" + location.getNamespace() + "/" + location.getPath())), builder));
+            return this;
+        }
+
+        public SetBuilder slot(WearableSlot slot, Item item) {
+            return this.slot(slot, setSlotBuilder -> setSlotBuilder.add(item));
+        }
+
+        public SetBuilder slot(WearableSlot slot, Supplier<? extends Item> supplier) {
+            return this.slot(slot, supplier.get());
+        }
+
         @Override
         public SetBuilder setHidden() {
             return (SetBuilder) super.setHidden();
@@ -178,23 +214,23 @@ public abstract class BonusProvider extends ItemTagsProvider {
             return (SetBuilder) super.setBonus(bonus);
         }
 
-        private Map<EquipmentSlot, SetSlotBuilder> getContent() {
-            return content;
+        private Map<EquipmentSlot, SetSlotBuilder> getEquipmentContent() {
+            return equipmentContent;
         }
     }
 
     /**
      * slot builder. extends TagAppender to allow for tags to be used as item selector
      */
-    protected class SetSlotBuilder {
+    protected static class SetSlotBuilder {
         private final TagKey<Item> key;
         private final TagBuilder builder;
 
         /**
          *
          */
-        protected SetSlotBuilder(String setName, EquipmentSlot slot) {
-            this.key = TagKey.create(Registries.ITEM, new ResourceLocation(BonusProvider.this.modId, "set/" + setName + "/" + slot.getName()));
+        protected SetSlotBuilder(ResourceLocation location) {
+            this.key = TagKey.create(Registries.ITEM, location);
             this.builder = new TagBuilder();
         }
 
@@ -253,8 +289,9 @@ public abstract class BonusProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags(@NotNull HolderLookup.Provider pProvider) {
-        this.setBuilders.values().forEach(setBuilder ->
-                setBuilder.content.values().forEach(setSlotBuilder -> builders.put(setSlotBuilder.key.location(), setSlotBuilder.builder))
-        );
+        this.setBuilders.values().forEach(setBuilder -> {
+            setBuilder.equipmentContent.values().forEach(setSlotBuilder -> builders.put(setSlotBuilder.key.location(), setSlotBuilder.builder));
+            setBuilder.wearableContent.values().forEach(setSlotBuilder -> builders.put(setSlotBuilder.key.location(), setSlotBuilder.builder));
+        });
     }
 }

@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.inventory.page.equipment;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.UsefulTextures;
 import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderer;
-import net.kapitencraft.kap_lib.inventory.wearable.PlayerWearable;
+import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,7 +21,7 @@ public class EquipmentPageRenderer implements InventoryPageRenderer {
     @Override
     public void render(GuiGraphics graphics, Minecraft minecraft, int mouseX, int mouseY, float mouseXOld, float mouseYOld, int leftPos, int topPos) {
         InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, leftPos + 88, topPos + 75, 30, (float)(leftPos + 88) - mouseXOld, (float)(topPos + 25) - mouseYOld, minecraft.player);
-        for (WearableSlot slot : PlayerWearable.SLOTS) {
+        for (WearableSlot slot : Wearables.SLOTS) {
             UsefulTextures.renderSlotBackground(graphics, slot.getXPos() + leftPos, slot.getYPos() + topPos);
         }
     }

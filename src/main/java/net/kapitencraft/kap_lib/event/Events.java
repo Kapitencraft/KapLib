@@ -248,6 +248,6 @@ public class Events {
 
     @SubscribeEvent
     public static void addWearableToPlayer(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof Player player) event.addCapability(KapLibMod.res("wearable"), new WearableProvider(player));
+        if (event.getObject() instanceof LivingEntity living) event.addCapability(KapLibMod.res("wearable"), new WearableProvider(living));
     }
 }

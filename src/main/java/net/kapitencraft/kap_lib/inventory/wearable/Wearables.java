@@ -7,6 +7,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
@@ -17,8 +18,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 @MethodsReturnNonnullByDefault
-public class PlayerWearable implements Container {
-    public static final Capability<PlayerWearable> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+public class Wearables implements Container {
+    public static final Capability<Wearables> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
     public static final WearableSlot[] SLOTS = createSlots();
 
@@ -32,10 +33,10 @@ public class PlayerWearable implements Container {
     }
 
     private final NonNullList<ItemStack> content;
-    private final Player player;
+    private final LivingEntity entity;
 
-    public PlayerWearable(Player player) {
-        this.player = player;
+    public Wearables(LivingEntity entity) {
+        this.entity = entity;
         this.content = NonNullList.withSize(getContainerSize(), ItemStack.EMPTY);
     }
 
@@ -62,7 +63,7 @@ public class PlayerWearable implements Container {
         if (pAmount > 0) {
             if (this.content.get(pSlot) != ItemStack.EMPTY) {
                 ItemStack stack = this.content.get(pSlot);
-                EquipmentPage.equip(this.player, SLOTS[pSlot], ItemStack.EMPTY, stack);
+                EquipmentPage.equip(this.entity, SLOTS[pSlot], ItemStack.EMPTY, stack);
                 this.content.set(pSlot, ItemStack.EMPTY);
                 return stack;
             }
@@ -89,7 +90,7 @@ public class PlayerWearable implements Container {
 
     @Override
     public boolean stillValid(@NotNull Player pPlayer) {
-        return true;
+        return pPlayer == this.entity;
     }
 
     @Override
@@ -108,7 +109,7 @@ public class PlayerWearable implements Container {
     public void load(ListTag tags) {
         for (int i = 0; i < tags.size(); i++) {
             ItemStack stack = ItemStack.of(tags.getCompound(i));
-            if (!stack.isEmpty()) EquipmentPage.equip(this.player, PlayerWearable.SLOTS[i], stack, ItemStack.EMPTY);
+            if (!stack.isEmpty()) EquipmentPage.equip(this.entity, Wearables.SLOTS[i], stack, ItemStack.EMPTY);
             this.setItem(i, stack);
         }
     }
