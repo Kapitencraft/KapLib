@@ -1,2 +1,6 @@
-// 1.20.1	2025-01-23T23:46:48.8842337	Tags for minecraft:damage_type mod id kap_lib
-4e6b2303eaeb9e58be04a263e44335ff1dfb344e data/forge/tags/damage_type/magic.json
+// 1.20.1	2025-06-21T00:44:07.2203695	Tags for minecraft:damage_type mod id kap_lib
+60206e9242f155cfd2e25d5c8af953028ba4f713 data/forge/tags/damage_type/magic.json
+a9980d02362268ac7b2951fc41a87b61ed8f51bf data/minecraft/tags/damage_type/bypasses_armor.json
+a9980d02362268ac7b2951fc41a87b61ed8f51bf data/minecraft/tags/damage_type/bypasses_effects.json
+a9980d02362268ac7b2951fc41a87b61ed8f51bf data/minecraft/tags/damage_type/bypasses_enchantments.json
+a9980d02362268ac7b2951fc41a87b61ed8f51bf data/minecraft/tags/damage_type/bypasses_shield.json

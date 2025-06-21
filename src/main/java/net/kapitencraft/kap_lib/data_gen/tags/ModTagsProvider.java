@@ -55,8 +55,9 @@ public class ModTagsProvider {
 
         @Override
         protected void addTags(HolderLookup.@NotNull Provider pProvider) {
-            this.tag(ExtraTags.DamageTypes.MAGIC).add(DamageTypes.MAGIC, DamageTypes.INDIRECT_MAGIC, DamageTypes.DRAGON_BREATH, DamageTypes.SONIC_BOOM,
-                    ModDamageTypes.MANA_OVERFLOW, ModDamageTypes.MANA_OVERFLOW_SELF
+            this.tag(ExtraTags.DamageTypes.MAGIC).add(
+                    DamageTypes.MAGIC, DamageTypes.INDIRECT_MAGIC, DamageTypes.DRAGON_BREATH,
+                    DamageTypes.SONIC_BOOM, ModDamageTypes.MANA_OVERFLOW, ModDamageTypes.MANA_OVERFLOW_SELF
             );
 
             this.tag(DamageTypeTags.BYPASSES_ENCHANTMENTS).add(ModDamageTypes.MANA_OVERFLOW, ModDamageTypes.MANA_OVERFLOW_SELF);

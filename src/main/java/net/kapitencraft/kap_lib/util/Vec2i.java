@@ -4,6 +4,7 @@ package net.kapitencraft.kap_lib.util;
  * 2d vector for integers
  */
 public class Vec2i {
+    public static final Vec2i ZERO = new Vec2i(0, 0);
 
     public final int x, y;
 

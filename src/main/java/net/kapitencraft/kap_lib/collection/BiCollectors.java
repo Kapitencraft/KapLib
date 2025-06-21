@@ -1,14 +1,10 @@
 package net.kapitencraft.kap_lib.collection;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
-import net.kapitencraft.kap_lib.item.modifier_display.ItemModifiersDisplayExtension;
 import net.kapitencraft.kap_lib.stream.Consumers;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 import java.util.ArrayList;
 import java.util.HashMap;

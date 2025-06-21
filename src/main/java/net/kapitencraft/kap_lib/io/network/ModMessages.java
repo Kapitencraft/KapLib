@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.io.network;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.io.network.S2C.*;
+import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncWearablesToPlayerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -48,6 +49,7 @@ public class ModMessages {
         addMessage(SendParticleAnimationPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendParticleAnimationPacket::new);
         addMessage(SendTrackingShotPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendTrackingShotPacket::new);
         addMessage(ActivateShakePacket.class, NetworkDirection.PLAY_TO_CLIENT, ActivateShakePacket::new);
+        addMessage(SyncWearablesToPlayerPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncWearablesToPlayerPacket::new);
     }
 
 

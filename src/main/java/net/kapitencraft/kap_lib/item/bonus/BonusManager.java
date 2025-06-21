@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.KapLibMod;
@@ -53,6 +54,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.function.Function;
@@ -60,6 +62,7 @@ import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber
 public class BonusManager extends SimpleJsonResourceReloadListener {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static BonusManager instance;
     public static BonusManager updateInstance() {
@@ -116,20 +119,18 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return this.getLookup(living).map(BonusLookup::allActive).orElse(ImmutableList.of());
     }
 
-    @Deprecated
-    private Map<ResourceLocation, SetBonusElement> getActiveSetBonuses(LivingEntity living, boolean ignoreHidden) {
+    private Map<ResourceLocation, SetBonusElement> getActiveSetBonuses(LivingEntity living) {
         Map<EquipmentSlot, ItemStack> equipment = InventoryHelper.equipment(living);
         Map<ResourceLocation, SetBonusElement> bonuses = new HashMap<>();
         sets.forEach((location, setBonusElement) -> {
             if (Arrays.stream(EquipmentSlot.values()).allMatch(slot ->
                     !setBonusElement.requiresSlot(slot) || setBonusElement.matchesItem(slot, equipment.get(slot)))
-                    && !setBonusElement.isHidden() || ignoreHidden
+                    && !setBonusElement.isHidden()
             ) bonuses.put(location, setBonusElement);
         });
         return bonuses;
     }
 
-    //TODO add wearable slots
     private class BonusLookup {
         private final LivingEntity target;
         private final Map<AbstractBonusElement, Reference<Integer>> activeBonuses = new HashMap<>();
@@ -161,9 +162,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                         //skip if element isn't actually the equipped item
                         if (!setBonusElement.requiresSlot(slot) || !setBonusElement.matchesItem(slot, from)) continue;
 
-                        activeBonuses.remove(element);
                         data.removeEquipment(slot);
-                    } else activeBonuses.remove(element);
+                    }
+                    activeBonuses.remove(element);
                     Bonus<?> bonus = element.getBonus();
                     bonus.onRemove(target);
                     Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
@@ -177,7 +178,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
                         SetData data = setData.computeIfAbsent(setElement, (setBonusElement) -> new SetData());
                         data.addEquipment(slot);
-                        if (data.checkActive(setElement)) {
+                        if (!data.checkActive(setElement)) {
                             continue;
                         }
                     }
@@ -200,9 +201,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                         //skip if element isn't actually the equipped item
                         if (!setBonusElement.requiresSlot(slot) || !setBonusElement.matchesItem(slot, from)) continue;
 
-                        activeBonuses.remove(element);
                         data.removeWearable(slot);
-                    } else activeBonuses.remove(element);
+                    }
+                    activeBonuses.remove(element);
                     Bonus<?> bonus = element.getBonus();
                     bonus.onRemove(target);
                     Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
@@ -216,7 +217,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
                         SetData data = setData.computeIfAbsent(setElement, (setBonusElement) -> new SetData());
                         data.addWearable(slot);
-                        if (data.checkActive(setElement)) {
+                        if (!data.checkActive(setElement)) {
                             continue;
                         }
                     }
@@ -236,27 +237,26 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         private static class SetData {
 
             //TODO convert to binary
-            private final List<EquipmentSlot> slots = new ArrayList<>();
-            private final List<WearableSlot> wearableSlots = new ArrayList<>();
+            private long mask = 0;
 
             public void removeEquipment(EquipmentSlot slot) {
-                this.slots.remove(slot);
+                this.mask &= ~(1L << slot.getFilterFlag());
             }
 
             public void addEquipment(EquipmentSlot slot) {
-                this.slots.add(slot);
+                this.mask |= 1L << slot.getFilterFlag();
             }
 
             public boolean checkActive(SetBonusElement element) {
-                return new HashSet<>(this.slots).containsAll(element.itemsForEquipmentSlot.keySet());
+                return element.requiredMask == this.mask;
             }
 
             public void addWearable(WearableSlot slot) {
-                this.wearableSlots.add(slot);
+                this.mask |= 1L << (slot.getSlotIndex() + 6);
             }
 
             public void removeWearable(WearableSlot slot) {
-                this.wearableSlots.remove(slot);
+                this.mask &= ~(1L << (slot.getSlotIndex() + 6));
             }
         }
     }
@@ -270,6 +270,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         this.providers = ImmutableMap.copyOf(providers);
     }
 
+    //region load
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> pObject, @NotNull ResourceManager pResourceManager, @NotNull ProfilerFiller pProfiler) {
         pProfiler.push("loading bonuses");
@@ -300,7 +301,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             this.bonusData.put(location, bonusElement);
             this.itemBonuses.putIfAbsent(item, location, bonusElement);
         } catch (Exception e) {
-            KapLibMod.LOGGER.warn(Markers.BONUS_MANAGER, "error loading item bonus '{}': {}", location, e.getMessage());
+            LOGGER.warn(Markers.BONUS_MANAGER, "error loading item bonus '{}': {}", location, e.getMessage());
         }
     }
 
@@ -314,10 +315,13 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
             //read Item Tags
             Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot = new EnumMap<>(EquipmentSlot.class);
+            //would 32 bits (26 slots) be enough?
+            long required = 0;
             {
                 JsonArray array = GsonHelper.getAsJsonArray(main, "equipment_slots");
                 for (JsonElement element : array) {
                     EquipmentSlot slot = EquipmentSlot.byName(element.getAsString());
+                    required |= 1L << slot.getFilterFlag();
                     itemsForEquipmentSlot.put(slot, TagKey.create(Registries.ITEM, location.withPath(s -> "set/" + s + "/" + slot.getName())));
                 }
             }
@@ -329,15 +333,17 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                 for (JsonElement element : array) {
                     ResourceLocation location1 = new ResourceLocation(element.getAsString());
                     WearableSlot slot = ExtraRegistries.WEARABLE_SLOTS.getValue(location1);
+                    if (slot == null) throw new IllegalStateException("unknown wearable slot: " + location1);
+                    required |= 1L << (slot.getSlotIndex() + 6);
                     itemsForWearableSlot.put(slot, TagKey.create(Registries.ITEM, location.withPath(s -> "set/" + s + "/wearable/" + location1.getNamespace() + "/" + location1.getPath())));
                 }
             }
 
 
             boolean hidden = main.has("hidden") && GsonHelper.getAsBoolean(main, "hidden");
-            this.sets.put(location, new SetBonusElement(hidden, bonus, location, itemsForEquipmentSlot, itemsForWearableSlot));
+            this.sets.put(location, new SetBonusElement(hidden, bonus, location, itemsForEquipmentSlot, itemsForWearableSlot, required));
         } catch (Exception e) {
-            KapLibMod.LOGGER.warn(Markers.BONUS_MANAGER, "error loading set bonus '{}': {}", location, e.getMessage());
+            LOGGER.warn(Markers.BONUS_MANAGER, "error loading set bonus '{}': {}", location, e.getMessage());
         }
     }
 
@@ -346,16 +352,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             itemBonuses.put(item, new HashMap<>());
         }
     }
+    //endregion
 
-    public static List<Component> getBonusDisplay(ItemStack stack, @Nullable LivingEntity living) {
-        if (instance == null) return List.of();
-        Map<ResourceLocation, AbstractBonusElement> available = instance.getBonusesForItem(stack, false);
-
-        List<Component> components = new ArrayList<>();
-
-        available.forEach((location, bonus) -> components.addAll(instance.decorateBonus(living, location, bonus)));
-        return components;
-    }
+    //region getter
 
     private Map<ResourceLocation, AbstractBonusElement> getBonusesForItem(ItemStack stack, boolean ignoreHidden) {
         Map<ResourceLocation, BonusElement> itemBonuses = MapStream
@@ -363,7 +362,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                 .filterValues(bonusElement -> !bonusElement.hidden || ignoreHidden, null)
                 .toMap();
         Map<ResourceLocation, SetBonusElement> setBonuses = MapStream.of(this.sets).filter((location, setBonusElement) ->
-            setBonusElement.itemsForEquipmentSlot.values().stream().anyMatch(stack::is)
+            setBonusElement.itemsForEquipmentSlot.values().stream().anyMatch(stack::is) || setBonusElement.itemsForWearableSlot.values().stream().anyMatch(stack::is)
         ).toMap();
         Map<ResourceLocation, AbstractBonusElement> extended = getAllExtended(stack);
         ImmutableMap.Builder<ResourceLocation, AbstractBonusElement> allBonuses = new ImmutableMap.Builder<>();
@@ -382,7 +381,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return extended;
     }
 
-    @Deprecated
+    @ApiStatus.Internal
     private Map<ResourceLocation, BonusElement> getActiveBonuses(LivingEntity living) {
         Map<ResourceLocation, BonusElement> bonuses = new HashMap<>();
         InventoryHelper.equipment(living).values()
@@ -391,8 +390,24 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                 .map(this.itemBonuses::get)
                 .filter(Objects::nonNull)
                 .forEach(bonuses::putAll);
-        bonuses.putAll(getActiveSetBonuses(living, false));
+        bonuses.putAll(getActiveSetBonuses(living));
         return bonuses;
+    }
+
+    //endregion
+
+    //region tooltip
+
+    public static List<Component> getBonusDisplay(ItemStack stack, @Nullable LivingEntity living) {
+        if (instance == null) return List.of();
+        Map<ResourceLocation, AbstractBonusElement> available = instance.getBonusesForItem(stack, false);
+
+        List<Component> components = new ArrayList<>();
+
+        available.forEach((location, bonus) -> {
+            if (!bonus.isHidden()) components.addAll(instance.decorateBonus(living, location, bonus));
+        });
+        return components;
     }
 
     private List<Component> decorateBonus(@Nullable LivingEntity living, ResourceLocation bonusLocation, AbstractBonusElement element) {
@@ -406,9 +421,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     private Component getBonusTitle(boolean enabled, @Nullable LivingEntity living, String title, AbstractBonusElement element) {
-        boolean set = element instanceof SetBonusElement;
         MutableComponent name = Component.translatable(title);
-        MutableComponent start = Component.translatable((set ? "set." : "") + "bonus.name").withStyle((enabled ? ChatFormatting.GOLD : ChatFormatting.DARK_GRAY), ChatFormatting.BOLD);
+        MutableComponent start = element.getTitle().withStyle((enabled ? ChatFormatting.GOLD : ChatFormatting.DARK_GRAY), ChatFormatting.BOLD);
         MutableComponent join1 = start.append(": ").append(name);
         if (element instanceof SetBonusElement setBonusElement) {
             Vec2i count = getSetBonusCount(living, setBonusElement);
@@ -429,31 +443,39 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     private Vec2i getSetBonusCount(@Nullable LivingEntity living, SetBonusElement element) {
-        if (living == null) return new Vec2i(0, 0);
-        List<Boolean> booleans = MapStream.of(InventoryHelper.equipment(living)).mapToSimple((slot, stack) -> element.itemsForEquipmentSlot.containsKey(slot) ? stack.is(element.itemsForEquipmentSlot.get(slot)) : null).filter(Objects::nonNull).toList();
-        int c = 0;
-        for (Boolean aBoolean : booleans) {
-            if (aBoolean) c++;
+        if (living == null) return Vec2i.ZERO;
+        Optional<BonusLookup> optional = getLookup(living);
+        int elementCount = Long.bitCount(element.requiredMask);
+        if (optional.isPresent()) {
+            BonusLookup lookup = optional.get();
+            BonusLookup.SetData data = lookup.setData.get(element);
+            if (data != null) {
+                return new Vec2i(Long.bitCount(data.mask & element.requiredMask), elementCount);
+            }
         }
-        return new Vec2i(c, booleans.size());
+        return new Vec2i(0, elementCount);
     }
+
+    //endregion
 
     private static class SetBonusElement extends BonusElement {
         private final Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot;
         private final Map<WearableSlot, TagKey<Item>> itemsForWearableSlot;
+        private final long requiredMask;
 
-        private SetBonusElement(boolean hidden, Bonus<?> bonus, ResourceLocation location, Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot, Map<WearableSlot, TagKey<Item>> itemsForWearableSlot) {
+        private SetBonusElement(boolean hidden, Bonus<?> bonus, ResourceLocation location, Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot, Map<WearableSlot, TagKey<Item>> itemsForWearableSlot, long requiredMask) {
             super(hidden, bonus, location);
             this.itemsForEquipmentSlot = itemsForEquipmentSlot;
             this.itemsForWearableSlot = itemsForWearableSlot;
+            this.requiredMask = requiredMask;
         }
 
         public boolean requiresSlot(EquipmentSlot slot) {
-            return this.itemsForEquipmentSlot.containsKey(slot);
+            return (this.requiredMask & (1L << slot.getFilterFlag())) != 0;
         }
 
         public boolean requiresSlot(WearableSlot slot) {
-            return this.itemsForWearableSlot.containsKey(slot);
+            return (this.requiredMask & (1L << (slot.getSlotIndex() + 6))) != 0;
         }
 
         public boolean matchesItem(EquipmentSlot slot, ItemStack stack) {
@@ -474,6 +496,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     (buf1, slot) -> buf1.writeRegistryIdUnsafe(ExtraRegistries.WEARABLE_SLOTS, slot),
                     (buf1, itemTagKey) -> buf1.writeResourceLocation(itemTagKey.location())
             );
+            buf.writeLong(setBonusElement.requiredMask);
         }
 
         public static SetBonusElement fromNw(FriendlyByteBuf buf) {
@@ -486,8 +509,14 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     buf.readMap(
                             buf1 -> buf1.readRegistryIdUnsafe(ExtraRegistries.WEARABLE_SLOTS),
                             buf1 -> TagKey.create(Registries.ITEM, buf1.readResourceLocation())
-                    )
+                    ),
+                    buf.readLong()
             );
+        }
+
+        @Override
+        public MutableComponent getTitle() {
+            return Component.translatable("set.bonus.name");
         }
     }
 
@@ -523,6 +552,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
         public ResourceLocation getId() {
             return id;
+        }
+
+        @Override
+        public MutableComponent getTitle() {
+            return Component.translatable("bonus.name");
         }
     }
 

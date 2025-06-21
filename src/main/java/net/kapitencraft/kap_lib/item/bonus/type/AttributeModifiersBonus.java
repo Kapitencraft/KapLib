@@ -9,7 +9,7 @@ import net.kapitencraft.kap_lib.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
-import net.kapitencraft.kap_lib.item.modifier_display.ItemModifiersDisplayExtension;
+import net.kapitencraft.kap_lib.item.modifier_display.EquipmentDisplayExtension;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Style;
@@ -18,13 +18,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, ItemModifiersDisplayExtension {
+public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, EquipmentDisplayExtension {
     private static final Codec<Multimap<Attribute, AttributeModifier>> ENTRIES_CODEC = Codec.unboundedMap(ForgeRegistries.ATTRIBUTES.getCodec(), ExtraCodecs.ATTRIBUTE_MODIFIER.listOf()).xmap(CollectionHelper::fromListMap, CollectionHelper::fromMultimap);
     private static final Codec<AttributeModifiersBonus> CODEC = RecordCodecBuilder.create(attributeModifiersBonusInstance -> attributeModifiersBonusInstance.group(
             ENTRIES_CODEC.fieldOf("entries").forGetter(AttributeModifiersBonus::getModifiers),
@@ -53,7 +54,7 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getModifiers(EquipmentSlot slot) {
+    public @NotNull Multimap<Attribute, AttributeModifier> getModifiers(EquipmentSlot slot) {
         return modifiers;
     }
 

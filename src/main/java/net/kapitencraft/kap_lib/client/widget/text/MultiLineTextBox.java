@@ -316,7 +316,7 @@ public class MultiLineTextBox extends ScrollableWidget {
             loc += lineEndIndexes.get(i);
             loc++;
         }
-        return new Vec2i(0, 0);
+        return Vec2i.ZERO;
     }
 
     /**

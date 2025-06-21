@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.inventory.page.equipment;
 
+import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.event.custom.WearableSlotChangeEvent;
 import net.kapitencraft.kap_lib.inventory.menu.SlotAdder;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPage;
@@ -7,6 +8,7 @@ import net.kapitencraft.kap_lib.inventory.wearable.IWearable;
 import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaInventoryPages;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -14,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * inventory page that contains all the wearable slots
@@ -41,6 +44,11 @@ public class EquipmentPage extends InventoryPage {
                 @Override
                 public int getMaxStackSize() {
                     return 1;
+                }
+
+                @Override
+                public @Nullable Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+                    return slot.getNoItemIcon();
                 }
             });
         }

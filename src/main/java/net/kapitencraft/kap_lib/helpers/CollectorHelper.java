@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.minecraft.network.chat.Component;
@@ -92,5 +91,9 @@ public interface CollectorHelper {
             array.addAll(array2);
             return array;
         });
+    }
+
+    static <T, S> Collector<T, ?, List<Pair<T, S>>> toValueMappedPairList(Function<T, S> valueExtractor) {
+        return toPairList(Function.identity(), valueExtractor);
     }
 }

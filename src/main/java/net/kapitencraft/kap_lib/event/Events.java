@@ -8,9 +8,11 @@ import net.kapitencraft.kap_lib.cooldown.ICooldownable;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableProvider;
+import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncBonusesPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
+import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncWearablesToPlayerPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
@@ -161,13 +163,17 @@ public class Events {
             if (manaInst == null) throw new IllegalStateException();
             else {
                 double mana; //upload lost mana
-                if (tag.contains("Mana", 6)) {
+                if (tag.contains("Mana", Tag.TAG_DOUBLE)) {
                     mana = tag.getDouble("Mana");
                 } else mana = 100;
                 manaInst.setBaseValue(mana);
             }
             if (tag.contains("Health", Tag.TAG_FLOAT)) {
                 player.setHealth(tag.getFloat("Health"));
+            }
+
+            if (player instanceof ServerPlayer sP) {
+                Wearables.send(sP);
             }
         }
     }

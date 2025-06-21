@@ -38,7 +38,6 @@ public class CurseforgePublish {
             String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, fmlVersion);
 
             File mainFile = new File(fileBase + ".jar");
-            String mainHash = AutoPublisher.getFileSHA512(mainFile);
 
 
             try (OutputStream outputStream = connection.getOutputStream();
@@ -52,7 +51,6 @@ public class CurseforgePublish {
 
                 for (String extraFile : config.extraFiles()) {
                     File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
-                    String extraFileHash = AutoPublisher.getFileSHA512(sourcesFile);
                     //addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
                 }
                 // Write the final boundary directly to OutputStream

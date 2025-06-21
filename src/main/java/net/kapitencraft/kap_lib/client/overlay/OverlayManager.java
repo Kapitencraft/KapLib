@@ -10,6 +10,7 @@ import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.event.ModEventFactory;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterConfigurableOverlaysEvent;
 import net.kapitencraft.kap_lib.helpers.*;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

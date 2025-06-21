@@ -47,7 +47,10 @@ public abstract class SyncCapabilityToPlayerPacket<D, C extends AbstractCapabili
         Inventory inventory = player.getInventory();
         List<D> slots = new ArrayList<>(inventory.getContainerSize());
         for (int[] i = new int[] {0}; i[0] < inventory.getContainerSize(); i[0]++) {
-            inventory.getItem(i[0]).getCapability(capability).ifPresent(c -> slots.set(i[0], c.getData()));
+            inventory.getItem(i[0]).getCapability(capability).resolve().ifPresentOrElse(
+                    c -> slots.add(i[0], c.getData()),
+                    () -> slots.add(null)
+            );
         }
         return creator.apply(slots);
     }

@@ -45,6 +45,9 @@
 
   "configure_overlays.title": "Configure Overlays",
 
+  "command.cec.reset": "Successfully reset Enchantment Colors",
+  "command.cec.reload": "Successfully reloaded Enchantment Colors",
+
   "command.failed.console": "Can not perform this command from the console",
 
   "command.overlay.reset.success": "Overlays Reset Successfully",

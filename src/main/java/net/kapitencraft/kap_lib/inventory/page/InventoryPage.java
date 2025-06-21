@@ -1,6 +1,8 @@
 package net.kapitencraft.kap_lib.inventory.page;
 
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,6 +14,14 @@ public abstract class InventoryPage {
     }
 
     public abstract @NotNull ItemStack symbol();
+
+    /**
+     * @param player the player that is viewing the pages
+     * @return whether this page should be visible and to be interacted with
+     */
+    public boolean isVisible(Player player) {
+        return true;
+    }
 
     /**
      * @return whether the inventory slots should be rendered

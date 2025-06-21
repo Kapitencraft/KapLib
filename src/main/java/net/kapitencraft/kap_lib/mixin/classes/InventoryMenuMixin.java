@@ -40,7 +40,7 @@ public abstract class InventoryMenuMixin extends AbstractContainerMenu implement
     private void loadPages(Inventory pPlayerInventory, boolean pActive, Player pOwner, CallbackInfo ci) {
         Collection<InventoryPageType<?>> pageTypes = ExtraRegistries.INVENTORY_PAGES.getValues();
         InventoryPage[] pages = new InventoryPage[pageTypes.size()];
-        SlotAdder adder = new SlotAdder(s -> addSlot(s), this);
+        SlotAdder adder = new SlotAdder(s -> addSlot(s), this); //DO NOT convert to method reference as that will load the mixin class, crashing the game
         int i = 0;
         for (InventoryPageType<?> pageType : pageTypes) {
             adder.updateSlotIndex(i);

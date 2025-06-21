@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
-import net.kapitencraft.kap_lib.collection.BiCollectors;
 import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManager;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.inventory.wearable.IWearable;
@@ -10,7 +9,8 @@ import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
-import net.kapitencraft.kap_lib.item.modifier_display.ItemModifiersDisplayExtension;
+import net.kapitencraft.kap_lib.item.modifier_display.DisplayExtension;
+import net.kapitencraft.kap_lib.item.modifier_display.EquipmentDisplayExtension;
 import net.kapitencraft.kap_lib.item.modifier_display.ModifierDisplayManager;
 import net.kapitencraft.kap_lib.mixin.duck.MixinSelfProvider;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
@@ -22,7 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.PaintingVariantTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.MobType;
@@ -35,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -90,14 +90,15 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
     @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shouldShowInTooltip(ILnet/minecraft/world/item/ItemStack$TooltipPart;)Z", ordinal = 4), locals = LocalCapture.CAPTURE_FAILHARD)
     private void addAttributeTooltip(Player pPlayer, TooltipFlag pIsAdvanced, CallbackInfoReturnable<List<Component>> cir, List<Component> list, MutableComponent mutablecomponent, int j) {
         if (shouldShowInTooltip(j, ItemStack.TooltipPart.MODIFIERS)) {
-            List<ItemModifiersDisplayExtension> extensions = ModifierDisplayManager.getExtensions(pPlayer, self());
+            ModifierDisplayManager.ExtensionData extensions = ModifierDisplayManager.getExtensions(self());
             for(EquipmentSlot equipmentslot : EquipmentSlot.values()) {
                 appendModifiersDisplay(list, pPlayer,
                         this.getAttributeModifiers(equipmentslot),
                         "item.modifiers." + equipmentslot.getName(),
-                        extensions.stream()
-                                .collect(CollectorHelper.toValueMappedStream(e -> e.getModifiers(equipmentslot)))
-                                .collect(BiCollectors.toPairList())
+                        extensions.equipmentProviders().stream()
+                                .collect(CollectorHelper.toValueMappedPairList(
+                                        e -> e.getModifiers(equipmentslot))
+                                )
                 );
             }
             if (self().getItem() instanceof IWearable wearable) {
@@ -105,7 +106,10 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
                     appendModifiersDisplay(list, pPlayer,
                             wearable.getModifiers(slotEntry.getValue(), self()),
                             "item.modifiers.wearable." + getWearableKey(slotEntry.getKey()),
-                            List.of() //TODO add display extensions
+                            extensions.wearableProviders().stream()
+                                    .collect(CollectorHelper.toValueMappedPairList(
+                                            e -> e.getModifiers(slotEntry.getValue()))
+                                    )
                     );
                 }
             }
@@ -119,7 +123,7 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
     }
 
     @Unique
-    private void appendModifiersDisplay(List<Component> list, Player pPlayer, Multimap<Attribute, AttributeModifier> multimap, String translation, List<Pair<ItemModifiersDisplayExtension, Multimap<Attribute, AttributeModifier>>> extensionData) {
+    private void appendModifiersDisplay(List<Component> list, Player pPlayer, Multimap<Attribute, AttributeModifier> multimap, String translation, List<? extends Pair<? extends DisplayExtension<?>, Multimap<Attribute, AttributeModifier>>> extensionData) {
         if (!multimap.isEmpty()) {
             list.add(CommonComponents.EMPTY);
             list.add(Component.translatable(translation).withStyle(ChatFormatting.GRAY));
@@ -163,7 +167,7 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
                     d1 *= -1.0D;
                     c = Component.translatable("attribute.modifier.take." + modifier.getOperation().toValue(), ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(entry.getKey().getDescriptionId())).withStyle(ChatFormatting.RED);
                 } else continue;
-                for (Pair<ItemModifiersDisplayExtension, Multimap<Attribute, AttributeModifier>> pair : extensionData) {
+                for (Pair<? extends DisplayExtension<?>, Multimap<Attribute, AttributeModifier>> pair : extensionData) {
                     for (AttributeModifier attributeModifier : pair.getSecond().get(entry.getKey())) {
                         if (attributeModifier.getOperation() == modifier.getOperation()) {
                             c = c.append(CommonComponents.SPACE).append(pair.getFirst().createComponent(attributeModifier.getAmount()));

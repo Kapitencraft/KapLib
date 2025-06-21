@@ -26,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Mixin(InventoryScreen.class)
@@ -41,6 +43,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     @Unique
     private InventoryPageRenderer[] renderers;
+    private int[] visible;
 
     @Unique
     private InventoryPageRenderer renderer;
@@ -54,9 +57,11 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         InventoryPageReader reader = (InventoryPageReader) this.menu;
         InventoryPage[] pages = reader.getPages();
         renderers = new InventoryPageRenderer[pages.length];
+        visible = new int[pages.length];
         for (int i = 0; i < pages.length; i++) {
             InventoryPageRenderer renderer = renderers[i] = InventoryPageRenderers.getRenderer(pages[i]).construct(pages[i]);
             renderer.init(leftPos, topPos);
+            visible[i] = i;
         }
         this.renderer = renderers[reader.getPageIndex()];
     }
@@ -74,20 +79,28 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
             int index = relativeX / 28;
             InventoryPageIO pageIo = (InventoryPageIO) this.menu;
             if (index >= 0 && index < pageIo.getPages().length) {
-                pageIo.setPage(index);
-                this.renderer = this.renderers[index];
+                if (visible[index] != -1) {
+                    pageIo.setPage(visible[index]);
+                    this.renderer = this.renderers[visible[index]];
+                }
             }
         }
     }
 
-    //TODO fix latest crash
+    @SuppressWarnings("DataFlowIssue")
     @Inject(method = "renderBg", at = @At("HEAD"), cancellable = true)
     private void addPages(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY, CallbackInfo ci) {
         InventoryPageReader reader = (InventoryPageReader) this.menu;
         int selected = reader.getPageIndex();
         InventoryPage[] pages = reader.getPages();
+        int index = 0;
+        Arrays.fill(visible, -1);
         for (int i = 0; i < pages.length; i++) {
-            renderPageButton(pGuiGraphics, pages[i], selected == i, i);
+            InventoryPage page = pages[i];
+            if (page.isVisible(this.minecraft.player)) {
+                visible[index] = i;
+                renderPageButton(pGuiGraphics, page, selected == i, index++);
+            };
         }
         if (selected != 0) {
             pGuiGraphics.blit(renderer.pageBackgroundLocation(), this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
@@ -102,10 +115,10 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
     }
 
     @Unique
-    private void renderPageButton(GuiGraphics pGuiGraphics, InventoryPage page, boolean selected, int index)    {
-        int j = index == 0 ? 0 : 26;
+    private void renderPageButton(GuiGraphics pGuiGraphics, InventoryPage page, boolean selected, int positionIndex)    {
+        int j = positionIndex == 0 ? 0 : 26;
         int k = 0;
-        int l = this.leftPos + index * 28;
+        int l = this.leftPos + positionIndex * 28;
         int i1 = this.topPos - 28;
         if (selected) {
             k += 32;

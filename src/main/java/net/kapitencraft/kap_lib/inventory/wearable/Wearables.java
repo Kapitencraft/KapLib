@@ -1,11 +1,14 @@
 package net.kapitencraft.kap_lib.inventory.wearable;
 
 import net.kapitencraft.kap_lib.inventory.page.equipment.EquipmentPage;
+import net.kapitencraft.kap_lib.io.network.ModMessages;
+import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncWearablesToPlayerPacket;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -16,9 +19,13 @@ import net.minecraftforge.common.capabilities.CapabilityToken;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @MethodsReturnNonnullByDefault
 public class Wearables implements Container {
+
     public static final Capability<Wearables> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
     public static final WearableSlot[] SLOTS = createSlots();
@@ -38,6 +45,15 @@ public class Wearables implements Container {
     public Wearables(LivingEntity entity) {
         this.entity = entity;
         this.content = NonNullList.withSize(getContainerSize(), ItemStack.EMPTY);
+    }
+
+    public static Wearables get(@NotNull LivingEntity living) {
+        return living.getCapability(CAPABILITY).orElseThrow(() -> new IllegalArgumentException("capability not found!"));
+    }
+
+    public static void send(ServerPlayer sP) {
+        Wearables wearables = get(sP);
+        ModMessages.sendToClientPlayer(new SyncWearablesToPlayerPacket(sP.getId(), wearables.content), sP);
     }
 
     @Override
@@ -63,8 +79,7 @@ public class Wearables implements Container {
         if (pAmount > 0) {
             if (this.content.get(pSlot) != ItemStack.EMPTY) {
                 ItemStack stack = this.content.get(pSlot);
-                EquipmentPage.equip(this.entity, SLOTS[pSlot], ItemStack.EMPTY, stack);
-                this.content.set(pSlot, ItemStack.EMPTY);
+                this.setItem(pSlot, ItemStack.EMPTY);
                 return stack;
             }
         }
@@ -80,6 +95,7 @@ public class Wearables implements Container {
 
     @Override
     public void setItem(int pSlot, @NotNull ItemStack pStack) {
+        EquipmentPage.equip(this.entity, SLOTS[pSlot], pStack, this.content.get(pSlot));
         this.content.set(pSlot, pStack);
     }
 
@@ -109,8 +125,13 @@ public class Wearables implements Container {
     public void load(ListTag tags) {
         for (int i = 0; i < tags.size(); i++) {
             ItemStack stack = ItemStack.of(tags.getCompound(i));
-            if (!stack.isEmpty()) EquipmentPage.equip(this.entity, Wearables.SLOTS[i], stack, ItemStack.EMPTY);
             this.setItem(i, stack);
+        }
+    }
+
+    public void copyFrom(List<ItemStack> content) {
+        for (int i = 0; i < content.size(); i++) {
+            this.setItem(i, content.get(i));
         }
     }
 }

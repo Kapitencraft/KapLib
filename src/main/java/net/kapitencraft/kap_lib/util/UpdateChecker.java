@@ -278,7 +278,7 @@ public class UpdateChecker {
                 };
             }
         } catch (IOException e) {
-            LOGGER.warn("error attempting to save file: {}", e.getMessage());
+            LOGGER.warn("error attempting to save update file: {}", e.getMessage());
         }
     }
 

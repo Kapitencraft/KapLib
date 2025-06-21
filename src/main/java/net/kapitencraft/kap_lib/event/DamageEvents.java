@@ -14,7 +14,7 @@ import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.DisplayTotemActivationPacket;
-import net.kapitencraft.kap_lib.item.combat.totem.ModTotemItem;
+import net.kapitencraft.kap_lib.item.combat.totem.AbstractTotemItem;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.util.DamageCounter;
@@ -38,6 +38,7 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -204,9 +205,9 @@ public class DamageEvents {
     public static void entityDeathEvents(LivingDeathEvent event) {
         LivingEntity toDie = event.getEntity();
         if (toDie instanceof ServerPlayer player) {
-            Collection<ItemStack> totems = InventoryHelper.getByFilter(player, stack -> stack.getItem() instanceof ModTotemItem);
+            Collection<ItemStack> totems = InventoryHelper.getByFilter(player, stack -> stack.getItem() instanceof AbstractTotemItem);
             if (!event.isCanceled()) for (ItemStack stack : totems) {
-                ModTotemItem totemItem = (ModTotemItem) stack.getItem();
+                AbstractTotemItem totemItem = (AbstractTotemItem) stack.getItem();
                 if (totemItem.onUse(player, event.getSource())) {
                     if (player.getHealth() <= 0) throw new IllegalStateException("Player wasn't revived!"); //ensure player being revived by the totem (e.g. health boost)
                     player.awardStat(Stats.ITEM_USED.get(totemItem));

@@ -5,17 +5,12 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * used to display all attribute modifications made by this to the item's tooltip.
- * only implement in custom bonuses
- */
-public interface ItemModifiersDisplayExtension {
+public interface DisplayExtension<T> {
 
     default Component createComponent(double value) {
         Type type = getType();
@@ -26,7 +21,10 @@ public interface ItemModifiersDisplayExtension {
         ).withStyle(getStyle());
     }
 
-    Multimap<Attribute, AttributeModifier> getModifiers(EquipmentSlot slot);
+    /**
+     * @return the list of modifiers this extension applies. return an empty map if it doesn't apply any
+     */
+    @NotNull Multimap<Attribute, AttributeModifier> getModifiers(T slot);
 
     Style getStyle();
 

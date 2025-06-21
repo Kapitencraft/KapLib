@@ -8,8 +8,8 @@ import net.minecraft.world.item.Item;
  * base class for totems.
  * overwrite {@link #onUse(LivingEntity, DamageSource)} to enable behaviour
  */
-public abstract class ModTotemItem extends Item {
-    public ModTotemItem(Properties p_41383_) {
+public abstract class AbstractTotemItem extends Item {
+    public AbstractTotemItem(Properties p_41383_) {
         super(p_41383_.stacksTo(1));
     }
 

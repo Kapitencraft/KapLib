@@ -91,8 +91,6 @@ public class KapLibMod {
         VanillaDataSourceTypes.REGISTRY.register(modEventBus);
         VanillaInventoryPages.REGISTRY.register(modEventBus);
 
-        TestItems.REGISTRY.register(modEventBus);
-
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
 
@@ -101,7 +99,7 @@ public class KapLibMod {
 
         ArtifactVersion modVersion = ModList.get().getModContainerById(KapLibMod.MOD_ID).map(ModContainer::getModInfo).map(IModInfo::getVersion).orElse(null);
 
-        if (modVersion == null) throw new IllegalStateException("kap lib version not found");
+        if (modVersion == null) throw new IllegalStateException("KapLib version not found");
 
         StartupMessageManager.addModMessage("KapLib Mod v" + modVersion + " loaded");
         LOGGER.info(MARKER, "KapLib v{} loaded", modVersion);

@@ -3,6 +3,8 @@
     "minecraft:magic",
     "minecraft:indirect_magic",
     "minecraft:dragon_breath",
-    "minecraft:sonic_boom"
+    "minecraft:sonic_boom",
+    "kap_lib:mana_overflow",
+    "kap_lib:mana_overflow_self"
   ]
 }

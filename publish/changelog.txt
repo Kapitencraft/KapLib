@@ -1,0 +1,13 @@
+fixed hidden bonuses still being displayed
+added wearable slots
+added inventory pages
+added bonus support for wearable slots
+fixed scrollable tooltips
+fixed SyncCapabilityToPlayerPacket#createPacket not working due to ArrayList size not being updated when specifying initial capacity
+added AbstractBonusElement#getTitle to modify the title of a bonus
+fixed multiple item modifier display extensions for the same modifier changing order
+renamed RegisterItemModifiersDisplayExtensionsEvent#register to #registerEquipment and added #registerWearable
+removed LivingEntity argument from item display extensions
+renamed ModTotemItem to AbstractTotemItem
+added cec reload command to reload enchantment colors while the game is running
+known error: wearable slots are sometimes moved to the inventory page inside the creative mode inventory
