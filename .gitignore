@@ -25,3 +25,4 @@ run
 src/generated/resources/.cache
 /gradle/
 /run-server/
+/logs/

@@ -374,7 +374,7 @@ public class MiscHelper {
      * @param source source to get DamageType from
      * @return DamageType from the source
      */
-    @Contract("null -> fail")
+    @Contract(value = "null -> fail", pure = true)
     public static DamageType getDamageType(DamageSource source) {
         if (source.is(ExtraTags.DamageTypes.MAGIC)) {
             return DamageType.MAGIC;

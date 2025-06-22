@@ -14,6 +14,7 @@ import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.DisplayTotemActivationPacket;
+import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.item.combat.totem.AbstractTotemItem;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
@@ -38,7 +39,6 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -65,7 +65,7 @@ public class DamageEvents {
     public static void miscDamageEvents(LivingHurtEvent event) {
         LivingEntity attacked = event.getEntity();
         LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
-        CompoundTag tag = attacked.getPersistentData();
+        BonusManager.attackEvent(attacked, attacker, MiscHelper.getDamageType(event.getSource()), event.getAmount());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -116,7 +116,7 @@ public class DamageEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void DamageBonusRegister(LivingHurtEvent event) {
+    public static void damageBonusRegister(LivingHurtEvent event) {
         LivingEntity attacked = event.getEntity();
         if (event.getSource().getDirectEntity() instanceof Arrow arrow) {
             CompoundTag tag = arrow.getPersistentData();
@@ -216,7 +216,9 @@ public class DamageEvents {
                     break;
                 }
             }
-
+        }
+        if (!event.isCanceled()) {
+            BonusManager.deathEvent(toDie, event.getSource());
         }
     }
 }

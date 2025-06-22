@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 
 public interface IEventListener {
 
+    @Deprecated
     void onUse();
 
     void onTick(int tickCount, @NotNull LivingEntity entity);

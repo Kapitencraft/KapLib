@@ -1,5 +1,2 @@
-known error: arrows flying all over the place on servers
-removed Totem checking player health
-added IWearables to declare their slot instead of using tags
-added WearableItem, an overload for the IWearable item interface
-fixed wearable slots appearing in creative inventory
+fixed pixel issue in empty_belt_slot
+fixed Bonus#onEntityKilled, #onEntityHurt and #onTakeDamage not working

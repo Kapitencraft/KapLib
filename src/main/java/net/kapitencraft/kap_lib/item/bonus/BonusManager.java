@@ -16,6 +16,7 @@ import net.kapitencraft.kap_lib.event.custom.RegisterBonusProvidersEvent;
 import net.kapitencraft.kap_lib.event.custom.WearableSlotChangeEvent;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.InventoryHelper;
+import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.JsonHelper;
@@ -41,6 +42,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.*;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -74,6 +76,28 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     public static void swapFrom(LivingEntity living, EquipmentSlot slot, ItemStack newItem, ItemStack oldItem) {
         instance.getOrCreateLookup(living).equipmentChange(slot, oldItem, newItem);
+    }
+
+    public static void attackEvent(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
+        float[] damageWrapper = new float[] {damage};
+        instance.getLookup(attacked).ifPresent(
+                bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(
+                        abstractBonusElement -> damageWrapper[0] = abstractBonusElement.getBonus()
+                                .onTakeDamage(attacked, attacker, type, damageWrapper[0])
+                )
+        );
+        if (attacker != null) instance.getLookup(attacker).ifPresent(
+                bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(
+                        abstractBonusElement -> damageWrapper[0] = abstractBonusElement.getBonus()
+                                .onEntityHurt(attacked, attacker, type, damageWrapper[0])
+                )
+        );
+    }
+
+    public static void deathEvent(LivingEntity toDie, DamageSource source) {
+        LivingEntity attacker = MiscHelper.getAttacker(source);
+        MiscHelper.DamageType type = MiscHelper.getDamageType(source);
+        if (attacker != null) instance.getLookup(attacker).ifPresent(bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(abstractBonusElement -> abstractBonusElement.getBonus().onEntityKilled(toDie, attacker, type)));
     }
 
     private Optional<BonusLookup> getLookup(LivingEntity living) {
