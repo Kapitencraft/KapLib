@@ -78,7 +78,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         instance.getOrCreateLookup(living).equipmentChange(slot, oldItem, newItem);
     }
 
-    public static void attackEvent(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
+    public static float attackEvent(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
         float[] damageWrapper = new float[] {damage};
         instance.getLookup(attacked).ifPresent(
                 bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(
@@ -92,12 +92,18 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                                 .onEntityHurt(attacked, attacker, type, damageWrapper[0])
                 )
         );
+        return damageWrapper[0];
     }
 
     public static void deathEvent(LivingEntity toDie, DamageSource source) {
         LivingEntity attacker = MiscHelper.getAttacker(source);
         MiscHelper.DamageType type = MiscHelper.getDamageType(source);
-        if (attacker != null) instance.getLookup(attacker).ifPresent(bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(abstractBonusElement -> abstractBonusElement.getBonus().onEntityKilled(toDie, attacker, type)));
+        if (attacker != null) instance.getLookup(attacker).ifPresent(
+                bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(
+                        abstractBonusElement -> abstractBonusElement.getBonus()
+                                .onEntityKilled(toDie, attacker, type)
+                )
+        );
     }
 
     private Optional<BonusLookup> getLookup(LivingEntity living) {

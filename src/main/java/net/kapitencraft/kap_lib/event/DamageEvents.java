@@ -65,7 +65,7 @@ public class DamageEvents {
     public static void miscDamageEvents(LivingHurtEvent event) {
         LivingEntity attacked = event.getEntity();
         LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
-        BonusManager.attackEvent(attacked, attacker, MiscHelper.getDamageType(event.getSource()), event.getAmount());
+        event.setAmount(BonusManager.attackEvent(attacked, attacker, MiscHelper.getDamageType(event.getSource()), event.getAmount()));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

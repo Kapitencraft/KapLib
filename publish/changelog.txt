@@ -1,2 +1,1 @@
-fixed pixel issue in empty_belt_slot
-fixed Bonus#onEntityKilled, #onEntityHurt and #onTakeDamage not working
+fixed Bonus#onTakeDamage, #onEntityHurt not modifying damage
