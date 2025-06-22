@@ -209,7 +209,6 @@ public class DamageEvents {
             if (!event.isCanceled()) for (ItemStack stack : totems) {
                 AbstractTotemItem totemItem = (AbstractTotemItem) stack.getItem();
                 if (totemItem.onUse(player, event.getSource())) {
-                    if (player.getHealth() <= 0) throw new IllegalStateException("Player wasn't revived!"); //ensure player being revived by the totem (e.g. health boost)
                     player.awardStat(Stats.ITEM_USED.get(totemItem));
                     event.setCanceled(true);
                     ModMessages.sendToClientPlayer(new DisplayTotemActivationPacket(stack.copy(), player.getId()), player);

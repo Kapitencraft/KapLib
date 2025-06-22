@@ -74,6 +74,10 @@ public class Wearables implements Container {
         return this.content.get(pSlot);
     }
 
+    public ItemStack get(WearableSlot slot) {
+        return getItem(slot.getSlotIndex());
+    }
+
     @Override
     public ItemStack removeItem(int pSlot, int pAmount) {
         if (pAmount > 0) {

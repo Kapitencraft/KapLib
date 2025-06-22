@@ -6,7 +6,6 @@ import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wrapper.InventorySlotWrapper;
 import net.kapitencraft.kap_lib.inventory.wrapper.SlotWrapper;
 import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageIO;
-import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageReader;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +15,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,6 +26,8 @@ import java.util.Collection;
 
 @Mixin(InventoryMenu.class)
 public abstract class InventoryMenuMixin extends AbstractContainerMenu implements InventoryPageIO {
+    @Shadow public abstract boolean stillValid(Player pPlayer);
+
     @Unique
     private InventoryPage[] pages;
     @Unique

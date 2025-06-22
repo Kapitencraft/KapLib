@@ -75,7 +75,7 @@ public class ModTagsProvider {
 
         @Override
         protected void addTags(HolderLookup.Provider pProvider) {
-            tag(WearableSlots.BELT.get().getTypeKey()).add(TestItems.OBJECT.get());
+
         }
     }
 }

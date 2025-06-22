@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.inventory.page;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

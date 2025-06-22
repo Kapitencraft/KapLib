@@ -38,7 +38,7 @@ public class EquipmentPage extends InventoryPage {
 
                 @Override
                 public boolean mayPlace(@NotNull ItemStack pStack) {
-                    return pStack.is(slot.getTypeKey());
+                    return pStack.getItem() instanceof IWearable wearable && wearable.getSlot() == slot;
                 }
 
                 @Override

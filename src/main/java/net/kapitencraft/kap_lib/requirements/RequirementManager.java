@@ -81,7 +81,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     }
 
     public static boolean meetsItemRequirementsFromEvent(LivingEvent event, EquipmentSlot slot) {
-        return instance.meetsRequirements(RegistryReqType.ITEM, event.getEntity().getItemBySlot(slot).getItem(), event.getEntity());
+        return instance != null && instance.meetsRequirements(RegistryReqType.ITEM, event.getEntity().getItemBySlot(slot).getItem(), event.getEntity());
     }
 
     private void registerTypes() {

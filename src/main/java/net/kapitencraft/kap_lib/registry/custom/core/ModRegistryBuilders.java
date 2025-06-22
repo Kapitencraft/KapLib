@@ -58,7 +58,7 @@ public interface ModRegistryBuilders {
     RegistryBuilder<Modifier.Type<?>> CAMERA_ROTATORS = makeBuilder(ExtraRegistries.Keys.CAMERA_MODIFIERS);
     RegistryBuilder<SpawnEntityFunctionType> SPAWN_FUNCTION_TYPE = makeBuilder(ExtraRegistries.Keys.FUNCTION_TYPES);
     RegistryBuilder<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPE = makeBuilder(ExtraRegistries.Keys.POOL_ENTRY_TYPES);
-    RegistryBuilder<WearableSlot> WEARABLE_SLOT = makeBuilder(ExtraRegistries.Keys.WEARABLE_SLOTS).add(new ModRegistryCallbacks.WearableSlotsAddCallback()).add(new ModRegistryCallbacks.WearableSlotsCreateCallback());
+    RegistryBuilder<WearableSlot> WEARABLE_SLOT = makeBuilder(ExtraRegistries.Keys.WEARABLE_SLOTS);
     RegistryBuilder<InventoryPageType<?>> INVENTORY_PAGE = makeBuilder(ExtraRegistries.Keys.INVENTORY_PAGES);
 
     private static <T> RegistryBuilder<T> makeBuilder(ResourceKey<Registry<T>> location) {

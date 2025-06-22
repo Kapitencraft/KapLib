@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.item.bonus;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -25,4 +24,6 @@ public interface AbstractBonusElement {
      * @return the bonus type title
      */
     MutableComponent getTitle();
+
+    String getNameId();
 }

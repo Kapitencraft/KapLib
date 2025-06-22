@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
@@ -20,6 +19,8 @@ import net.kapitencraft.kap_lib.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.io.network.ModMessages;
+import net.kapitencraft.kap_lib.io.network.S2C.UpdateBonusDataPacket;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
@@ -34,6 +35,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.tags.*;
@@ -70,6 +72,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return instance = new BonusManager();
     }
 
+    public static void swapFrom(LivingEntity living, EquipmentSlot slot, ItemStack newItem, ItemStack oldItem) {
+        instance.getOrCreateLookup(living).equipmentChange(slot, oldItem, newItem);
+    }
+
     private Optional<BonusLookup> getLookup(LivingEntity living) {
         if (lookupMap.containsKey(living)) return Optional.of(lookupMap.get(living));
         return Optional.empty();
@@ -84,6 +90,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         LivingEntity entity = event.getEntity();
         BonusLookup bonusLookup = getOrCreateLookup(entity);
         bonusLookup.equipmentChange(event.getSlot(), event.getFrom(), event.getTo());
+        if (entity instanceof ServerPlayer sP) ModMessages.sendToClientPlayer(new UpdateBonusDataPacket(event.getFrom(), event.getTo(), event.getSlot(), entity.getId()), sP);
     }
 
     @SubscribeEvent
@@ -405,15 +412,15 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         List<Component> components = new ArrayList<>();
 
         available.forEach((location, bonus) -> {
-            if (!bonus.isHidden()) components.addAll(instance.decorateBonus(living, location, bonus));
+            if (!bonus.isHidden()) components.addAll(instance.decorateBonus(living, bonus));
         });
         return components;
     }
 
-    private List<Component> decorateBonus(@Nullable LivingEntity living, ResourceLocation bonusLocation, AbstractBonusElement element) {
+    private List<Component> decorateBonus(@Nullable LivingEntity living, AbstractBonusElement element) {
         List<Component> decoration = new ArrayList<>();
         boolean enabled = RequirementManager.instance.meetsRequirements(RequirementType.BONUS, element, living);
-        String nameKey = (element instanceof SetBonusElement ? "set." : "") + "bonus." + bonusLocation.getNamespace() + "." + bonusLocation.getPath();
+        String nameKey = element.getNameId();
         decoration.add(getBonusTitle(enabled, living, nameKey, element));
         decoration.addAll(TextHelper.getDescriptionOrEmpty(nameKey, null));
         if (!enabled) ClientHelper.addReqContent(decoration::add, RequirementType.BONUS, element, living);
@@ -518,6 +525,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         public MutableComponent getTitle() {
             return Component.translatable("set.bonus.name");
         }
+
+        @Override
+        public String getNameId() {
+            return "set." + super.getNameId();
+        }
     }
 
     public static class BonusElement implements AbstractBonusElement {
@@ -557,6 +569,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         @Override
         public MutableComponent getTitle() {
             return Component.translatable("bonus.name");
+        }
+
+        @Override
+        public String getNameId() {
+            return "bonus." + id.getNamespace() + "." + id.getPath();
         }
     }
 

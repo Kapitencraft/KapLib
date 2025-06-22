@@ -5,7 +5,7 @@
   "package": "net.kapitencraft.kap_lib.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
-    "RegistryBuilderMixin",
+    "CreativeModeInventoryScreenMixin",
     "client.AnvilScreenMixin",
     "client.BakedGlyphMixin",
     "client.ChatScreenMixin",
@@ -47,6 +47,7 @@
     "LivingEntityMixin",
     "PlayerMixin",
     "ProjectileMixin",
+    "RegistryBuilderMixin",
     "SharedConstantsMixin",
     "StringDecomposerMixin",
     "StyleMixin"

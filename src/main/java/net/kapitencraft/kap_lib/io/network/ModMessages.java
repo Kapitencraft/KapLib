@@ -50,6 +50,7 @@ public class ModMessages {
         addMessage(SendTrackingShotPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendTrackingShotPacket::new);
         addMessage(ActivateShakePacket.class, NetworkDirection.PLAY_TO_CLIENT, ActivateShakePacket::new);
         addMessage(SyncWearablesToPlayerPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncWearablesToPlayerPacket::new);
+        addMessage(UpdateBonusDataPacket.class, NetworkDirection.PLAY_TO_CLIENT, UpdateBonusDataPacket::new);
     }
 
 
