@@ -7,6 +7,7 @@ import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
@@ -14,7 +15,6 @@ import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
 import net.kapitencraft.kap_lib.spawn_table.entries.SpawnPoolEntryType;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
@@ -43,7 +43,7 @@ public interface ExtraRegistries {
     IForgeRegistry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = reg(Keys.MODIFIER_TYPES);
     IForgeRegistry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = reg(Keys.SPAWNER_TYPES);
     IForgeRegistry<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = reg(Keys.FINALIZER_TYPES);
-    IForgeRegistry<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = reg(Keys.TERMINATOR_TYPES);
+    IForgeRegistry<TerminationTrigger<?>> TERMINATION_TRIGGERS = reg(Keys.TERMINATOR_TYPES);
     IForgeRegistry<ActivationTrigger<?>> ACTIVATION_TRIGGERS = reg(Keys.ACTIVATION_TRIGGERS);
 
     IForgeRegistry<Modifier.Type<?>> CAMERA_MODIFIERS = reg(Keys.CAMERA_MODIFIERS);
@@ -78,7 +78,7 @@ public interface ExtraRegistries {
         ResourceKey<Registry<AnimationElement.Type<?>>> MODIFIER_TYPES = createRegistry("particle_animation/element_types");
         ResourceKey<Registry<Spawner.Type<?>>> SPAWNER_TYPES = createRegistry("particle_animation/spawner_types");
         ResourceKey<Registry<ParticleFinalizer.Type<?>>> FINALIZER_TYPES = createRegistry("particle_animation/finalizer_types");
-        ResourceKey<Registry<AnimationTerminator.Type<?>>> TERMINATOR_TYPES = createRegistry("particle_animation/terminator_types");
+        ResourceKey<Registry<TerminationTrigger<?>>> TERMINATOR_TYPES = createRegistry("particle_animation/terminator_types");
         ResourceKey<Registry<ActivationTrigger<?>>> ACTIVATION_TRIGGERS = createRegistry("particle_animation/activation_triggers");
 
         //CAMERA CONTROL

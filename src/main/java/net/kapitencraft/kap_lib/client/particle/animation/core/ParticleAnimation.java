@@ -6,13 +6,15 @@ import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.En
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.TriggerInstance;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminator;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminatorTrigger;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTriggerInstance;
 import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SendParticleAnimationPacket;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.CrashReport;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
@@ -33,7 +35,7 @@ import java.util.Objects;
 public class ParticleAnimation {
     private final AnimationElement[] elements;
     private final ParticleFinalizer finalizer;
-    private final AnimationTerminator terminator;
+    private final TerminationTriggerInstance terminator;
     private final TriggerInstance[] activationTriggers;
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
@@ -50,7 +52,7 @@ public class ParticleAnimation {
         this.activationTriggers = Objects.requireNonNull(builder.activationTriggers.toArray(TriggerInstance[]::new));
     }
 
-    private ParticleAnimation(AnimationElement[] elements, ParticleFinalizer finalizer, AnimationTerminator terminator, Spawner spawner, int minSpawnDelay, int maxSpawnDelay, TriggerInstance[] activationTriggers) {
+    private ParticleAnimation(AnimationElement[] elements, ParticleFinalizer finalizer, TerminationTriggerInstance terminator, Spawner spawner, int minSpawnDelay, int maxSpawnDelay, TriggerInstance[] activationTriggers) {
         this.elements = elements;
         this.finalizer = finalizer;
         this.terminator = terminator;
@@ -68,8 +70,8 @@ public class ParticleAnimation {
         return elements;
     }
 
-    public boolean terminated(ParticleAnimator animator) {
-        return terminator.shouldTerminate(animator);
+    public TerminationTriggerInstance getTerminator() {
+        return terminator;
     }
 
     public void spawnTick(ParticleSpawnSink sink) {
@@ -101,7 +103,7 @@ public class ParticleAnimation {
     public static Builder requireEntity(Entity target) {
         return builder()
                 .activatedOn(EntityAddedTrigger.forEntity(target))
-                .terminatedWhen(EntityRemovedTerminator.builder(target));
+                .terminatedWhen(EntityRemovedTerminatorTrigger.create(target));
     }
 
     /**
@@ -111,7 +113,7 @@ public class ParticleAnimation {
         private final List<AnimationElement> elements = new ArrayList<>();
         private Spawner spawner;
         private ParticleFinalizer finalizer;
-        private AnimationTerminator terminator;
+        private TerminationTriggerInstance terminator;
         private int minSpawnDelay, maxSpawnDelay;
         private final List<TriggerInstance> activationTriggers = new ArrayList<>();
 
@@ -161,9 +163,9 @@ public class ParticleAnimation {
         /**
          * sets the animation termination predicate
          */
-        public Builder terminatedWhen(AnimationTerminator.Builder terminator) {
-            this.terminator = terminator.build();
-            Preconditions.checkNotNull(this.terminator.getType(), "Terminator without type detected!");
+        public Builder terminatedWhen(TerminationTriggerInstance terminator) {
+            this.terminator = terminator;
+            Preconditions.checkNotNull(this.terminator.getTrigger(), "Terminator without type detected!");
             return this;
         }
 
@@ -242,7 +244,8 @@ public class ParticleAnimation {
         NetworkHelper.writeArray(buf, elements, AnimationElement::toNw);
         Spawner.toNw(buf, this.spawner);
         ParticleFinalizer.toNw(buf, this.finalizer);
-        AnimationTerminator.toNw(buf, this.terminator);
+        buf.writeRegistryIdUnsafe(ExtraRegistries.TERMINATION_TRIGGERS, this.terminator.getTrigger());
+        TerminationTrigger.writeToNw(buf, this.terminator);
         NetworkHelper.writeArray(buf, this.activationTriggers, ActivationTrigger::writeToNw);
     }
 
@@ -257,7 +260,7 @@ public class ParticleAnimation {
 
         Spawner spawner = Spawner.fromNw(buf);
         ParticleFinalizer finalizer = ParticleFinalizer.fromNw(buf);
-        AnimationTerminator terminator = AnimationTerminator.fromNw(buf);
+        TerminationTriggerInstance terminator = TerminationTrigger.readFromNw(buf);
 
         TriggerInstance[] triggers = NetworkHelper.readArray(buf, TriggerInstance[]::new, ActivationTrigger::readFromNw);
 

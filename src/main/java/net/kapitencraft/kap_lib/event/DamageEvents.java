@@ -5,7 +5,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.elements.MoveTowardsBB
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.RemoveParticleFinalizer;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.EntityBBSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.EitherTerminator;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminator;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ExtendedCalculationEnchantment;
@@ -170,8 +170,8 @@ public class DamageEvents {
                         .spawnTime(ParticleAnimation.SpawnTime.once())
                         .terminatedWhen(EitherTerminator.with(
                                 TimedTerminator.ticks(20),
-                                EntityRemovedTerminator.builder(attacked),
-                                EntityRemovedTerminator.builder(attacker)
+                                EntityRemovedTerminatorTrigger.builder(attacked),
+                                EntityRemovedTerminatorTrigger.builder(attacker)
                         ))
                         .sendToAllPlayers(sL);
             }

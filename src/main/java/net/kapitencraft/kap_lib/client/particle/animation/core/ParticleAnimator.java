@@ -1,6 +1,8 @@
 package net.kapitencraft.kap_lib.client.particle.animation.core;
 
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.VisibleSpawner;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTriggerInstance;
 import net.minecraft.CrashReport;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.util.Mth;
@@ -35,6 +37,9 @@ public class ParticleAnimator {
     @ApiStatus.Internal
     public ParticleAnimator(ParticleAnimation animation) {
         this.animation = animation;
+        TerminationTriggerInstance instance = animation.getTerminator();
+        TerminationTrigger<TerminationTriggerInstance> trigger = (TerminationTrigger<TerminationTriggerInstance>) instance.getTrigger();
+        trigger.addListener(this, new TerminationTrigger.Listener<>(instance, this));
     }
 
 
@@ -55,11 +60,6 @@ public class ParticleAnimator {
         particles.removeAll(expired);
         particles.forEach(ParticleConfig::tick);
         runningTicks++;
-    }
-
-    @ApiStatus.Internal
-    public boolean beenTerminated() {
-        return this.animation.terminated(this);
     }
 
     public void fillCrashReport(CrashReport report) {

@@ -6,7 +6,7 @@ import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.AnimationTerminator;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;

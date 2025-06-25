@@ -60,7 +60,6 @@ public final class ParticleAnimationManager {
 
     @ApiStatus.Internal
     public void tick(RandomSource source) {
-        activeAnimations.removeIf(ParticleAnimator::beenTerminated);
         activeAnimations.forEach(pa -> {
             try {
                 pa.tick(source);
@@ -82,6 +81,10 @@ public final class ParticleAnimationManager {
             onHold.remove(animator);
             activeAnimations.add(animator);
         }
+    }
+
+    public void remove(ParticleAnimator animator) {
+        activeAnimations.remove(animator);
     }
 
     static class Context {

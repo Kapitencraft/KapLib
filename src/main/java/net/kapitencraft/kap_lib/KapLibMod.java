@@ -74,7 +74,7 @@ public class KapLibMod {
         ElementTypes.REGISTRY.register(modEventBus);
         SpawnerTypes.REGISTRY.register(modEventBus);
         FinalizerTypes.REGISTRY.register(modEventBus);
-        TerminatorTypes.REGISTRY.register(modEventBus);
+        TerminatorTriggers.REGISTRY.register(modEventBus);
         ActivationTriggers.REGISTRY.register(modEventBus);
 
         CameraModifiers.REGISTRY.register(modEventBus);

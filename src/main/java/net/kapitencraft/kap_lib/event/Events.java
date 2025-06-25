@@ -12,9 +12,9 @@ import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncBonusesPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
-import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncWearablesToPlayerPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
@@ -183,6 +183,9 @@ public class Events {
         if (event.getEntity() instanceof Player player) {
             //save mana to reset back to when re-joining
             player.getPersistentData().putDouble("Mana", player.getAttributeValue(ExtraAttributes.MANA.get()));
+        }
+        if (event.getEntity().level().isClientSide()) {
+            TerminatorTriggers.ENTITY_REMOVED.get().trigger(event.getEntity().getId());
         }
     }
 

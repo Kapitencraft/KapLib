@@ -24,6 +24,7 @@ import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.UpdateBonusDataPacket;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.kapitencraft.kap_lib.util.Color;
@@ -43,6 +44,7 @@ import net.minecraft.tags.*;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -104,6 +106,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                                 .onEntityKilled(toDie, attacker, type)
                 )
         );
+    }
+
+    public static boolean isDisabled(Entity entity, ResourceLocation elementId) {
+        return entity instanceof LivingEntity living ? instance.getLookup(living)
+                .map(l -> l.activeBonuses.keySet().stream().noneMatch(e -> e.getId() == elementId)).orElse(true) : true;
     }
 
     private Optional<BonusLookup> getLookup(LivingEntity living) {
@@ -204,6 +211,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     activeBonuses.remove(element);
                     Bonus<?> bonus = element.getBonus();
                     bonus.onRemove(target);
+                    if (this.target.level().isClientSide()) TerminatorTriggers.BONUS_REMOVED.get().trigger(this.target.getId(), element.getId());
                     Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
                     if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
                 }
@@ -243,6 +251,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     activeBonuses.remove(element);
                     Bonus<?> bonus = element.getBonus();
                     bonus.onRemove(target);
+                    if (this.target.level().isClientSide()) TerminatorTriggers.BONUS_REMOVED.get().trigger(this.target.getId(), element.getId());
                     Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
                     if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
                 }

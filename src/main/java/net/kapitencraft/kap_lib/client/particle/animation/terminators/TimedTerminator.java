@@ -1,64 +1,36 @@
 package net.kapitencraft.kap_lib.client.particle.animation.terminators;
 
-import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimator;
-import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTypes;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.SimpleTerminationTrigger;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTriggerInstance;
+import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.minecraft.network.FriendlyByteBuf;
-import org.jetbrains.annotations.NotNull;
 
-public class TimedTerminator implements AnimationTerminator {
-    private final int ticks;
-
-    public TimedTerminator(int ticks) {
-        this.ticks = ticks;
+public class TimedTerminator extends SimpleTerminationTrigger<TimedTerminator.Instance> {
+    public static Instance ticks(int tickCount) {
+        return new Instance();
     }
 
-    public static AnimationTerminator.Builder ticks(int tickCount) {
-        return new Builder().ticks(tickCount);
-    }
-
-    public static AnimationTerminator.Builder seconds(int secondsCount) {
+    public static Instance seconds(int secondsCount) {
         return ticks(secondsCount * 20);
     }
 
     @Override
-    public @NotNull Type getType() {
-        return TerminatorTypes.TIMED.get();
+    public void toNw(FriendlyByteBuf buf, Instance terminator) {
+
     }
 
     @Override
-    public boolean shouldTerminate(ParticleAnimator animator) {
-        return animator.runningTicks > ticks;
+    public Instance fromNw(FriendlyByteBuf buf) {
+        return null;
     }
 
-    public static class Type implements AnimationTerminator.Type<TimedTerminator> {
+    public static class Instance implements TerminationTriggerInstance {
+        private final int ;
 
         @Override
-        public void toNw(FriendlyByteBuf buf, TimedTerminator val) {
-            buf.writeInt(val.ticks);
+        public TerminationTrigger<? extends TerminationTriggerInstance> getTrigger() {
+            return TerminatorTriggers.TIMED.get();
         }
-
-        @Override
-        public TimedTerminator fromNw(FriendlyByteBuf buf) {
-            return new TimedTerminator(buf.readInt());
-        }
-    }
-
-    public static class Builder implements AnimationTerminator.Builder {
-        private int ticks;
-
-        @Override
-        public AnimationTerminator build() {
-            return new TimedTerminator(ticks);
-        }
-
-        public Builder ticks(int ticks) {
-            this.ticks = ticks;
-            return this;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "TimedTerminator[" + ticks + "]";
     }
 }
