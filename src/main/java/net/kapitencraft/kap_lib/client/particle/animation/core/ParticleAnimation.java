@@ -35,7 +35,7 @@ import java.util.Objects;
 public class ParticleAnimation {
     private final AnimationElement[] elements;
     private final ParticleFinalizer finalizer;
-    private final TerminationTriggerInstance terminator;
+    private final TerminationTriggerInstance[] terminators;
     private final TriggerInstance[] activationTriggers;
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
@@ -46,16 +46,17 @@ public class ParticleAnimation {
         this.elements = builder.elements.toArray(new AnimationElement[0]);
         this.finalizer = Objects.requireNonNull(builder.finalizer, "animations must have a finalizer");
         this.spawner = Objects.requireNonNull(builder.spawner, "animations must have a spawner");
-        this.terminator = Objects.requireNonNull(builder.terminator, "animations must have a terminator");
+        this.terminators = builder.terminators.toArray(TerminationTriggerInstance[]::new);
+        if (this.terminators.length < 1) throw new IllegalStateException("particle animation must have a terminator");
         this.maxSpawnDelay = builder.maxSpawnDelay;
         this.minSpawnDelay = builder.minSpawnDelay;
-        this.activationTriggers = Objects.requireNonNull(builder.activationTriggers.toArray(TriggerInstance[]::new));
+        this.activationTriggers = builder.activationTriggers.toArray(TriggerInstance[]::new);
     }
 
-    private ParticleAnimation(AnimationElement[] elements, ParticleFinalizer finalizer, TerminationTriggerInstance terminator, Spawner spawner, int minSpawnDelay, int maxSpawnDelay, TriggerInstance[] activationTriggers) {
+    private ParticleAnimation(AnimationElement[] elements, ParticleFinalizer finalizer, TerminationTriggerInstance[] terminators, Spawner spawner, int minSpawnDelay, int maxSpawnDelay, TriggerInstance[] activationTriggers) {
         this.elements = elements;
         this.finalizer = finalizer;
-        this.terminator = terminator;
+        this.terminators = terminators;
         this.spawner = spawner;
         this.minSpawnDelay = minSpawnDelay;
         this.maxSpawnDelay = maxSpawnDelay;
@@ -70,8 +71,8 @@ public class ParticleAnimation {
         return elements;
     }
 
-    public TerminationTriggerInstance getTerminator() {
-        return terminator;
+    public TerminationTriggerInstance[] getTerminators() {
+        return terminators;
     }
 
     public void spawnTick(ParticleSpawnSink sink) {
@@ -86,7 +87,7 @@ public class ParticleAnimation {
         report.addCategory("Animation")
                 .setDetail("Elements", Arrays.toString(this.elements))
                 .setDetail("Particle Finalizer", this.finalizer)
-                .setDetail("Terminator", this.terminator)
+                .setDetail("Terminator", this.terminators)
                 .setDetail("Activation Triggers", Arrays.toString(this.activationTriggers))
                 .setDetail("Spawner", this.spawner)
                 .setDetail("minSpawnDelay", this.minSpawnDelay)
@@ -113,7 +114,7 @@ public class ParticleAnimation {
         private final List<AnimationElement> elements = new ArrayList<>();
         private Spawner spawner;
         private ParticleFinalizer finalizer;
-        private TerminationTriggerInstance terminator;
+        private final List<TerminationTriggerInstance> terminators = new ArrayList<>();
         private int minSpawnDelay, maxSpawnDelay;
         private final List<TriggerInstance> activationTriggers = new ArrayList<>();
 
@@ -156,7 +157,7 @@ public class ParticleAnimation {
          */
         public Builder finalizes(ParticleFinalizer.Builder finalizerBuilder) {
             this.finalizer = finalizerBuilder.build();
-            Preconditions.checkNotNull(this.finalizer.getType(), "Finalizer without type detected!");
+            Preconditions.checkNotNull(finalizer.getType(), "Finalizer without type detected!");
             return this;
         }
 
@@ -164,14 +165,14 @@ public class ParticleAnimation {
          * sets the animation termination predicate
          */
         public Builder terminatedWhen(TerminationTriggerInstance terminator) {
-            this.terminator = terminator;
-            Preconditions.checkNotNull(this.terminator.getTrigger(), "Terminator without type detected!");
+            Preconditions.checkNotNull(terminator.getTrigger(), "Terminator without type detected!");
+            this.terminators.add(terminator);
             return this;
         }
 
         public Builder activatedOn(TriggerInstance activationListener) {
-            this.activationTriggers.add(activationListener);
             Preconditions.checkNotNull(activationListener.getTrigger(), "Activation Listener without trigger detected!");
+            this.activationTriggers.add(activationListener);
             return this;
         }
 
@@ -244,8 +245,7 @@ public class ParticleAnimation {
         NetworkHelper.writeArray(buf, elements, AnimationElement::toNw);
         Spawner.toNw(buf, this.spawner);
         ParticleFinalizer.toNw(buf, this.finalizer);
-        buf.writeRegistryIdUnsafe(ExtraRegistries.TERMINATION_TRIGGERS, this.terminator.getTrigger());
-        TerminationTrigger.writeToNw(buf, this.terminator);
+        NetworkHelper.writeArray(buf, this.terminators, TerminationTrigger::writeToNw);
         NetworkHelper.writeArray(buf, this.activationTriggers, ActivationTrigger::writeToNw);
     }
 
@@ -260,11 +260,11 @@ public class ParticleAnimation {
 
         Spawner spawner = Spawner.fromNw(buf);
         ParticleFinalizer finalizer = ParticleFinalizer.fromNw(buf);
-        TerminationTriggerInstance terminator = TerminationTrigger.readFromNw(buf);
 
+        TerminationTriggerInstance[] terminators = NetworkHelper.readArray(buf, TerminationTriggerInstance[]::new, TerminationTrigger::readFromNw);
         TriggerInstance[] triggers = NetworkHelper.readArray(buf, TriggerInstance[]::new, ActivationTrigger::readFromNw);
 
-        return new ParticleAnimation(elements, finalizer, terminator, spawner, minSpawnDelay, maxSpawnDelay, triggers);
+        return new ParticleAnimation(elements, finalizer, terminators, spawner, minSpawnDelay, maxSpawnDelay, triggers);
     }
 
     @ApiStatus.Internal

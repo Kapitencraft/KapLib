@@ -4,7 +4,6 @@ import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimation
 import net.kapitencraft.kap_lib.client.particle.animation.elements.MoveTowardsBBElement;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.RemoveParticleFinalizer;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.EntityBBSpawner;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.EitherTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.collection.MapStream;
@@ -168,11 +167,9 @@ public class DamageEvents {
                                 .duration(30)
                         ).finalizes(RemoveParticleFinalizer.builder())
                         .spawnTime(ParticleAnimation.SpawnTime.once())
-                        .terminatedWhen(EitherTerminator.with(
-                                TimedTerminator.ticks(20),
-                                EntityRemovedTerminatorTrigger.builder(attacked),
-                                EntityRemovedTerminatorTrigger.builder(attacker)
-                        ))
+                        .terminatedWhen(TimedTerminator.ticks(20))
+                        .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacked))
+                        .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacker))
                         .sendToAllPlayers(sL);
             }
             attacker.heal(Math.min((float) liveSteal, event.getAmount()));

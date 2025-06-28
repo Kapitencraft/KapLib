@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.client.particle.animation.terminators.core;
 
 import com.google.common.collect.Sets;
+import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimator;
 import org.apache.commons.compress.utils.Lists;
 
@@ -12,17 +13,17 @@ public abstract class SimpleTerminationTrigger<T extends TerminationTriggerInsta
     private final Set<TerminationTrigger.Listener<T>> terminators = Sets.newHashSet();
 
     @Override
-    public void addListener(ParticleAnimator terminators, Listener<T> terminator) {
+    public final void addListener(ParticleAnimator terminators, Listener<T> terminator) {
         this.terminators.add(terminator);
     }
 
     @Override
-    public void removeListener(ParticleAnimator animator, Listener<T> terminator) {
+    public final void removeListener(ParticleAnimator animator, Listener<T> terminator) {
         this.terminators.remove(terminator);
     }
 
     @Override
-    public void clearListeners(ParticleAnimator animator) {
+    public final void clearListeners(ParticleAnimator animator) {
         this.terminators.removeIf(tListener -> tListener.isFor(animator));
     }
 
@@ -33,9 +34,16 @@ public abstract class SimpleTerminationTrigger<T extends TerminationTriggerInsta
     protected void trigger(Predicate<T> instanceFilter) {
         List<Listener<T>> list = null;
         for (Listener<T> listener : terminators) {
-            T t = listener.getTrigger();
+            T t = listener.trigger();
             if (instanceFilter.test(t)) {
                 if (list == null) list = Lists.newArrayList();
+                list.add(listener);
+            }
+        }
+        if (list != null) {
+            for (Listener<T> listener : list) {
+                listener.run(LibClient.animations);
+                this.terminators.remove(listener);
             }
         }
     }

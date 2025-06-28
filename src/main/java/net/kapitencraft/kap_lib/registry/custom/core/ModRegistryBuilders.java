@@ -6,8 +6,8 @@ import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.AnimationTerminator;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
+import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
@@ -52,7 +52,7 @@ public interface ModRegistryBuilders {
     RegistryBuilder<Codec<? extends DataSource>> DATA_SOURCE_TYPES = makeBuilder(ExtraRegistries.Keys.DATA_SOURCE_TYPES);
     RegistryBuilder<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = makeBuilder(ExtraRegistries.Keys.MODIFIER_TYPES);
     RegistryBuilder<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = makeBuilder(ExtraRegistries.Keys.SPAWNER_TYPES);
-    RegistryBuilder<AnimationTerminator.Type<?>> ANIMATION_TERMINATOR_TYPES = makeBuilder(ExtraRegistries.Keys.TERMINATOR_TYPES);
+    RegistryBuilder<TerminationTrigger<?>> ANIMATION_TERMINATOR_TYPES = makeBuilder(ExtraRegistries.Keys.TERMINATOR_TYPES);
     RegistryBuilder<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = makeBuilder(ExtraRegistries.Keys.FINALIZER_TYPES);
     RegistryBuilder<ActivationTrigger<?>> ACTIVATION_LISTENER_TYPES = makeBuilder(ExtraRegistries.Keys.ACTIVATION_TRIGGERS);
     RegistryBuilder<Modifier.Type<?>> CAMERA_ROTATORS = makeBuilder(ExtraRegistries.Keys.CAMERA_MODIFIERS);

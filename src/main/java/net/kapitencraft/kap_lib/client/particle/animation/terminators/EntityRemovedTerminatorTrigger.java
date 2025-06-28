@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTri
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class EntityRemovedTerminatorTrigger extends SimpleTerminationTrigger<EntityRemovedTerminatorTrigger.Instance> {

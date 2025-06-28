@@ -28,25 +28,14 @@ public interface TerminationTrigger<T extends TerminationTriggerInstance> {
         return trigger.fromNw(buf);
     }
 
-    class Listener<T extends TerminationTriggerInstance> {
-        private final T trigger;
-        private final ParticleAnimator animator;
-
-        public Listener(T trigger, ParticleAnimator animator) {
-            this.trigger = trigger;
-            this.animator = animator;
-        }
+    record Listener<T extends TerminationTriggerInstance>(T trigger, ParticleAnimator animator) {
 
         public void run(ParticleAnimationManager manager) {
             manager.remove(animator);
         }
 
-        public T getTrigger() {
-            return trigger;
+            public boolean isFor(ParticleAnimator animator) {
+                return this.animator == animator;
+            }
         }
-
-        public boolean isFor(ParticleAnimator animator) {
-            return this.animator == animator;
-        }
-    }
 }
