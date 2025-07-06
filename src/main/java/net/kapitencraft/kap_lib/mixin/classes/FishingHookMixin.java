@@ -21,7 +21,6 @@ import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import org.spongepowered.asm.mixin.Mixin;
@@ -59,6 +58,8 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
 
     @Shadow @Nullable public abstract Player getPlayerOwner();
 
+    @Shadow public int luck;
+
     protected FishingHookMixin(EntityType<? extends Projectile> p_37248_, Level p_37249_) {
         super(p_37248_, p_37249_);
     }
@@ -77,10 +78,11 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
         return instance.addFreshEntity(entity);
     }
 
-    @Redirect(method = "retrieve", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ExperienceOrb;<init>(Lnet/minecraft/world/level/Level;DDDI)V"))
-    private void modifyExperience(ExperienceOrb instance, Level pLevel, double pX, double pY, double pZ, int pValue) {
+    @Redirect(method = "retrieve", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/Level;DDDI)Lnet/minecraft/world/entity/ExperienceOrb;"))
+    private ExperienceOrb modifyExperience(Level pLevel, double pX, double pY, double pZ, int pValue) {
         Player player = this.getPlayerOwner();
-        if (player != null) instance.value = (int) (pValue * AttributeHelper.getExperienceScale(player));
+        if (player != null) pValue = (int) (pValue * AttributeHelper.getExperienceScale(player));
+        return new ExperienceOrb(pLevel, pX, pY, pZ, pValue);
     }
 
     @ModifyArg(method = {"tick", "getOpenWaterTypeForBlock"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FluidState;is(Lnet/minecraft/tags/TagKey;)Z"))

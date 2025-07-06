@@ -1,4 +1,1 @@
-added button argument to onMouseClicked
-LibSwordItem#getDamageType is no longer abstract and returns DamageTypes#PLAYER_ATTACK by default
-added Wisdom attribute, which increases experience gained from combat and mining
-added onMouseDragged, onMouseReleased and onMouseScrolled methods to InventoryPageRenderer
+fixed fatal crash with invalid FishingHookMixin
