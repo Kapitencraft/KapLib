@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.inventory.wrapper.RecipeBookButtonWrapper;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPage;
 import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderers;
@@ -43,6 +44,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     @Unique
     private InventoryPageRenderer[] renderers;
+    @Unique
     private int[] visible;
 
     @Unique
@@ -71,17 +73,22 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         return new RecipeBookButtonWrapper(pX, pY, pWidth, pHeight, pXTexStart, pYTexStart, pYDiffTex, pResourceLocation, pOnPress, (InventoryPageReader) this.menu);
     }
 
-    @Inject(method = "mouseClicked", at = @At(value = "RETURN", ordinal = 1))
+    @Inject(method = "mouseClicked", at = @At(value = "RETURN", ordinal = 1), cancellable = true)
     private void addPageSwap(double pMouseX, double pMouseY, int pButton, CallbackInfoReturnable<Boolean> cir) {
         int relativeY = (int) pMouseY - this.topPos;
-        if (relativeY >= -32 && relativeY <= 0) {
-            int relativeX = (int) pMouseX - this.leftPos;
-            int index = relativeX / 28;
-            InventoryPageIO pageIo = (InventoryPageIO) this.menu;
-            if (index >= 0 && index < pageIo.getPages().length) {
-                if (visible[index] != -1) {
-                    pageIo.setPage(visible[index]);
-                    this.renderer = this.renderers[visible[index]];
+        int relativeX = (int) pMouseX - this.leftPos;
+        if (relativeX > 0 && relativeX < this.imageWidth) {
+            if (relativeY > 0 && relativeY < this.imageHeight) {
+                cir.setReturnValue(this.renderer.onMouseClicked(relativeX, relativeY));
+            } else if (relativeY >= -32 && relativeY <= 0) {
+                InventoryPageIO pageIo = (InventoryPageIO) this.menu;
+                int index = relativeX / 28;
+                if (index < pageIo.getPages().length) {
+                    if (visible[index] != -1) {
+                        pageIo.setPage(visible[index]);
+                        this.renderer = this.renderers[visible[index]];
+                        cir.setReturnValue(true);
+                    }
                 }
             }
         }

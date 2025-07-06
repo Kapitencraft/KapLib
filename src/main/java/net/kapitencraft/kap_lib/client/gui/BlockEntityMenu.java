@@ -9,19 +9,20 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class ModMenu<T extends ICapabilityProvider> extends AbstractContainerMenu {
+public abstract class BlockEntityMenu<T extends BlockEntity> extends AbstractContainerMenu {
     private final int slotAmount;
     protected final Level level;
     public final Player player;
     protected final T blockEntity;
 
-    protected ModMenu(@Nullable MenuType<?> menuType, int containerId, int slotAMount, Inventory inventory, T provider) {
+    protected BlockEntityMenu(@Nullable MenuType<?> menuType, int containerId, int slotAmount, Inventory inventory, T provider) {
         super(menuType, containerId);
-        this.slotAmount = slotAMount;
+        this.slotAmount = slotAmount;
         this.player = inventory.player;
         this.level = player.level();
         this.blockEntity = provider;

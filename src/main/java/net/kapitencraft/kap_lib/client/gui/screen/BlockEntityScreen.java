@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.kapitencraft.kap_lib.client.gui.screen.tooltip.HoverTooltip;
-import net.kapitencraft.kap_lib.client.gui.ModMenu;
+import net.kapitencraft.kap_lib.client.gui.BlockEntityMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -11,20 +11,18 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class ModScreen<K extends ICapabilityProvider, T extends ModMenu<K>> extends AbstractContainerScreen<T> implements IModScreen {
-    public ModScreen(T p_97741_, Inventory p_97742_, Component p_97743_) {
+public abstract class BlockEntityScreen<K extends BlockEntity, T extends BlockEntityMenu<K>> extends AbstractContainerScreen<T> implements IModScreen {
+    public BlockEntityScreen(T p_97741_, Inventory p_97742_, Component p_97743_) {
         super(p_97741_, p_97742_, p_97743_);
     }
     private final List<HoverTooltip> hoverTooltips = new ArrayList<>();
-
-    protected abstract String getTextureName();
 
     @Override
     public void addHoverTooltip(HoverTooltip tooltip) {

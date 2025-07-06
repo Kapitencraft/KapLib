@@ -36,5 +36,4 @@ public abstract class InventoryPage {
     public @NotNull ResourceLocation tabLocation() {
         return TAB_LOCATION;
     }
-
 }

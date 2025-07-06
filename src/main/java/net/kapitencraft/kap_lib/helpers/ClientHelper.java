@@ -74,7 +74,8 @@ public class ClientHelper {
         float f1 = (float)living.level().getGameTime();
         float f2 = f1 * 0.5F % 1.0F;
         stack.pushPose();
-        Vec3 stop = new Vec3(living.getX(), living.getY(), living.getZ()).add(0, living.getBbHeight() * 0.5, 0);
+        stack.translate(start.x, start.y, start.z);
+        Vec3 stop = living.position().add(0, living.getBbHeight() * 0.5, 0);
         Vec3 vec32 = stop.subtract(start);
         float f4 = (float)(vec32.length() + 1.0D);
         vec32 = vec32.normalize();

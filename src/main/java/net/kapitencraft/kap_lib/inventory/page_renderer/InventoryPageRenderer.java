@@ -20,4 +20,12 @@ public interface InventoryPageRenderer {
      */
     @NotNull ResourceLocation pageBackgroundLocation();
 
+    /**
+     * @param relativeX x position of the mouse, relative to the left border of the GUI
+     * @param relativeY y position of the mouse, relative to the top border of the GUI
+     * @return whether the click was successfully consumed
+     */
+    default boolean onMouseClicked(int relativeX, int relativeY) {
+        return false;
+    }
 }

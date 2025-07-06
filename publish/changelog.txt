@@ -1,2 +1,5 @@
-moved particle animation terminators to trigger based instead of lookup based
-added BonusRemovedTerminator animation terminator
+fixed DamageCounter using double to store damage, not float
+renamed ModMenu to BlockEntityMenu and ModScreen to BlockEntityScreen
+added mouseClicked hook to InventoryPageRenderer
+fixed creative mode-inventory survival inventory not working
+test items will now appear when gametest is enabled
