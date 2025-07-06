@@ -46,7 +46,8 @@ public class AttributeAdder {
                 ExtraAttributes.PROJECTILE_SPEED,
                 ExtraAttributes.ARMOR_SHREDDER,
                 ExtraAttributes.DOUBLE_JUMP,
-                ExtraAttributes.FISHING_SPEED
+                ExtraAttributes.FISHING_SPEED,
+                ExtraAttributes.WISDOM
         );
     }
 

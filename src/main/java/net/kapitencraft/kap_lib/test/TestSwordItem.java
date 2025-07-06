@@ -13,6 +13,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tiers;
+import org.jetbrains.annotations.NotNull;
 
 public class TestSwordItem extends LibSwordItem {
     public TestSwordItem() {
@@ -27,7 +28,7 @@ public class TestSwordItem extends LibSwordItem {
     }
 
     @Override
-    public ResourceKey<DamageType> getDamageType() {
+    public @NotNull ResourceKey<DamageType> getDamageType() {
         return DamageTypes.FIREBALL;
     }
 }

@@ -51,6 +51,7 @@ import net.minecraftforge.event.entity.player.ArrowLooseEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -259,4 +260,19 @@ public class Events {
     public static void addWearableToPlayer(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof LivingEntity living) event.addCapability(KapLibMod.res("wearable"), new WearableProvider(living));
     }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onBlockBreak(BlockEvent.BreakEvent event) {
+        Player player = event.getPlayer();
+        event.setExpToDrop((int) (event.getExpToDrop() * AttributeHelper.getExperienceScale(player)));
+    }
+
+    @SubscribeEvent
+    public void onLivingExperienceDrop(LivingExperienceDropEvent event) {
+        Player player = event.getAttackingPlayer();
+        if (player != null) {
+            event.setDroppedExperience((int) (event.getDroppedExperience() * AttributeHelper.getExperienceScale(player)));
+        }
+    }
+
 }

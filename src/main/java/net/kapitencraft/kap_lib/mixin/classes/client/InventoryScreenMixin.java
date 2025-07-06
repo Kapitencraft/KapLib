@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.inventory.wrapper.RecipeBookButtonWrapper;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPage;
 import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderers;
@@ -28,7 +27,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 @Mixin(InventoryScreen.class)
@@ -73,13 +71,13 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         return new RecipeBookButtonWrapper(pX, pY, pWidth, pHeight, pXTexStart, pYTexStart, pYDiffTex, pResourceLocation, pOnPress, (InventoryPageReader) this.menu);
     }
 
-    @Inject(method = "mouseClicked", at = @At(value = "RETURN", ordinal = 1), cancellable = true)
-    private void addPageSwap(double pMouseX, double pMouseY, int pButton, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    private void handleMouseClicks(double pMouseX, double pMouseY, int pButton, CallbackInfoReturnable<Boolean> cir) {
         int relativeY = (int) pMouseY - this.topPos;
         int relativeX = (int) pMouseX - this.leftPos;
         if (relativeX > 0 && relativeX < this.imageWidth) {
-            if (relativeY > 0 && relativeY < this.imageHeight) {
-                cir.setReturnValue(this.renderer.onMouseClicked(relativeX, relativeY));
+            if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
+                cir.setReturnValue(this.renderer.onMouseClicked(relativeX, relativeY, pButton));
             } else if (relativeY >= -32 && relativeY <= 0) {
                 InventoryPageIO pageIo = (InventoryPageIO) this.menu;
                 int index = relativeX / 28;
@@ -92,6 +90,41 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
                 }
             }
         }
+    }
+
+    @Inject(method = "mouseReleased", at = @At("HEAD"), cancellable = true)
+    private void handleMouseRelease(double pMouseX, double pMouseY, int pButton, CallbackInfoReturnable<Boolean> cir) {
+        int relativeY = (int) pMouseY - this.topPos;
+        int relativeX = (int) pMouseX - this.leftPos;
+        if (relativeX > 0 && relativeX < this.imageWidth) {
+            if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
+                cir.setReturnValue(this.renderer.onMouseReleased(relativeX, relativeY, pButton));
+            }
+        }
+    }
+
+    @Override
+    public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
+        int relativeY = (int) pMouseY - this.topPos;
+        int relativeX = (int) pMouseX - this.leftPos;
+        if (relativeX > 0 && relativeX < this.imageWidth) {
+            if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
+                return this.renderer.onMouseDragged(relativeX, relativeY, pButton);
+            }
+        }
+        return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+        int relativeY = (int) pMouseY - this.topPos;
+        int relativeX = (int) pMouseX - this.leftPos;
+        if (relativeX > 0 && relativeX < this.imageWidth) {
+            if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
+                return this.renderer.onMouseScrolled(relativeX, relativeY, pDelta);
+            }
+        }
+        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
     }
 
     @SuppressWarnings("DataFlowIssue")

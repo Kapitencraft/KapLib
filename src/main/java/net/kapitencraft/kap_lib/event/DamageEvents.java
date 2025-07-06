@@ -111,7 +111,7 @@ public class DamageEvents {
                     attacked.hurt(FerociousDamageSource.create(attacker, (ferocity - 100), ferocityDamage), ferocityDamage);
                 });
             }
-        }
+            }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)

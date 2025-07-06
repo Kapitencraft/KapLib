@@ -98,9 +98,19 @@ public interface ExtraAttributes {
 
     //Misc
     RegistryObject<Attribute> COOLDOWN_REDUCTION = register("cooldown_reduction", 0, 0, 100);
+    /**
+     * amount of health regenerated when attacking
+     */
     RegistryObject<Attribute> LIVE_STEAL = register("live_steal", 0, 0, 10);
+    /**
+     * amount of armor ignored by attacks
+     */
     RegistryObject<Attribute> ARMOR_SHREDDER = register("armor_shredder", 0, 0, 100);
     RegistryObject<Attribute> FISHING_SPEED = register0Max("fishing_speed", 0);
+    /**
+     * increases experience gained from mining and combat
+     */
+    RegistryObject<Attribute> WISDOM = register("wisdom", 0, -100, 10000);
 
     //Mana
     RegistryObject<Attribute> MAX_MANA = register0Max("max_mana", 100);

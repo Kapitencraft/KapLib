@@ -1,5 +1,4 @@
-fixed DamageCounter using double to store damage, not float
-renamed ModMenu to BlockEntityMenu and ModScreen to BlockEntityScreen
-added mouseClicked hook to InventoryPageRenderer
-fixed creative mode-inventory survival inventory not working
-test items will now appear when gametest is enabled
+added button argument to onMouseClicked
+LibSwordItem#getDamageType is no longer abstract and returns DamageTypes#PLAYER_ATTACK by default
+added Wisdom attribute, which increases experience gained from combat and mining
+added onMouseDragged, onMouseReleased and onMouseScrolled methods to InventoryPageRenderer

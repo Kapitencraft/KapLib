@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.util.attribute.DynamicAttributeModifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,6 +10,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
@@ -18,6 +20,13 @@ import java.util.function.UnaryOperator;
 
 public interface AttributeHelper {
 
+    /**
+     * gets the players experience scale, which should be multiplied with the base experience to get the final dropped experience
+     */
+    static double getExperienceScale(Player player) {
+        double wisdom = player.getAttributeValue(ExtraAttributes.WISDOM.get());
+        return 1 + (wisdom / 100);
+    }
 
     /**
      * increases the value of all modifiers matching the predicate (Operations, Attribute) by {@code percent} percent (in decimal)
