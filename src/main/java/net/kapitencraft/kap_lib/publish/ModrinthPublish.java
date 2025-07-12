@@ -51,7 +51,6 @@ public class ModrinthPublish {
 
                 for (String extraFile : config.extraFiles()) {
                     File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
-                    String extraFileHash = getFileSHA512(sourcesFile);
                     addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
                 }
                 // Write the final boundary directly to OutputStream

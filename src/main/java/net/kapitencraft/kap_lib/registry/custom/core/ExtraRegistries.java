@@ -8,6 +8,7 @@ import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
+import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
@@ -54,6 +55,8 @@ public interface ExtraRegistries {
     IForgeRegistry<WearableSlot> WEARABLE_SLOTS = reg(Keys.WEARABLE_SLOTS);
     IForgeRegistry<InventoryPageType<?>> INVENTORY_PAGES = reg(Keys.INVENTORY_PAGES);
 
+    IForgeRegistry<Cooldown> COOLDOWNS = reg(Keys.COOLDOWNS);
+
     private static <T> IForgeRegistry<T> reg(ResourceKey<Registry<T>> key) {
         return RegistryManager.ACTIVE.getRegistry(key);
     }
@@ -91,6 +94,8 @@ public interface ExtraRegistries {
         ResourceKey<Registry<WearableSlot>> WEARABLE_SLOTS = createRegistry("wearable_slots");
 
         ResourceKey<Registry<InventoryPageType<?>>> INVENTORY_PAGES = createRegistry("inventory_pages");
+
+        ResourceKey<Registry<Cooldown>> COOLDOWNS = createRegistry("cooldowns");
 
         private static <T> ResourceKey<Registry<T>> createRegistry(String id) {
             return ResourceKey.createRegistryKey(KapLibMod.res(id));

@@ -30,7 +30,7 @@ public class SimpleOverlay extends Overlay {
     }
 
     @Override
-    public void render(ForgeGui gui, GuiGraphics graphics, float posX, float posY, LocalPlayer player) {
+    public void render(ForgeGui gui, GuiGraphics graphics, int screenWidth, int screenHeight, LocalPlayer player) {
         graphics.drawString(gui.getFont(), mapper.apply(player), 0, 0, -1);
     }
 }

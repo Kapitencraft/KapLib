@@ -1,7 +1,5 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.cooldown.Cooldown;
-import net.kapitencraft.kap_lib.cooldown.ICooldownable;
 import net.kapitencraft.kap_lib.helpers.AttributeHelper;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeMap;
@@ -9,7 +7,6 @@ import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ExtraMobEffects;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
@@ -20,8 +17,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
+import net.minecraftforge.common.extensions.IForgeLivingEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,21 +27,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements ICooldownable {
-    @Unique
-    private final List<Cooldown> cooldowns = new ArrayList<>();
+public abstract class LivingEntityMixin extends Entity implements IForgeLivingEntity {
 
     @Shadow public abstract ItemStack getItemBySlot(EquipmentSlot pSlot);
 
     @Shadow @Final private AttributeMap attributes;
 
     @Shadow public abstract boolean hasEffect(MobEffect pEffect);
-
-    @Shadow protected abstract boolean trapdoorUsableAsLadder(BlockPos pPos, BlockState pState);
 
     public LivingEntityMixin(EntityType<?> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -93,10 +82,6 @@ public abstract class LivingEntityMixin extends Entity implements ICooldownable 
                 self().invulnerableTime = (int) (20 - (attackSpeed * 0.15));
             }
         }
-    }
-
-    public @NotNull List<Cooldown> getActiveCooldowns() {
-        return cooldowns;
     }
 
     @Inject(method = "isImmobile", at = @At("HEAD"), cancellable = true)

@@ -1,1 +1,3 @@
-fixed fatal crash with invalid FishingHookMixin
+renamed Overlay#render method's parameter to more resemble their purpose
+fixed CustomStatReqCondition not usable due to reference restrictions
+reworked Cooldowns

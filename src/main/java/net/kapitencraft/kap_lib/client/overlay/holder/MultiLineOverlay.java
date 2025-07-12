@@ -34,7 +34,7 @@ public class MultiLineOverlay extends Overlay {
     }
 
     @Override
-    public void render(ForgeGui gui, GuiGraphics graphics, float width, float height, LocalPlayer player) {
+    public void render(ForgeGui gui, GuiGraphics graphics, int screenWidth, int screenHeight, LocalPlayer player) {
         for (int i = 0; i < list.size(); i++) {
             Function<LocalPlayer, Component> mapper = list.get(i);
             graphics.drawString(gui.getFont(), mapper.apply(player), 0, -(int) yChange * i, -1);

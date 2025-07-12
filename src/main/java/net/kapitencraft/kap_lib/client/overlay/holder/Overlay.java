@@ -66,9 +66,10 @@ public abstract class Overlay {
 
 
     /**
-     * render this overlay
+     * render this overlay.
+     * <br>the PoseStack inside the GuiGraphics is translated to the position of this overlay
      */
-    public abstract void render(ForgeGui gui, GuiGraphics graphics, float posX, float posY, LocalPlayer player);
+    public abstract void render(ForgeGui gui, GuiGraphics graphics, int screenWidth, int screenHeight, LocalPlayer player);
 
     /**
      * @return the PositionHolder this object contains

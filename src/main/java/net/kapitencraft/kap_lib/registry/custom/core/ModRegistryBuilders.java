@@ -8,6 +8,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.co
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
+import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.network.request.IRequestable;
@@ -60,6 +61,7 @@ public interface ModRegistryBuilders {
     RegistryBuilder<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPE = makeBuilder(ExtraRegistries.Keys.POOL_ENTRY_TYPES);
     RegistryBuilder<WearableSlot> WEARABLE_SLOT = makeBuilder(ExtraRegistries.Keys.WEARABLE_SLOTS);
     RegistryBuilder<InventoryPageType<?>> INVENTORY_PAGE = makeBuilder(ExtraRegistries.Keys.INVENTORY_PAGES);
+    RegistryBuilder<Cooldown> COOLDOWNS = makeBuilder(ExtraRegistries.Keys.COOLDOWNS);
 
     private static <T> RegistryBuilder<T> makeBuilder(ResourceKey<Registry<T>> location) {
         RegistryBuilder<T> builder = new RegistryBuilder<T>().setName(location.location());

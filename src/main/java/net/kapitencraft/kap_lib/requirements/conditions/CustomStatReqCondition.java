@@ -4,12 +4,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.CountCondition;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Supplier;
 
@@ -17,7 +20,7 @@ import java.util.function.Supplier;
  * used for custom Stat Types to add custom display-translations
  */
 public class CustomStatReqCondition extends CountCondition<CustomStatReqCondition> {
-    private static final Codec<Stat<ResourceLocation>> STAT_CODEC = ResourceLocation.CODEC.xmap(Stats.CUSTOM::get, Stat::getValue);
+    private static final Codec<Stat<ResourceLocation>> STAT_CODEC = BuiltInRegistries.CUSTOM_STAT.byNameCodec().xmap(Stats.CUSTOM::get, Stat::getValue);
 
     private static final Codec<CustomStatReqCondition> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(

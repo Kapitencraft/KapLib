@@ -4,7 +4,8 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.ExtraComponents;
 import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.collection.Queue;
-import net.kapitencraft.kap_lib.cooldown.ICooldownable;
+import net.kapitencraft.kap_lib.cooldown.Cooldowns;
+import net.kapitencraft.kap_lib.cooldown.CooldownsProvider;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableProvider;
@@ -175,6 +176,7 @@ public class Events {
 
             if (player instanceof ServerPlayer sP) {
                 Wearables.send(sP);
+                Cooldowns.send(sP);
             }
         }
     }
@@ -227,7 +229,7 @@ public class Events {
     @SubscribeEvent
     public static void entityTick(LivingEvent.LivingTickEvent event) {
         LivingEntity living = event.getEntity();
-        ICooldownable.of(living).tickCooldowns();
+        Cooldowns.get(living).tick();
         BonusHelper.tickEnchantments(living);
         CompoundTag tag = living.getPersistentData();
         if (living instanceof Player player) {
@@ -258,7 +260,10 @@ public class Events {
 
     @SubscribeEvent
     public static void addWearableToPlayer(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof LivingEntity living) event.addCapability(KapLibMod.res("wearable"), new WearableProvider(living));
+        if (event.getObject() instanceof LivingEntity living) {
+            event.addCapability(KapLibMod.res("wearable"), new WearableProvider(living));
+            event.addCapability(KapLibMod.res("cooldowns"), new CooldownsProvider(living));
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

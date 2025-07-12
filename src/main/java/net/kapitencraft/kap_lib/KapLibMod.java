@@ -95,6 +95,7 @@ public class KapLibMod {
 
         if (ForgeGameTestHooks.isGametestEnabled()) {
             TestItems.REGISTRY.register(modEventBus);
+            TestCooldowns.REGISTRY.register(modEventBus);
         }
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
