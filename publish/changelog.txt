@@ -1,3 +1,2 @@
-renamed Overlay#render method's parameter to more resemble their purpose
-fixed CustomStatReqCondition not usable due to reference restrictions
-reworked Cooldowns
+marked the player argument in ExtendedItem#appendHoverTextWithPlayer to be @Nullable
+fixed CustomStatReqCondition not being network portable due to the same issue as before

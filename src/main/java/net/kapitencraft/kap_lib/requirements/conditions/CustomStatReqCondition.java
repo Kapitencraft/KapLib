@@ -14,6 +14,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -55,15 +56,17 @@ public class CustomStatReqCondition extends CountCondition<CustomStatReqConditio
         this(Stats.CUSTOM.get(statSup.get()), level, translateKey);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private static void toNetwork(FriendlyByteBuf buf, CustomStatReqCondition condition) {
-        buf.writeResourceLocation(condition.stat.getValue());
+        buf.writeResourceLocation(BuiltInRegistries.CUSTOM_STAT.getKey(condition.stat.getValue()));
         buf.writeInt(condition.minLevel);
         buf.writeComponent(condition.component);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     public static CustomStatReqCondition fromNetwork(FriendlyByteBuf buf) {
         return new CustomStatReqCondition(
-                Stats.CUSTOM.get(buf.readResourceLocation()),
+                Stats.CUSTOM.get(BuiltInRegistries.CUSTOM_STAT.get(buf.readResourceLocation())),
                 buf.readInt(),
                 buf.readComponent()
         );
