@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class BlockEntityScreen<K extends BlockEntity, T extends BlockEntityMenu<K>> extends AbstractContainerScreen<T> implements IModScreen {
-    public BlockEntityScreen(T p_97741_, Inventory p_97742_, Component p_97743_) {
-        super(p_97741_, p_97742_, p_97743_);
+public abstract class BlockEntityScreen<BE extends BlockEntity, M extends BlockEntityMenu<BE>> extends AbstractContainerScreen<M> implements IModScreen {
+    public BlockEntityScreen(M menu, Inventory inventory, Component title) {
+        super(menu, inventory, title);
     }
     private final List<HoverTooltip> hoverTooltips = new ArrayList<>();
 

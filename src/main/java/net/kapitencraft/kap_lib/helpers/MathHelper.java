@@ -52,6 +52,10 @@ public interface MathHelper {
         return IntSet.of(range);
     }
 
+    static Vec2 normal(Vec2 og) {
+        return new Vec2(og.x, -og.y);
+    }
+
     /**
      * round the given number to the given number of decimal digits
      * @param no the given number

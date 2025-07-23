@@ -14,13 +14,13 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class BlockEntityMenu<T extends BlockEntity> extends AbstractContainerMenu {
+public abstract class BlockEntityMenu<BE extends BlockEntity> extends AbstractContainerMenu {
     private final int slotAmount;
     protected final Level level;
     public final Player player;
-    protected final T blockEntity;
+    protected final BE blockEntity;
 
-    protected BlockEntityMenu(@Nullable MenuType<?> menuType, int containerId, int slotAmount, Inventory inventory, T provider) {
+    protected BlockEntityMenu(@Nullable MenuType<?> menuType, int containerId, int slotAmount, Inventory inventory, BE provider) {
         super(menuType, containerId);
         this.slotAmount = slotAmount;
         this.player = inventory.player;
@@ -101,7 +101,7 @@ public abstract class BlockEntityMenu<T extends BlockEntity> extends AbstractCon
     /**
      * @return the {@link ICapabilityProvider CapabilityProvider} this menu contains
      */
-    public T getCapabilityProvider() {
+    public BE getCapabilityProvider() {
         return blockEntity;
     }
 }
