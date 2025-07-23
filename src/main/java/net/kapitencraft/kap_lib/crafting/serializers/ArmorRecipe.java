@@ -76,11 +76,6 @@ public class ArmorRecipe extends CustomRecipe {
     }
 
     @Override
-    public @NotNull RecipeType<?> getType() {
-        return ExtraRecipeTypes.ARMOR_RECIPE.get();
-    }
-
-    @Override
     public boolean canCraftInDimensions(int i, int j) {
         return i == 3 && j == 3;
     }

@@ -1,13 +1,16 @@
 package net.kapitencraft.kap_lib.data_gen;
 
 import net.kapitencraft.kap_lib.crafting.serializers.UpgradeItemRecipe;
+import net.kapitencraft.kap_lib.data_gen.abst.recipe.ArmorRecipeBuilder;
 import net.kapitencraft.kap_lib.data_gen.abst.recipe.UpgradeRecipeBuilder;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Items;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class TestRecipeProvider extends RecipeProvider {

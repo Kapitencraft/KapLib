@@ -1,4 +1,1 @@
-renamed generic types in BlockEntityMenu and BlockEntityScreen to better fit their purpose
-removed CompoundPath as it fit no purpose
-renamed BlockEntityScreen's constructor parameters to more resemble what they are doing
-fixed alt not working to view item's NBT
+fixed ArmorRecipe not working as intended
