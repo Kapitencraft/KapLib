@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.kapitencraft.kap_lib.entity.fishing.IFishingHook;
-import net.kapitencraft.kap_lib.entity.fishing.ModFishingHook;
+import net.kapitencraft.kap_lib.entity.fishing.AbstractFishingHook;
 import net.kapitencraft.kap_lib.event.custom.ModifyFishingHookStatsEvent;
 import net.kapitencraft.kap_lib.item.tools.fishing.ModFishingRod;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
@@ -47,7 +47,7 @@ public abstract class FishingRodMixin extends Item implements Vanishable {
         luckBonus = event.luck.calculate();
         int hookSpeed = event.hookSpeed.calculate();
         if (self() instanceof ModFishingRod fishingRod) {
-            ModFishingHook hook = fishingRod.create(player, level, lureSpeed, luckBonus);
+            AbstractFishingHook hook = fishingRod.create(player, level, lureSpeed, luckBonus);
             hook.setHookSpeedModifier(hookSpeed);
             return level.addFreshEntity(hook);
         }

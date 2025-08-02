@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.kapitencraft.kap_lib.entity.fishing.IFishingHook;
-import net.kapitencraft.kap_lib.entity.fishing.ModFishingHook;
+import net.kapitencraft.kap_lib.entity.fishing.AbstractFishingHook;
 import net.kapitencraft.kap_lib.entity.item.NoFireItemEntity;
 import net.kapitencraft.kap_lib.helpers.AttributeHelper;
 import net.minecraft.core.BlockPos;
@@ -71,7 +71,7 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
 
     @Redirect(method = "retrieve", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", ordinal = 0))
     public boolean add(Level instance, Entity entity) {
-        if (self() instanceof ModFishingHook) {
+        if (self() instanceof AbstractFishingHook) {
             ItemEntity item = (ItemEntity) entity;
             return instance.addFreshEntity(NoFireItemEntity.copy(item));
         }

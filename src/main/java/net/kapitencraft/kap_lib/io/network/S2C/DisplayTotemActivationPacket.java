@@ -31,7 +31,7 @@ public class DisplayTotemActivationPacket implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(()-> {
             ClientLevel level = Minecraft.getInstance().level;
             if (level != null) {
@@ -41,6 +41,5 @@ public class DisplayTotemActivationPacket implements SimplePacket {
                 Minecraft.getInstance().gameRenderer.displayItemActivation(toDisplay);
             }
         });
-        return true;
     }
 }

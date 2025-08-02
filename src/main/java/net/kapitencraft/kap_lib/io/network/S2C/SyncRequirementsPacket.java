@@ -25,8 +25,7 @@ public class SyncRequirementsPacket implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(()-> RequirementManager.instance = manager);
-        return true;
     }
 }

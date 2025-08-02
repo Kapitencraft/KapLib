@@ -72,11 +72,6 @@ public interface AttributeHelper {
         Collection<AttributeModifier> attributeModifiers;
         AttributeModifier.Operation operation = modifier.getOperation();
         double amount = modifier.getAmount();
-        //switch operation of movement speed to multiply base since addition is to powerful
-        if ((attributeReq == Attributes.MOVEMENT_SPEED || attributeReq == ForgeMod.SWIM_SPEED.get()) && operation == AttributeModifier.Operation.ADDITION) {
-            operation = AttributeModifier.Operation.MULTIPLY_BASE;
-            amount *= 0.01;
-        }
         for (Attribute attribute : multimap.keys()) {
             attributeModifiers = multimap.get(attribute);
             for (AttributeModifier newModifier : attributeModifiers) {

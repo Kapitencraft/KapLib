@@ -9,7 +9,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import org.slf4j.Marker;
 
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -50,7 +49,7 @@ public class RequestPacket<T, K> implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         NetworkEvent.Context context = sup.get();
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
@@ -62,6 +61,5 @@ public class RequestPacket<T, K> implements SimplePacket {
                     }
                 }
         });
-        return true;
     }
 }

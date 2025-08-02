@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.io.network.S2C.capability;
 
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
-import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
 import net.kapitencraft.kap_lib.io.network.SimplePacket;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.client.Minecraft;
@@ -34,12 +33,11 @@ public class SyncCooldownsToPlayerPacket implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(() -> {
             if (Minecraft.getInstance().level.getEntity(playerId) instanceof LivingEntity living) {
                 Cooldowns.get(living).loadData(data);
             }
         });
-        return true;
     }
 }

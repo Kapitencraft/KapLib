@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.io.serialization.NbtSerializer;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,7 +19,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeaponEnchantment {
-    Codec<Map<UUID, Integer>> DATA_CODEC = Codec.unboundedMap(ExtraCodecs.UUID, Codec.INT);
+    Codec<Map<UUID, Integer>> DATA_CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT);
     NbtSerializer<Map<UUID, Integer>> SERIALIZER = new NbtSerializer<>(DATA_CODEC, HashMap::new);
 
     @ApiStatus.Internal

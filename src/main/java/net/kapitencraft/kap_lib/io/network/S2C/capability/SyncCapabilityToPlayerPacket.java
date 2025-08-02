@@ -25,7 +25,7 @@ public abstract class SyncCapabilityToPlayerPacket<D, C extends AbstractCapabili
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(() -> {
             LocalPlayer localPlayer = Minecraft.getInstance().player;
             if (localPlayer == null) return;
@@ -40,7 +40,6 @@ public abstract class SyncCapabilityToPlayerPacket<D, C extends AbstractCapabili
             }
             KapLibMod.LOGGER.info("synced {} Items", s);
         });
-        return true;
     }
 
     public static <D, C extends AbstractCapability<D>, S extends SyncCapabilityToPlayerPacket<D, C>> S createPacket(ServerPlayer player, Capability<C> capability, Function<List<D>, S> creator) {

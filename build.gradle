@@ -70,6 +70,7 @@ minecraft {
         // applies to all the run configs below
         configureEach {
 
+            property 'forge.enabledGameTestNamespaces', mod_id
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
             // "SCAN": For mods scan.
@@ -92,18 +93,15 @@ minecraft {
         client {
             workingDirectory project.file('run')
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', mod_id
             args '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
         }
 
         kaupenClient {
-            property 'forge.enabledGameTestNamespaces', mod_id
             args '--uuid', '665ad10f-5548-4985-986b-b642732ddce0'
         }
 
         server {
             workingDirectory project.file('run-server')
-            property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'
         }
 
@@ -111,7 +109,6 @@ minecraft {
         // By default, the server will crash when no gametests are provided.
         // The gametest system is also enabled by default for other run configs under the /test command.
         gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         data {

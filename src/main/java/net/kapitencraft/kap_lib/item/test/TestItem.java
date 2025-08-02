@@ -50,7 +50,7 @@ public class TestItem extends WearableItem implements ExtendedItem {
         if (TestCooldowns.TEST.get().isActive(pPlayer)) {
             pPlayer.sendSystemMessage(Component.literal("not work"));
         } else {
-            TestCooldowns.TEST.get().applyCooldown(pPlayer, false);
+            if (!pLevel.isClientSide()) TestCooldowns.TEST.get().applyCooldown(pPlayer, false);
             pPlayer.sendSystemMessage(Component.literal("started"));
         }
         return super.use(pLevel, pPlayer, pUsedHand);

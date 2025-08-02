@@ -24,8 +24,7 @@ public class SyncBonusesPacket implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(() -> BonusManager.instance = this.bonusManager);
-        return false;
     }
 }

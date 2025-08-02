@@ -36,10 +36,9 @@ public class RequestDataPacket<T, K> implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         NetworkEvent.Context context = sup.get();
         context.enqueueWork(() -> LibClient.requests.accordPackageReceive(this));
-        return false;
     }
 
     public T getData() {

@@ -19,7 +19,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
-import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.font.FontSet;
@@ -29,6 +28,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.SkinManager;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -291,7 +291,7 @@ public class PlayerHeadAllocator extends FontSet {
     private record CacheData(int size, List<UUID> players) {
         private static final Codec<CacheData> CODEC = RecordCodecBuilder.create(cacheDataInstance -> cacheDataInstance.group(
                 Codec.INT.fieldOf("size").forGetter(CacheData::size),
-                ExtraCodecs.UUID.listOf().fieldOf("players").forGetter(CacheData::players)
+                UUIDUtil.STRING_CODEC.listOf().fieldOf("players").forGetter(CacheData::players)
         ).apply(cacheDataInstance, CacheData::new));
     }
 

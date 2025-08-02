@@ -1,1 +1,4 @@
-fixed ArmorRecipe not working as intended
+fixed SimplePacket's handle method returning boolean although not required
+fixed AttributeHelper overwriting speed modifiers to MULTIPLY_BASE
+fixed Cooldowns becoming de-synced over time
+deprecated ExtraCodecs#UUID. use UUIDUtil#STRING_CODEC instead.

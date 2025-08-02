@@ -13,21 +13,21 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class ModFishingHook extends FishingHook implements IFishingHook {
+public abstract class AbstractFishingHook extends FishingHook implements IFishingHook {
     private TagKey<Fluid> fluidType;
     private int hookSpeedModifier;
 
-    private ModFishingHook(EntityType<? extends ModFishingHook> type, Level level, int luck, int lureSpeed, TagKey<Fluid> fluidType) {
+    private AbstractFishingHook(EntityType<? extends AbstractFishingHook> type, Level level, int luck, int lureSpeed, TagKey<Fluid> fluidType) {
         super(type, level, luck, lureSpeed);
         this.fluidType = fluidType;
     }
 
-    protected ModFishingHook(EntityType<? extends ModFishingHook> type, Level level, TagKey<Fluid> fluidType) {
+    protected AbstractFishingHook(EntityType<? extends AbstractFishingHook> type, Level level, TagKey<Fluid> fluidType) {
         this(type, level, 0, 0, fluidType);
     }
 
 
-    protected ModFishingHook(EntityType<? extends ModFishingHook> type, Player player, Level level, int luck, int lureSpeed, TagKey<Fluid> fluidType) {
+    protected AbstractFishingHook(EntityType<? extends AbstractFishingHook> type, Player player, Level level, int luck, int lureSpeed, TagKey<Fluid> fluidType) {
         this(type, level, luck, lureSpeed, fluidType);
         this.setOwner(player);
         float f = player.getXRot();

@@ -6,14 +6,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public abstract class SyncCapabilityToBlockPacket<D, C extends AbstractCapability<D>> extends SyncCapabilityPacket<D, C> {
@@ -36,7 +33,7 @@ public abstract class SyncCapabilityToBlockPacket<D, C extends AbstractCapabilit
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(()-> {
             ClientLevel level = Minecraft.getInstance().level;
             if (level == null) return;
@@ -54,6 +51,5 @@ public abstract class SyncCapabilityToBlockPacket<D, C extends AbstractCapabilit
             });
             KapLibMod.LOGGER.info("synced {} Items to block {}", s[0], level.getBlockState(pos).getBlock());
         });
-        return true;
     }
 }

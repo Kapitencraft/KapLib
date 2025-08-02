@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.client.glyph.player_head;
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibComponentContents;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.FormattedText;
@@ -12,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class PlayerHeadContents implements ComponentContents, IKapLibComponentContents {
-    public static final Codec<PlayerHeadContents> CODEC = ExtraCodecs.UUID.xmap(PlayerHeadContents::new, PlayerHeadContents::getUuid);
+    public static final Codec<PlayerHeadContents> CODEC = UUIDUtil.STRING_CODEC.xmap(PlayerHeadContents::new, PlayerHeadContents::getUuid);
 
     private final UUID uuid;
 

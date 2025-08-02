@@ -37,13 +37,12 @@ public class UpdateBonusDataPacket implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(() -> {
             Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
             if (entity instanceof LivingEntity living) {
                 BonusManager.swapFrom(living, slot, to, from);
             }
         });
-        return true;
     }
 }

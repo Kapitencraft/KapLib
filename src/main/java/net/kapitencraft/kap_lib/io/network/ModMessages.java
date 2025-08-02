@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.io.network;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.io.network.S2C.*;
+import net.kapitencraft.kap_lib.io.network.S2C.capability.CooldownStartedPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncCooldownsToPlayerPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncWearablesToPlayerPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -52,6 +53,7 @@ public class ModMessages {
         addMessage(ActivateShakePacket.class, NetworkDirection.PLAY_TO_CLIENT, ActivateShakePacket::new);
         addMessage(SyncWearablesToPlayerPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncWearablesToPlayerPacket::new);
         addMessage(SyncCooldownsToPlayerPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncCooldownsToPlayerPacket::new);
+        addMessage(CooldownStartedPacket.class, NetworkDirection.PLAY_TO_CLIENT, CooldownStartedPacket::new);
         addMessage(UpdateBonusDataPacket.class, NetworkDirection.PLAY_TO_CLIENT, UpdateBonusDataPacket::new);
     }
 

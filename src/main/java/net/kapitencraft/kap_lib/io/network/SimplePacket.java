@@ -9,5 +9,5 @@ public interface SimplePacket {
 
     void toBytes(FriendlyByteBuf buf);
 
-    boolean handle(Supplier<NetworkEvent.Context> sup);
+    void handle(Supplier<NetworkEvent.Context> sup);
 }

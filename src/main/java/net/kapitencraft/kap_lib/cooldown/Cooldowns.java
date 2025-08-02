@@ -2,17 +2,24 @@ package net.kapitencraft.kap_lib.cooldown;
 
 
 import net.kapitencraft.kap_lib.io.network.ModMessages;
+import net.kapitencraft.kap_lib.io.network.S2C.capability.CooldownStartedPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncCooldownsToPlayerPacket;
 import net.kapitencraft.kap_lib.util.IntegerReference;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 
 
+/**
+ * the capability cooldown representation. does not need to be modified outside of this library
+ */
+@ApiStatus.Internal
 public class Cooldowns {
     public static final Capability<Cooldowns> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
 
@@ -40,9 +47,17 @@ public class Cooldowns {
         });
     }
 
+    /**
+     * apply a cooldown to the entity this capability instance is owned by. must only be called serverside
+     * @param cooldown the cooldown to apply
+     * @param reduceWithTime whether {@link net.kapitencraft.kap_lib.registry.ExtraAttributes#COOLDOWN_REDUCTION} should be accounted
+     */
     public void applyCooldown(Cooldown cooldown, boolean reduceWithTime) {
         int time = cooldown.getCooldownTime(this.entity, reduceWithTime);
-        if (time > 0) this.active.put(cooldown, IntegerReference.create(time));
+        if (time > 0) {
+            this.active.put(cooldown, IntegerReference.create(time));
+            ModMessages.sendToAllConnectedPlayers(p -> new CooldownStartedPacket(cooldown, time, this.entity.getId()), (ServerLevel) this.entity.level());
+        }
     }
 
     public int getCooldownTime(Cooldown cooldown) {
@@ -70,4 +85,7 @@ public class Cooldowns {
         ModMessages.sendToClientPlayer(new SyncCooldownsToPlayerPacket(sP.getId(), cooldown.getData()), sP);
     }
 
+    public void setCooldownTime(Cooldown cooldown, int duration) {
+        this.active.put(cooldown, IntegerReference.create(duration));
+    }
 }

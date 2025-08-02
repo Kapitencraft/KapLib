@@ -33,12 +33,11 @@ public class SyncWearablesToPlayerPacket implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(() -> {
             if (Minecraft.getInstance().level.getEntity(playerId) instanceof LivingEntity living) {
                 Wearables.get(living).copyFrom(stacks);
             }
         });
-        return true;
     }
 }

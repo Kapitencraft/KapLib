@@ -28,8 +28,7 @@ public class ActivateShakePacket implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         sup.get().enqueueWork(() -> LibClient.cameraControl.shake(this.intensity, this.strength, this.frequency));
-        return true;
     }
 }

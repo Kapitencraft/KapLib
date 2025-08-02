@@ -10,6 +10,7 @@ import net.kapitencraft.kap_lib.mixin.duck.IKapLibComponentContents;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibDataSource;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeModifier;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.resources.ResourceLocation;
@@ -69,7 +70,11 @@ public interface ExtraCodecs {
         return style;
     }
 
-    Codec<UUID> UUID = Codec.STRING.xmap(java.util.UUID::fromString, java.util.UUID::toString);
+    /**
+     * @deprecated use {@link UUIDUtil#STRING_CODEC} instead
+     */
+    @Deprecated(forRemoval = true, since = "1.26.4")
+    Codec<UUID> UUID = UUIDUtil.STRING_CODEC;
 
     Codec<MobEffectInstance> EFFECT = RecordCodecBuilder.create(instance -> instance.group(
             ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(MobEffectInstance::getEffect),
