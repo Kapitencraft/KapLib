@@ -101,7 +101,7 @@ public class EnchantmentDescriptionManager {
         return TextHelper.getDescriptionOrEmpty(ench.getDescriptionId(), component -> component.withStyle(ChatFormatting.DARK_GRAY), stream.map(TextHelper::wrapInRed).toArray());
     }
 
-    //APPLICABLE DISPLAY START
+    //region applicable display
 
     /**
      * the map with the test item as key and the character for display as value.
@@ -130,7 +130,7 @@ public class EnchantmentDescriptionManager {
         addItem(Items.DIAMOND_AXE);
         addItem(Items.DIAMOND_HOE);
         addItem(Items.BOW);
-        addItem(Items.CROSSBOW);
+        addItem(Items.CROSSBOW, new ResourceLocation("item/crossbow_standby"));
         addItem(Items.ELYTRA);
         addItem(Items.SHEARS);
         addItem(Items.TRIDENT);
@@ -154,5 +154,5 @@ public class EnchantmentDescriptionManager {
         return value;
     }
 
-    //APPLICABLE DISPLAY END
+    //endregion
 }

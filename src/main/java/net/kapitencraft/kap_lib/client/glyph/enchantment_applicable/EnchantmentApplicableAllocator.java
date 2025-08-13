@@ -30,7 +30,7 @@ public class EnchantmentApplicableAllocator extends FontSet {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static EnchantmentApplicableAllocator instance;
 
-    public static final ResourceLocation FONT = KapLibMod.res("player_heads");
+    public static final ResourceLocation FONT = KapLibMod.res("enchantment_applicable");
     private static final GlyphInfo GLYPH_INFO = new GlyphInfo() {
         @Override
         public float getAdvance() {

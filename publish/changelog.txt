@@ -1,3 +1,2 @@
-fixed game crashing when a player dies
-fixed Intelligence translation key being wrong
-reworked Enchantment applicable chars to be directly on the Block Atlas
+fixed Enchantment Applicable using wrong font and removed the JSON font provider
+fixed Crossbow Enchantment Applicable using wrong texture
