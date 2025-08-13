@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.client.enchantment_color;
 
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.UsefulTextures;
 import net.kapitencraft.kap_lib.client.widget.PositionedWidget;
 import net.kapitencraft.kap_lib.client.widget.SelectChatColorWidget;
@@ -25,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO fix scale being wrong
 public class ConfigureEnchantmentColorsScreen extends Screen {
     private static final int ELEMENT_HEIGHT = 70,
             WIDTH = 404,

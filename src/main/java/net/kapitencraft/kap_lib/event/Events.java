@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.ExtraComponents;
+import net.kapitencraft.kap_lib.client.glyph.enchantment_applicable.EnchantmentApplicableAllocator;
 import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.collection.Queue;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
@@ -229,6 +230,7 @@ public class Events {
     @SubscribeEvent
     public static void entityTick(LivingEvent.LivingTickEvent event) {
         LivingEntity living = event.getEntity();
+        if (living.isDeadOrDying()) return;
         Cooldowns.get(living).tick();
         BonusHelper.tickEnchantments(living);
         CompoundTag tag = living.getPersistentData();

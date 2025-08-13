@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.enchantments.extras;
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.enchantment_color.EnchantmentColorManager;
+import net.kapitencraft.kap_lib.client.glyph.enchantment_applicable.EnchantmentApplicableAllocator;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModEnchantment;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterEnchantmentApplicableCharsEvent;
@@ -112,28 +113,35 @@ public class EnchantmentDescriptionManager {
      */
     private static final Map<Enchantment, String> applicableCache = new HashMap<>();
 
-    static {
-        applicableMap.addAll(List.of(
-                Pair.of(Items.DIAMOND_BOOTS, '\u0001'),
-                Pair.of(Items.DIAMOND_LEGGINGS, '\u0002'),
-                Pair.of(Items.DIAMOND_CHESTPLATE, '\u0003'),
-                Pair.of(Items.DIAMOND_HELMET, '\u0004'),
-                Pair.of(Items.DIAMOND_PICKAXE, '\u0005'),
-                Pair.of(Items.DIAMOND_SWORD, '\u0006'),
-                Pair.of(Items.DIAMOND_AXE, '\u0007'),
-                Pair.of(Items.DIAMOND_HOE, '\u0008'),
-                Pair.of(Items.BOW, '\u0009'),
-                Pair.of(Items.CROSSBOW, '\u0010'),
-                Pair.of(Items.ELYTRA, '\u0011'),
-                Pair.of(Items.SHEARS, '\u0012'),
-                Pair.of(Items.TRIDENT, '\u0013'),
-                Pair.of(Items.FISHING_ROD, '\u0014'))
-        );
-        MinecraftForge.EVENT_BUS.post(new RegisterEnchantmentApplicableCharsEvent(applicableMap));
+    private static void addItem(Item item, ResourceLocation location) {
+        applicableMap.add(Pair.of(item, EnchantmentApplicableAllocator.getInstance().addEntry(location)));
+    }
+
+    private static void addItem(Item item) {
+        addItem(item, ForgeRegistries.ITEMS.getKey(item).withPrefix("item/"));
+    }
+
+    public static void initApplication() {
+        addItem(Items.DIAMOND_BOOTS);
+        addItem(Items.DIAMOND_LEGGINGS);
+        addItem(Items.DIAMOND_CHESTPLATE);
+        addItem(Items.DIAMOND_HELMET);
+        addItem(Items.DIAMOND_PICKAXE);
+        addItem(Items.DIAMOND_AXE);
+        addItem(Items.DIAMOND_HOE);
+        addItem(Items.BOW);
+        addItem(Items.CROSSBOW);
+        addItem(Items.ELYTRA);
+        addItem(Items.SHEARS);
+        addItem(Items.TRIDENT);
+        addItem(Items.FISHING_ROD);
+
+        MinecraftForge.EVENT_BUS.post(new RegisterEnchantmentApplicableCharsEvent(EnchantmentDescriptionManager::addItem, EnchantmentDescriptionManager::addItem));
     }
 
 
     private static String getApplicable(Enchantment enchantment) {
+        if (applicableMap.isEmpty()) initApplication(); //lazy init
         if (applicableCache.containsKey(enchantment)) return applicableCache.get(enchantment);
 
         EnchantmentCategory category = enchantment.category;
