@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.data_gen;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 
 import java.util.List;
 

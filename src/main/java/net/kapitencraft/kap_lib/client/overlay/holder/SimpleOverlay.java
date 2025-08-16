@@ -2,10 +2,10 @@ package net.kapitencraft.kap_lib.client.overlay.holder;
 
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 import java.util.function.Function;
 
@@ -30,7 +30,7 @@ public class SimpleOverlay extends Overlay {
     }
 
     @Override
-    public void render(ForgeGui gui, GuiGraphics graphics, int screenWidth, int screenHeight, LocalPlayer player) {
+    public void render(Gui gui, GuiGraphics graphics, int screenWidth, int screenHeight, LocalPlayer player) {
         graphics.drawString(gui.getFont(), mapper.apply(player), 0, 0, -1);
     }
 }

@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.client.cam.modifiers;
 
 import net.kapitencraft.kap_lib.client.cam.core.CameraData;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.CameraModifiers;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
@@ -28,12 +28,12 @@ public class FixedTargetPositionModifier implements Modifier {
 
         @Override
         public FixedTargetPositionModifier fromNetwork(FriendlyByteBuf buf) {
-            return new FixedTargetPositionModifier(NetworkHelper.readVec3(buf));
+            return new FixedTargetPositionModifier(ExtraStreamCodecs.readVec3(buf));
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buf, FixedTargetPositionModifier value) {
-            NetworkHelper.writeVec3(buf, value.pos);
+            ExtraStreamCodecs.writeVec3(buf, value.pos);
         }
     }
 }

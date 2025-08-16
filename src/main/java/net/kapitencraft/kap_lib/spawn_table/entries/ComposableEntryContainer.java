@@ -12,7 +12,7 @@ import java.util.function.Consumer;
  * Additionally, the container can either succeed or fail, based on its conditions.
  */
 @FunctionalInterface
-interface ComposableEntryContainer {
+public interface ComposableEntryContainer {
    /** A container which always fails. */
    ComposableEntryContainer ALWAYS_FALSE = (p_79418_, p_79419_) -> false;
    /** A container that always succeeds. */

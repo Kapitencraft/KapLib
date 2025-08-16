@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
@@ -12,11 +15,18 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+
 public class SetFireFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<SetFireFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            Codec.BOOL.optionalFieldOf("visual", true).forGetter(f -> f.visualFire),
+            Codec.INT.fieldOf("duration").forGetter(f -> f.duration)
+    ).and(commonFields(i).t1()).apply(i, SetFireFunction::new));
+
     private final Boolean visualFire;
     private final int duration;
 
-    protected SetFireFunction(LootItemCondition[] pPredicates, Boolean visualFire, int duration) {
+    protected SetFireFunction(Boolean visualFire, int duration, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.visualFire = visualFire;
         this.duration = duration;
@@ -32,20 +42,5 @@ public class SetFireFunction extends SpawnEntityConditionalFunction {
     @Override
     public SpawnEntityFunctionType getType() {
         return SpawnEntityFunctions.SET_FIRE_DURATION.get();
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetFireFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, SetFireFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.addProperty("duration", pFunction.duration);
-            JsonHelper.addOptionalBool(pJson, "visual", pFunction.visualFire);
-        }
-
-        @Override
-        public SetFireFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            return new SetFireFunction(pConditions, JsonHelper.getAsOptionalBool(pObject, "visual"), GsonHelper.getAsInt(pObject, "duration"));
-        }
     }
 }

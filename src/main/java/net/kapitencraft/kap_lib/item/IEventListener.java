@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.item;
 import com.google.common.collect.Multimap;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -27,7 +28,7 @@ public interface IEventListener {
     Cooldown getCooldown();
 
     @Nullable
-    Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living);
+    Multimap<Holder<Attribute>, AttributeModifier> getModifiers(LivingEntity living);
 
     void onEntityKilled(LivingEntity killed, LivingEntity user, MiscHelper.DamageType type);
 

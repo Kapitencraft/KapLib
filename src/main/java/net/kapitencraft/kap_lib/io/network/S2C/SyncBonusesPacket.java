@@ -1,30 +1,24 @@
 package net.kapitencraft.kap_lib.io.network.S2C;
 
-import net.kapitencraft.kap_lib.io.network.SimplePacket;
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record SyncBonusesPacket(BonusManager.Data data) implements CustomPacketPayload {
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncBonusesPacket> CODEC =
+            BonusManager.Data.STREAM_CODEC.map(SyncBonusesPacket::new, SyncBonusesPacket::data);
 
-public class SyncBonusesPacket implements SimplePacket {
-    private final BonusManager bonusManager;
+    public static final Type<SyncBonusesPacket> TYPE  = new Type<>(KapLibMod.res("sync_bonuses"));
 
-    public SyncBonusesPacket(BonusManager bonusManager) {
-        this.bonusManager = bonusManager;
-    }
-
-    public SyncBonusesPacket(FriendlyByteBuf buf) {
-        this.bonusManager = BonusManager.fromNw(buf);
-    }
-
-    @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        this.bonusManager.toNetwork(buf);
+    public void handle(IPayloadContext sup) {
+        sup.enqueueWork(() -> BonusManager.createFromData(this.data));
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> sup) {
-        sup.get().enqueueWork(() -> BonusManager.instance = this.bonusManager);
+    public Type<? extends CustomPacketPayload> type() {
+        return null;
     }
 }

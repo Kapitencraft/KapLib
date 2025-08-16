@@ -1,20 +1,23 @@
 package net.kapitencraft.kap_lib.client.particle;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
 import net.kapitencraft.kap_lib.util.Color;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.UUID;
 
 public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldParticleOptions> implements ParticleOptions {
-    private static final Codec<ShimmerShieldParticleOptions> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    private static final MapCodec<ShimmerShieldParticleOptions> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.INT.fieldOf("minLifeTime").forGetter(ShimmerShieldParticleOptions::getMinLifeTime),
             Codec.INT.fieldOf("maxElements").forGetter(ShimmerShieldParticleOptions::getMaxElements),
             Codec.INT.fieldOf("entityId").forGetter(ShimmerShieldParticleOptions::getEntityId),
@@ -27,6 +30,19 @@ public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldPart
             UUIDUtil.STRING_CODEC.fieldOf("uuid").forGetter(ShimmerShieldParticleOptions::getUUID)
             ).apply(instance, ShimmerShieldParticleOptions::new) //that's a lot
     );
+    public static final StreamCodec<ByteBuf, ShimmerShieldParticleOptions> STREAM_CODEC = ExtraStreamCodecs.composite(
+            ByteBufCodecs.INT, ShimmerShieldParticleOptions::getMinLifeTime,
+            ByteBufCodecs.INT, ShimmerShieldParticleOptions::getMaxElements,
+            ByteBufCodecs.INT, ShimmerShieldParticleOptions::getEntityId,
+            ByteBufCodecs.INT, ShimmerShieldParticleOptions::getMinRegenTime,
+            ByteBufCodecs.INT, ShimmerShieldParticleOptions::getMaxRegenTime,
+            ByteBufCodecs.INT, ShimmerShieldParticleOptions::getMaxLifeTime,
+            Color.STREAM_CODEC, ShimmerShieldParticleOptions::getMinColor,
+            Color.STREAM_CODEC, ShimmerShieldParticleOptions::getMaxColor,
+            ByteBufCodecs.FLOAT, ShimmerShieldParticleOptions::getMaxSpeed,
+            ExtraStreamCodecs.UUID, ShimmerShieldParticleOptions::getUUID,
+            ShimmerShieldParticleOptions::new
+    );
 
     private final int minLifeTime, maxElements, entityId, minRegenTime, maxRegenTime, maxLifeTime;
     private final Color min, max;
@@ -34,7 +50,7 @@ public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldPart
     private final UUID uuid;
 
     public ShimmerShieldParticleOptions(int minLifeTime, int maxElements, int entityId, int minRegenTime, int maxRegenTime, int maxLifeTime, Color min, Color max, float maxSpeed, UUID uuid) {
-        super(true, new Deserializer());
+        super(true);
         this.minLifeTime = minLifeTime;
         this.maxElements = maxElements;
         this.entityId = entityId;
@@ -53,30 +69,13 @@ public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldPart
     }
 
     @Override
-    public void writeToNetwork(FriendlyByteBuf pBuffer) {
-        pBuffer.writeInt(minLifeTime);
-        pBuffer.writeInt(maxElements);
-        pBuffer.writeInt(entityId);
-        pBuffer.writeInt(minRegenTime);
-        pBuffer.writeInt(maxRegenTime);
-        pBuffer.writeInt(maxLifeTime);
-
-        min.write(pBuffer);
-        max.write(pBuffer);
-
-        pBuffer.writeFloat(maxSpeed);
-
-        pBuffer.writeUUID(uuid);
-    }
-
-    @Override
-    public String writeToString() {
-        return "";
-    }
-
-    @Override
-    public Codec<ShimmerShieldParticleOptions> codec() {
+    public MapCodec<ShimmerShieldParticleOptions> codec() {
         return CODEC;
+    }
+
+    @Override
+    public StreamCodec<? super RegistryFriendlyByteBuf, ShimmerShieldParticleOptions> streamCodec() {
+        return STREAM_CODEC;
     }
 
     public int getMinLifeTime() {
@@ -116,30 +115,6 @@ public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldPart
     }
 
     public UUID getUUID() {
-        return null;
-    }
-
-    private static class Deserializer implements ParticleOptions.Deserializer<ShimmerShieldParticleOptions> {
-
-        @Override
-        public ShimmerShieldParticleOptions fromCommand(ParticleType<ShimmerShieldParticleOptions> pParticleType, StringReader pReader) throws CommandSyntaxException {
-            return null;
-        }
-
-        @Override
-        public ShimmerShieldParticleOptions fromNetwork(ParticleType<ShimmerShieldParticleOptions> pParticleType, FriendlyByteBuf pBuffer) {
-            int minLifeTime = pBuffer.readInt(),
-                    maxElements = pBuffer.readInt(),
-                    entityId = pBuffer.readInt(),
-                    minRegenTime = pBuffer.readInt(),
-                    maxRegenTime = pBuffer.readInt(),
-                    maxLifeTime = pBuffer.readInt();
-            Color min = Color.read(pBuffer), max = Color.read(pBuffer);
-
-            float maxSpeed = pBuffer.readFloat();
-
-            UUID uuid = pBuffer.readUUID();
-            return new ShimmerShieldParticleOptions(minLifeTime, maxElements, entityId, minRegenTime, maxRegenTime, maxLifeTime, min, max, maxSpeed, uuid);
-        }
+        return uuid;
     }
 }

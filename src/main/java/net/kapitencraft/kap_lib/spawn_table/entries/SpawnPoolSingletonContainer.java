@@ -1,20 +1,18 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.datafixers.Products;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnPoolEntry;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -31,7 +29,7 @@ public abstract class SpawnPoolSingletonContainer extends SpawnPoolEntryContaine
    /** The quality of the entry. */
    protected final int quality;
    /** Functions that are ran on the entry. */
-   protected final SpawnEntityFunction[] functions;
+   protected final List<SpawnEntityFunction> functions;
    final BiFunction<Entity, SpawnContext, Entity> compositeFunction;
    private final SpawnPoolEntry entry = new SpawnPoolSingletonContainer.EntryBase() {
       /**
@@ -44,7 +42,7 @@ public abstract class SpawnPoolSingletonContainer extends SpawnPoolEntryContaine
       }
    };
 
-   protected SpawnPoolSingletonContainer(int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
+   protected SpawnPoolSingletonContainer(int pWeight, int pQuality, List<LootItemCondition> pConditions, List<SpawnEntityFunction> pFunctions) {
       super(pConditions);
       this.weight = pWeight;
       this.quality = pQuality;
@@ -55,8 +53,8 @@ public abstract class SpawnPoolSingletonContainer extends SpawnPoolEntryContaine
    public void validate(ValidationContext pValidationContext) {
       super.validate(pValidationContext);
 
-      for(int i = 0; i < this.functions.length; ++i) {
-         this.functions[i].validate(pValidationContext.forChild(".functions[" + i + "]"));
+      for(int i = 0; i < this.functions.size(); ++i) {
+         this.functions.get(i).validate(pValidationContext.forChild(".functions[" + i + "]"));
       }
 
    }
@@ -99,8 +97,8 @@ public abstract class SpawnPoolSingletonContainer extends SpawnPoolEntryContaine
       /**
        * Creates an array from the functions list
        */
-      protected SpawnEntityFunction[] getFunctions() {
-         return this.functions.toArray(new SpawnEntityFunction[0]);
+      protected List<SpawnEntityFunction> getFunctions() {
+         return this.functions;
       }
 
       public T setWeight(int pWeight) {
@@ -141,32 +139,17 @@ public abstract class SpawnPoolSingletonContainer extends SpawnPoolEntryContaine
 
    @FunctionalInterface
    protected interface EntryConstructor {
-      SpawnPoolSingletonContainer build(int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions);
+      SpawnPoolSingletonContainer build(int pWeight, int pQuality, List<LootItemCondition> pConditions, List<SpawnEntityFunction> pFunctions);
    }
 
-   public abstract static class Serializer<T extends SpawnPoolSingletonContainer> extends SpawnPoolEntryContainer.Serializer<T> {
-      public void serializeCustom(JsonObject pObject, T pContainer, JsonSerializationContext pConditions) {
-         if (pContainer.weight != 1) {
-            pObject.addProperty("weight", pContainer.weight);
-         }
-
-         if (pContainer.quality != 0) {
-            pObject.addProperty("quality", pContainer.quality);
-         }
-
-         if (!ArrayUtils.isEmpty(pContainer.functions)) {
-            pObject.add("functions", pConditions.serialize(pContainer.functions));
-         }
-
-      }
-
-      public final T deserializeCustom(JsonObject pObject, JsonDeserializationContext pContext, LootItemCondition[] pConditions) {
-         int i = GsonHelper.getAsInt(pObject, "weight", 1);
-         int j = GsonHelper.getAsInt(pObject, "quality", 0);
-         SpawnEntityFunction[] functions = GsonHelper.getAsObject(pObject, "functions", new SpawnEntityFunction[0], pContext, SpawnEntityFunction[].class);
-         return this.deserialize(pObject, pContext, i, j, pConditions, functions);
-      }
-
-      protected abstract T deserialize(JsonObject pObject, JsonDeserializationContext pContext, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions);
+   protected static <T extends SpawnPoolSingletonContainer> Products.P4<RecordCodecBuilder.Mu<T>, Integer, Integer, List<LootItemCondition>, List<SpawnEntityFunction>> singletonFields(
+           RecordCodecBuilder.Instance<T> instance
+   ) {
+      return instance.group(
+                      Codec.INT.optionalFieldOf("weight", 1).forGetter(p_299262_ -> p_299262_.weight),
+                      Codec.INT.optionalFieldOf("quality", 0).forGetter(p_299272_ -> p_299272_.quality)
+              )
+              .and(commonFields(instance).t1())
+              .and(SpawnEntityFunctions.ROOT_CODEC.listOf().optionalFieldOf("functions", List.of()).forGetter(p_298225_ -> p_298225_.functions));
    }
 }

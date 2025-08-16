@@ -15,12 +15,11 @@ import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.ModLoader;
+import net.neoforged.fml.ModLoader;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
@@ -42,7 +41,7 @@ public class ModBEWLR extends BlockEntityWithoutLevelRenderer {
 
     private static Map<Item, Model> reloadTridentModels(EntityModelSet modelSet) {
         return Util.make(Maps.newHashMap(), itemModelHashMap ->
-                ModLoader.get().postEvent(new RegisterTridentModelsEvent(itemModelHashMap, modelSet))
+                ModLoader.postEvent(new RegisterTridentModelsEvent(itemModelHashMap, modelSet))
         );
     }
 
@@ -63,7 +62,7 @@ public class ModBEWLR extends BlockEntityWithoutLevelRenderer {
             pPoseStack.pushPose();
             pPoseStack.scale(1.0F, -1.0F, -1.0F);
             VertexConsumer consumer = ItemRenderer.getFoilBufferDirect(pBuffer, model.renderType(abstractTrident.getTexture(pStack)), false, pStack.hasFoil());
-            model.renderToBuffer(pPoseStack, consumer, pPackedLight, pPackedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
+            model.renderToBuffer(pPoseStack, consumer, pPackedLight, pPackedOverlay, -1);
             pPoseStack.popPose();
         }
     }

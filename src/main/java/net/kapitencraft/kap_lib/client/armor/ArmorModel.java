@@ -97,9 +97,9 @@ public class ArmorModel extends HumanoidModel<LivingEntity> {
     }
 
     @Override
-    public void renderToBuffer(@NotNull PoseStack stack, @NotNull VertexConsumer consumer, int packedLight, int packedOverlay, float r, float g, float b, float a) {
-        super.renderToBuffer(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        this.leftBoot.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
-        this.rightBoot.render(stack, consumer, packedLight, packedOverlay, r, g, b, a);
+    public void renderToBuffer(@NotNull PoseStack stack, @NotNull VertexConsumer consumer, int packedLight, int packedOverlay, int packedColor) {
+        super.renderToBuffer(stack, consumer, packedLight, packedOverlay, packedColor);
+        this.leftBoot.render(stack, consumer, packedLight, packedOverlay, packedColor);
+        this.rightBoot.render(stack, consumer, packedLight, packedOverlay, packedColor);
     }
 }

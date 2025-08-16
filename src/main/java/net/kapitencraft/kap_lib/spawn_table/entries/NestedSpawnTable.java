@@ -3,30 +3,41 @@ package net.kapitencraft.kap_lib.spawn_table.entries;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * A loot pool entry container that generates loot by referencing another loot table.
  */
-public class SpawnTableReference extends SpawnPoolSingletonContainer {
+public class NestedSpawnTable extends SpawnPoolSingletonContainer {
+   public static final MapCodec<NestedSpawnTable> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+           Codec.either(ResourceKey.codec(), SpawnTable.DIRECT_CODEC).fieldOf("value").forGetter(f -> f.entry)
+   ).and(singletonFields(i)).apply(i, NestedSpawnTable::new));
 
-   final ResourceLocation name;
 
-   SpawnTableReference(ResourceLocation pLootTableId, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
+   final Either<ResourceKey<SpawnTable>, SpawnTable> entry;
+
+   NestedSpawnTable(Either<ResourceKey<SpawnTable>, SpawnTable> pLootTableId, int pWeight, int pQuality, List<LootItemCondition> pConditions, List<SpawnEntityFunction> pFunctions) {
       super(pWeight, pQuality, pConditions, pFunctions);
-      this.name = pLootTableId;
+      this.entry = pLootTableId;
    }
 
    public SpawnPoolEntryType getType() {
@@ -39,7 +50,7 @@ public class SpawnTableReference extends SpawnPoolSingletonContainer {
     * stacks.
     */
    public void createEntity(Consumer<Entity> pStackConsumer, SpawnContext pLootContext) {
-      SpawnTable spawnTable = pLootContext.getSpawnTableManager().getSpawnTable(this.name);
+      SpawnTable spawnTable = this.entry.map(k -> pLootContext.getSpawnTableManager().getSpawnTable(k.location()), Function.identity());
       if (spawnTable == null) KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "unknown spawn table: {}", this.name);
       else spawnTable.getRandomEntities(pLootContext, pStackConsumer);
    }
@@ -60,18 +71,18 @@ public class SpawnTableReference extends SpawnPoolSingletonContainer {
 
    public static Builder<?> spawnTableReference(ResourceLocation pTable) {
       return simpleBuilder((p_79780_, p_79781_, p_79782_, p_79783_) ->
-              new SpawnTableReference(pTable, p_79780_, p_79781_, p_79782_, p_79783_));
+              new NestedSpawnTable(pTable, p_79780_, p_79781_, p_79782_, p_79783_));
    }
 
-   public static class Serializer extends SpawnPoolSingletonContainer.Serializer<SpawnTableReference> {
-      public void serializeCustom(JsonObject pObject, SpawnTableReference pContainer, JsonSerializationContext pConditions) {
+   public static class Serializer extends SpawnPoolSingletonContainer.Serializer<NestedSpawnTable> {
+      public void serializeCustom(JsonObject pObject, NestedSpawnTable pContainer, JsonSerializationContext pConditions) {
          super.serializeCustom(pObject, pContainer, pConditions);
          pObject.addProperty("name", pContainer.name.toString());
       }
 
-      protected SpawnTableReference deserialize(JsonObject pObject, JsonDeserializationContext pContext, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
+      protected NestedSpawnTable deserialize(JsonObject pObject, JsonDeserializationContext pContext, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
          ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(pObject, "name"));
-         return new SpawnTableReference(resourcelocation, pWeight, pQuality, pConditions, pFunctions);
+         return new NestedSpawnTable(resourcelocation, pWeight, pQuality, pConditions, pFunctions);
       }
    }
 }

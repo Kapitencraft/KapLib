@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.event.custom;
 
 import net.kapitencraft.kap_lib.util.IntegerModifierCollector;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 /**
  * used to calculate changes on the ore drops

@@ -4,8 +4,11 @@ import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimator;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 public interface ActivationTrigger<T extends TriggerInstance> {
 
@@ -15,20 +18,9 @@ public interface ActivationTrigger<T extends TriggerInstance> {
 
     boolean active(Listener<T> instance);
 
-    void toNw(FriendlyByteBuf buf, T val);
+    StreamCodec<RegistryFriendlyByteBuf, TriggerInstance> CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.ACTIVATION_TRIGGERS).dispatch(TriggerInstance::getTrigger, ActivationTrigger::codec);
 
-    T fromNw(FriendlyByteBuf buf);
-
-    static <T extends TriggerInstance> T readFromNw(FriendlyByteBuf buf) {
-        ActivationTrigger<T> trigger = (ActivationTrigger<T>) buf.readRegistryIdUnsafe(ExtraRegistries.ACTIVATION_TRIGGERS);
-        return trigger.fromNw(buf);
-    }
-
-    static <T extends TriggerInstance> void writeToNw(FriendlyByteBuf buf, T val) {
-        ActivationTrigger<T> trigger = (ActivationTrigger<T>) val.getTrigger();
-        buf.writeRegistryIdUnsafe(ExtraRegistries.ACTIVATION_TRIGGERS, trigger);
-        trigger.toNw(buf, val);
-    }
+    StreamCodec<RegistryFriendlyByteBuf, T> codec();
 
     @OnlyIn(Dist.CLIENT)
     class Listener<T extends TriggerInstance> {

@@ -14,14 +14,15 @@ import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ModEventBusClientEvents {
     @SubscribeEvent
     public static void registerParticles(RegisterParticleProvidersEvent event) {
@@ -44,11 +45,11 @@ public class ModEventBusClientEvents {
 
     @SubscribeEvent
     public static void registerItemProperties(FMLClientSetupEvent event) {
-        ItemProperties.register(Items.BOW, new ResourceLocation("pull"), (stack, level, living, p_174679_) -> {
-            if (living == null || living.getAttribute(ExtraAttributes.DRAW_SPEED.get()) == null) {
+        ItemProperties.register(Items.BOW, ResourceLocation.withDefaultNamespace("pull"), (stack, level, living, p_174679_) -> {
+            if (living == null || living.getAttribute(ExtraAttributes.DRAW_SPEED) == null) {
                 return 0.0F;
             } else {
-                return living.getUseItem() != stack ? 0.0F : (float)((stack.getUseDuration() - living.getUseItemRemainingTicks()) / 20.0F  * living.getAttributeValue(ExtraAttributes.DRAW_SPEED.get()) / 100);
+                return living.getUseItem() != stack ? 0.0F : (float)((stack.getUseDuration(living) - living.getUseItemRemainingTicks()) / 20.0F  * living.getAttributeValue(ExtraAttributes.DRAW_SPEED) / 100);
             }
         });
         BaseAttributeUUIDs.init();
@@ -64,4 +65,5 @@ public class ModEventBusClientEvents {
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
         InventoryPageRenderers.init();
     }
+
 }

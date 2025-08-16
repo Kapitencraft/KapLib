@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.client.particle.animation.spawners;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
@@ -69,7 +69,7 @@ public class EntityBBSpawner extends VisibleSpawner {
 
         @Override
         public void toNW(FriendlyByteBuf buf, EntityBBSpawner value) {
-            NetworkHelper.writeParticleOptions(buf, value.particle);
+            ExtraStreamCodecs.writeParticleOptions(buf, value.particle);
             buf.writeInt(value.targetId);
             buf.writeBoolean(value.onlyOutline);
             buf.writeFloat(value.sizeXScale);
@@ -79,7 +79,7 @@ public class EntityBBSpawner extends VisibleSpawner {
 
         @Override
         public EntityBBSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new EntityBBSpawner(NetworkHelper.readParticleOptions(buf),
+            return new EntityBBSpawner(ExtraStreamCodecs.readParticleOptions(buf),
                     buf.readInt(),
                     buf.readBoolean(),
                     buf.readFloat(),

@@ -7,9 +7,9 @@ import net.kapitencraft.kap_lib.inventory.page.crafting.CraftingPageRenderer;
 import net.kapitencraft.kap_lib.inventory.page.equipment.EquipmentPageRenderer;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaInventoryPages;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.ModLoader;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModLoader;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class InventoryPageRenderers {
     public static void init() {
         register(VanillaInventoryPages.EQUIPMENT.get(), EquipmentPageRenderer::new);
         register(VanillaInventoryPages.CRAFTING.get(), CraftingPageRenderer::new);
-        ModLoader.get().postEvent(new RegisterInventoryPageRenderersEvent());
+        ModLoader.postEvent(new RegisterInventoryPageRenderersEvent());
     }
 
     private static final Map<InventoryPageType<?>, PageRenderConstructor<?>> renderers = new HashMap<>();

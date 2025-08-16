@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.serialization.ExtraJsonSerializers;
@@ -19,12 +22,27 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+import java.util.Optional;
+
 public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<MobPropertiesFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            LootContext.EntityTarget.CODEC.optionalFieldOf("attackTarget").forGetter(f -> Optional.ofNullable(f.attackTarget)),
+            Codec.BOOL.optionalFieldOf("canPickupLoot", false).forGetter(f -> f.canPickupLoot),
+            Codec.BOOL.optionalFieldOf("persistenceRequired", false).forGetter(f -> f.persistenceRequired),
+            Codec.BOOL.optionalFieldOf("noAi", false).forGetter(f -> f.noAi),
+            ResourceLocation.CODEC.optionalFieldOf("lootTable").forGetter(f -> Optional.ofNullable(f.lootTable))
+    ).and(commonFields(i).t1()).apply(i, MobPropertiesFunction::new));
+
     private final LootContext.EntityTarget attackTarget;
     private final boolean canPickupLoot, persistenceRequired, noAi;
     private final ResourceLocation lootTable;
 
-    protected MobPropertiesFunction(LootItemCondition[] pPredicates, LootContext.EntityTarget attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, ResourceLocation lootTable) {
+    protected MobPropertiesFunction(Optional<LootContext.EntityTarget> attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, Optional<ResourceLocation> lootTable, List<LootItemCondition> pPredicates) {
+        this(attackTarget.orElse(null), canPickupLoot, persistenceRequired, noAi, lootTable.orElse(null), pPredicates);
+    }
+
+    protected MobPropertiesFunction(LootContext.EntityTarget attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, ResourceLocation lootTable, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.attackTarget = attackTarget;
         this.canPickupLoot = canPickupLoot;
@@ -51,36 +69,8 @@ public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.MOB_PROPERTIES.get();
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<MobPropertiesFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, MobPropertiesFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            if (pFunction.attackTarget != null) pJson.add("attackTarget", pSerializationContext.serialize(pFunction.attackTarget));
-            if (pFunction.canPickupLoot) pJson.addProperty("canPickupLoot", true);
-            if (pFunction.persistenceRequired) pJson.addProperty("persistenceRequired", true);
-            if (pFunction.noAi) pJson.addProperty("noAi", true);
-        }
-
-        @Override
-        public MobPropertiesFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            LootContext.EntityTarget attackTarget = pObject.has("attackTarget") ? pDeserializationContext.deserialize(pObject.get("attackTarget"), LootContext.EntityTarget.class) : null;
-            boolean canPickupLoot = GsonHelper.getAsBoolean(pObject, "canPickupLoot", false),
-                    persistenceRequired = GsonHelper.getAsBoolean(pObject, "persistenceRequired", false),
-                    noAi = GsonHelper.getAsBoolean(pObject, "noAi", false);
-            ResourceLocation lootTable = pObject.has("loot_table") ? ExtraJsonSerializers.RL.parse(pObject.get("loot_table")) : null;
-            return new MobPropertiesFunction(pConditions,
-                    attackTarget,
-                    canPickupLoot,
-                    persistenceRequired,
-                    noAi,
-                    lootTable
-            );
-        }
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
@@ -121,12 +111,12 @@ public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
         @Override
         public SpawnEntityFunction build() {
             return new MobPropertiesFunction(
-                    getConditions(),
                     attackTarget,
                     canPickupLoot,
                     persistenceRequired,
                     noAi,
-                    lootTable
+                    lootTable,
+                    getConditions()
             );
         }
     }

@@ -2,12 +2,12 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.collection.BiCollectors;
 import net.kapitencraft.kap_lib.collection.MapStream;
-import net.kapitencraft.kap_lib.helpers.CollectorHelper;
-import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.serialization.JsonSerializer;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
@@ -15,24 +15,25 @@ import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public final class SetAttributesFunction extends SpawnEntityConditionalFunction {
-    private final Pair<Attribute, Modifiers>[] data;
+    public static final MapCodec<SetAttributesFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            Codec.pair(Attribute.CODEC, Modifiers.CODEC).listOf().fieldOf("modifiers").forGetter(f -> f.data)
+    ).and(commonFields(i).t1()).apply(i, SetAttributesFunction::new));
+
+    private final List<Pair<Holder<Attribute>, Modifiers>> data;
     private static final JsonSerializer<AttributeModifier> SERIALIZER = new JsonSerializer<>(ExtraCodecs.ATTRIBUTE_MODIFIER);
 
-    private SetAttributesFunction(LootItemCondition[] pPredicates, Pair<Attribute, Modifiers>[] data) {
+    private SetAttributesFunction(List<Pair<Holder<Attribute>, Modifiers>> data, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.data = data;
     }
@@ -40,11 +41,11 @@ public final class SetAttributesFunction extends SpawnEntityConditionalFunction 
     @Override
     protected Entity run(Entity pEntity, SpawnContext pContext) {
         if (pEntity instanceof LivingEntity living) {
-            for (Pair<Attribute, Modifiers> pair : data) {
+            for (Pair<Holder<Attribute>, Modifiers> pair : data) {
                 try {
                     pair.getSecond().apply(living.getAttribute(pair.getFirst()));
                 } catch (Exception e) {
-                    KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "unable to apply attribute modifiers for '{}': {}", ForgeRegistries.ATTRIBUTES.getKey(pair.getFirst()), e.getMessage());
+                    KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "unable to apply attribute modifiers for '{}': {}", pair.getFirst().getKey().location(), e.getMessage());
                 }
             }
         } else logWrongType("LivingEntity", pEntity);
@@ -52,11 +53,19 @@ public final class SetAttributesFunction extends SpawnEntityConditionalFunction 
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_ATTRIBUTES.get();
     }
 
-    private record Modifiers(AttributeModifier[] modifiers, Double base) {
+    private record Modifiers(List<AttributeModifier> modifiers, Double base) {
+        public static final Codec<Modifiers> CODEC = RecordCodecBuilder.create(i -> i.group(
+                AttributeModifier.CODEC.listOf().optionalFieldOf("modifiers", List.of()).forGetter(Modifiers::modifiers),
+                Codec.DOUBLE.optionalFieldOf("base").forGetter(f -> Optional.ofNullable(f.base))
+        ).apply(i, Modifiers::fromCodec));
+
+        private static Modifiers fromCodec(List<AttributeModifier> attributeModifiers, Optional<Double> aDouble) {
+            return new Modifiers(attributeModifiers, aDouble.orElse(null));
+        }
 
         public void apply(AttributeInstance instance) {
             if (base != null) instance.setBaseValue(this.base);
@@ -64,90 +73,32 @@ public final class SetAttributesFunction extends SpawnEntityConditionalFunction 
                 instance.addPermanentModifier(modifier);
             }
         }
-
-        public static Modifiers fromJson(JsonElement element) {
-            if (element.isJsonObject()) {
-                JsonObject object = element.getAsJsonObject();
-                AttributeModifier[] modifiers = object.has("modifiers") ?
-                        JsonHelper.castToObjects(GsonHelper.getAsJsonArray(object, "modifiers"))
-                                .map(SERIALIZER::parse).toArray(AttributeModifier[]::new) :
-                        new AttributeModifier[0];
-                Double base = object.has("base") ? GsonHelper.getAsDouble(object, "base") : null;
-                return new Modifiers(modifiers, base);
-            } else throw new JsonParseException("Modifiers data was no object");
-        }
-
-        private static AttributeModifier modifierFromJson(JsonObject element) {
-            UUID uuid = element.has("uuid") ? UUID.fromString(GsonHelper.getAsString(element, "uuid")) : UUID.randomUUID();
-            String name = GsonHelper.getAsString(element, "name");
-            double amount = GsonHelper.getAsDouble(element, "amount");
-            AttributeModifier.Operation operation = AttributeModifier.Operation.valueOf(GsonHelper.getAsString(element, "operation").toUpperCase());
-            return new AttributeModifier(uuid, name, amount, operation);
-        }
-
-        public JsonObject toJson() {
-            JsonObject object = new JsonObject();
-            if (this.modifiers.length > 0) {
-                JsonArray array = new JsonArray();
-                for (AttributeModifier modifier : this.modifiers) {
-                    array.add(SERIALIZER.encode(modifier));
-                }
-                object.add("modifiers", array);
-            }
-            if (this.base != null) object.addProperty("base", this.base);
-            return object;
-        }
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetAttributesFunction> {
-
-        @Override
-        public void serialize(@NotNull JsonObject pJson, @NotNull SetAttributesFunction pFunction, @NotNull JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.add("modifiers", Arrays.stream(pFunction.data).collect(CollectorHelper
-                                    .toMapStream(Pair::getFirst, Pair::getSecond)
-                            ).mapKeys(ForgeRegistries.ATTRIBUTES::getKey)
-                    .mapKeys(ResourceLocation::toString)
-                    .mapValues(Modifiers::toJson).collect(BiCollectors.mergeJson())
-            );
-        }
-
-        @Override
-        public SetAttributesFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            Pair<Attribute, Modifiers>[] data = MapStream.of(GsonHelper.getAsJsonObject(pObject, "modifiers").asMap())
-                    .mapValues(Modifiers::fromJson)
-                    .mapKeys(ResourceLocation::new)
-                    .mapKeys(ForgeRegistries.ATTRIBUTES::getValue)
-                    .toPairArray();
-            return new SetAttributesFunction(pConditions, data);
-        }
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
-        private final Map<Attribute, ModifiersBuilder> modifiers = new HashMap<>();
+        private final Map<Holder<Attribute>, ModifiersBuilder> modifiers = new HashMap<>();
 
         @Override
         protected Builder getThis() {
             return this;
         }
 
-        public ModifiersBuilder withAttribute(Attribute attribute) {
+        public ModifiersBuilder withAttribute(Holder<Attribute> attribute) {
             modifiers.putIfAbsent(attribute, new ModifiersBuilder());
             return modifiers.get(attribute);
         }
 
         @Override
         public SpawnEntityFunction build() {
-            return new SetAttributesFunction(getConditions(), makePairs());
+            return new SetAttributesFunction(makePairs(), getConditions());
         }
 
-        private Pair<Attribute, Modifiers>[] makePairs() {
-            return MapStream.of(modifiers).mapValues(ModifiersBuilder::createModifiers).toPairArray();
+        private List<Pair<Holder<Attribute>, Modifiers>> makePairs() {
+            return MapStream.of(modifiers).mapValues(ModifiersBuilder::createModifiers).toPairList();
         }
 
         public class ModifiersBuilder {
@@ -165,7 +116,7 @@ public final class SetAttributesFunction extends SpawnEntityConditionalFunction 
             }
 
             private Modifiers createModifiers() {
-                return new Modifiers(this.modifiers.toArray(AttributeModifier[]::new), this.base);
+                return new Modifiers(this.modifiers, this.base);
             }
 
             public Builder end() {

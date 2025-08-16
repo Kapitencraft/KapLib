@@ -1,10 +1,12 @@
 package net.kapitencraft.kap_lib.client.enchantment_color;
 
-import net.kapitencraft.kap_lib.enchantments.abstracts.IUltimateEnchantment;
+import net.kapitencraft.kap_lib.tags.ExtraTags;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraftforge.common.IExtensibleEnum;
+import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 import org.jetbrains.annotations.NotNull;
 
 public enum EnchantmentGroup implements IExtensibleEnum, StringRepresentable {
@@ -28,11 +30,11 @@ public enum EnchantmentGroup implements IExtensibleEnum, StringRepresentable {
         return Component.translatable("enchantment_group." + getSerializedName());
     }
 
-    public boolean is(Enchantment enchantment) {
+    public boolean is(Holder<Enchantment> enchantment) {
         return switch (this) {
             case NORMAL -> true;
-            case CURSE -> enchantment.isCurse();
-            case ULTIMATE -> enchantment instanceof IUltimateEnchantment;
+            case CURSE -> enchantment.is(EnchantmentTags.CURSE);
+            case ULTIMATE -> enchantment.is(ExtraTags.Enchantments.ULTIMATE);
         };
     }
 }

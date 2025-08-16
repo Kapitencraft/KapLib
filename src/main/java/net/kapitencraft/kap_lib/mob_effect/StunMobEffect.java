@@ -17,13 +17,13 @@ public class StunMobEffect extends MobEffect {
     }
 
     @Override
-    public boolean isDurationEffectTick(int pDuration, int pAmplifier) {
+    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
         return true;
     }
 
     @SuppressWarnings("DataFlowIssue")
     @Override
-    public void applyEffectTick(@NotNull LivingEntity pLivingEntity, int pAmplifier) {
+    public boolean applyEffectTick(@NotNull LivingEntity pLivingEntity, int pAmplifier) {
         if (pLivingEntity instanceof Player player) {
             TextHelper.setHotbarDisplay(player, Component.translatable("effect.stun.timer", MathHelper.shortRound(pLivingEntity.getEffect(this).duration / 20.)).withStyle(ChatFormatting.RED));
         }

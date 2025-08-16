@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.event.custom;
 import net.kapitencraft.kap_lib.item.bonus.AbstractBonusElement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 

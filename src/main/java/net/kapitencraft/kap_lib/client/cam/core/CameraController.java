@@ -7,12 +7,12 @@ import net.minecraft.client.Options;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * controls camera loc and rotation overwrites
@@ -32,7 +32,7 @@ public class CameraController {
 
     public CameraController() {
         this.data = new CameraData();
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
     }
 
     public void activate(TrackingShot shot) {
@@ -55,8 +55,7 @@ public class CameraController {
     }
 
     @SubscribeEvent
-    public void tick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+    public void tick(ClientTickEvent.Pre event) {
         if (running) {
             if (shot.done()) disable();
             else {

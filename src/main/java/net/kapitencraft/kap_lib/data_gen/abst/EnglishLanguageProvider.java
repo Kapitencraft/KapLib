@@ -3,13 +3,18 @@ package net.kapitencraft.kap_lib.data_gen.abst;
 import net.kapitencraft.kap_lib.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraftforge.common.data.LanguageProvider;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Supplier;
 
 public abstract class EnglishLanguageProvider extends LanguageProvider {
     /**
@@ -27,8 +32,8 @@ public abstract class EnglishLanguageProvider extends LanguageProvider {
         this.add("death.attack." + msgId + ".item", msg + " using %3$s");
     }
 
-    public void addItem(RegistryObject<Item> item) {
-        addItem(item, TextHelper.makeGrammar(item.getId().getPath()));
+    public void addItem(Supplier<Item> item) {
+        addItem(item, TextHelper.makeGrammar(BuiltInRegistries.ITEM.getKey(item.get()).getPath()));
     }
 
     public void bonusWithTranslation(boolean set, String key, String name, String... description) {
@@ -37,17 +42,18 @@ public abstract class EnglishLanguageProvider extends LanguageProvider {
         translation(translationKey, description);
     }
 
-    public void addEnchantmentWithDescription(RegistryObject<Enchantment> enchantment, String... description) {
-        String id = enchantment.get().getDescriptionId();
-        add(id, TextHelper.makeGrammar(enchantment.getId().getPath()));
+    public void addEnchantmentWithDescription(Holder<Enchantment> enchantment, String... description) {
+        ResourceLocation location = enchantment.getKey().location();
+        String id = Util.makeDescriptionId("enchantment", location);
+        add(id, TextHelper.makeGrammar(location.getPath()));
         translation(id, description);
     }
 
-    public void addAttribute(RegistryObject<Attribute> attribute, @Nullable ChatFormatting color) {
-        String id = attribute.getId().getPath();
+    public void addAttribute(Holder<Attribute> attribute, @Nullable ChatFormatting color) {
+        String id = attribute.getKey().location().getPath();
         String name = (color != null ? "§" + color.getChar() : "") + TextHelper.makeGrammar(CollectionHelper.getLast(id.split("\\.")));
         add(id, name);
-        String descriptionId = attribute.get().getDescriptionId();
+        String descriptionId = attribute.value().getDescriptionId();
         if (!id.equals(descriptionId)) add(descriptionId, name);
     }
 

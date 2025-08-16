@@ -1,25 +1,17 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.mixin.duck.IKapLibComponentContents;
-import net.kapitencraft.kap_lib.registry.vanilla.VanillaComponentContentTypes;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.chat.ComponentContents;
-import net.minecraft.network.chat.contents.*;
+import net.minecraft.network.chat.ComponentSerialization;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(ComponentContents.class)
-public interface ComponentContentsMixin extends IKapLibComponentContents {
+@Mixin(ComponentSerialization.class)
+public interface ComponentContentsMixin {
 
-
-    @Override
-    default Codec<? extends ComponentContents> getCodec() {
-        ComponentContents contents = (ComponentContents) this;
-        if (contents instanceof LiteralContents) return VanillaComponentContentTypes.LITERAL.get();
-        else if (contents instanceof KeybindContents) return VanillaComponentContentTypes.KEY_BIND.get();
-        else if (contents instanceof NbtContents) return VanillaComponentContentTypes.NBT.get();
-        else if (contents instanceof ScoreContents) return VanillaComponentContentTypes.SCORE.get();
-        else if (contents instanceof SelectorContents) return VanillaComponentContentTypes.SELECTOR.get();
-        else if (contents == ComponentContents.EMPTY) return VanillaComponentContentTypes.EMPTY.get();
-        else return VanillaComponentContentTypes.TRANSLATABLE.get();
+    @ModifyVariable(method = "createCodec", at = @At(value = "STORE", ordinal = 0), ordinal = 1)
+    private ComponentContents.Type<?>[] types(ComponentContents.Type<?>[] in) {
+        return ExtraRegistries.COMPONENT_CONTENT_TYPES.stream().toArray(ComponentContents.Type[]::new);
     }
 }

@@ -7,19 +7,19 @@ import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticleOptions;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.util.Color;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @ApiStatus.Internal
 public interface ExtraParticleTypes {
-    DeferredRegister<ParticleType<?>> REGISTRY = KapLibMod.registry(ForgeRegistries.PARTICLE_TYPES);
+    DeferredRegister<ParticleType<?>> REGISTRY = KapLibMod.registry(Registries.PARTICLE_TYPE);
 
-    RegistryObject<DamageIndicatorParticleOptions> DAMAGE_INDICATOR = REGISTRY.register("damage_indicator", () -> new DamageIndicatorParticleOptions(TextHelper.damageIndicatorCoder("heal"), 1, 1));
-    RegistryObject<ShimmerShieldParticleOptions> SHIMMER_SHIELD = REGISTRY.register("shimmer_shield", ()-> new ShimmerShieldParticleOptions(0, 0, 0, 0, 0, 0, new Color(0), new Color(0), 0, UUID.randomUUID()));
-    RegistryObject<LightningParticleOptions> LIGHTNING = REGISTRY.register("lightning", () -> new LightningParticleOptions(Vec3.ZERO, Vec3.ZERO, 2, 100, 0, 0));
+    Supplier<DamageIndicatorParticleOptions> DAMAGE_INDICATOR = REGISTRY.register("damage_indicator", () -> new DamageIndicatorParticleOptions(TextHelper.damageIndicatorCoder("heal"), 1, 1));
+    Supplier<ShimmerShieldParticleOptions> SHIMMER_SHIELD = REGISTRY.register("shimmer_shield", ()-> new ShimmerShieldParticleOptions(0, 0, 0, 0, 0, 0, new Color(0), new Color(0), 0, UUID.randomUUID()));
+    Supplier<LightningParticleOptions> LIGHTNING = REGISTRY.register("lightning", () -> new LightningParticleOptions(Vec3.ZERO, Vec3.ZERO, 2, 100, 0, 0));
 }

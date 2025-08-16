@@ -1,8 +1,7 @@
 package net.kapitencraft.kap_lib.spawn_table.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnPool;
@@ -12,10 +11,16 @@ import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionTy
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+
 public class AddPassengersFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<AddPassengersFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            SpawnPool.CODEC.fieldOf("passengers").forGetter(f -> f.pool)
+    ).and(commonFields(i).t1()).apply(i, AddPassengersFunction::new));
+
     private final SpawnPool pool;
 
-    protected AddPassengersFunction(LootItemCondition[] pPredicates, SpawnPool pool) {
+    protected AddPassengersFunction(SpawnPool pool, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.pool = pool;
     }
@@ -38,20 +43,6 @@ public class AddPassengersFunction extends SpawnEntityConditionalFunction {
         return SpawnEntityFunctions.ADD_PASSENGERS.get();
     }
 
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<AddPassengersFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, AddPassengersFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.add("pool", pSerializationContext.serialize(pFunction.pool));
-        }
-
-        @Override
-        public AddPassengersFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            return new AddPassengersFunction(pConditions, pDeserializationContext.deserialize(pObject.get("pool"), SpawnPool.class));
-        }
-    }
-
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
         private final SpawnPool builder;
 
@@ -66,7 +57,7 @@ public class AddPassengersFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SpawnEntityFunction build() {
-            return new AddPassengersFunction(getConditions(), builder);
+            return new AddPassengersFunction(builder, getConditions());
         }
     }
 

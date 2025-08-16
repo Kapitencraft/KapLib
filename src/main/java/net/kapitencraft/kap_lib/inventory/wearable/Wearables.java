@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -53,7 +54,7 @@ public class Wearables implements Container {
 
     public static void send(ServerPlayer sP) {
         Wearables wearables = get(sP);
-        ModMessages.sendToClientPlayer(new SyncWearablesToPlayerPacket(sP.getId(), wearables.content), sP);
+        PacketDistributor.sendToPlayer(sP, new SyncWearablesToPlayerPacket(sP.getId(), wearables.content));
     }
 
     @Override

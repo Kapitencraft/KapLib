@@ -1,8 +1,6 @@
 package net.kapitencraft.kap_lib.client.glyph.player_head;
 
-import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.mixin.duck.IKapLibComponentContents;
-import net.kapitencraft.kap_lib.registry.ExtraCodecs;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.ComponentContents;
@@ -12,8 +10,10 @@ import net.minecraft.network.chat.Style;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PlayerHeadContents implements ComponentContents, IKapLibComponentContents {
-    public static final Codec<PlayerHeadContents> CODEC = UUIDUtil.STRING_CODEC.xmap(PlayerHeadContents::new, PlayerHeadContents::getUuid);
+public class PlayerHeadContents implements ComponentContents {
+    public static final MapCodec<PlayerHeadContents> CODEC = UUIDUtil.STRING_CODEC.xmap(PlayerHeadContents::new, PlayerHeadContents::getUuid).fieldOf("value");
+
+    public static final Type<PlayerHeadContents> TYPE = new Type<>(CODEC, "kap_lib:player_head");
 
     private final UUID uuid;
 
@@ -36,8 +36,8 @@ public class PlayerHeadContents implements ComponentContents, IKapLibComponentCo
     }
 
     @Override
-    public Codec<? extends ComponentContents> getCodec() {
-        return CODEC;
+    public Type<?> type() {
+        return TYPE;
     }
 
     @Override

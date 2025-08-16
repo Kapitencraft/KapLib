@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.spawn_table;
 
 import net.kapitencraft.kap_lib.spawn_table.entries.DynamicSpawn;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -23,8 +24,8 @@ public class SpawnContext extends LootContext {
    private final SpawnTableManager manager;
 
 
-   SpawnContext(LootParams params, RandomSource randomsource, LootDataManager lootData, ResourceLocation queriedLootTableId, SpawnTableManager manager) {
-      super(params, randomsource, lootData);
+   SpawnContext(LootParams params, RandomSource randomsource, HolderGetter.Provider provider, SpawnTableManager manager) {
+      super(params, randomsource, provider);
       this.manager = manager;
    }
 

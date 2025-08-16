@@ -6,8 +6,12 @@ import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.IEventListener;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -17,16 +21,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface Bonus<T extends Bonus<T>> extends IEventListener {
-
-    default void toNetwork(FriendlyByteBuf buf) {
-        buf.writeRegistryId(ExtraRegistries.BONUS_SERIALIZER, this.getSerializer());
-        this.getSerializer().toNetwork(buf, (T) this);
-    }
-
-    static Bonus<?> fromNw(FriendlyByteBuf buf) {
-        DataPackSerializer<? extends Bonus<?>> serializer = buf.readRegistryId();
-        return serializer.fromNetwork(buf);
-    }
+    StreamCodec<RegistryFriendlyByteBuf, Bonus<?>> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.BONUS_SERIALIZERS).dispatch(Bonus::getSerializer, DataPackSerializer::getStreamCodec);
 
     /**
      * called whenever a LivingEntity equips an item with this bonus
@@ -86,7 +81,7 @@ public interface Bonus<T extends Bonus<T>> extends IEventListener {
      * @param living the entity applied to
      * @return all attribute modifiers this bonus should apply to the given entity
      */
-    default @Nullable Multimap<Attribute, AttributeModifier> getModifiers(LivingEntity living) {return null;}
+    default @Nullable Multimap<Holder<Attribute>, AttributeModifier> getModifiers(LivingEntity living) {return null;}
 
     /**
      * @param attacked the attack target

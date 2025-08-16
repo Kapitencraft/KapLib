@@ -1,32 +1,24 @@
 package net.kapitencraft.kap_lib.io.network.S2C;
 
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.cam.core.TrackingShot;
 import net.kapitencraft.kap_lib.client.cam.core.TrackingShotData;
-import net.kapitencraft.kap_lib.io.network.SimplePacket;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record SendTrackingShotPacket(TrackingShotData shotData) implements CustomPacketPayload {
+    public static final StreamCodec<RegistryFriendlyByteBuf, SendTrackingShotPacket> CODEC = TrackingShotData.CODEC.map(SendTrackingShotPacket::new, SendTrackingShotPacket::shotData);
+    public static final Type<SendTrackingShotPacket> TYPE = new Type<>(KapLibMod.res("send_tracking_shot"));
 
-public class SendTrackingShotPacket implements SimplePacket {
-    private final TrackingShotData shotData;
-
-    public SendTrackingShotPacket(TrackingShotData shotData) {
-        this.shotData = shotData;
-    }
-
-    public SendTrackingShotPacket(FriendlyByteBuf buf) {
-        this(TrackingShotData.fromNw(buf));
+    public void handle(IPayloadContext sup) {
+        sup.enqueueWork(() -> LibClient.cameraControl.activate(new TrackingShot(this.shotData)));
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        this.shotData.toNw(buf);
-    }
-
-    @Override
-    public void handle(Supplier<NetworkEvent.Context> sup) {
-        sup.get().enqueueWork(() -> LibClient.cameraControl.activate(new TrackingShot(this.shotData)));
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

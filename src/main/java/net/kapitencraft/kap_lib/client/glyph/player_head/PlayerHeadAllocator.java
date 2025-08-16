@@ -3,7 +3,6 @@ package net.kapitencraft.kap_lib.client.glyph.player_head;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -33,8 +32,8 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -113,11 +112,9 @@ public class PlayerHeadAllocator extends FontSet {
             this.reallocate();
         }
         int index = this.index++;
-        skinManager.registerSkins(profile, (type, resourceLocation, minecraftProfileTexture) -> {
-            if (type == MinecraftProfileTexture.Type.SKIN) {
-                Minecraft.getInstance().tell(() -> this.addSkin(resourceLocation, index));
-            }
-        }, true);
+        skinManager.getOrLoad(profile).thenAccept(s-> {
+            Minecraft.getInstance().tell(() -> this.addSkin(s.texture(), index));
+        });
 
         return (char) index;
     }
@@ -141,7 +138,6 @@ public class PlayerHeadAllocator extends FontSet {
     private synchronized void addSkin(ResourceLocation resourceLocation, int index) {
         Minecraft.getInstance().execute(() -> {
             RenderTarget renderTarget = new TextureTarget(72, 72, true, false);
-            BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 
             //necessary
             Matrix4f matrix = new Matrix4f();
@@ -149,8 +145,7 @@ public class PlayerHeadAllocator extends FontSet {
             RenderSystem.setProjectionMatrix(matrix, VertexSorting.ORTHOGRAPHIC_Z);
             RenderSystem.applyModelViewMatrix();
 
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-
+            BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             renderTarget.bindWrite(true);
@@ -161,24 +156,25 @@ public class PlayerHeadAllocator extends FontSet {
             float headStart = 8f / 64f;
             float headEnd = 16f / 64f;
 
-            bufferBuilder.vertex(4, 4, 0).uv(headStart, headStart).endVertex(); //TL
-            bufferBuilder.vertex(4, 68, 0).uv(headStart, headEnd).endVertex(); //BL
-            bufferBuilder.vertex(68, 68, 0).uv(headEnd, headEnd).endVertex(); //BR
-            bufferBuilder.vertex(68, 4, 0).uv(headEnd, headStart).endVertex(); //TR
+            bufferBuilder.addVertex(4, 4, 0).setUv(headStart, headStart); //TL
+            bufferBuilder.addVertex(4, 68, 0).setUv(headStart, headEnd); //BL
+            bufferBuilder.addVertex(68, 68, 0).setUv(headEnd, headEnd); //BR
+            bufferBuilder.addVertex(68, 4, 0).setUv(headEnd, headStart); //TR
 
             float hatUStart = 40f / 64f;
             float hatVStart = 8f / 64f;
             float hatUEnd = 48f / 64f;
             float hatVEnd = 16f / 64f;
 
-            bufferBuilder.vertex(0, 0, 0).uv(hatUStart, hatVStart).endVertex(); //TL
-            bufferBuilder.vertex(0, 72, 0).uv(hatUStart, hatVEnd).endVertex(); //BL
-            bufferBuilder.vertex(72, 72, 0).uv(hatUEnd, hatVEnd).endVertex(); //BR
-            bufferBuilder.vertex(72, 0, 0).uv(hatUEnd, hatVStart).endVertex(); //TR
+            bufferBuilder.addVertex(0, 0, 0).setUv(hatUStart, hatVStart); //TL
+            bufferBuilder.addVertex(0, 72, 0).setUv(hatUStart, hatVEnd); //BL
+            bufferBuilder.addVertex(72, 72, 0).setUv(hatUEnd, hatVEnd); //BR
+            bufferBuilder.addVertex(72, 0, 0).setUv(hatUEnd, hatVStart); //TR
 
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, resourceLocation);
-            Tesselator.getInstance().end();
+
+            BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 
             renderTarget.unbindWrite();
             RenderSystem.disableBlend();
@@ -315,7 +311,7 @@ public class PlayerHeadAllocator extends FontSet {
 
             File data = new File(root, "data.json");
             DataResult<CacheData> result = CacheData.CODEC.parse(JsonOps.INSTANCE, Streams.parse(new JsonReader(new FileReader(data))));
-            result.get().ifLeft(this::copyFrom).ifRight(cacheDataPartialResult -> LOGGER.warn("error loading player heads: {}", cacheDataPartialResult.message()));
+            result.resultOrPartial(w -> LOGGER.warn("error loading player heads: {}", w)).ifPresent(this::copyFrom);
         } catch (IOException e) {
             LOGGER.warn("unable to load player heads: {}", e.getMessage());
         }

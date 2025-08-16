@@ -20,6 +20,7 @@ import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.util.DamageCounter;
 import net.kapitencraft.kap_lib.util.FerociousDamageSource;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,17 +38,17 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.ShieldBlockEvent;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.entity.player.CriticalHitEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
@@ -56,52 +57,52 @@ import java.util.Map;
 import java.util.Objects;
 
 @ApiStatus.Internal
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class DamageEvents {
     private DamageEvents() {}//dummy constructor (do not call)
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void miscDamageEvents(LivingHurtEvent event) {
+    public static void miscDamageEvents(LivingDamageEvent.Pre event) {
         LivingEntity attacked = event.getEntity();
         LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
-        event.setAmount(BonusManager.attackEvent(attacked, attacker, MiscHelper.getDamageType(event.getSource()), event.getAmount()));
+        event.setNewDamage(BonusManager.attackEvent(attacked, attacker, MiscHelper.getDamageType(event.getSource()), event.getNewDamage()));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void utilDamage(LivingDamageEvent event) {
+    public static void utilDamage(LivingDamageEvent.Pre event) {
         LivingEntity attacked = event.getEntity();
         DamageSource source = event.getSource();
         boolean dodge = false;
-        double dodgePercentage = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DODGE.get(), attacked);
+        double dodgePercentage = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DODGE, attacked);
         if (dodgePercentage > 0) {
             if (MathHelper.chance(dodgePercentage / 100, attacked) && ((!source.is(DamageTypeTags.BYPASSES_ARMOR) && !source.is(DamageTypeTags.IS_FALL) && !source.is(DamageTypeTags.IS_FIRE)) || source.is(DamageTypes.STALAGMITE))) {
                 dodge = true;
-                event.setAmount(0);
+                event.setNewDamage(0);
             }
         }
-        MiscHelper.createDamageIndicator(attacked, event.getAmount(), dodge ? "dodge" : source.getMsgId());
-        DamageCounter.increaseDamage(event.getAmount());
+        MiscHelper.createDamageIndicator(attacked, event.getNewDamage(), dodge ? "dodge" : source.getMsgId());
+        DamageCounter.increaseDamage(event.getNewDamage());
     }
 
     @SubscribeEvent
     public static void critDamageRegister(CriticalHitEvent event) {
         Player attacker = event.getEntity();
-        if (event.isVanillaCritical() || AttributeHelper.getSaveAttributeValue(ExtraAttributes.CRIT_CHANCE.get(), attacker) / 100 > Math.random()) {
-            event.setResult(Event.Result.ALLOW);
-            event.setDamageModifier((float) (1 + AttributeHelper.getSaveAttributeValue(ExtraAttributes.CRIT_DAMAGE.get(), attacker) / 100));
+        if (event.isVanillaCritical() || AttributeHelper.getSaveAttributeValue(ExtraAttributes.CRIT_CHANCE, attacker) / 100 > Math.random()) {
+            event.setCriticalHit(true);
+            event.setDamageMultiplier((float) (1 + AttributeHelper.getSaveAttributeValue(ExtraAttributes.CRIT_DAMAGE, attacker) / 100));
         }
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    public static void ferocityRegister(LivingHurtEvent event) {
+    public static void ferocityRegister(LivingDamageEvent.Pre event) {
         LivingEntity attacked = event.getEntity();
         DamageSource source = event.getSource();
         LivingEntity attacker = MiscHelper.getAttacker(source);
         if (attacker == null || MiscHelper.getDamageType(source) != MiscHelper.DamageType.MELEE) {
             return;
         }
-        if (attacker.getAttribute(ExtraAttributes.FEROCITY.get()) != null) {
-            double ferocity = source instanceof FerociousDamageSource damageSource ? damageSource.ferocity : attacker.getAttributeValue(ExtraAttributes.FEROCITY.get());
+        if (attacker.getAttribute(ExtraAttributes.FEROCITY) != null) {
+            double ferocity = source instanceof FerociousDamageSource damageSource ? damageSource.ferocity : attacker.getAttributeValue(ExtraAttributes.FEROCITY);
             if (MathHelper.chance(ferocity / 100, attacker)) {
                 MiscHelper.schedule(40, () -> {
                     float ferocityDamage = (float) (source instanceof FerociousDamageSource ferociousDamageSource ? ferociousDamageSource.damage :
@@ -115,14 +116,11 @@ public class DamageEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public static void damageBonusRegister(LivingHurtEvent event) {
+    public static void damageBonusRegister(LivingDamageEvent.Pre event) {
         LivingEntity attacked = event.getEntity();
         if (event.getSource().getDirectEntity() instanceof Arrow arrow) {
             CompoundTag tag = arrow.getPersistentData();
-            event.setAmount(ModBowEnchantment.loadFromTag(attacked, tag, ModBowEnchantment.ExePhase.HIT, event.getAmount(), arrow));
-            if (tag.getInt("OverloadEnchant") > 0 && arrow.isCritArrow()) {
-                if (MathHelper.chance(0.1, arrow.getOwner())) event.setAmount((float) (event.getAmount() * 1 + (tag.getInt("OverloadEnchant") * 0.1)));
-            }
+            event.setNewDamage(ModBowEnchantment.loadFromTag(attacked, tag, ModBowEnchantment.ExePhase.HIT, event.getNewDamage(), arrow));
             return;
         }
 
@@ -131,30 +129,29 @@ public class DamageEvents {
         if (attacker == null) { return; }
         MiscHelper.DamageType type = MiscHelper.getDamageType(source);
         ItemStack stack = attacker.getMainHandItem();
-        Map<Enchantment, Integer> enchantments = stack.getAllEnchantments();
-        if (enchantments != null) {
-            event.setAmount(ExtendedCalculationEnchantment.runWithPriority(stack, attacker, attacked, event.getAmount(), type, source));
-            MiscHelper.getArmorEquipment(attacked).forEach(stack1 -> event.setAmount(ExtendedCalculationEnchantment.runWithPriority(stack1, attacker, attacked, event.getAmount(), type, source)));
+        ItemEnchantments enchantments = stack.getAllEnchantments(attacker.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT));
+        if (!enchantments.isEmpty()) {
+            event.setNewDamage(ExtendedCalculationEnchantment.runWithPriority(stack, attacker, attacked, event.getNewDamage(), type, source));
+            MiscHelper.getArmorEquipment(attacked).forEach(stack1 -> event.setNewDamage(ExtendedCalculationEnchantment.runWithPriority(stack1, attacker, attacked, event.getNewDamage(), type, source)));
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void damageAttributeRegister(LivingHurtEvent event) {
+    public static void damageAttributeRegister(LivingDamageEvent.Pre event) {
         @Nullable LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
         if (attacker == null) return;
-        if (MiscHelper.getDamageType(event.getSource()) == MiscHelper.DamageType.MELEE && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH.get())) {
-            double Strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH.get(), attacker);
-            MathHelper.mul(event::getAmount, event::setAmount, (float) (1 + Strength / 100));
+        if (MiscHelper.getDamageType(event.getSource()) == MiscHelper.DamageType.MELEE && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {
+            double Strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH, attacker);
+            MathHelper.mul(event::getNewDamage, event::setNewDamage, (float) (1 + Strength / 100));
         }
-        double doubleJump = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DOUBLE_JUMP.get(), attacker);
+        double armorShredder = AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER, attacker);
         LivingEntity attacked = event.getEntity();
-        if (AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER.get(), attacker) != -1) {
-            double armorShredder = AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER.get(), attacker);
+        if (armorShredder > 0 && attacked.level() instanceof ServerLevel sL) {
             MiscHelper.getArmorEquipment(attacked)
-                    .forEach(stack -> stack.hurt((int) (armorShredder / 3), attacked.level().getRandom(), attacker instanceof ServerPlayer serverPlayer ? serverPlayer : null));
+                    .forEach(stack -> stack.hurtAndBreak((int) (armorShredder / 3), sL, attacker instanceof ServerPlayer serverPlayer ? serverPlayer : null, i -> {}));
         }
-        double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIVE_STEAL.get(), attacker);
-        if (!event.getSource().isIndirect() && liveSteal > 0) {
+        double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIVE_STEAL, attacker);
+        if (event.getSource().isDirect() && liveSteal > 0) {
             if (attacker.level() instanceof ServerLevel sL) {
                 ParticleAnimation.builder()
                         .spawn(EntityBBSpawner.builder()
@@ -170,9 +167,9 @@ public class DamageEvents {
                         .terminatedWhen(TimedTerminator.ticks(20))
                         .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacked))
                         .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacker))
-                        .sendToAllPlayers(sL);
+                        .sendToAllPlayers();
             }
-            attacker.heal(Math.min((float) liveSteal, event.getAmount()));
+            attacker.heal(Math.min((float) liveSteal, event.getNewDamage()));
         }
     }
 
@@ -182,14 +179,15 @@ public class DamageEvents {
     }
 
     @SubscribeEvent
-    public static void shieldBlockEnchantments(ShieldBlockEvent event) {
+    public static void shieldBlockEnchantments(LivingShieldBlockEvent event) {
         LivingEntity attacked = event.getEntity();
         @Nullable LivingEntity attacker = MiscHelper.getAttacker(event.getDamageSource());
         if (attacker == null) { return; }
         ItemStack stack = attacker.getUseItem();
         MiscHelper.DamageType type = MiscHelper.getDamageType(event.getDamageSource());
-        Map<Enchantment, Integer> enchantments = stack.getAllEnchantments();
-        if (enchantments != null && !enchantments.isEmpty()) {
+        ItemEnchantments enchantments = stack.getAllEnchantments(attacked.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT));
+        if (!enchantments.isEmpty()) {
+
             MapStream.of(enchantments)
                     .mapKeys(ExtendedCalculationEnchantment.class::cast)
                     .filterKeys(Objects::nonNull)
@@ -208,7 +206,7 @@ public class DamageEvents {
                 if (totemItem.onUse(player, event.getSource())) {
                     player.awardStat(Stats.ITEM_USED.get(totemItem));
                     event.setCanceled(true);
-                    ModMessages.sendToClientPlayer(new DisplayTotemActivationPacket(stack.copy(), player.getId()), player);
+                    PacketDistributor.sendToPlayer(player, new DisplayTotemActivationPacket(stack.copy(), player.getId()));
                     stack.shrink(1);
                     break;
                 }

@@ -4,8 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.brigadier.Command;
 import com.mojang.math.Axis;
+import net.kapitencraft.kap_lib.client.armor.ArmorClientExtension;
+import net.kapitencraft.kap_lib.client.armor.provider.ArmorModelProvider;
+import net.kapitencraft.kap_lib.item.combat.armor.AbstractArmorItem;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.kapitencraft.kap_lib.util.Color;
@@ -24,6 +26,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -32,11 +35,14 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +51,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -64,7 +71,7 @@ public class ClientHelper {
         };
     }
 
-    private static final ResourceLocation GUARDIAN_BEAM_LOCATION = new ResourceLocation("textures/entity/guardian_beam.png");
+    private static final ResourceLocation GUARDIAN_BEAM_LOCATION = ResourceLocation.withDefaultNamespace("textures/entity/guardian_beam.png");
     private static final RenderType BEAM_RENDER_TYPE = RenderType.entityCutoutNoCull(GUARDIAN_BEAM_LOCATION);
 
     /**
@@ -105,28 +112,35 @@ public class ClientHelper {
         VertexConsumer vertexconsumer = source.getBuffer(renderType);
         PoseStack.Pose pose = stack.last();
         Matrix4f matrix4f = pose.pose();
-        Matrix3f matrix3f = pose.normal();
-        vertex(vertexconsumer, matrix4f, matrix3f, f19, f4, f20, r, g, b, 0.4999F, f30);
-        vertex(vertexconsumer, matrix4f, matrix3f, f19, 0.0F, f20, r, g, b, 0.4999F, f29);
-        vertex(vertexconsumer, matrix4f, matrix3f, f21, 0.0F, f22, r, g, b, 0.0F, f29);
-        vertex(vertexconsumer, matrix4f, matrix3f, f21, f4, f22, r, g, b, 0.0F, f30);
-        vertex(vertexconsumer, matrix4f, matrix3f, f23, f4, f24, r, g, b, 0.4999F, f30);
-        vertex(vertexconsumer, matrix4f, matrix3f, f23, 0.0F, f24, r, g, b, 0.4999F, f29);
-        vertex(vertexconsumer, matrix4f, matrix3f, f25, 0.0F, f26, r, g, b, 0.0F, f29);
-        vertex(vertexconsumer, matrix4f, matrix3f, f25, f4, f26, r, g, b, 0.0F, f30);
+        vertex(vertexconsumer, matrix4f, pose, f19, f4, f20, r, g, b, 0.4999F, f30);
+        vertex(vertexconsumer, matrix4f, pose, f19, 0.0F, f20, r, g, b, 0.4999F, f29);
+        vertex(vertexconsumer, matrix4f, pose, f21, 0.0F, f22, r, g, b, 0.0F, f29);
+        vertex(vertexconsumer, matrix4f, pose, f21, f4, f22, r, g, b, 0.0F, f30);
+        vertex(vertexconsumer, matrix4f, pose, f23, f4, f24, r, g, b, 0.4999F, f30);
+        vertex(vertexconsumer, matrix4f, pose, f23, 0.0F, f24, r, g, b, 0.4999F, f29);
+        vertex(vertexconsumer, matrix4f, pose, f25, 0.0F, f26, r, g, b, 0.0F, f29);
+        vertex(vertexconsumer, matrix4f, pose, f25, f4, f26, r, g, b, 0.0F, f30);
         float f31 = 0.0F;
         if (living.tickCount % 2 == 0) {
             f31 = 0.5F;
         }
-        vertex(vertexconsumer, matrix4f, matrix3f, f11, f4, f12, r, g, b, 0.5F, f31 + 0.5F);
-        vertex(vertexconsumer, matrix4f, matrix3f, f13, f4, f14, r, g, b, 1.0F, f31 + 0.5F);
-        vertex(vertexconsumer, matrix4f, matrix3f, f17, f4, f18, r, g, b, 1.0F, f31);
-        vertex(vertexconsumer, matrix4f, matrix3f, f15, f4, f16, r, g, b, 0.5F, f31);
+        vertex(vertexconsumer, matrix4f, pose, f11, f4, f12, r, g, b, 0.5F, f31 + 0.5F);
+        vertex(vertexconsumer, matrix4f, pose, f13, f4, f14, r, g, b, 1.0F, f31 + 0.5F);
+        vertex(vertexconsumer, matrix4f, pose, f17, f4, f18, r, g, b, 1.0F, f31);
+        vertex(vertexconsumer, matrix4f, pose, f15, f4, f16, r, g, b, 0.5F, f31);
         stack.popPose();
     }
 
-    private static void vertex(VertexConsumer p_253637_, Matrix4f p_253920_, Matrix3f p_253881_, float p_253994_, float p_254492_, float p_254474_, int p_254080_, int p_253655_, int p_254133_, float p_254233_, float p_253939_) {
-        p_253637_.vertex(p_253920_, p_253994_, p_254492_, p_254474_).color(p_254080_, p_253655_, p_254133_, 255).uv(p_254233_, p_253939_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(p_253881_, 0.0F, 1.0F, 0.0F).endVertex();
+
+    /**
+     * used to register custom armor extensions
+     */
+    private static <T extends AbstractArmorItem> void registerArmorExtension(Map<ArmorItem.Type, DeferredItem<T>> map, RegisterClientExtensionsEvent event, ArmorModelProvider provider) {
+        event.registerItem(new ArmorClientExtension(provider), map.values().toArray(DeferredItem[]::new));
+    }
+
+    private static void vertex(VertexConsumer p_253637_, Matrix4f p_253920_, PoseStack.Pose p_253881_, float p_253994_, float p_254492_, float p_254474_, int p_254080_, int p_253655_, int p_254133_, float p_254233_, float p_253939_) {
+        p_253637_.addVertex(p_253920_, p_253994_, p_254492_, p_254474_).setColor(p_254080_, p_253655_, p_254133_, 255).setUv(p_254233_, p_253939_).setOverlay(OverlayTexture.NO_OVERLAY).setLight(15728880).setNormal(p_253881_, 0.0F, 1.0F, 0.0F);
     }
 
     public static void drawCenteredString(GuiGraphics graphics, int xStart, int yStart, int xEnd, int yEnd, Component toDraw, int color) {
@@ -192,7 +206,7 @@ public class ClientHelper {
     @ApiStatus.Internal
     private static void addParticle(ClientLevel level, Vec3 loc, RandomSource random, Vec3 delta, Color startColor, Color fadeColor) {
         ParticleEngine engine = Minecraft.getInstance().particleEngine;
-        SpriteSet spriteSet = engine.spriteSets.get(ForgeRegistries.PARTICLE_TYPES.getKey(ParticleTypes.FIREWORK.getType()));
+        SpriteSet spriteSet = engine.spriteSets.get(BuiltInRegistries.PARTICLE_TYPE.getKey(ParticleTypes.FIREWORK.getType()));
         FireworkParticles.SparkParticle particle = new FireworkParticles.SparkParticle(level, loc.x, loc.y, loc.z, random.nextGaussian() * 0.05D, -delta.y * 0.5D, random.nextGaussian() * 0.05D, engine, spriteSet);
         particle.setColor(startColor.r, startColor.g, startColor.b);
         particle.setFadeColor(fadeColor.pack());
@@ -225,16 +239,15 @@ public class ClientHelper {
         float f = (float)(color >> 16 & 255) / 255.0F;
         float f1 = (float)(color >> 8 & 255) / 255.0F;
         float f2 = (float)(color & 255) / 255.0F;
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        bufferbuilder.vertex(p_254518_, xStart, yEnd, blitOffset).color(f, f1, f2, f3).endVertex();
-        bufferbuilder.vertex(p_254518_, xEnd, yEnd, blitOffset).color(f, f1, f2, f3).endVertex();
-        bufferbuilder.vertex(p_254518_, xEnd, yStart, blitOffset).color(f, f1, f2, f3).endVertex();
-        bufferbuilder.vertex(p_254518_, xStart, yStart, blitOffset).color(f, f1, f2, f3).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder.addVertex(p_254518_, xStart, yEnd, blitOffset).setColor(f, f1, f2, f3);
+        builder.addVertex(p_254518_, xEnd, yEnd, blitOffset).setColor(f, f1, f2, f3);
+        builder.addVertex(p_254518_, xEnd, yStart, blitOffset).setColor(f, f1, f2, f3);
+        builder.addVertex(p_254518_, xStart, yStart, blitOffset).setColor(f, f1, f2, f3);
+        BufferUploader.drawWithShader(builder.buildOrThrow());
         RenderSystem.disableBlend();
     }
 

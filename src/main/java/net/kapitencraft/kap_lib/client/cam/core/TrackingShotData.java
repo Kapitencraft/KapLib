@@ -3,19 +3,26 @@ package net.kapitencraft.kap_lib.client.cam.core;
 import com.google.common.base.Preconditions;
 import net.kapitencraft.kap_lib.client.cam.modifiers.Modifier;
 import net.kapitencraft.kap_lib.client.cam.modifiers.GroupModifier;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TrackingShotData {
+    public static final StreamCodec<RegistryFriendlyByteBuf, TrackingShotData> CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL, TrackingShotData::suppressesShake,
+            Modifier.CODEC.apply(ByteBufCodecs.list()), t -> t.modifiers,
+            ByteBufCodecs.INT.apply(ByteBufCodecs.list()), t -> t.times,
+            TrackingShotData::new
+    );
     final boolean suppressShake;
-    final Modifier[] modifiers;
-    final int[] times;
+    final List<Modifier> modifiers;
+    final List<Integer> times;
 
-    public TrackingShotData(boolean suppressShake, Modifier[] modifiers, int[] modifierTimes) {
+    public TrackingShotData(boolean suppressShake, List<Modifier> modifiers, List<Integer> modifierTimes) {
         this.suppressShake = suppressShake;
         this.modifiers = modifiers;
         this.times = modifierTimes;
@@ -23,20 +30,6 @@ public class TrackingShotData {
 
     public boolean suppressesShake() {
         return suppressShake;
-    }
-
-    public void toNw(FriendlyByteBuf buf) {
-        buf.writeBoolean(this.suppressShake);
-        NetworkHelper.writeArray(buf, modifiers, Modifier::toNw);
-        buf.writeVarIntArray(this.times);
-    }
-
-    public static TrackingShotData fromNw(FriendlyByteBuf buf) {
-        return new TrackingShotData(
-                buf.readBoolean(),
-                NetworkHelper.readArray(buf, Modifier[]::new, Modifier::fromNw),
-                buf.readVarIntArray()
-        );
     }
 
     public static class Builder {
@@ -67,8 +60,8 @@ public class TrackingShotData {
         public TrackingShotData toData() {
             return new TrackingShotData(
                     suppressShake,
-                    modifiers.toArray(new Modifier[0]),
-                    modifierTimes.stream().mapToInt(Integer::intValue).toArray()
+                    modifiers,
+                    modifierTimes
             );
         }
 

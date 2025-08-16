@@ -2,14 +2,16 @@ package net.kapitencraft.kap_lib.client.particle.animation.spawners;
 
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.client.util.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -28,7 +30,8 @@ public class RingSpawner extends VisibleSpawner {
     private final int spawnerCount;
     private final Direction.Axis axis;
 
-    private RingSpawner(PositionTarget target, ParticleOptions particle, RotationTarget rotation, Direction.Axis axis, float rotPerTick, float maxHeight, float heightChangePerTick, float radius, int spawnerCount) {
+    private RingSpawner(PositionTarget target, ParticleOptions particle, RotationTarget rotation,
+                        Direction.Axis axis, float rotPerTick, float maxHeight, float heightChangePerTick, float radius, int spawnerCount) {
         super(particle);
         if (radius <= 0) throw new IllegalStateException("Ring-Spawner radius must be larger than 0!");
         this.rotation = Objects.requireNonNull(rotation, "Ring-Spawner no rotation specified!");
@@ -102,26 +105,22 @@ public class RingSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<RingSpawner> {
+        private static final StreamCodec<RegistryFriendlyByteBuf, RingSpawner> STREAM_CODEC = ExtraStreamCodecs.composite(
+                PositionTarget.CODEC, s -> s.target,
+                ParticleTypes.STREAM_CODEC, s -> s.particle,
+                RotationTarget.CODEC, s -> s.rotation,
+                ExtraStreamCodecs.enumCodec(Direction.Axis.values()), s -> s.axis,
+                ByteBufCodecs.FLOAT, s -> s.rotPerTick,
+                ByteBufCodecs.FLOAT, s -> s.maxHeight,
+                ByteBufCodecs.FLOAT, s -> s.heightChangePerTick,
+                ByteBufCodecs.FLOAT, s -> s.radius,
+                ByteBufCodecs.INT, s -> s.spawnerCount,
+                RingSpawner::new
+        );
 
         @Override
-        public RingSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            PositionTarget target = PositionTarget.fromNw(buf);
-            ParticleOptions options = NetworkHelper.readParticleOptions(buf);
-            Direction.Axis axis = Direction.Axis.values()[buf.readInt()];
-            return new RingSpawner(target, options, RotationTarget.fromNw(buf), axis, buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readInt());
-        }
-
-        @Override
-        public void toNW(FriendlyByteBuf buf, RingSpawner value) {
-            value.target.toNw(buf);
-            NetworkHelper.writeParticleOptions(buf, value.particle);
-            buf.writeInt(value.axis.ordinal());
-            value.rotation.toNw(buf);
-            buf.writeFloat(value.rotPerTick);
-            buf.writeFloat(value.maxHeight);
-            buf.writeFloat(value.heightChangePerTick);
-            buf.writeFloat(value.radius);
-            buf.writeInt(value.spawnerCount);
+        public StreamCodec<RegistryFriendlyByteBuf, RingSpawner> codec() {
+            return STREAM_CODEC;
         }
     }
 

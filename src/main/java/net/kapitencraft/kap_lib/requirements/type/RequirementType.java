@@ -1,21 +1,20 @@
 package net.kapitencraft.kap_lib.requirements.type;
 
+import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.AbstractBonusElement;
-import net.kapitencraft.kap_lib.item.bonus.BonusManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraftforge.registries.ForgeRegistries;
 
+@MethodsReturnNonnullByDefault
 public interface RequirementType<T> {
-    RequirementType<Enchantment> ENCHANTMENT = new RegistryReqType<>("enchantment", ForgeRegistries.ENCHANTMENTS);
-    RequirementType<Item> ITEM = new RegistryReqType<>("item", ForgeRegistries.ITEMS);
+    RegistryReqType<Item> ITEM = RegistryReqType.registry("item", BuiltInRegistries.ITEM, Registries.ITEM);
+    RegistryHolderReqType<Enchantment> ENCHANTMENT = RegistryReqType.registryHolder("enchantment", Registries.ENCHANTMENT);
     RequirementType<AbstractBonusElement> BONUS = new BonusRequirementType();
 
-
-    ResourceLocation getId(T value);
-
-    T getById(ResourceLocation location);
+    DataPackSerializer<T> serializer();
 
     String getName();
 }

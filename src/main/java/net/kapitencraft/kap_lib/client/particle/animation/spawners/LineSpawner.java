@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.client.particle.animation.spawners;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
@@ -68,7 +68,7 @@ public class LineSpawner extends VisibleSpawner {
 
         @Override
         public void toNW(FriendlyByteBuf buf, LineSpawner value) {
-            NetworkHelper.writeParticleOptions(buf, value.particle);
+            ExtraStreamCodecs.writeParticleOptions(buf, value.particle);
             value.start.toNw(buf);
             value.end.toNw(buf);
             buf.writeFloat(value.spacing);
@@ -76,7 +76,7 @@ public class LineSpawner extends VisibleSpawner {
 
         @Override
         public LineSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new LineSpawner(NetworkHelper.readParticleOptions(buf), PositionTarget.fromNw(buf), PositionTarget.fromNw(buf), buf.readFloat());
+            return new LineSpawner(ExtraStreamCodecs.readParticleOptions(buf), PositionTarget.fromNw(buf), PositionTarget.fromNw(buf), buf.readFloat());
         }
     }
 

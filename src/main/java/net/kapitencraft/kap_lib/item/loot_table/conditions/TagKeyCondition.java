@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.item.loot_table.conditions;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.ExtraLootItemConditions;
 import net.kapitencraft.kap_lib.util.Reference;
@@ -26,7 +27,7 @@ import java.util.Optional;
 public class TagKeyCondition extends BaseCondition {
     private static final TagKeyCondition EMPTY = new TagKeyCondition(null, "", null);
 
-    public static final Codec<TagKeyCondition> CODEC = RecordCodecBuilder.create(tagKeyConditionInstance ->
+    public static final MapCodec<TagKeyCondition> CODEC = RecordCodecBuilder.mapCodec(tagKeyConditionInstance ->
             tagKeyConditionInstance.group(
                     Type.CODEC.fieldOf("type").forGetter(TagKeyCondition::type),
                     Codec.STRING.fieldOf("id").forGetter(TagKeyCondition::getId),
@@ -66,7 +67,7 @@ public class TagKeyCondition extends BaseCondition {
 
     @Override
     public @NotNull LootItemConditionType getType() {
-        return ExtraLootItemConditions.TAG_KEY.get();
+        return ExtraLootItemConditions.TAG_KEY.value();
     }
 
     @SuppressWarnings("ALL")
@@ -77,18 +78,16 @@ public class TagKeyCondition extends BaseCondition {
         switch (this.type) {
             case ENTITY, ITEM -> {
                 LootContextReader.simple(context, Entity.class, (LootContextParam<Entity>) target.getParam()).ifPresent(entity -> {
-                    if (type == Type.ENTITY) reference.setValue(entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation(id))));
-                    else reference.setValue(entity instanceof LivingEntity living ? living.getMainHandItem().is(TagKey.create(Registries.ITEM, new ResourceLocation(id))) : false);
+                    if (type == Type.ENTITY) reference.setValue(entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(id))));
+                    else reference.setValue(entity instanceof LivingEntity living ? living.getMainHandItem().is(TagKey.create(Registries.ITEM, ResourceLocation.parse(id))) : false);
                 });
             }
             case BLOCK -> {
-                LootContextReader.simple(context, BlockState.class, LootContextParams.BLOCK_STATE).ifPresent(state -> reference.setValue(state.is(TagKey.create(Registries.BLOCK, new ResourceLocation(id)))));
+                LootContextReader.simple(context, BlockState.class, LootContextParams.BLOCK_STATE).ifPresent(state -> reference.setValue(state.is(TagKey.create(Registries.BLOCK, ResourceLocation.parse(id)))));
             }
         }
         return reference.getValue();
     }
-
-    public static final JsonSerializer<TagKeyCondition> SERIALIZER = new JsonSerializer<>(CODEC, ()-> EMPTY);
 
     public enum Type implements StringRepresentable {
         ENTITY("entities"),

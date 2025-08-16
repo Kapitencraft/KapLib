@@ -1,21 +1,18 @@
 package net.kapitencraft.kap_lib.spawn_table.functions.core;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.datafixers.Products;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
 import java.util.function.Function;
@@ -25,18 +22,21 @@ import java.util.function.Predicate;
  * A LootItemFunction that only modifies the stacks if a list of {@linkplain LootItemCondition predicates} passes.
  */
 public abstract class SpawnEntityConditionalFunction implements SpawnEntityFunction {
-   protected final LootItemCondition[] predicates;
+   protected final List<LootItemCondition> predicates;
    private final Predicate<LootContext> compositePredicates;
 
-   protected SpawnEntityConditionalFunction(LootItemCondition[] pPredicates) {
+   protected SpawnEntityConditionalFunction(List<LootItemCondition> pPredicates) {
       this.predicates = pPredicates;
-      this.compositePredicates = LootItemConditions.andConditions(pPredicates);
+      this.compositePredicates = Util.allOf(pPredicates);
    }
 
    protected static void logWrongType(String name, Entity entity) {
       KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "{} was no {}", entity, name);
    }
 
+   protected static <T extends SpawnEntityConditionalFunction> Products.P1<RecordCodecBuilder.Mu<T>, List<LootItemCondition>> commonFields(RecordCodecBuilder.Instance<T> instance) {
+      return instance.group(LootItemCondition.DIRECT_CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(p_299114_ -> p_299114_.predicates));
+   }
 
    public final Entity apply(Entity pEntity, SpawnContext pContext) {
       return this.compositePredicates.test(pContext) ? this.run(pEntity, pContext) : pEntity;
@@ -53,13 +53,13 @@ public abstract class SpawnEntityConditionalFunction implements SpawnEntityFunct
    public void validate(ValidationContext pContext) {
       SpawnEntityFunction.super.validate(pContext);
 
-      for(int i = 0; i < this.predicates.length; ++i) {
-         this.predicates[i].validate(pContext.forChild(".conditions[" + i + "]"));
+      for(int i = 0; i < this.predicates.size(); ++i) {
+         this.predicates.get(i).validate(pContext.forChild(".conditions[" + i + "]"));
       }
 
    }
 
-   protected static SpawnEntityConditionalFunction.Builder<?> simpleBuilder(Function<LootItemCondition[], SpawnEntityFunction> pConstructor) {
+   protected static SpawnEntityConditionalFunction.Builder<?> simpleBuilder(Function<List<LootItemCondition>, SpawnEntityFunction> pConstructor) {
       return new SpawnEntityConditionalFunction.DummyBuilder(pConstructor);
    }
 
@@ -77,15 +77,15 @@ public abstract class SpawnEntityConditionalFunction implements SpawnEntityFunct
 
       protected abstract T getThis();
 
-      protected LootItemCondition[] getConditions() {
-         return this.conditions.toArray(new LootItemCondition[0]);
+      protected List<LootItemCondition> getConditions() {
+         return this.conditions;
       }
    }
 
    static final class DummyBuilder extends SpawnEntityConditionalFunction.Builder<SpawnEntityConditionalFunction.DummyBuilder> {
-      private final Function<LootItemCondition[], SpawnEntityFunction> constructor;
+      private final Function<List<LootItemCondition>, SpawnEntityFunction> constructor;
 
-      public DummyBuilder(Function<LootItemCondition[], SpawnEntityFunction> pConstructor) {
+      public DummyBuilder(Function<List<LootItemCondition>, SpawnEntityFunction> pConstructor) {
          this.constructor = pConstructor;
       }
 
@@ -96,27 +96,5 @@ public abstract class SpawnEntityConditionalFunction implements SpawnEntityFunct
       public SpawnEntityFunction build() {
          return this.constructor.apply(this.getConditions());
       }
-   }
-
-   public abstract static class Serializer<T extends SpawnEntityConditionalFunction> implements net.minecraft.world.level.storage.loot.Serializer<T> {
-      /**
-       * Serialize the {@link CopyNbtFunction} by putting its data into the JsonObject.
-       */
-      public void serialize(JsonObject pJson, T pFunction, JsonSerializationContext pSerializationContext) {
-         if (!ArrayUtils.isEmpty(pFunction.predicates)) {
-            pJson.add("conditions", pSerializationContext.serialize(pFunction.predicates));
-         }
-
-      }
-
-      /**
-       * Deserialize a value by reading it from the JsonObject.
-       */
-      public final T deserialize(JsonObject pJson, JsonDeserializationContext pSerializationContext) {
-         LootItemCondition[] alootitemcondition = GsonHelper.getAsObject(pJson, "conditions", new LootItemCondition[0], pSerializationContext, LootItemCondition[].class);
-         return this.deserialize(pJson, pSerializationContext, alootitemcondition);
-      }
-
-      public abstract T deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions);
    }
 }

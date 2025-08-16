@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.item.modifier_display;
 
 import com.google.common.collect.Multimap;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -24,7 +25,7 @@ public interface DisplayExtension<T> {
     /**
      * @return the list of modifiers this extension applies. return an empty map if it doesn't apply any
      */
-    @NotNull Multimap<Attribute, AttributeModifier> getModifiers(T slot);
+    @NotNull Multimap<Holder<Attribute>, AttributeModifier> getModifiers(T slot);
 
     Style getStyle();
 

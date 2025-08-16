@@ -3,25 +3,35 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+
 public class SetNameFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<SetNameFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            ComponentSerialization.CODEC.fieldOf("name").forGetter(f -> f.name)
+            ).and(commonFields(i).t1()).apply(i, SetNameFunction::new)
+    );
+
     private final Component name;
 
-    public SetNameFunction(LootItemCondition[] conditions, Component name) {
+    public SetNameFunction(Component name, List<LootItemCondition> conditions) {
         super(conditions);
         this.name = name;
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_NAME.get();
     }
 
@@ -50,22 +60,7 @@ public class SetNameFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SpawnEntityFunction build() {
-            return new SetNameFunction(this.getConditions(), name);
-        }
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetNameFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, SetNameFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.add("name", Component.Serializer.toJsonTree(pFunction.name));
-        }
-
-        @Override
-        public SetNameFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            Component component = Component.Serializer.fromJson(pObject.get("name"));
-            return new SetNameFunction(pConditions, component);
+            return new SetNameFunction(name, this.getConditions());
         }
     }
 }

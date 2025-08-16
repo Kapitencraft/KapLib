@@ -117,7 +117,7 @@ public class ModrinthPublish {
 
         data.put("name", String.format("%s v%s", modName, modVersion));
         data.put("version_number", AutoPublisher.formatVersion(modVersion, mcVersion, forgeVersion));
-        data.put("loaders", new String[] {"forge"});
+        data.put("loaders", new String[] {"neoforge"});
         data.put("game_versions", new String[]{mcVersion});
         data.put("version_type", "release");
         addDependencies(dependencies, data, mcVersion);

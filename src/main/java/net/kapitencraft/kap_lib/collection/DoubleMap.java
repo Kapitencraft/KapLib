@@ -17,7 +17,7 @@ import java.util.function.Function;
 /**
  * class that contains a map of a map making it able to contain 3 different types
  */
-public class DoubleMap<MK, K, V> extends HashMap<MK, Map<K, V>> {
+public class DoubleMap<MK, K, V> extends HashMap<MK, HashMap<K, V>> {
     public static <MK, K, V> Codec<DoubleMap<MK, K, V>> createCodec(Codec<MK> mKeyCodec, Codec<K> keyCodec, Codec<V> valueCodec) {
         return Codec.unboundedMap(mKeyCodec, Codec.unboundedMap(keyCodec, valueCodec)).xmap(DoubleMap::of, Function.identity());
     }
@@ -34,7 +34,7 @@ public class DoubleMap<MK, K, V> extends HashMap<MK, Map<K, V>> {
     /**
      * @return a new DoubleMap containing {@code map} elements
      */
-    public static <T, K, L> DoubleMap<T, K, L> of(Map<T, Map<K, L>> map) {
+    public static <T, K, L, M extends Map<T, ? extends Map<K, L>>> DoubleMap<T, K, L> of(M map) {
         DoubleMap<T, K, L> map1 = DoubleMap.create();
         map1.putAll(map);
         return map1;

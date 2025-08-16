@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
@@ -15,10 +18,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+
 public class SetExperienceValueFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<SetExperienceValueFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            Codec.INT.fieldOf("value").forGetter(f -> f.value)
+    ).and(commonFields(i).t1()).apply(i, SetExperienceValueFunction::new));
+
     private final int value;
 
-    protected SetExperienceValueFunction(LootItemCondition[] pPredicates, int value) {
+    protected SetExperienceValueFunction(int value, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.value = value;
     }
@@ -32,22 +41,8 @@ public class SetExperienceValueFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_EXPERIENCE_VALUE.get();
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetExperienceValueFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, SetExperienceValueFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.addProperty("value", pFunction.value);
-        }
-
-        @Override
-        public SetExperienceValueFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            return new SetExperienceValueFunction(pConditions, GsonHelper.getAsInt(pObject, "value"));
-        }
     }
 
     public static Builder builder(int value) {
@@ -68,7 +63,7 @@ public class SetExperienceValueFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SpawnEntityFunction build() {
-            return new SetExperienceValueFunction(getConditions(), value);
+            return new SetExperienceValueFunction(value, getConditions());
         }
     }
 }

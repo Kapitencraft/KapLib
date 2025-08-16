@@ -5,6 +5,7 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.recipe.category.extensions.IExtendableRecipeCategory;
 import mezz.jei.api.recipe.category.extensions.vanilla.crafting.ICraftingCategoryExtension;
+import mezz.jei.api.recipe.category.extensions.vanilla.crafting.IExtendableCraftingRecipeCategory;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import net.kapitencraft.kap_lib.KapLibMod;
@@ -14,6 +15,7 @@ import net.kapitencraft.kap_lib.crafting.serializers.UpgradeItemRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +35,7 @@ public class ModPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         RecipeManager manager = Minecraft.getInstance().level.getRecipeManager();
         registration.addRecipes(RecipeTypes.CRAFTING, manager.getAllRecipesFor(ExtraRecipeTypes.ARMOR_RECIPE.get()).stream()
+                        .map(RecipeHolder::value)
                 .map(ArmorRecipe::getAll).flatMap(Collection::stream).map(CraftingRecipe.class::cast).toList()
         );
 
@@ -40,8 +43,8 @@ public class ModPlugin implements IModPlugin {
 
     @Override
     public void registerVanillaCategoryExtensions(IVanillaCategoryExtensionRegistration registration) {
-        IExtendableRecipeCategory<CraftingRecipe, ICraftingCategoryExtension> category = registration.getCraftingCategory();
-        category.addCategoryExtension(UpgradeItemRecipe.class, UpgradeItemExtension::new);
+        IExtendableCraftingRecipeCategory category = registration.getCraftingCategory();
+        category.addExtension(UpgradeItemRecipe.class, new UpgradeItemExtension());
     }
 
 }

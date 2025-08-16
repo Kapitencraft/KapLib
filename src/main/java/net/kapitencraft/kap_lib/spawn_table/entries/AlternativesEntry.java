@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
@@ -18,7 +19,9 @@ import java.util.function.Function;
  * This container succeeds if one of its children succeeds.
  */
 public class AlternativesEntry extends CompositeEntryBase {
-   public AlternativesEntry(SpawnPoolEntryContainer[] pChildren, LootItemCondition[] pConditions) {
+    public static final MapCodec<AlternativesEntry> CODEC = createCodec(AlternativesEntry::new);
+
+   public AlternativesEntry(List<SpawnPoolEntryContainer> pChildren, List<LootItemCondition> pConditions) {
       super(pChildren, pConditions);
    }
 
@@ -29,11 +32,11 @@ public class AlternativesEntry extends CompositeEntryBase {
    /**
     * Compose the given children into one container.
     */
-   protected ComposableEntryContainer compose(ComposableEntryContainer[] pEntries) {
-       return switch (pEntries.length) {
+   protected ComposableEntryContainer compose(List<? extends ComposableEntryContainer> pEntries) {
+       return switch (pEntries.size()) {
            case 0 -> ComposableEntryContainer.ALWAYS_FALSE;
-           case 1 -> pEntries[0];
-           case 2 -> pEntries[0].or(pEntries[1]);
+           case 1 -> pEntries.get(0);
+           case 2 -> pEntries.get(0).or(pEntries.get(1));
            default -> (p_79393_, p_79394_) -> {
                for (ComposableEntryContainer composableentrycontainer : pEntries) {
                    if (composableentrycontainer.expand(p_79393_, p_79394_)) {
@@ -49,8 +52,8 @@ public class AlternativesEntry extends CompositeEntryBase {
    public void validate(ValidationContext pValidationContext) {
       super.validate(pValidationContext);
 
-      for(int i = 0; i < this.children.length - 1; ++i) {
-         if (ArrayUtils.isEmpty(this.children[i].conditions)) {
+      for(int i = 0; i < this.children.size() - 1; ++i) {
+         if (this.children.get(i).conditions.isEmpty()) {
             pValidationContext.reportProblem("Unreachable entry!");
          }
       }
@@ -85,7 +88,7 @@ public class AlternativesEntry extends CompositeEntryBase {
       }
 
       public SpawnPoolEntryContainer build() {
-         return new AlternativesEntry(this.entries.toArray(new SpawnPoolEntryContainer[0]), this.getConditions());
+         return new AlternativesEntry(this.entries, this.getConditions());
       }
    }
 }

@@ -3,6 +3,8 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
@@ -13,10 +15,16 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+
 public class SetEntityOwnerFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<SetEntityOwnerFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            LootContext.EntityTarget.CODEC.fieldOf("target").forGetter(f -> f.target)
+    ).and(commonFields(i).t1()).apply(i, SetEntityOwnerFunction::new));
+
     private final LootContext.EntityTarget target;
 
-    protected SetEntityOwnerFunction(LootItemCondition[] pPredicates, LootContext.EntityTarget target) {
+    protected SetEntityOwnerFunction(LootContext.EntityTarget target, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.target = target;
     }
@@ -25,7 +33,7 @@ public class SetEntityOwnerFunction extends SpawnEntityConditionalFunction {
     protected Entity run(Entity pEntity, SpawnContext pContext) {
         if (pEntity instanceof TamableAnimal tamableAnimal) {
             tamableAnimal.setOwnerUUID(pContext.getParam(target.getParam()).getUUID());
-            tamableAnimal.setTame(true);
+            tamableAnimal.setTame(true, false);
         }
         return pEntity;
     }
@@ -37,20 +45,6 @@ public class SetEntityOwnerFunction extends SpawnEntityConditionalFunction {
 
     public static Builder builder(LootContext.EntityTarget target) {
         return new Builder(target);
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetEntityOwnerFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, SetEntityOwnerFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.add("target", pSerializationContext.serialize(pFunction.target));
-        }
-
-        @Override
-        public SetEntityOwnerFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            return new SetEntityOwnerFunction(pConditions, pDeserializationContext.deserialize(pObject.get("target"), LootContext.EntityTarget.class));
-        }
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
@@ -67,7 +61,7 @@ public class SetEntityOwnerFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SpawnEntityFunction build() {
-            return new SetEntityOwnerFunction(getConditions(), target);
+            return new SetEntityOwnerFunction(target, getConditions());
         }
     }
 

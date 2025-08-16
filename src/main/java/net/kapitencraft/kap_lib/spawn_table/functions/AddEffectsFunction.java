@@ -3,6 +3,8 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.JsonSerializer;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
@@ -10,6 +12,7 @@ import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -20,11 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AddEffectsFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<AddEffectsFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            MobEffectInstance.CODEC.listOf().fieldOf("effects").forGetter(f -> f.effects)
+    ).and(commonFields(i).t1()).apply(i, AddEffectsFunction::new));
+
     public static final JsonSerializer<List<MobEffectInstance>> EFFECT_SERIALIZER = new JsonSerializer<>(ExtraCodecs.EFFECT.listOf(), List::of);
 
-    private final MobEffectInstance[] effects;
+    private final List<MobEffectInstance> effects;
 
-    protected AddEffectsFunction(LootItemCondition[] pPredicates, MobEffectInstance[] effects) {
+    protected AddEffectsFunction(List<MobEffectInstance> effects, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.effects = effects;
     }
@@ -44,21 +51,6 @@ public class AddEffectsFunction extends SpawnEntityConditionalFunction {
         return SpawnEntityFunctions.ADD_EFFECTS.get();
     }
 
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<AddEffectsFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, AddEffectsFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.add("effects", EFFECT_SERIALIZER.encode(List.of(pFunction.effects)));
-        }
-
-        @Override
-        public AddEffectsFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            MobEffectInstance[] effects = EFFECT_SERIALIZER.parse(pObject.get("effects")).toArray(MobEffectInstance[]::new);
-            return new AddEffectsFunction(pConditions, effects);
-        }
-    }
-
     public static Builder builder() {
         return new Builder();
     }
@@ -75,11 +67,11 @@ public class AddEffectsFunction extends SpawnEntityConditionalFunction {
             return this;
         }
 
-        public Builder withEffect(MobEffect effect, int duration) {
+        public Builder withEffect(Holder<MobEffect> effect, int duration) {
             return this.withEffect(new MobEffectInstance(effect, duration));
         }
 
-        public Builder withEffect(MobEffect effect, int duration, int amplifier) {
+        public Builder withEffect(Holder<MobEffect> effect, int duration, int amplifier) {
             return this.withEffect(new MobEffectInstance(effect, duration, amplifier));
         }
 
@@ -90,7 +82,7 @@ public class AddEffectsFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SpawnEntityFunction build() {
-            return new AddEffectsFunction(getConditions(), effects.toArray(MobEffectInstance[]::new));
+            return new AddEffectsFunction(effects, getConditions());
         }
     }
 }

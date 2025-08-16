@@ -1,23 +1,29 @@
 package net.kapitencraft.kap_lib.spawn_table.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+
 public class SetHealthFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<SetHealthFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            Codec.INT.fieldOf("health").forGetter(f -> f.health),
+            Codec.INT.optionalFieldOf("absorption", 0).forGetter(f -> f.absorption)
+    ).and(commonFields(i).t1()).apply(i, SetHealthFunction::new));
+
     private final int health;
     private final int absorption;
 
-    protected SetHealthFunction(LootItemCondition[] pPredicates, int health, int absorption) {
+    protected SetHealthFunction(int health, int absorption, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.health = health;
         this.absorption = absorption;
@@ -33,25 +39,8 @@ public class SetHealthFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_HEALTH.get();
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetHealthFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, SetHealthFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.addProperty("health", pFunction.health);
-            if (pFunction.absorption != -1) pJson.addProperty("absorption", pFunction.absorption);
-        }
-
-        @Override
-        public SetHealthFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            int health = GsonHelper.getAsInt(pObject, "health");
-            int absorption = GsonHelper.getAsInt(pObject, "absorption", -1);
-            return new SetHealthFunction(pConditions, health, absorption);
-        }
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
@@ -74,7 +63,7 @@ public class SetHealthFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SpawnEntityFunction build() {
-            return new SetHealthFunction(getConditions(), health, absorption);
+            return new SetHealthFunction(health, absorption, getConditions());
         }
     }
 }

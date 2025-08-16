@@ -1,18 +1,14 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.datafixers.Products;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.Util;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
-import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -23,17 +19,17 @@ import java.util.function.Predicate;
  */
 public abstract class SpawnPoolEntryContainer implements ComposableEntryContainer {
    /** Conditions for the loot entry to be applied. */
-   protected final LootItemCondition[] conditions;
+   protected final List<LootItemCondition> conditions;
    private final Predicate<LootContext> compositeCondition;
 
-   protected SpawnPoolEntryContainer(LootItemCondition[] pConditions) {
+   protected SpawnPoolEntryContainer(List<LootItemCondition> pConditions) {
       this.conditions = pConditions;
-      this.compositeCondition = LootItemConditions.andConditions(pConditions);
+      this.compositeCondition = Util.allOf(pConditions);
    }
 
    public void validate(ValidationContext pValidationContext) {
-      for(int i = 0; i < this.conditions.length; ++i) {
-         this.conditions[i].validate(pValidationContext.forChild(".condition[" + i + "]"));
+      for(int i = 0; i < this.conditions.size(); ++i) {
+         this.conditions.get(i).validate(pValidationContext.forChild(".condition[" + i + "]"));
       }
 
    }
@@ -58,8 +54,8 @@ public abstract class SpawnPoolEntryContainer implements ComposableEntryContaine
          return this.getThis();
       }
 
-      protected LootItemCondition[] getConditions() {
-         return this.conditions.toArray(new LootItemCondition[0]);
+      protected List<LootItemCondition> getConditions() {
+         return this.conditions;
       }
 
       public AlternativesEntry.Builder otherwise(Builder<?> pChildBuilder) {
@@ -77,28 +73,8 @@ public abstract class SpawnPoolEntryContainer implements ComposableEntryContaine
       public abstract SpawnPoolEntryContainer build();
    }
 
-   public abstract static class Serializer<T extends SpawnPoolEntryContainer> implements net.minecraft.world.level.storage.loot.Serializer<T> {
-      /**
-       * Serialize the {@link CopyNbtFunction} by putting its data into the JsonObject.
-       */
-      public final void serialize(JsonObject pJson, T pValue, JsonSerializationContext pSerializationContext) {
-         if (!ArrayUtils.isEmpty(pValue.conditions)) {
-            pJson.add("conditions", pSerializationContext.serialize(pValue.conditions));
-         }
 
-         this.serializeCustom(pJson, pValue, pSerializationContext);
-      }
-
-      /**
-       * Deserialize a value by reading it from the JsonObject.
-       */
-      public final T deserialize(JsonObject pJson, JsonDeserializationContext pSerializationContext) {
-         LootItemCondition[] alootitemcondition = GsonHelper.getAsObject(pJson, "conditions", new LootItemCondition[0], pSerializationContext, LootItemCondition[].class);
-         return this.deserializeCustom(pJson, pSerializationContext, alootitemcondition);
-      }
-
-      public abstract void serializeCustom(JsonObject pObject, T pContainer, JsonSerializationContext pConditions);
-
-      public abstract T deserializeCustom(JsonObject pObject, JsonDeserializationContext pContext, LootItemCondition[] pConditions);
+   protected static <T extends SpawnPoolEntryContainer> Products.P1<RecordCodecBuilder.Mu<T>, List<LootItemCondition>> commonFields(RecordCodecBuilder.Instance<T> instance) {
+      return instance.group(LootItemCondition.DIRECT_CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(p_298548_ -> p_298548_.conditions));
    }
 }

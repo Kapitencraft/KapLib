@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -12,7 +13,9 @@ import java.util.List;
  * This container always succeeds.
  */
 public class EntryGroup extends CompositeEntryBase {
-   public EntryGroup(SpawnPoolEntryContainer[] pChildren, LootItemCondition[] pConditions) {
+   public static final MapCodec<? extends SpawnPoolEntryContainer> CODEC = createCodec(EntryGroup::new);
+
+   public EntryGroup(List<SpawnPoolEntryContainer> pChildren, List<LootItemCondition> pConditions) {
       super(pChildren, pConditions);
    }
 
@@ -23,15 +26,15 @@ public class EntryGroup extends CompositeEntryBase {
    /**
     * Compose the given children into one container.
     */
-   protected ComposableEntryContainer compose(ComposableEntryContainer[] pEntries) {
-      switch (pEntries.length) {
+   protected ComposableEntryContainer compose(List<? extends ComposableEntryContainer> pEntries) {
+      switch (pEntries.size()) {
          case 0:
             return ALWAYS_TRUE;
          case 1:
-            return pEntries[0];
+            return pEntries.get(0);
          case 2:
-            ComposableEntryContainer container = pEntries[0];
-            ComposableEntryContainer container1 = pEntries[1];
+            ComposableEntryContainer container = pEntries.get(0);
+            ComposableEntryContainer container1 = pEntries.get(1);
             return (p_79556_, p_79557_) -> {
                container.expand(p_79556_, p_79557_);
                container1.expand(p_79556_, p_79557_);
@@ -72,7 +75,7 @@ public class EntryGroup extends CompositeEntryBase {
       }
 
       public SpawnPoolEntryContainer build() {
-         return new EntryGroup(this.entries.toArray(new SpawnPoolEntryContainer[0]), this.getConditions());
+         return new EntryGroup(this.entries, this.getConditions());
       }
    }
 }

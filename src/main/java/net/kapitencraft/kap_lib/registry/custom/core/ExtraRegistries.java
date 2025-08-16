@@ -11,7 +11,6 @@ import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.Termi
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
-import net.kapitencraft.kap_lib.io.network.request.IRequestable;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
@@ -25,53 +24,64 @@ import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.RegistryBuilder;
+import org.jetbrains.annotations.ApiStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface ExtraRegistries {
-    IForgeRegistry<OverlayProperties> OVERLAY_PROPERTIES = reg(Keys.OVERLAY_PROPERTIES);
-    IForgeRegistry<GlyphEffect> GLYPH_EFFECTS = reg(Keys.GLYPH_EFFECTS);
-    IForgeRegistry<IRequestable<?, ?>> REQUESTABLES = reg(Keys.REQUESTABLES);
-    IForgeRegistry<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
-    IForgeRegistry<DataPackSerializer<? extends Bonus<?>>> BONUS_SERIALIZER = reg(Keys.BONUS_SERIALIZERS);
-    IForgeRegistry<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = reg(Keys.ATTRIBUTE_MODIFIER_TYPES);
-    IForgeRegistry<Codec<? extends ComponentContents>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
-    IForgeRegistry<Codec<? extends DataSource>> DATA_SOURCE_TYPES = reg(Keys.DATA_SOURCE_TYPES);
+    Registry<OverlayProperties> OVERLAY_PROPERTIES = reg(Keys.OVERLAY_PROPERTIES);
+    Registry<GlyphEffect> GLYPH_EFFECTS = reg(Keys.GLYPH_EFFECTS);
+    Registry<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
+    Registry<DataPackSerializer<? extends Bonus<?>>> BONUS_SERIALIZER = reg(Keys.BONUS_SERIALIZERS);
+    Registry<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = reg(Keys.ATTRIBUTE_MODIFIER_TYPES);
+    Registry<ComponentContents.Type<?>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
+    Registry<Codec<? extends DataSource>> DATA_SOURCE_TYPES = reg(Keys.DATA_SOURCE_TYPES);
 
-    IForgeRegistry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = reg(Keys.MODIFIER_TYPES);
-    IForgeRegistry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = reg(Keys.SPAWNER_TYPES);
-    IForgeRegistry<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = reg(Keys.FINALIZER_TYPES);
-    IForgeRegistry<TerminationTrigger<?>> TERMINATION_TRIGGERS = reg(Keys.TERMINATOR_TYPES);
-    IForgeRegistry<ActivationTrigger<?>> ACTIVATION_TRIGGERS = reg(Keys.ACTIVATION_TRIGGERS);
+    Registry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = reg(Keys.MODIFIER_TYPES);
+    Registry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = reg(Keys.SPAWNER_TYPES);
+    Registry<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = reg(Keys.FINALIZER_TYPES);
+    Registry<TerminationTrigger<?>> TERMINATION_TRIGGERS = reg(Keys.TERMINATOR_TYPES);
+    Registry<ActivationTrigger<?>> ACTIVATION_TRIGGERS = reg(Keys.ACTIVATION_TRIGGERS);
 
-    IForgeRegistry<Modifier.Type<?>> CAMERA_MODIFIERS = reg(Keys.CAMERA_MODIFIERS);
+    Registry<Modifier.Type<?>> CAMERA_MODIFIERS = reg(Keys.CAMERA_MODIFIERS);
 
-    IForgeRegistry<SpawnEntityFunctionType> SPAWN_FUNCTION_TYPES = reg(Keys.FUNCTION_TYPES);
-    IForgeRegistry<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPES = reg(Keys.POOL_ENTRY_TYPES);
+    Registry<SpawnEntityFunctionType<?>> SPAWN_FUNCTION_TYPES = reg(Keys.FUNCTION_TYPES);
+    Registry<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPES = reg(Keys.POOL_ENTRY_TYPES);
 
-    IForgeRegistry<WearableSlot> WEARABLE_SLOTS = reg(Keys.WEARABLE_SLOTS);
-    IForgeRegistry<InventoryPageType<?>> INVENTORY_PAGES = reg(Keys.INVENTORY_PAGES);
+    Registry<WearableSlot> WEARABLE_SLOTS = reg(Keys.WEARABLE_SLOTS);
+    Registry<InventoryPageType<?>> INVENTORY_PAGES = reg(Keys.INVENTORY_PAGES);
 
-    IForgeRegistry<Cooldown> COOLDOWNS = reg(Keys.COOLDOWNS);
+    Registry<Cooldown> COOLDOWNS = reg(Keys.COOLDOWNS);
 
-    private static <T> IForgeRegistry<T> reg(ResourceKey<Registry<T>> key) {
-        return RegistryManager.ACTIVE.getRegistry(key);
+    @ApiStatus.Internal
+    List<Registry<?>> registries = new ArrayList<>();
+
+    private static <T> Registry<T> reg(ResourceKey<Registry<T>> key) {
+        Registry<T> registry = new RegistryBuilder<>(key).create();
+        registries.add(registry);
+        return registry;
     }
+
+    @ApiStatus.Internal
+    static void registerAll(Consumer<Registry<?>> register) {
+        registries.forEach(register);
+    }
+
 
     interface Keys {
         /**
-         * default overlay properties. register inside {@link net.kapitencraft.kap_lib.event.custom.client.RegisterConfigurableOverlaysEvent#addOverlay(RegistryObject, Function) RegisterConfigurableOverlaysEvent#addOverlay}, to apply the overlay
+         * default overlay properties. register inside {@link net.kapitencraft.kap_lib.event.custom.client.RegisterConfigurableOverlaysEvent#addOverlay(net.minecraft.core.Holder, Function) RegisterConfigurableOverlaysEvent#addOverlay}, to apply the overlay
          */
         ResourceKey<Registry<OverlayProperties>> OVERLAY_PROPERTIES = createRegistry("overlay_properties");
         ResourceKey<Registry<GlyphEffect>> GLYPH_EFFECTS = createRegistry("glyph_effects");
-        ResourceKey<Registry<IRequestable<?, ?>>> REQUESTABLES = createRegistry("requestables");
         ResourceKey<Registry<DataPackSerializer<? extends ReqCondition<?>>>> REQ_CONDITIONS = createRegistry("requirement_conditions");
         ResourceKey<Registry<DataPackSerializer<? extends Bonus<?>>>> BONUS_SERIALIZERS = createRegistry("bonus_serializers");
         ResourceKey<Registry<Codec<? extends AttributeModifier>>> ATTRIBUTE_MODIFIER_TYPES = vanillaRegistry("attribute_modifier_types");
-        ResourceKey<Registry<Codec<? extends ComponentContents>>> COMPONENT_CONTENTS_TYPES = vanillaRegistry("component_contents_types");
+        ResourceKey<Registry<ComponentContents.Type<?>>> COMPONENT_CONTENTS_TYPES = vanillaRegistry("component_contents_types");
         /**
          * used to create codec. very unlikely that anyone finds an actual use for this
          */
@@ -88,7 +98,7 @@ public interface ExtraRegistries {
         ResourceKey<Registry<Modifier.Type<?>>> CAMERA_MODIFIERS = createRegistry("camera_modifiers");
 
         //SPAWN TABLE
-        ResourceKey<Registry<SpawnEntityFunctionType>> FUNCTION_TYPES = createRegistry("spawn_table/function_types");
+        ResourceKey<Registry<SpawnEntityFunctionType<?>>> FUNCTION_TYPES = createRegistry("spawn_table/function_types");
         ResourceKey<Registry<SpawnPoolEntryType>> POOL_ENTRY_TYPES = createRegistry("spawn_table/pool_entry_types");
 
         ResourceKey<Registry<WearableSlot>> WEARABLE_SLOTS = createRegistry("wearable_slots");
@@ -102,7 +112,7 @@ public interface ExtraRegistries {
         }
 
         private static <T> ResourceKey<Registry<T>> vanillaRegistry(String id) {
-            return ResourceKey.createRegistryKey(new ResourceLocation(id));
+            return ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace(id));
         }
 
     }

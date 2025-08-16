@@ -9,15 +9,13 @@ import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.event.custom.RegisterBonusProvidersEvent;
 import net.kapitencraft.kap_lib.event.custom.WearableSlotChangeEvent;
-import net.kapitencraft.kap_lib.helpers.ClientHelper;
-import net.kapitencraft.kap_lib.helpers.InventoryHelper;
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.helpers.TextHelper;
+import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
@@ -31,11 +29,16 @@ import net.kapitencraft.kap_lib.util.Color;
 import net.kapitencraft.kap_lib.util.Reference;
 import net.kapitencraft.kap_lib.util.Vec2i;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -51,12 +54,13 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,13 +70,13 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class BonusManager extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static BonusManager instance;
     public static BonusManager updateInstance() {
-        if (instance != null) MinecraftForge.EVENT_BUS.unregister(instance);
+        if (instance != null) NeoForge.EVENT_BUS.unregister(instance);
         return instance = new BonusManager();
     }
 
@@ -113,6 +117,12 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                 .map(l -> l.activeBonuses.keySet().stream().noneMatch(e -> e.getId() == elementId)).orElse(true) : true;
     }
 
+    public static void createFromData(Data data) {
+        instance = new BonusManager();
+        instance.itemBonuses.putAll(data.itemBonuses);
+        instance.sets.putAll(data.sets);
+    }
+
     private Optional<BonusLookup> getLookup(LivingEntity living) {
         if (lookupMap.containsKey(living)) return Optional.of(lookupMap.get(living));
         return Optional.empty();
@@ -127,7 +137,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         LivingEntity entity = event.getEntity();
         BonusLookup bonusLookup = getOrCreateLookup(entity);
         bonusLookup.equipmentChange(event.getSlot(), event.getFrom(), event.getTo());
-        if (entity instanceof ServerPlayer sP) ModMessages.sendToClientPlayer(new UpdateBonusDataPacket(event.getFrom(), event.getTo(), event.getSlot(), entity.getId()), sP);
+        if (entity instanceof ServerPlayer sP) PacketDistributor.sendToPlayer(sP, new UpdateBonusDataPacket(event.getFrom(), event.getTo(), event.getSlot(), entity.getId()));
     }
 
     @SubscribeEvent
@@ -139,9 +149,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
 
     @SubscribeEvent
-    public void onLivingTick(LivingEvent.LivingTickEvent event) {
-        if (event.getEntity().level().isClientSide()) return; //ONLY SERVERSIDE
-        getLookup(event.getEntity()).ifPresent(BonusLookup::tick); //only tick when necessary
+    public void onLivingTick(EntityTickEvent event) {
+        if (event.getEntity() instanceof LivingEntity l && !l.level().isClientSide()) //ONLY SERVERSIDE
+            getLookup(l).ifPresent(BonusLookup::tick); //only tick when necessary
     }
 
     private final Map<ResourceLocation, Function<ItemStack, AbstractBonusElement>> providers;
@@ -173,6 +183,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             ) bonuses.put(location, setBonusElement);
         });
         return bonuses;
+    }
+
+    public Data createData() {
+        return new Data(this.sets, this.itemBonuses);
     }
 
     private class BonusLookup {
@@ -212,7 +226,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     Bonus<?> bonus = element.getBonus();
                     bonus.onRemove(target);
                     if (this.target.level().isClientSide()) TerminatorTriggers.BONUS_REMOVED.get().trigger(this.target.getId(), element.getId());
-                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
+                    Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(this.target);
                     if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
                 }
             }
@@ -229,7 +243,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     }
                     Bonus<?> bonus = element.getBonus();
                     bonus.onApply(target);
-                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(target);
+                    Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(target);
                     if (modifiers != null && !modifiers.isEmpty()) target.getAttributes().addTransientAttributeModifiers(modifiers);
                     activeBonuses.put(element, Reference.of(0));
                 }
@@ -252,7 +266,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     Bonus<?> bonus = element.getBonus();
                     bonus.onRemove(target);
                     if (this.target.level().isClientSide()) TerminatorTriggers.BONUS_REMOVED.get().trigger(this.target.getId(), element.getId());
-                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(this.target);
+                    Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(this.target);
                     if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
                 }
             }
@@ -269,7 +283,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     }
                     Bonus<?> bonus = element.getBonus();
                     bonus.onApply(target);
-                    Multimap<Attribute, AttributeModifier> modifiers = bonus.getModifiers(target);
+                    Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(target);
                     if (modifiers != null && !modifiers.isEmpty()) target.getAttributes().addTransientAttributeModifiers(modifiers);
                     activeBonuses.put(element, Reference.of(0));
                 }
@@ -309,10 +323,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     public BonusManager() {
         super(JsonHelper.GSON, "bonuses");
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
         Map<ResourceLocation, Function<ItemStack, AbstractBonusElement>> providers = new HashMap<>();
         var event = new RegisterBonusProvidersEvent(providers);
-        MinecraftForge.EVENT_BUS.post(event);
+        NeoForge.EVENT_BUS.post(event);
         this.providers = ImmutableMap.copyOf(providers);
     }
 
@@ -335,11 +349,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
             DataResult<Bonus<?>> result = ExtraCodecs.BONUS.parse(JsonOps.INSTANCE, main);
 
-            Bonus<?> bonus = result.getOrThrow(false, s -> {});
+            Bonus<?> bonus = result.getOrThrow();
 
-            ResourceLocation itemLocation = new ResourceLocation(GsonHelper.getAsString(main, "item"));
-            Item item = ForgeRegistries.ITEMS.getValue(itemLocation);
-            if (item == null) throw new IllegalArgumentException("unknown Item: " + itemLocation);
+            ResourceLocation itemLocation = ResourceLocation.parse(GsonHelper.getAsString(main, "item"));
+            Item item = BuiltInRegistries.ITEM.get(itemLocation);
 
             boolean hidden = main.has("hidden") && GsonHelper.getAsBoolean(main, "hidden");
             addItemIfAbsent(item);
@@ -357,7 +370,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
             DataResult<Bonus<?>> result = ExtraCodecs.BONUS.parse(JsonOps.INSTANCE, main);
 
-            Bonus<?> bonus = result.getOrThrow(false, s -> {});
+            Bonus<?> bonus = result.getOrThrow();
 
             //read Item Tags
             Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot = new EnumMap<>(EquipmentSlot.class);
@@ -377,8 +390,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             {
                 JsonArray array = GsonHelper.getAsJsonArray(main, "wearable_slots");
                 for (JsonElement element : array) {
-                    ResourceLocation location1 = new ResourceLocation(element.getAsString());
-                    WearableSlot slot = ExtraRegistries.WEARABLE_SLOTS.getValue(location1);
+                    ResourceLocation location1 = ResourceLocation.parse(element.getAsString());
+                    WearableSlot slot = ExtraRegistries.WEARABLE_SLOTS.get(location1);
                     if (slot == null) throw new IllegalStateException("unknown wearable slot: " + location1);
                     required |= 1L << (slot.getSlotIndex() + 6);
                     itemsForWearableSlot.put(slot, TagKey.create(Registries.ITEM, location.withPath(s -> "set/" + s + "/wearable/" + location1.getNamespace() + "/" + location1.getPath())));
@@ -505,6 +518,16 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     //endregion
 
     private static class SetBonusElement extends BonusElement {
+        private static final StreamCodec<RegistryFriendlyByteBuf, SetBonusElement> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.BOOL, BonusElement::isHidden,
+                Bonus.STREAM_CODEC, BonusElement::getBonus,
+                ResourceLocation.STREAM_CODEC, BonusElement::getId,
+                ByteBufCodecs.map(HashMap::new, ExtraStreamCodecs.EQUIPMENT_SLOT, ExtraStreamCodecs.tagKey(Registries.ITEM)), e -> e.itemsForEquipmentSlot,
+                ByteBufCodecs.map(HashMap::new, WearableSlot.STREAM_CODEC, ExtraStreamCodecs.tagKey(Registries.ITEM)), e -> e.itemsForWearableSlot,
+                ByteBufCodecs.VAR_LONG, e -> e.requiredMask,
+                SetBonusElement::new
+        );
+
         private final Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot;
         private final Map<WearableSlot, TagKey<Item>> itemsForWearableSlot;
         private final long requiredMask;
@@ -532,34 +555,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             return stack.is(itemsForWearableSlot.get(slot));
         }
 
-        public static void toNw(FriendlyByteBuf buf, SetBonusElement setBonusElement) {
-            BonusElement.toNw(buf, setBonusElement);
-            buf.writeMap(setBonusElement.itemsForEquipmentSlot,
-                    FriendlyByteBuf::writeEnum,
-                    (buf1, itemTagKey) -> buf1.writeResourceLocation(itemTagKey.location())
-            );
-            buf.writeMap(setBonusElement.itemsForWearableSlot,
-                    (buf1, slot) -> buf1.writeRegistryIdUnsafe(ExtraRegistries.WEARABLE_SLOTS, slot),
-                    (buf1, itemTagKey) -> buf1.writeResourceLocation(itemTagKey.location())
-            );
-            buf.writeLong(setBonusElement.requiredMask);
-        }
-
-        public static SetBonusElement fromNw(FriendlyByteBuf buf) {
-            return new SetBonusElement(buf.readBoolean(), Bonus.fromNw(buf),
-                    buf.readResourceLocation(),
-                    buf.readMap(
-                            buf1 -> buf1.readEnum(EquipmentSlot.class),
-                            buf1 -> TagKey.create(Registries.ITEM, buf1.readResourceLocation())
-                    ),
-                    buf.readMap(
-                            buf1 -> buf1.readRegistryIdUnsafe(ExtraRegistries.WEARABLE_SLOTS),
-                            buf1 -> TagKey.create(Registries.ITEM, buf1.readResourceLocation())
-                    ),
-                    buf.readLong()
-            );
-        }
-
         @Override
         public MutableComponent getTitle() {
             return Component.translatable("set.bonus.name");
@@ -572,6 +567,13 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     public static class BonusElement implements AbstractBonusElement {
+        public static final StreamCodec<RegistryFriendlyByteBuf, BonusElement> CODEC = StreamCodec.composite(
+                ByteBufCodecs.BOOL, BonusElement::isHidden,
+                Bonus.STREAM_CODEC, BonusElement::getBonus,
+                ResourceLocation.STREAM_CODEC, BonusElement::getId,
+                BonusElement::new
+        );
+
         private final boolean hidden;
         private final Bonus<?> bonus;
         private final ResourceLocation id;
@@ -591,16 +593,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             return bonus;
         }
 
-        public static void toNw(FriendlyByteBuf buf, BonusElement bonusElement) {
-            buf.writeBoolean(bonusElement.hidden);
-            bonusElement.bonus.toNetwork(buf);
-            buf.writeResourceLocation(bonusElement.id);
-        }
-
-        public static BonusElement fromNw(FriendlyByteBuf buf) {
-            return new BonusElement(buf.readBoolean(), Bonus.fromNw(buf), buf.readResourceLocation());
-        }
-
         public ResourceLocation getId() {
             return id;
         }
@@ -616,27 +608,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         }
     }
 
-    public void toNetwork(FriendlyByteBuf buf) {
-        buf.writeCollection(this.sets.values(), SetBonusElement::toNw);
-        buf.writeMap(this.itemBonuses,
-                (buf1, item) -> buf1.writeRegistryIdUnsafe(ForgeRegistries.ITEMS, item),
-                (buf1, map) -> buf1.writeCollection(map.values(), BonusElement::toNw)
+    public record Data(Map<ResourceLocation, SetBonusElement> sets, DoubleMap<Item, ResourceLocation, BonusElement> itemBonuses) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, Data> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, SetBonusElement.STREAM_CODEC), d -> d.sets,
+                ExtraStreamCodecs.doubleMap(ByteBufCodecs.registry(Registries.ITEM), ResourceLocation.STREAM_CODEC, BonusElement.CODEC), Data::itemBonuses,
+                Data::new
         );
-    }
-
-    @ApiStatus.Internal
-    public static BonusManager fromNw(FriendlyByteBuf buf) {
-        BonusManager manager = new BonusManager();
-        ArrayList<SetBonusElement> setBonusElements = buf.readCollection(ArrayList::new, SetBonusElement::fromNw);
-        manager.sets.putAll(setBonusElements.stream().collect(Collectors.toMap(SetBonusElement::getId, Function.identity())));
-        manager.itemBonuses.putAll(
-                buf.readMap(
-                        buf1 -> buf1.readRegistryIdUnsafe(ForgeRegistries.ITEMS),
-                        buf1 -> buf1.readCollection(ArrayList::new, BonusElement::fromNw)
-                                .stream()
-                                .collect(Collectors.toMap(BonusElement::getId, Function.identity()))
-                )
-        );
-        return manager;
     }
 }

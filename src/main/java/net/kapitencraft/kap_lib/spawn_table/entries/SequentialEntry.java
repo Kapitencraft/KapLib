@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
@@ -11,7 +12,9 @@ import java.util.List;
  * This container succeeds if all children succeed.
  */
 public class SequentialEntry extends CompositeEntryBase {
-   public SequentialEntry(SpawnPoolEntryContainer[] pChildren, LootItemCondition[] pConditions) {
+   public static final MapCodec<? extends SpawnPoolEntryContainer> CODEC = createCodec(SequentialEntry::new);
+
+   public SequentialEntry(List<SpawnPoolEntryContainer> pChildren, List<LootItemCondition> pConditions) {
       super(pChildren, pConditions);
    }
 
@@ -22,14 +25,14 @@ public class SequentialEntry extends CompositeEntryBase {
    /**
     * Compose the given children into one container.
     */
-   protected ComposableEntryContainer compose(ComposableEntryContainer[] pEntries) {
-      switch (pEntries.length) {
+   protected ComposableEntryContainer compose(List<? extends ComposableEntryContainer> pEntries) {
+      switch (pEntries.size()) {
          case 0:
             return ALWAYS_TRUE;
          case 1:
-            return pEntries[0];
+            return pEntries.get(0);
          case 2:
-            return pEntries[0].and(pEntries[1]);
+            return pEntries.get(0).and(pEntries.get(1));
          default:
             return (p_79819_, p_79820_) -> {
                for(ComposableEntryContainer composableentrycontainer : pEntries) {
@@ -67,7 +70,7 @@ public class SequentialEntry extends CompositeEntryBase {
       }
 
       public SpawnPoolEntryContainer build() {
-         return new SequentialEntry(this.entries.toArray(new SpawnPoolEntryContainer[0]), this.getConditions());
+         return new SequentialEntry(this.entries, this.getConditions());
       }
    }
 }

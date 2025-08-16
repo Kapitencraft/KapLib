@@ -13,7 +13,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.event.level.NoteBlockEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -24,7 +23,7 @@ import org.lwjgl.opengl.GL12;
  */
 @ApiStatus.Internal
 public class TestScreen extends Screen {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation("textures/block/diamond_block.png");
+    private static final ResourceLocation BACKGROUND = ResourceLocation.withDefaultNamespace("textures/block/diamond_block.png");
     private MultiLineTextBox textBox;
 
     public TestScreen() {

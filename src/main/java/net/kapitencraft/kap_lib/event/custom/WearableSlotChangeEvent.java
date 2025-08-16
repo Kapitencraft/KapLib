@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.event.custom;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
 
 /**
  * fired whenever a living entity's wearable slot changes detected in {@link net.kapitencraft.kap_lib.inventory.page.equipment.EquipmentPage#equip(LivingEntity, WearableSlot, ItemStack, ItemStack) EquipmentPage#equip}

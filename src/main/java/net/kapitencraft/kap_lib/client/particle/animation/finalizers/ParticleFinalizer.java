@@ -4,31 +4,22 @@ import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public interface ParticleFinalizer {
-
-    static ParticleFinalizer fromNw(FriendlyByteBuf buf) {
-        ParticleFinalizer.Type<?> type = buf.readRegistryIdUnsafe(ExtraRegistries.PARTICLE_FINALIZER_TYPES);
-        return type.fromNw(buf, Minecraft.getInstance().level);
-    }
-
-    static <T extends ParticleFinalizer> void toNw(FriendlyByteBuf buf, T finalizer) {
-        ParticleFinalizer.Type<T> type = (ParticleFinalizer.Type<T>) finalizer.getType();
-        buf.writeRegistryIdUnsafe(ExtraRegistries.PARTICLE_FINALIZER_TYPES, type);
-        type.toNw(buf, finalizer);
-    }
+    StreamCodec<RegistryFriendlyByteBuf, ParticleFinalizer> CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.FINALIZER_TYPES).dispatch(ParticleFinalizer::getType, Type::codec);
 
     @NotNull Type<? extends ParticleFinalizer> getType();
 
     void finalize(ParticleConfig config);
 
     interface Type<T extends ParticleFinalizer> {
-
-        void toNw(FriendlyByteBuf buf, T val);
-
-        T fromNw(FriendlyByteBuf buf, ClientLevel level);
+        StreamCodec<RegistryFriendlyByteBuf, T> codec();
     }
 
     interface Builder {

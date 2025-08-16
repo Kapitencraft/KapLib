@@ -1,10 +1,9 @@
 package net.kapitencraft.kap_lib.client.particle.animation.spawners;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,12 +49,12 @@ public class GroupSpawner implements Spawner {
 
         @Override
         public void toNW(FriendlyByteBuf buf, GroupSpawner value) {
-            NetworkHelper.writeArray(buf, value.spawners, Spawner::toNw);
+            ExtraStreamCodecs.writeArray(buf, value.spawners, Spawner::toNw);
         }
 
         @Override
         public GroupSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new GroupSpawner(NetworkHelper.readArray(buf, Spawner[]::new, Spawner::fromNw));
+            return new GroupSpawner(ExtraStreamCodecs.readArray(buf, Spawner[]::new, Spawner::fromNw));
         }
     }
 }

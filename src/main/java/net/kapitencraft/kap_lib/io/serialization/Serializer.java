@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.io.serialization;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +38,7 @@ public abstract class Serializer<T, K extends DynamicOps<T>, L> {
 
     public L parseOrThrow(T object) {
         DataResult<L> result = codec.parse(generator, object);
-        return result.getOrThrow(false, s -> {});
+        return result.resultOrPartial().orElseThrow(NullPointerException::new);
     }
 
     public Codec<L> getCodec() {

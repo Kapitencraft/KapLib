@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.client.util.pos_target;
 
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 
@@ -28,12 +28,12 @@ public class RelativePositionTarget implements PositionTarget {
         @Override
         public void toNw(FriendlyByteBuf buf, RelativePositionTarget val) {
             val.target.toNw(buf);
-            NetworkHelper.writeVec3(buf, val.offset);
+            ExtraStreamCodecs.writeVec3(buf, val.offset);
         }
 
         @Override
         public RelativePositionTarget fromNw(FriendlyByteBuf buf) {
-            return new RelativePositionTarget(PositionTarget.fromNw(buf), NetworkHelper.readVec3(buf));
+            return new RelativePositionTarget(PositionTarget.fromNw(buf), ExtraStreamCodecs.readVec3(buf));
         }
     }
 

@@ -50,7 +50,8 @@
     "RegistryBuilderMixin",
     "SharedConstantsMixin",
     "StringDecomposerMixin",
-    "StyleMixin"
+    "StyleMixin",
+    "client.ItemEnchantmentsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

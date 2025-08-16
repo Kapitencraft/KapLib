@@ -1,38 +1,28 @@
 package net.kapitencraft.kap_lib.io.network.S2C;
 
-import net.kapitencraft.kap_lib.io.network.SimplePacket;
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record DisplayTotemActivationPacket(ItemStack toDisplay, int entityId) implements CustomPacketPayload {
+    public static final StreamCodec<RegistryFriendlyByteBuf, DisplayTotemActivationPacket> CODEC = StreamCodec.composite(
+            ItemStack.STREAM_CODEC, DisplayTotemActivationPacket::toDisplay,
+            ByteBufCodecs.INT, DisplayTotemActivationPacket::entityId,
+            DisplayTotemActivationPacket::new
+    );
+    public static final Type<DisplayTotemActivationPacket> TYPE = new Type<>(KapLibMod.res("display_totem"));
 
-public class DisplayTotemActivationPacket implements SimplePacket {
-    private final ItemStack toDisplay;
-    private final int entityId;
-
-    public DisplayTotemActivationPacket(ItemStack toDisplay, int entityId) {
-        this.toDisplay = toDisplay;
-        this.entityId = entityId;
-    }
-
-    public DisplayTotemActivationPacket(FriendlyByteBuf buf) {
-        this(buf.readItem(), buf.readInt());
-    }
-
-    @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        buf.writeItem(toDisplay);
-        buf.writeInt(entityId);
-    }
-
-    @Override
-    public void handle(Supplier<NetworkEvent.Context> sup) {
-        sup.get().enqueueWork(()-> {
+    public void handle(IPayloadContext context) {
+        context.enqueueWork(()-> {
             ClientLevel level = Minecraft.getInstance().level;
             if (level != null) {
                 Entity entity = level.getEntity(entityId);
@@ -41,5 +31,10 @@ public class DisplayTotemActivationPacket implements SimplePacket {
                 Minecraft.getInstance().gameRenderer.displayItemActivation(toDisplay);
             }
         });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

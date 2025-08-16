@@ -7,9 +7,8 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public interface UsefulTextures {
@@ -19,7 +18,7 @@ public interface UsefulTextures {
     ResourceLocation SLIDER = getGuiLocation("container/loom.png");
     ResourceLocation ARROWS = getGuiLocation("server_selection.png");
     private static ResourceLocation getGuiLocation(String path) {
-        return new ResourceLocation("textures/gui/" + path);
+        return ResourceLocation.withDefaultNamespace("textures/gui/" + path);
     }
 
     static void renderCheckMark(GuiGraphics graphics, int checkBoxX, int checkBoxY) {

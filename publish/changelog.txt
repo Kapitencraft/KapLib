@@ -1,2 +1,6 @@
-fixed Enchantment Applicable using wrong font and removed the JSON font provider
-fixed Crossbow Enchantment Applicable using wrong texture
+Overlay#render now takes a Gui instead of ForgeGui
+removed attribute modifier registry as it was not usable anymore
+removed MiscHelper#getSlotForStack. use ItemStack#getEquipmentSlot instead
+removed SimplePacket. use Neoforge's registration instead
+renamed NetworkHelper to ExtraStreamCodecs to better represent its purpose
+removed requests. handle that yourself

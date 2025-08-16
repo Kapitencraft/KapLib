@@ -2,8 +2,8 @@ package net.kapitencraft.kap_lib.event.custom;
 
 import net.kapitencraft.kap_lib.item.misc.AnvilUses;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;

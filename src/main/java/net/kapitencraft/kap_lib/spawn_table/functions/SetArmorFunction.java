@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.helpers.LootTableHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
@@ -11,6 +14,7 @@ import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
@@ -25,12 +29,18 @@ import net.minecraftforge.common.ForgeHooks;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 
 public class SetArmorFunction extends SpawnEntityConditionalFunction {
-    private final LootTable[] armorItems;
-    private final float[] armorDropChances;
+    public static final MapCodec<SetArmorFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            LootTable.CODEC.listOf().fieldOf("armorItems").forGetter(f -> f.armorItems),
+            Codec.FLOAT.listOf().optionalFieldOf("dropChances", List.of()).forGetter(f -> f.armorDropChances)
+    ).and(commonFields(i).t1()).apply(i, SetArmorFunction::new));
 
-    protected SetArmorFunction(LootItemCondition[] pPredicates, LootTable[] armorItems, float[] armorDropChances) {
+    private final List<Holder<LootTable>> armorItems;
+    private final List<Float> armorDropChances;
+
+    protected SetArmorFunction(List<Holder<LootTable>> armorItems, List<Float> armorDropChances, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.armorItems = armorItems;
         this.armorDropChances = armorDropChances;
@@ -42,13 +52,13 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
             EquipmentSlot[] armor = MiscHelper.ARMOR_EQUIPMENT;
             for (int i = 0; i < armor.length; i++) {
                 EquipmentSlot slot = armor[i];
-                if (armorItems[i] != null) {
-                    armorItems[i].getRandomItems(pContext,
-                            stack -> pEntity.setItemSlot(slot, stack)
+                if (armorItems.get(i) != null) {
+                    armorItems.get(i).value().getRandomItems(pContext,
+                            stack -> mob.setItemSlot(slot, stack)
                     );
                 }
                 if (armorDropChances != null) {
-                    mob.setDropChance(slot, armorDropChances[i]);
+                    mob.setDropChance(slot, armorDropChances.get(i));
                 }
             }
         } else logWrongType("Mob", pEntity);
@@ -58,23 +68,6 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
     @Override
     public SpawnEntityFunctionType getType() {
         return SpawnEntityFunctions.SET_ARMOR.get();
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetArmorFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, SetArmorFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            pJson.add("armorItems", pSerializationContext.serialize(pFunction.armorItems));
-            if (pFunction.armorDropChances != null) pJson.add("armorDropChances", pSerializationContext.serialize(pFunction.armorDropChances));
-        }
-
-        @Override
-        public SetArmorFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            LootTable[] armorItems = pObject.has("armorItems") ? pDeserializationContext.deserialize(pObject.get("armorItems"), LootTable[].class) : new LootTable[4];
-            float[] armorChances = pObject.has("armorChances") ? pDeserializationContext.deserialize(pObject.get("armorChances"), float[].class) : null;
-            return new SetArmorFunction(pConditions, armorItems, armorChances);
-        }
     }
 
     public static Builder builder() {

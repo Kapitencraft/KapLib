@@ -2,11 +2,15 @@ package net.kapitencraft.kap_lib.cooldown;
 
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Iterator;
@@ -14,6 +18,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Cooldown {
+    public static final StreamCodec<RegistryFriendlyByteBuf, Cooldown> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.COOLDOWNS);
 
     private final int defaultTime;
     private final Consumer<LivingEntity> toDo;
@@ -28,7 +33,7 @@ public class Cooldown {
     }
 
     public int getCooldownTime(LivingEntity living, boolean reduceWithTime) {
-        double mul = reduceWithTime ? living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION.get()) : 0;
+        double mul = reduceWithTime ? living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION) : 0;
         return (int) (defaultTime * (1 - mul / 100));
     }
 

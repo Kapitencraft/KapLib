@@ -1,10 +1,8 @@
 package net.kapitencraft.kap_lib.event.custom;
 
 import net.kapitencraft.kap_lib.stream.Consumers;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
-import org.apache.logging.log4j.util.BiConsumer;
-import org.apache.logging.log4j.util.TriConsumer;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
 
 import java.util.regex.Pattern;
 

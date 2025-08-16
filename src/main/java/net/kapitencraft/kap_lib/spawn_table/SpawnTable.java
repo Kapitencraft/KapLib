@@ -3,15 +3,21 @@ package net.kapitencraft.kap_lib.spawn_table;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.*;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import org.apache.commons.lang3.ArrayUtils;
@@ -26,6 +32,19 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class SpawnTable {
+   public static final LootContextParamSet DEFAULT_PARAM_SET = LootContextParamSets.ALL_PARAMS;
+   public static final Codec<SpawnTable> DIRECT_CODEC = RecordCodecBuilder.create(
+           p_338123_ -> p_338123_.group(
+                           LootContextParamSets.CODEC.lenientOptionalFieldOf("type", DEFAULT_PARAM_SET).forGetter(p_298001_ -> p_298001_.paramSet),
+                           ResourceLocation.CODEC.optionalFieldOf("random_sequence").forGetter(p_297998_ -> Optional.ofNullable(p_297998_.randomSequence)),
+                           net.neoforged.neoforge.common.CommonHooks.lootPoolsCodec(LootPool::setName).optionalFieldOf("pools", List.of()).forGetter(p_298002_ -> p_298002_.pools),
+                           net.neoforged.neoforge.common.conditions.ConditionalOps.decodeListWithElementConditions(LootItemFunctions.ROOT_CODEC).optionalFieldOf("functions", List.of()).forGetter(p_298000_ -> p_298000_.functions)
+                   )
+                   .apply(p_338123_, SpawnTable::new)
+   );
+   public static final Codec<Holder<SpawnTable>> CODEC = RegistryFileCodec.create(Registries.LOOT_TABLE, DIRECT_CODEC);
+
+
    public static final Gson PARSER = SpawnDeserializers.createSpawnTableSerializer().create();
    public static final TriFunction<ResourceLocation, JsonElement, ResourceManager, Optional<SpawnTable>> CREATOR =
            SpawnTableProvider.getSpawnTableSerializer(PARSER, "spawn_tables");
@@ -38,7 +57,6 @@ public class SpawnTable {
 
    static final Logger LOGGER = LogUtils.getLogger();
    public static final SpawnTable EMPTY = new SpawnTable(LootContextParamSets.EMPTY, null, new SpawnPool[0], new SpawnEntityFunction[0]);
-   public static final LootContextParamSet DEFAULT_PARAM_SET = LootContextParamSets.ALL_PARAMS;
    final LootContextParamSet paramSet;
    @Nullable
    final ResourceLocation randomSequence;

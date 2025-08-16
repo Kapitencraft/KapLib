@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.cooldown;
 
 
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.CooldownStartedPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncCooldownsToPlayerPacket;
@@ -8,9 +9,8 @@ import net.kapitencraft.kap_lib.util.IntegerReference;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.neoforged.neoforge.capabilities.EntityCapability;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import java.util.*;
  */
 @ApiStatus.Internal
 public class Cooldowns {
-    public static final Capability<Cooldowns> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {});
+    public static final EntityCapability<Cooldowns, Void> CAPABILITY = EntityCapability.createVoid(KapLibMod.res("cooldowns"), Cooldowns.class);
 
     private final LivingEntity entity;
 
@@ -56,7 +56,7 @@ public class Cooldowns {
         int time = cooldown.getCooldownTime(this.entity, reduceWithTime);
         if (time > 0) {
             this.active.put(cooldown, IntegerReference.create(time));
-            ModMessages.sendToAllConnectedPlayers(p -> new CooldownStartedPacket(cooldown, time, this.entity.getId()), (ServerLevel) this.entity.level());
+            PacketDistributor.sendToAllPlayers(new CooldownStartedPacket(cooldown, time, this.entity.getId()));
         }
     }
 
@@ -76,13 +76,13 @@ public class Cooldowns {
     }
 
     public static Cooldowns get(LivingEntity living) {
-        return living.getCapability(Cooldowns.CAPABILITY).orElseThrow(() -> new NullPointerException("unable to get capability"));
+        return Objects.requireNonNull(living.getCapability(Cooldowns.CAPABILITY), "unable to get capability");
     }
 
 
     public static void send(ServerPlayer sP) {
         Cooldowns cooldown = get(sP);
-        ModMessages.sendToClientPlayer(new SyncCooldownsToPlayerPacket(sP.getId(), cooldown.getData()), sP);
+        PacketDistributor.sendToPlayer(sP, new SyncCooldownsToPlayerPacket(sP.getId(), cooldown.getData()));
     }
 
     public void setCooldownTime(Cooldown cooldown, int duration) {

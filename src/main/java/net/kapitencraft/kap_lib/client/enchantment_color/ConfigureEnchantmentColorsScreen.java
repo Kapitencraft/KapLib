@@ -10,15 +10,18 @@ import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.util.range.simple.IntegerNumberRange;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -148,14 +151,14 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        if (selector != null) return selector.mouseScrolled(pMouseX, pMouseY, pDelta);
-        if (MathHelper.is2dBetween(pMouseX, pMouseY, this.leftPos + 2, this.topPos + 12, this.leftPos + WIDTH - 2, this.topPos + HEIGHT - 2)) {
-            scrollY += (int) (pDelta * ClientModConfig.getScrollScale());
-            scrollY = Mth.clamp(scrollY, -maxScroll, 0);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (selector != null) return selector.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        if (MathHelper.is2dBetween(mouseX, mouseY, this.leftPos + 2, this.topPos + 12, this.leftPos + WIDTH - 2, this.topPos + HEIGHT - 2)) {
+            this.scrollY += (int) (scrollY * ClientModConfig.getScrollScale());
+            this.scrollY = Mth.clamp(this.scrollY, -maxScroll, 0);
             return true;
         }
-        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
@@ -184,7 +187,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         private SelectChatColorWidget.ColorType colorType;
         private @Nullable LevelRange levelRange;
         private boolean bold, underlined, italic;
-        private final List<Enchantment> enchantments;
+        private final List<Holder<Enchantment>> enchantments;
         private final List<EnchantmentGroup> groups;
 
         private ColorElement(EnchantmentColor color) {
@@ -209,8 +212,8 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
             guiGraphics.fill(leftPos + 5, yPos + 10, leftPos + 80, yPos + 60, 0xFF404040);
             guiGraphics.enableScissor(leftPos + 5, yPos + 10, leftPos + 80, yPos + 60);
             for (int i = 0; i < enchantments.size(); i++) {
-                Enchantment enchantment = enchantments.get(i);
-                guiGraphics.drawString(font, Component.translatable(enchantment.getDescriptionId()), leftPos + 6, yPos + 11 + i * 10, 0xFFFFFF);
+                Holder<Enchantment> enchantment = enchantments.get(i);
+                guiGraphics.drawString(font, Component.translatable(Util.makeDescriptionId("enchantment", enchantment.getKey().location())), leftPos + 6, yPos + 11 + i * 10, 0xFFFFFF);
                 boolean enchantmentHovered = MathHelper.is2dBetween(mouseRelativeX, mouseRelativeY, 5, 11 + i * 10, 80, 21 + i * 10);
                 if (enchantmentHovered) {
                     guiGraphics.pose().pushPose();

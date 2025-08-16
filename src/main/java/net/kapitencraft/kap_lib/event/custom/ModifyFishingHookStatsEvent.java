@@ -4,7 +4,7 @@ import net.kapitencraft.kap_lib.util.IntegerModifierCollector;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 import org.jetbrains.annotations.ApiStatus;
 
 /**

@@ -1,55 +1,79 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.datafixers.Products;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
-import net.kapitencraft.kap_lib.spawn_table.functions.AddEffectsFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.util.Color;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
-    private final Potion potion;
-    private final MobEffectInstance[] effects;
+    public static final MapCodec<SpawnEffectCloud> CODEC = RecordCodecBuilder.mapCodec(i -> {
+        Products.P4<RecordCodecBuilder.Mu<SpawnEffectCloud>, Integer, Integer, List<LootItemCondition>, List<SpawnEntityFunction>> other = singletonFields(i);
+        return i.group(
+                other.t1(), //that's a little unfortunate
+                other.t2(),
+                other.t3(),
+                other.t4(),
+                Codec.either(Potion.CODEC, MobEffectInstance.CODEC.listOf()).fieldOf("effects").forGetter(f -> f.effects),
+                Codec.FLOAT.fieldOf("radius").forGetter(f -> f.radius),
+                Codec.FLOAT.fieldOf("radiusOnUse").forGetter(f -> f.radiusOnUse),
+                Codec.FLOAT.fieldOf("radiusPerTick").forGetter(f -> f.radiusPerTick),
+                Codec.INT.fieldOf("duration").forGetter(f -> f.duration),
+                Codec.INT.fieldOf("durationOnUse").forGetter(f -> f.durationOnUse),
+                Codec.INT.fieldOf("waitTime").forGetter(f -> f.waitTime),
+                LootContext.EntityTarget.CODEC.optionalFieldOf("owner").forGetter(f -> Optional.ofNullable(f.owner))
+        ).apply(i, SpawnEffectCloud::fromCodec);
+    });
+
+    private static Object fromCodec(Integer integer, Integer integer1,
+                                    List<LootItemCondition> lootItemConditions, List<SpawnEntityFunction> spawnEntityFunctions,
+                                    Either<Holder<Potion>, List<MobEffectInstance>> holderListEither,
+                                    Float aFloat, Float aFloat1, Float aFloat2, Integer integer2, Integer integer3, Integer integer4, Optional<LootContext.EntityTarget> entityTarget) {
+        return new SpawnEffectCloud(integer, integer1, lootItemConditions, spawnEntityFunctions, holderListEither, aFloat, aFloat1, aFloat2, integer2, integer3, integer4, entityTarget.orElse(null));
+    }
+
+    private final Either<Holder<Potion>, List<MobEffectInstance>> effects;
+    private final float radius, radiusOnUse, radiusPerTick;
     private final int duration,
             durationOnUse,
             waitTime;
-    private final Integer color;
-    private final float radius, radiusOnUse, radiusPerTick;
+    @Nullable
     private final LootContext.EntityTarget owner;
 
-    protected SpawnEffectCloud(int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions,
-                               Potion potion, MobEffectInstance[] effects,
+    protected SpawnEffectCloud(int pWeight, int pQuality, List<LootItemCondition> pConditions, List<SpawnEntityFunction> pFunctions,
+                               Either<Holder<Potion>, List<MobEffectInstance>> effects,
                                float radius, float radiusOnUse, float radiusPerTick,
                                int duration, int durationOnUse,
-                               Integer color, int waitTime, LootContext.EntityTarget owner
+                               int waitTime, LootContext.EntityTarget owner
     ) {
         super(pWeight, pQuality, pConditions, pFunctions);
-        this.potion = potion;
         this.effects = effects;
         this.duration = duration;
         this.radius = radius;
         this.radiusOnUse = radiusOnUse;
         this.radiusPerTick = radiusPerTick;
         this.durationOnUse = durationOnUse;
-        this.color = color;
         this.waitTime = waitTime;
         this.owner = owner;
     }
@@ -61,19 +85,15 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
             KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "unable to create effect cloud!");
             return;
         }
-        if (potion != null) cloud.setPotion(potion);
-        else if (effects != null) {
-            for (MobEffectInstance effect : effects) {
-                cloud.addEffect(effect);
-            }
-        }
+        effects
+                .ifLeft(p -> cloud.setPotionContents(new PotionContents(p)))
+                .ifRight(e -> e.forEach(cloud::addEffect));
         cloud.setRadius(radius);
         cloud.setRadiusOnUse(radiusOnUse);
         cloud.setRadiusPerTick(radiusPerTick);
         cloud.setDuration(duration);
         cloud.setDurationOnUse(durationOnUse);
         cloud.setWaitTime(waitTime);
-        if (color != null) cloud.setFixedColor(color);
         if (owner != null) {
             if (pLootContext.getParam(owner.getParam()) instanceof LivingEntity living) cloud.setOwner(living);
             else KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "owner {} was no living entity", pLootContext.getParam(owner.getParam()));
@@ -86,59 +106,12 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
         return SpawnPoolEntries.EFFECT_CLOUD.get();
     }
 
-    public static class Serializer extends SpawnPoolSingletonContainer.Serializer<SpawnEffectCloud> {
-
-        @Override
-        public void serializeCustom(JsonObject pObject, SpawnEffectCloud pContainer, JsonSerializationContext pConditions) {
-            super.serializeCustom(pObject, pContainer, pConditions);
-            if (pContainer.potion != null) pObject.addProperty("potion", Objects.requireNonNull(ForgeRegistries.POTIONS.getKey(pContainer.potion), "unknown potion: " + pContainer.potion.getName("")).toString());
-            if (pContainer.effects != null) pObject.add("effects", AddEffectsFunction.EFFECT_SERIALIZER.encode(List.of(pContainer.effects)));
-            if (pContainer.duration != 600) pObject.addProperty("duration", pContainer.duration);
-            if (pContainer.radius != 3) pObject.addProperty("radius", pContainer.radius);
-            if (pContainer.radiusOnUse != -.5f) pObject.addProperty("radiusOnUse", pContainer.radiusOnUse);
-            if (pContainer.radiusPerTick != -pContainer.radius / pContainer.duration) pObject.addProperty("radiusPerTick", pContainer.radiusPerTick);
-            pObject.addProperty("durationOnUse", pContainer.durationOnUse);
-            if (pContainer.color != null) pObject.addProperty("color", pContainer.color);
-            if (pContainer.waitTime != 20) pObject.addProperty("waitTime", pContainer.waitTime);
-            if (pContainer.owner != null) pObject.add("owner", pConditions.serialize(pContainer.owner));
-        }
-
-        @Override
-        protected SpawnEffectCloud deserialize(JsonObject pObject, JsonDeserializationContext pContext, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
-            Potion potion = pObject.has("potion") ? Potion.byName(GsonHelper.getAsString(pObject, "potion")) : null;
-            MobEffectInstance[] effects = pObject.has("effects") ? AddEffectsFunction.EFFECT_SERIALIZER.parse(pObject.get("effects")).toArray(MobEffectInstance[]::new) : null;
-            int duration = GsonHelper.getAsInt(pObject, "duration", 600);
-            float radius = GsonHelper.getAsFloat(pObject, "radius", 3);
-            float radiusOnUse = GsonHelper.getAsFloat(pObject, "radiusOnUse", -.5f);
-            float radiusPerTick = GsonHelper.getAsFloat(pObject, "radiusPerTick", -radius / duration);
-            int durationOnUse = GsonHelper.getAsInt(pObject, "durationOnUse");
-            Integer color = pObject.has("color") ? GsonHelper.getAsInt(pObject, "color") : null;
-            int waitTime = GsonHelper.getAsInt(pObject, "waitTime", 20);
-            LootContext.EntityTarget owner = pObject.has("owner") ? pContext.deserialize(pObject.get("owner"), LootContext.EntityTarget.class) : null;
-            return new SpawnEffectCloud(
-                    pWeight, pQuality, pConditions, pFunctions,
-                    potion,
-                    effects,
-                    radius,
-                    radiusOnUse,
-                    radiusPerTick,
-                    duration,
-                    durationOnUse,
-                    color,
-                    waitTime,
-                    owner
-            );
-        }
-    }
-
     public static Builder builder() {
         return new Builder();
     }
 
-
     public static class Builder extends SpawnPoolSingletonContainer.Builder<Builder> {
-        private Potion potion;
-        private MobEffectInstance[] effects;
+        private Either<Holder<Potion>, List<MobEffectInstance>> effects;
         private float radius = 3, radiusOnUse = -.5f, radiusPerTick = -1f / 200;
         private int duration = 600, durationOnUse;
         private Integer color;
@@ -150,13 +123,13 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
             return this;
         }
 
-        public Builder setPotion(Potion potion) {
-            this.potion = potion;
+        public Builder setPotion(Holder<Potion> potion) {
+            this.effects = Either.left(potion);
             return this;
         }
 
         public Builder setEffects(MobEffectInstance... effects) {
-            this.effects = effects;
+            this.effects = Either.right(List.of(effects));
             return this;
         }
 
@@ -211,10 +184,10 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
                     quality,
                     getConditions(),
                     getFunctions(),
-                    potion, effects,
+                    effects,
                     radius, radiusOnUse, radiusPerTick,
                     duration, durationOnUse,
-                    color, waitTime, owner
+                    waitTime, owner
             );
         }
     }

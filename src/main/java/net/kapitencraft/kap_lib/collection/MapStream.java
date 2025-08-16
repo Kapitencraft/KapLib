@@ -143,4 +143,8 @@ public class MapStream<K, V> {
     public Pair<K, V>[] toPairArray() {
         return this.mapToSimple(Pair::new).toArray(Pair[]::new);
     }
+
+    public List<Pair<K, V>> toPairList() {
+        return this.mapToSimple(Pair::new).toList();
+    }
 }

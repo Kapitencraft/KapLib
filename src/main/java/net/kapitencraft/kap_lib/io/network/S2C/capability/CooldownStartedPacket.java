@@ -1,41 +1,33 @@
 package net.kapitencraft.kap_lib.io.network.S2C.capability;
 
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
-import net.kapitencraft.kap_lib.io.network.SimplePacket;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record CooldownStartedPacket(Cooldown cooldown, int duration, int entityId) implements CustomPacketPayload {
+    public static final  StreamCodec<RegistryFriendlyByteBuf, CooldownStartedPacket> CODEC = StreamCodec.composite(
+            Cooldown.STREAM_CODEC, CooldownStartedPacket::cooldown,
+            ByteBufCodecs.INT, CooldownStartedPacket::duration,
+            ByteBufCodecs.INT, CooldownStartedPacket::entityId,
+            CooldownStartedPacket::new
+    );
+    public static final Type<CooldownStartedPacket> TYPE = new Type<>(KapLibMod.res("cooldown_started"));
 
-public class CooldownStartedPacket implements SimplePacket {
-    private final Cooldown cooldown;
-    private final int duration, entityId;
-
-    public CooldownStartedPacket(Cooldown cooldown, int duration, int entityId) {
-        this.cooldown = cooldown;
-        this.duration = duration;
-        this.entityId = entityId;
-    }
-
-    public CooldownStartedPacket(FriendlyByteBuf buf) {
-        this(buf.readRegistryIdUnsafe(ExtraRegistries.COOLDOWNS), buf.readInt(), buf.readInt());
-    }
-
-    @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        buf.writeRegistryIdUnsafe(ExtraRegistries.COOLDOWNS, cooldown);
-        buf.writeInt(duration);
-        buf.writeInt(entityId);
-    }
-
-    @Override
-    public void handle(Supplier<NetworkEvent.Context> sup) {
-        sup.get().enqueueWork(() -> {
+    public void handle(IPayloadContext sup) {
+        sup.enqueueWork(() -> {
             Cooldowns.get((LivingEntity) Minecraft.getInstance().level.getEntity(entityId)).setCooldownTime(cooldown, duration);
         });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

@@ -4,13 +4,14 @@ import net.kapitencraft.kap_lib.client.chroma.ChromaOrigin;
 import net.kapitencraft.kap_lib.client.chroma.ChromaType;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements.Element;
 import net.minecraft.ChatFormatting;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.NeoForgeConfig;
 
 import java.util.Arrays;
 
 public class ClientModConfig {
 
-    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
 
     static {
@@ -62,27 +63,27 @@ public class ClientModConfig {
                 .define("cache_player_heads", false);
     }
 
-    private static final ForgeConfigSpec.BooleanValue CACHE_PLAYER_HEADS;
-    private static final ForgeConfigSpec.BooleanValue ENABLE_DAMAGE_INDICATOR;
-    private static final ForgeConfigSpec.IntValue DAMAGE_INDICATOR_LIFETIME;
+    private static final ModConfigSpec.BooleanValue CACHE_PLAYER_HEADS;
+    private static final ModConfigSpec.BooleanValue ENABLE_DAMAGE_INDICATOR;
+    private static final ModConfigSpec.IntValue DAMAGE_INDICATOR_LIFETIME;
 
-    private static final ForgeConfigSpec.DoubleValue SCROLL_SCALE;
-    private static final ForgeConfigSpec.EnumValue<Element.FocusTypes> FOCUS_TYPE;
-    private static final ForgeConfigSpec.IntValue CURSOR_MOVE_OFFSET;
+    private static final ModConfigSpec.DoubleValue SCROLL_SCALE;
+    private static final ModConfigSpec.EnumValue<Element.FocusTypes> FOCUS_TYPE;
+    private static final ModConfigSpec.IntValue CURSOR_MOVE_OFFSET;
 
-    private static final ForgeConfigSpec.DoubleValue CHROMA_SPEED;
-    private static final ForgeConfigSpec.EnumValue<ChromaType> CHROMA_TYPE;
-    private static final ForgeConfigSpec.DoubleValue CHROMA_SPACING;
-    private static final ForgeConfigSpec.EnumValue<ChromaOrigin> CHROMA_ORIGIN;
+    private static final ModConfigSpec.DoubleValue CHROMA_SPEED;
+    private static final ModConfigSpec.EnumValue<ChromaType> CHROMA_TYPE;
+    private static final ModConfigSpec.DoubleValue CHROMA_SPACING;
+    private static final ModConfigSpec.EnumValue<ChromaOrigin> CHROMA_ORIGIN;
 
-    private static final ForgeConfigSpec.EnumValue<ChatFormatting> PING_COLOR;
+    private static final ModConfigSpec.EnumValue<ChatFormatting> PING_COLOR;
 
-    private static final ForgeConfigSpec.BooleanValue SHOW_LIFE_STEAL_PARTICLE;
+    private static final ModConfigSpec.BooleanValue SHOW_LIFE_STEAL_PARTICLE;
 
-    private static final ForgeConfigSpec.BooleanValue SHOW_ENCHANTMENT_OBTAIN_DISPLAY;
-    private static final ForgeConfigSpec.BooleanValue SHOW_ENCHANTMENT_APPLICABLES;
+    private static final ModConfigSpec.BooleanValue SHOW_ENCHANTMENT_OBTAIN_DISPLAY;
+    private static final ModConfigSpec.BooleanValue SHOW_ENCHANTMENT_APPLICABLES;
 
-    public static final ForgeConfigSpec SPEC = BUILDER.build();
+    public static final ModConfigSpec SPEC = BUILDER.build();
 
     public static boolean isIndicatorEnabled() {
         return ENABLE_DAMAGE_INDICATOR.get();

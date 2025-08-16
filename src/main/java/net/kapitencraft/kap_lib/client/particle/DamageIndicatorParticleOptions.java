@@ -1,21 +1,22 @@
 package net.kapitencraft.kap_lib.client.particle;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * particle Options for {@link DamageIndicatorParticle}
  */
 public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicatorParticleOptions> implements ParticleOptions {
-    private static final Codec<DamageIndicatorParticleOptions> CODEC = RecordCodecBuilder.create(optionsInstance ->
+    private static final MapCodec<DamageIndicatorParticleOptions> CODEC = RecordCodecBuilder.mapCodec(optionsInstance ->
             optionsInstance.group(
                     Codec.INT.fieldOf("damageType")
                             .forGetter(DamageIndicatorParticleOptions::getDamageType),
@@ -24,12 +25,19 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
                     Codec.FLOAT.fieldOf("rangeOffset")
                             .forGetter(DamageIndicatorParticleOptions::getRangeOffset)
             ).apply(optionsInstance, DamageIndicatorParticleOptions::new));
+    private static final StreamCodec<ByteBuf, DamageIndicatorParticleOptions> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, DamageIndicatorParticleOptions::getDamageType,
+            ByteBufCodecs.FLOAT, DamageIndicatorParticleOptions::getDamage,
+            ByteBufCodecs.FLOAT, DamageIndicatorParticleOptions::getRangeOffset,
+            DamageIndicatorParticleOptions::new
+    );
+
     private final int damageType;
     private final float damage;
     private final float rangeOffset;
 
     public DamageIndicatorParticleOptions(int damageType, float damage, float rangeOffset) {
-        super(true, new Deserializer());
+        super(true);
         this.damageType = damageType;
         this.damage = damage;
         this.rangeOffset = rangeOffset;
@@ -53,40 +61,13 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
     }
 
     @Override
-    public void writeToNetwork(@NotNull FriendlyByteBuf buf) {
-        buf.writeInt(damageType);
-        buf.writeFloat(damage);
-        buf.writeFloat(rangeOffset);
-    }
-
-    @Override
-    public @NotNull String writeToString() {
-        return String.format("%s %d", ForgeRegistries.PARTICLE_TYPES.getKey(this.getType()), damageType);
-    }
-
-    @Override
-    public @NotNull Codec<DamageIndicatorParticleOptions> codec() {
+    public @NotNull MapCodec<DamageIndicatorParticleOptions> codec() {
         return CODEC;
     }
 
-    public static class Deserializer implements ParticleOptions.Deserializer<DamageIndicatorParticleOptions> {
-
-        @Override
-        public @NotNull DamageIndicatorParticleOptions fromCommand(@NotNull ParticleType<DamageIndicatorParticleOptions> p_123733_, @NotNull StringReader reader) throws CommandSyntaxException {
-            int damageType = reader.readInt();
-            reader.expect(' ');
-            float damage = reader.readFloat();
-            reader.expect(' ');
-            float rangeOffset = reader.readFloat();
-            return new DamageIndicatorParticleOptions(damageType, damage, rangeOffset);
-        }
-
-        @Override
-        public @NotNull DamageIndicatorParticleOptions fromNetwork(@NotNull ParticleType<DamageIndicatorParticleOptions> p_123735_, @NotNull FriendlyByteBuf buf) {
-            int damageType = buf.readInt();
-            float damage = buf.readFloat();
-            float rangeOffset = buf.readFloat();
-            return new DamageIndicatorParticleOptions(damageType, damage,  rangeOffset);
-        }
+    @Override
+    public StreamCodec<? super RegistryFriendlyByteBuf, DamageIndicatorParticleOptions> streamCodec() {
+        return STREAM_CODEC;
     }
+
 }

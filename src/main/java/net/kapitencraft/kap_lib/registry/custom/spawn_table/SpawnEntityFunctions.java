@@ -1,60 +1,69 @@
 package net.kapitencraft.kap_lib.registry.custom.spawn_table;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.spawn_table.ForgeGsonAdapterFactory;
 import net.kapitencraft.kap_lib.spawn_table.functions.*;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
-import net.minecraft.world.level.storage.loot.Serializer;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.apache.commons.compress.archivers.zip.ScatterZipOutputStream;
 
+import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public interface SpawnEntityFunctions {
-    DeferredRegister<SpawnEntityFunctionType> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.FUNCTION_TYPES);
+    Codec<SpawnEntityFunction> TYPED_CODEC = ExtraRegistries.SPAWN_FUNCTION_TYPES
+            .byNameCodec()
+            .dispatch("function", SpawnEntityFunction::getType, SpawnEntityFunctionType::codec);
 
-    RegistryObject<SpawnEntityFunctionType> COMMON_PROPERTIES = register("common_properties", new CommonPropertiesFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> MOB_PROPERTIES = register("mob_properties", new MobPropertiesFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> RAIDER_PROPERTIES = register("raider_properties", new RaiderPropertiesFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> VILLAGER_PROPERTIES = register("villager_properties", new VillagerPropertiesFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_NAME = register("set_name", new SetNameFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_MOTION = register("set_motion", new SetMotionFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_FACING = register("set_facing", new SetFacingFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_FIRE_DURATION = register("set_fire", new SetFireFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_AIR_SUPPLY = register("set_air_supply", new SetAirSupplyFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_ARMOR = register("set_armor", new SetArmorFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_LEASHED = register("set_leashed", new SetLeashedFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_HEALTH = register("set_health", new SetHealthFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_OWNER = register("set_owner", new SetEntityOwnerFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_EXPERIENCE_VALUE = register("set_experience_value", new SetExperienceValueFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_ATTRIBUTES = register("set_attributes", new SetAttributesFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> SET_MERCHANT_TRADES = register("set_merchant_trades", new SetMerchantTradesFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> ADD_EFFECTS = register("add_effects", new AddEffectsFunction.Serializer());
-    RegistryObject<SpawnEntityFunctionType> ADD_PASSENGERS = register("add_passengers", new AddPassengersFunction.Serializer());
+    Codec<SpawnEntityFunction> ROOT_CODEC = Codec.lazyInitialized(() -> Codec.withAlternative(TYPED_CODEC, SequenceFunction.INLINE_CODEC));
 
-    static RegistryObject<SpawnEntityFunctionType> register(String name, Serializer<? extends SpawnEntityFunction> serializer) {
-        return REGISTRY.register(name, () -> new SpawnEntityFunctionType(serializer));
-    }
+    DeferredRegister<SpawnEntityFunctionType<?>> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.FUNCTION_TYPES);
 
-    static Object createGsonAdapter() {
-        return ForgeGsonAdapterFactory.builder(ExtraRegistries.SPAWN_FUNCTION_TYPES, "function", "function", SpawnEntityFunction::getType).build();
+    Supplier<SpawnEntityFunctionType<CommonPropertiesFunction>> COMMON_PROPERTIES = register("common_properties", CommonPropertiesFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<MobPropertiesFunction>> MOB_PROPERTIES = register("mob_properties", MobPropertiesFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<RaiderPropertiesFunction>> RAIDER_PROPERTIES = register("raider_properties", RaiderPropertiesFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<VillagerPropertiesFunction>> VILLAGER_PROPERTIES = register("villager_properties", VillagerPropertiesFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetNameFunction>> SET_NAME = register("set_name", SetNameFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetMotionFunction>> SET_MOTION = register("set_motion", SetMotionFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetFacingFunction>> SET_FACING = register("set_facing", SetFacingFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetFireFunction>> SET_FIRE_DURATION = register("set_fire", SetFireFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetAirSupplyFunction>> SET_AIR_SUPPLY = register("set_air_supply", SetAirSupplyFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetArmorFunction>> SET_ARMOR = register("set_armor", SetArmorFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetLeashedFunction>> SET_LEASHED = register("set_leashed", SetLeashedFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetHealthFunction>> SET_HEALTH = register("set_health", SetHealthFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetEntityOwnerFunction>> SET_OWNER = register("set_owner", SetEntityOwnerFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetExperienceValueFunction>> SET_EXPERIENCE_VALUE = register("set_experience_value", SetExperienceValueFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetAttributesFunction>> SET_ATTRIBUTES = register("set_attributes", SetAttributesFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SetMerchantTradesFunction>> SET_MERCHANT_TRADES = register("set_merchant_trades", SetMerchantTradesFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<AddEffectsFunction>> ADD_EFFECTS = register("add_effects", AddEffectsFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<AddPassengersFunction>> ADD_PASSENGERS = register("add_passengers", AddPassengersFunction.CODEC);
+    Supplier<SpawnEntityFunctionType<SequenceFunction>> SEQUENCE = register("sequence", SequenceFunction.CODEC);
+
+    static <T extends SpawnEntityFunction> DeferredHolder<SpawnEntityFunctionType<?>, SpawnEntityFunctionType<T>> register(String name, MapCodec<T> serializer) {
+        return REGISTRY.register(name, () -> new SpawnEntityFunctionType<>(serializer));
     }
 
     BiFunction<Entity, SpawnContext, Entity> IDENTITY = (p_80760_, p_80761_) -> p_80760_;
 
-    static BiFunction<Entity, SpawnContext, Entity> compose(BiFunction<Entity, SpawnContext, Entity>[] pFunctions) {
-        switch (pFunctions.length) {
+    static BiFunction<Entity, SpawnContext, Entity> compose(List<? extends BiFunction<Entity, SpawnContext, Entity>> pFunctions) {
+        switch (pFunctions.size()) {
             case 0:
                 return IDENTITY;
             case 1:
-                return pFunctions[0];
+                return pFunctions.getFirst();
             case 2:
-                BiFunction<Entity, SpawnContext, Entity> bifunction = pFunctions[0];
-                BiFunction<Entity, SpawnContext, Entity> bifunction1 = pFunctions[1];
+                BiFunction<Entity, SpawnContext, Entity> bifunction = pFunctions.get(0);
+                BiFunction<Entity, SpawnContext, Entity> bifunction1 = pFunctions.get(1);
                 return (p_80768_, p_80769_) ->
                         bifunction1.apply(bifunction.apply(p_80768_, p_80769_), p_80769_);
             default:

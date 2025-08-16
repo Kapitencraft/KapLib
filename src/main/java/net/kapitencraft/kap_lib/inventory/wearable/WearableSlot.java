@@ -2,13 +2,16 @@ package net.kapitencraft.kap_lib.inventory.wearable;
 
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistry;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
 public class WearableSlot {
+    public static final StreamCodec<RegistryFriendlyByteBuf, WearableSlot> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.WEARABLE_SLOTS);
 
     private final int xPos, yPos;
     private final @Nullable Pair<ResourceLocation, ResourceLocation> noItemIcon;
@@ -35,9 +38,8 @@ public class WearableSlot {
         return this == other.get();
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public int getSlotIndex() {
-        return ((ForgeRegistry<WearableSlot>) ExtraRegistries.WEARABLE_SLOTS).getID(this);
+        return ExtraRegistries.WEARABLE_SLOTS.getId(this);
     }
 
     public int getXPos() {

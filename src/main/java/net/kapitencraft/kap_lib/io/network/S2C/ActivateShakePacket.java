@@ -1,34 +1,29 @@
 package net.kapitencraft.kap_lib.io.network.S2C;
 
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.LibClient;
-import net.kapitencraft.kap_lib.io.network.SimplePacket;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record ActivateShakePacket(float intensity, float strength, float frequency) implements CustomPacketPayload {
+    public static final Type<ActivateShakePacket> TYPE = new Type<>(KapLibMod.res("activate_shake"));
 
-public class ActivateShakePacket implements SimplePacket {
-    private final float intensity, strength, frequency;
+    public static final StreamCodec<RegistryFriendlyByteBuf, ActivateShakePacket> CODEC = StreamCodec.composite(
+            ByteBufCodecs.FLOAT, ActivateShakePacket::intensity,
+            ByteBufCodecs.FLOAT, ActivateShakePacket::strength,
+            ByteBufCodecs.FLOAT, ActivateShakePacket::frequency,
+            ActivateShakePacket::new
+    );
 
-    public ActivateShakePacket(float intensity, float strength, float frequency) {
-        this.intensity = intensity;
-        this.strength = strength;
-        this.frequency = frequency;
-    }
-
-    public ActivateShakePacket(FriendlyByteBuf buf) {
-        this(buf.readFloat(), buf.readFloat(), buf.readFloat());
-    }
-
-    @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        buf.writeFloat(this.intensity);
-        buf.writeFloat(this.strength);
-        buf.writeFloat(this.frequency);
+    public void handle(IPayloadContext sup) {
+        sup.enqueueWork(() -> LibClient.cameraControl.shake(this.intensity, this.strength, this.frequency));
     }
 
     @Override
-    public void handle(Supplier<NetworkEvent.Context> sup) {
-        sup.get().enqueueWork(() -> LibClient.cameraControl.shake(this.intensity, this.strength, this.frequency));
+    public Type<? extends CustomPacketPayload> type() {
+        return null;
     }
 }

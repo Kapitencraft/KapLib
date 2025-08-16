@@ -2,11 +2,12 @@ package net.kapitencraft.kap_lib.event.custom.client;
 
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.core.Holder;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -17,9 +18,9 @@ import java.util.function.Function;
  */
 @OnlyIn(Dist.CLIENT)
 public class RegisterConfigurableOverlaysEvent extends Event implements IModBusEvent {
-    private final BiConsumer<RegistryObject<OverlayProperties>, Function<OverlayProperties, Overlay>> constructorFactory;
+    private final BiConsumer<Holder<OverlayProperties>, Function<OverlayProperties, Overlay>> constructorFactory;
 
-    public RegisterConfigurableOverlaysEvent(BiConsumer<RegistryObject<OverlayProperties>, Function<OverlayProperties, Overlay>> constructorFactory) {
+    public RegisterConfigurableOverlaysEvent(BiConsumer<Holder<OverlayProperties>, Function<OverlayProperties, Overlay>> constructorFactory) {
         this.constructorFactory = constructorFactory;
     }
 
@@ -27,7 +28,7 @@ public class RegisterConfigurableOverlaysEvent extends Event implements IModBusE
      * @param location the screen location the renderer should default to
      * @param constructor the constructor being called to create the Holder
      */
-    public void addOverlay(RegistryObject<OverlayProperties> location, Function<OverlayProperties, Overlay> constructor) {
+    public void addOverlay(Holder<OverlayProperties> location, Function<OverlayProperties, Overlay> constructor) {
         constructorFactory.accept(location, constructor);
     }
 }

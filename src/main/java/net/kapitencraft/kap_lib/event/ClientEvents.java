@@ -1,14 +1,12 @@
 package net.kapitencraft.kap_lib.event;
 
-import net.kapitencraft.kap_lib.client.LibClient;
-import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.core.TriggerInstance;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ActivationTriggers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
-@Mod.EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(Dist.CLIENT)
 public class ClientEvents {
 
     @SubscribeEvent

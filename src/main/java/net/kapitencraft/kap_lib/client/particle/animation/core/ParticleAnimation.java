@@ -9,23 +9,25 @@ import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTriggerInstance;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SendParticleAnimationPacket;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.CrashReport;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,27 +35,38 @@ import java.util.Objects;
  * static data container for animations. use {@link ParticleAnimator} for dynamic information such as tick count
  */
 public class ParticleAnimation {
-    private final AnimationElement[] elements;
+    public static final StreamCodec<RegistryFriendlyByteBuf, ParticleAnimation> CODEC = ExtraStreamCodecs.composite(
+            AnimationElement.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::allElements,
+            ParticleFinalizer.CODEC, p -> p.finalizer,
+            TerminationTrigger.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTerminators,
+            ActivationTrigger.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTriggers,
+            Spawner.CODEC, p -> p.spawner,
+            ByteBufCodecs.INT, p -> p.minSpawnDelay,
+            ByteBufCodecs.INT, p -> p.maxSpawnDelay,
+            ParticleAnimation::new
+    );
+
+    private final List<AnimationElement> elements;
     private final ParticleFinalizer finalizer;
-    private final TerminationTriggerInstance[] terminators;
-    private final TriggerInstance[] activationTriggers;
+    private final List<TerminationTriggerInstance> terminators;
+    private final List<TriggerInstance> activationTriggers;
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
 
     private ParticleAnimation(Builder builder) {
         if (builder.minSpawnDelay > builder.maxSpawnDelay) throw new IllegalStateException("minimum spawn delay must be smaller than maximum spawn delay");
         if (builder.minSpawnDelay < -1 || builder.minSpawnDelay == 0) throw new IllegalStateException("minimum spawn delay must be above 0 or -1");
-        this.elements = builder.elements.toArray(new AnimationElement[0]);
+        this.elements = builder.elements;
         this.finalizer = Objects.requireNonNull(builder.finalizer, "animations must have a finalizer");
         this.spawner = Objects.requireNonNull(builder.spawner, "animations must have a spawner");
-        this.terminators = builder.terminators.toArray(TerminationTriggerInstance[]::new);
-        if (this.terminators.length < 1) throw new IllegalStateException("particle animation must have a terminator");
+        this.terminators = builder.terminators;
+        if (this.terminators.isEmpty()) throw new IllegalStateException("particle animation must have a terminator");
         this.maxSpawnDelay = builder.maxSpawnDelay;
         this.minSpawnDelay = builder.minSpawnDelay;
-        this.activationTriggers = builder.activationTriggers.toArray(TriggerInstance[]::new);
+        this.activationTriggers = builder.activationTriggers;
     }
 
-    private ParticleAnimation(AnimationElement[] elements, ParticleFinalizer finalizer, TerminationTriggerInstance[] terminators, Spawner spawner, int minSpawnDelay, int maxSpawnDelay, TriggerInstance[] activationTriggers) {
+    private ParticleAnimation(List<AnimationElement> elements, ParticleFinalizer finalizer, List<TerminationTriggerInstance> terminators, List<TriggerInstance> activationTriggers, Spawner spawner, int minSpawnDelay, int maxSpawnDelay) {
         this.elements = elements;
         this.finalizer = finalizer;
         this.terminators = terminators;
@@ -64,14 +77,14 @@ public class ParticleAnimation {
     }
 
     public AnimationElement getElement(int elementIndex) {
-        return elements[elementIndex];
+        return elements.get(elementIndex);
     }
 
-    public AnimationElement[] allElements() {
+    public List<AnimationElement> allElements() {
         return elements;
     }
 
-    public TerminationTriggerInstance[] getTerminators() {
+    public List<TerminationTriggerInstance> getTerminators() {
         return terminators;
     }
 
@@ -79,16 +92,16 @@ public class ParticleAnimation {
         this.spawner.spawn(sink);
     }
 
-    public TriggerInstance[] getTriggers() {
+    public List<TriggerInstance> getTriggers() {
         return activationTriggers;
     }
 
     public void fillCrashReport(CrashReport report) {
         report.addCategory("Animation")
-                .setDetail("Elements", Arrays.toString(this.elements))
+                .setDetail("Elements", this.elements)
                 .setDetail("Particle Finalizer", this.finalizer)
                 .setDetail("Terminator", this.terminators)
-                .setDetail("Activation Triggers", Arrays.toString(this.activationTriggers))
+                .setDetail("Activation Triggers", this.activationTriggers)
                 .setDetail("Spawner", this.spawner)
                 .setDetail("minSpawnDelay", this.minSpawnDelay)
                 .setDetail("maxSpawnDelay", this.maxSpawnDelay);
@@ -194,15 +207,14 @@ public class ParticleAnimation {
          * @param player the player to send the animation to
          */
         public void sendToPlayer(ServerPlayer player) {
-            ModMessages.sendToClientPlayer(new SendParticleAnimationPacket(this.build()), player);
+            PacketDistributor.sendToPlayer(player, new SendParticleAnimationPacket(this.build()));
         }
 
         /**
          * used to register the animation of this builder to all players inside the given level
-         * @param level the level
          */
-        public void sendToAllPlayers(ServerLevel level) {
-            ModMessages.sendToAllConnectedPlayers(sp -> new SendParticleAnimationPacket(this.build()), level);
+        public void sendToAllPlayers() {
+            PacketDistributor.sendToAllPlayers(new SendParticleAnimationPacket(this.build()));
         }
 
         /**
@@ -233,38 +245,6 @@ public class ParticleAnimation {
         public static SpawnTime range(int min, int max) {
             return new SpawnTime(min, max);
         }
-    }
-
-    /**
-     * used to write information to a network stream
-     */
-    @ApiStatus.Internal
-    public void toNW(FriendlyByteBuf buf) {
-        buf.writeInt(this.minSpawnDelay);
-        buf.writeInt(this.maxSpawnDelay);
-        NetworkHelper.writeArray(buf, elements, AnimationElement::toNw);
-        Spawner.toNw(buf, this.spawner);
-        ParticleFinalizer.toNw(buf, this.finalizer);
-        NetworkHelper.writeArray(buf, this.terminators, TerminationTrigger::writeToNw);
-        NetworkHelper.writeArray(buf, this.activationTriggers, ActivationTrigger::writeToNw);
-    }
-
-    /**
-     * used to read a particle information from the network stream
-     */
-    @ApiStatus.Internal
-    public static ParticleAnimation fromNw(FriendlyByteBuf buf) {
-        int minSpawnDelay = buf.readInt();
-        int maxSpawnDelay = buf.readInt();
-        AnimationElement[] elements = NetworkHelper.readArray(buf, AnimationElement[]::new, AnimationElement::fromNw);
-
-        Spawner spawner = Spawner.fromNw(buf);
-        ParticleFinalizer finalizer = ParticleFinalizer.fromNw(buf);
-
-        TerminationTriggerInstance[] terminators = NetworkHelper.readArray(buf, TerminationTriggerInstance[]::new, TerminationTrigger::readFromNw);
-        TriggerInstance[] triggers = NetworkHelper.readArray(buf, TriggerInstance[]::new, ActivationTrigger::readFromNw);
-
-        return new ParticleAnimation(elements, finalizer, terminators, spawner, minSpawnDelay, maxSpawnDelay, triggers);
     }
 
     @ApiStatus.Internal

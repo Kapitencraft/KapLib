@@ -6,9 +6,9 @@ import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public abstract class SelectRegistryElementWidget<T> extends PositionedWidget {
     protected T selected;
     private final Consumer<T> valueSink;
 
-    protected SelectRegistryElementWidget(int x, int y, int width, int height, Component title, Font font, IForgeRegistry<T> registry, Consumer<T> valueSink) {
+    protected SelectRegistryElementWidget(int x, int y, int width, int height, Component title, Font font, Registry<T> registry, Consumer<T> valueSink) {
         super(x, y, width, height);
         this.allElements = new ArrayList<>();
         for (T element : registry) allElements.add(element);
@@ -94,13 +94,13 @@ public abstract class SelectRegistryElementWidget<T> extends PositionedWidget {
     protected abstract int size();
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double scrollX, double scrollY) {
         if (MathHelper.is2dBetween(pMouseX, pMouseY, this.x + 1, this.y + 11, getMaxX() - 1, this.getMaxY() - 11)) {
-            this.scroll += (float) (pDelta * ClientModConfig.getScrollScale());
+            this.scroll += (float) (scrollY * ClientModConfig.getScrollScale());
             this.scroll = Mth.clamp(scroll, -maxScroll, 0);
             return true;
         }
-        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+        return super.mouseScrolled(pMouseX, pMouseY, scrollX, scrollY);
     }
 
     @Override

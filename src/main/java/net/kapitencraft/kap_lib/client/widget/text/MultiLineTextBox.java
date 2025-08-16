@@ -25,8 +25,9 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.util.StringUtil;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import net.kapitencraft.kap_lib.util.Vec2i;
 import org.lwjgl.glfw.GLFW;
@@ -217,7 +218,7 @@ public class MultiLineTextBox extends ScrollableWidget {
         int selectionStart = Math.min(this.cursorPos, this.highlightPos);
         int selectionEnd = Math.max(this.cursorPos, this.highlightPos);
         int space = Integer.MAX_VALUE - this.value.length() - (selectionStart - selectionEnd);
-        String insert = SharedConstants.filterText(pTextToWrite, true);
+        String insert = StringUtil.filterText(pTextToWrite, true);
         int insertLength = insert.length();
         if (space < insertLength) {
             insert = insert.substring(0, space);
@@ -764,7 +765,7 @@ public class MultiLineTextBox extends ScrollableWidget {
     public boolean charTyped(char pCodePoint, int pModifiers) {
         if (!this.canConsumeInput()) {
             return false;
-        } else if (SharedConstants.isAllowedChatCharacter(pCodePoint)) {
+        } else if (StringUtil.isAllowedChatCharacter(pCodePoint)) {
             if (this.isEditable) {
                 this.insertText(Character.toString(pCodePoint));
             }

@@ -40,25 +40,29 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.event.MovementInputUpdateEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.GameShuttingDownEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
-import net.minecraftforge.event.entity.living.*;
-import net.minecraftforge.event.entity.player.ArrowLooseEvent;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.ICancellableEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
+import net.neoforged.neoforge.client.event.RenderPlayerEvent;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.GameShuttingDownEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
+import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
+import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
@@ -68,13 +72,12 @@ import java.util.*;
  * <br>there shouldn't be any reason for Modders to use this class
  */
 @ApiStatus.Internal
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class Events {
     /**
      * event classes that should not be cancelled
      */
     private static final List<Class<? extends LivingEvent>> dontCancel = List.of(
-            EntityItemPickupEvent.class,
             ItemTooltipEvent.class,
             RenderPlayerEvent.Pre.class,
             RenderPlayerEvent.Post.class,
@@ -84,19 +87,17 @@ public class Events {
             PlayerEvent.PlayerLoggedInEvent.class,
             PlayerEvent.PlayerLoggedOutEvent.class,
             MovementInputUpdateEvent.class,
-            LivingMakeBrainEvent.class,
-            LivingEvent.LivingTickEvent.class,
             LivingBreatheEvent.class
     );
 
     @SubscribeEvent
     public static void ensureReqsMet(LivingEvent event) { //cancel any PlayerEvent that don't meet the item requirements
-        if (!dontCancel.contains(event.getClass()) && !RequirementManager.meetsItemRequirementsFromEvent(event, EquipmentSlot.MAINHAND) && event.isCancelable()) event.setCanceled(true);
+        if (event instanceof ICancellableEvent iCE && !dontCancel.contains(event.getClass()) && !RequirementManager.meetsItemRequirementsFromEvent(event, EquipmentSlot.MAINHAND) && iCE.isCanceled()) iCE.setCanceled(true);
     }
 
     @SubscribeEvent
     public static void addRequirementListener(AddReloadListenerEvent event) {
-        event.addListener(RequirementManager.instance = new RequirementManager());
+        event.addListener(RequirementManager.instance);
         event.addListener(BonusManager.updateInstance());
         event.addListener(SpawnTableManager.instance = new SpawnTableManager());
     }
@@ -110,8 +111,10 @@ public class Events {
     @SubscribeEvent
     public static void playerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            ModMessages.sendToClientPlayer(new SyncRequirementsPacket(RequirementManager.instance), serverPlayer);
-            ModMessages.sendToClientPlayer(new SyncBonusesPacket(BonusManager.instance), serverPlayer);
+            PacketDistributor.sendToPlayer(serverPlayer,
+                    new SyncRequirementsPacket(RequirementManager.instance),
+                    new SyncBonusesPacket(BonusManager.instance.createData())
+            );
         }
     }
 
@@ -127,7 +130,7 @@ public class Events {
 
     @SubscribeEvent
     public static void modArrowEnchantments(ArrowLooseEvent event) {
-        event.setCharge((int) (event.getCharge() * event.getEntity().getAttributeValue(ExtraAttributes.DRAW_SPEED.get()) / 100));
+        event.setCharge((int) (event.getCharge() * event.getEntity().getAttributeValue(ExtraAttributes.DRAW_SPEED) / 100));
     }
 
     private static final Map<ResourceKey<Level>, Queue<UUID>> arrowHelper = new HashMap<>();
@@ -161,7 +164,7 @@ public class Events {
             }
         }
         if (event.getEntity() instanceof Player player) {
-            AttributeInstance manaInst = player.getAttribute(ExtraAttributes.MANA.get());
+            AttributeInstance manaInst = player.getAttribute(ExtraAttributes.MANA);
             CompoundTag tag = player.getPersistentData();
             if (manaInst == null) throw new IllegalStateException();
             else {
@@ -194,8 +197,8 @@ public class Events {
     }
 
     @SubscribeEvent
-    public static void serverTick(TickEvent.LevelTickEvent event) {
-        if (event.level instanceof ServerLevel serverLevel) {
+    public static void serverTick(LevelTickEvent event) {
+        if (event.getLevel() instanceof ServerLevel serverLevel) {
             arrowHelper.putIfAbsent(serverLevel.dimension(), Queue.create());
             Queue<UUID> queue = arrowHelper.get(serverLevel.dimension());
             queue.queue(uuid -> {
@@ -213,8 +216,8 @@ public class Events {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void healthRegenRegister(LivingHealEvent event) {
         LivingEntity living = event.getEntity();
-        if (living.getAttribute(ExtraAttributes.VITALITY.get()) != null) {
-            double vitality = living.getAttributeValue(ExtraAttributes.VITALITY.get());
+        if (living.getAttribute(ExtraAttributes.VITALITY) != null) {
+            double vitality = living.getAttributeValue(ExtraAttributes.VITALITY);
             event.setAmount(event.getAmount() * (1 + (float) vitality / 100));
         }
     }
@@ -228,27 +231,32 @@ public class Events {
     public static final String DOUBLE_JUMP_ID = "currentDoubleJump";
 
     @SubscribeEvent
-    public static void entityTick(LivingEvent.LivingTickEvent event) {
-        LivingEntity living = event.getEntity();
-        if (living.isDeadOrDying()) return;
+    public static void onPlayerTick(PlayerTickEvent event) {
+        Player player = event.getEntity();
+        CompoundTag tag = player.getPersistentData();
+        if (!player.onGround()) {
+            if (canJump(player) && tag.getInt(DOUBLE_JUMP_ID) < player.getAttributeValue(ExtraAttributes.DOUBLE_JUMP)) {
+                if (player.jumping && player.noJumpDelay <= 0) {
+                    ParticleHelper.sendAlwaysVisibleParticles(ParticleTypes.CLOUD, player.level(), player.getX(), player.getY(), player.getZ(), 0.25, 0.0, 0.25, 0,0,0, 15);
+                    player.noJumpDelay = 10; player.fallDistance = 0;
+                    Vec3 targetLoc = player.getLookAngle().multiply(1, 0, 1).scale(0.75).add(0, 1, 0);
+                    player.setDeltaMovement(targetLoc.x, targetLoc.y > 0 ? targetLoc.y : -targetLoc.y, targetLoc.z);
+                    IOHelper.increaseIntegerTagValue(player.getPersistentData(), DOUBLE_JUMP_ID, 1);
+                }
+            }
+        } else if (tag.getInt(DOUBLE_JUMP_ID) > 0) {
+            tag.putInt(DOUBLE_JUMP_ID, 0);
+        }
+    }
+
+
+    @SubscribeEvent
+    public static void entityTick(EntityTickEvent event) {
+        Entity entity = event.getEntity();
+        if (!(entity instanceof LivingEntity living) || living.isDeadOrDying()) return;
         Cooldowns.get(living).tick();
         BonusHelper.tickEnchantments(living);
         CompoundTag tag = living.getPersistentData();
-        if (living instanceof Player player) {
-            if (!player.onGround()) {
-                if (canJump(player) && tag.getInt(DOUBLE_JUMP_ID) < player.getAttributeValue(ExtraAttributes.DOUBLE_JUMP.get())) {
-                    if (player.jumping && player.noJumpDelay <= 0) {
-                        ParticleHelper.sendAlwaysVisibleParticles(ParticleTypes.CLOUD, player.level(), player.getX(), player.getY(), player.getZ(), 0.25, 0.0, 0.25, 0,0,0, 15);
-                        player.noJumpDelay = 10; player.fallDistance = 0;
-                        Vec3 targetLoc = player.getLookAngle().multiply(1, 0, 1).scale(0.75).add(0, 1, 0);
-                        player.setDeltaMovement(targetLoc.x, targetLoc.y > 0 ? targetLoc.y : -targetLoc.y, targetLoc.z);
-                        IOHelper.increaseIntegerTagValue(player.getPersistentData(), DOUBLE_JUMP_ID, 1);
-                    }
-                }
-            } else if (tag.getInt(DOUBLE_JUMP_ID) > 0) {
-                tag.putInt(DOUBLE_JUMP_ID, 0);
-            }
-        }
         if (living instanceof Mob mob) {
             if (mob.getTarget() != null && mob.getTarget().isInvisible()) {
                 mob.setTarget(null);
@@ -258,14 +266,6 @@ public class Events {
 
     private static boolean canJump(Player player) {
         return !player.onGround() && !(player.isPassenger() || player.getAbilities().flying) && !(player.isInWater() || player.isInLava());
-    }
-
-    @SubscribeEvent
-    public static void addWearableToPlayer(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof LivingEntity living) {
-            event.addCapability(KapLibMod.res("wearable"), new WearableProvider(living));
-            event.addCapability(KapLibMod.res("cooldowns"), new CooldownsProvider(living));
-        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

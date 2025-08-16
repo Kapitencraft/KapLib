@@ -1,30 +1,31 @@
 package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.cooldown.Cooldowns;
+import net.kapitencraft.kap_lib.cooldown.CooldownsProvider;
 import net.kapitencraft.kap_lib.event.custom.RegisterUpdateCheckersEvent;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.item.misc.AnvilUses;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries.Keys;
-import net.kapitencraft.kap_lib.registry.custom.core.ModRegistryBuilders;
 import net.kapitencraft.kap_lib.util.UpdateChecker;
-import net.kapitencraft.kap_lib.registry.vanilla.VanillaAttributeModifierTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
-import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.registries.RegisterEvent;
+import net.minecraft.world.entity.EntityType;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.jetbrains.annotations.ApiStatus;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 @ApiStatus.Internal
 public class ModEventBusEvents {
 
     @SubscribeEvent
     public static void commonSetup(FMLCommonSetupEvent event) {
-        ModMessages.register();
         AnvilUses.registerUses();
     }
 
@@ -35,18 +36,18 @@ public class ModEventBusEvents {
 
     @SubscribeEvent
     public static void addRegistries(NewRegistryEvent event) {
+        ExtraRegistries.registerAll(event::register);
+        event.register(Mod);
         ModRegistryBuilders.builders.forEach(event::create);
     }
 
+    @SubscribeEvent
+    public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerEntity(Cooldowns.CAPABILITY, EntityType.PLAYER, (object, context) -> new Cooldowns(object));
+    }
 
     @SubscribeEvent
     public static void registerUpdateListener(RegisterUpdateCheckersEvent event) {
         event.register(KapLibMod.MOD_ID);
     }
-
-    @SubscribeEvent
-    public void onRegister(RegisterEvent event) {
-        event.register(ExtraRegistries.Keys.ATTRIBUTE_MODIFIER_TYPES, new ResourceLocation("default"), VanillaAttributeModifierTypes::createVanillaCodec);
-    }
-
 }

@@ -6,14 +6,14 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.concurrent.CompletableFuture;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class Generator {
 
     @SubscribeEvent
@@ -31,6 +31,6 @@ public class Generator {
         generator.addProvider(true, new TestBonusProvider(output, lookupProvider, helper));
         generator.addProvider(true, new TestLanguageProvider(output));
         generator.addProvider(false, new ModLanguageProvider(output));
-        generator.addProvider(false, new TestRecipeProvider(output));
+        generator.addProvider(false, new TestRecipeProvider(output, lookupProvider));
     }
 }

@@ -6,17 +6,14 @@ import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
-import net.kapitencraft.kap_lib.KapLibMod;
 import org.slf4j.Logger;
 
-import javax.json.Json;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.logging.LogManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -132,7 +129,7 @@ public class AutoPublisher {
     }
 
     static String formatVersion(String modVersion, String mcVersion, String fmlVersion) {
-        return String.format("v%s-mc%s-FML%s", modVersion, mcVersion, fmlVersion);
+        return String.format("v%s-mc%s-NFML%s", modVersion, mcVersion, fmlVersion);
     }
 
     static String[] authString;

@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.enchantments.abstracts;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
+import net.minecraft.core.Holder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -23,9 +25,9 @@ public interface ExtendedCalculationEnchantment extends ModEnchantment {
     @NotNull
     ProcessPriority priority();
 
-    static Map<ExtendedCalculationEnchantment, Integer> getAllEnchantments(ItemStack stack) {
+    static Map<ExtendedCalculationEnchantment, Integer> getAllEnchantments(ItemEnchantments enchantments) {
         Map<ExtendedCalculationEnchantment, Integer> map = new HashMap<>();
-        for (Enchantment enchantment : stack.getAllEnchantments().keySet()) {
+        for (Holder<Enchantment> enchantment : enchantments.keySet()) {
             if (enchantment instanceof ExtendedCalculationEnchantment extended) {
                 map.put(extended, stack.getAllEnchantments().get(extended));
             }

@@ -2,8 +2,8 @@ package net.kapitencraft.kap_lib.client.widget.select;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.registries.IForgeRegistry;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -11,7 +11,7 @@ import java.util.function.Function;
 public class ByNameRegistryElementSelectorWidget<T> extends SelectRegistryElementWidget<T> {
     private final Function<T, String> keyExtractor;
 
-    public ByNameRegistryElementSelectorWidget(int x, int y, int width, int height, Component title, Font font, IForgeRegistry<T> registry, Function<T, String> keyExtractor, Consumer<T> valueSink) {
+    public ByNameRegistryElementSelectorWidget(int x, int y, int width, int height, Component title, Font font, Registry<T> registry, Function<T, String> keyExtractor, Consumer<T> valueSink) {
         super(x, y, width, height, title, font, registry, valueSink);
         this.keyExtractor = keyExtractor;
     }

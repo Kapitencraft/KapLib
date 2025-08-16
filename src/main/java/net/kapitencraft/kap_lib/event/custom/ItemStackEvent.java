@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.event.custom;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 public class ItemStackEvent extends Event {
 

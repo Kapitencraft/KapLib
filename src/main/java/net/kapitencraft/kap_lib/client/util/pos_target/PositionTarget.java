@@ -2,9 +2,10 @@ package net.kapitencraft.kap_lib.client.util.pos_target;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.IExtensibleEnum;
+import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 
 import java.util.function.Supplier;
 
@@ -13,14 +14,11 @@ import java.util.function.Supplier;
  * provides positions for spawning / moving particles
  */
 public interface PositionTarget extends Supplier<Vec3> {
+    StreamCodec<FriendlyByteBuf, PositionTarget> CODEC = StreamCodec.of(PositionTarget.Types::toNw, PositionTarget::fromNw);
 
     static PositionTarget fromNw(FriendlyByteBuf buf) {
         Types t = Types.values()[buf.readInt()];
         return t.type.fromNw(buf);
-    }
-
-    default void toNw(FriendlyByteBuf buf) {
-        Types.toNw(buf, this);
     }
 
     /**

@@ -2,9 +2,10 @@ package net.kapitencraft.kap_lib.client.util.rot_target;
 
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
-import net.minecraftforge.common.IExtensibleEnum;
+import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 
 import java.util.function.Supplier;
 
@@ -13,6 +14,7 @@ import java.util.function.Supplier;
  * provides rotations for spawning / moving particles
  */
 public interface RotationTarget extends Supplier<Vec2> {
+    public static final StreamCodec<FriendlyByteBuf, RotationTarget> CODEC = StreamCodec.of(Types::toNw, RotationTarget::fromNw);
 
     static RotationTarget fromNw(FriendlyByteBuf buf) {
         Types t = Types.values()[buf.readInt()];
@@ -29,11 +31,6 @@ public interface RotationTarget extends Supplier<Vec2> {
 
     static RotationTarget forEntity(Entity entity) {
         return new FromEntityRotationTarget(entity.getId());
-    }
-
-
-    default void toNw(FriendlyByteBuf buf) {
-        Types.toNw(buf, this);
     }
 
     Vec2 get();

@@ -7,18 +7,19 @@ import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.network.chat.contents.EntityDataSource;
 import net.minecraft.network.chat.contents.StorageDataSource;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Supplier;
 
 public interface VanillaDataSourceTypes {
 
     DeferredRegister<Codec<? extends DataSource>> REGISTRY = DeferredRegister.create(ExtraRegistries.Keys.DATA_SOURCE_TYPES, "minecraft");
 
-    RegistryObject<Codec<EntityDataSource>> ENTITY = REGISTRY.register("entity", VanillaDataSourceTypes::createEntity);
+    Supplier<Codec<EntityDataSource>> ENTITY = REGISTRY.register("entity", VanillaDataSourceTypes::createEntity);
 
-    RegistryObject<Codec<StorageDataSource>> STORAGE = REGISTRY.register("storage", VanillaDataSourceTypes::createStorage);
+    Supplier<Codec<StorageDataSource>> STORAGE = REGISTRY.register("storage", VanillaDataSourceTypes::createStorage);
 
-    RegistryObject<Codec<BlockDataSource>> BLOCK = REGISTRY.register("block", VanillaDataSourceTypes::createBlock);
+    Supplier<Codec<BlockDataSource>> BLOCK = REGISTRY.register("block", VanillaDataSourceTypes::createBlock);
 
     private static Codec<EntityDataSource> createEntity() {
         return Codec.STRING.xmap(EntityDataSource::new, EntityDataSource::selectorPattern);

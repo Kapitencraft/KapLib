@@ -7,6 +7,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 
 public class ExtraTags {
@@ -17,7 +18,15 @@ public class ExtraTags {
 
 
         private static TagKey<DamageType> forgeKey(String subName) {
-            return TagKey.create(Registries.DAMAGE_TYPE, new ResourceLocation("forge", subName));
+            return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("forge", subName));
+        }
+    }
+
+    public interface Enchantments {
+        TagKey<Enchantment> ULTIMATE = modKey("ultimate");
+
+        static TagKey<Enchantment> modKey(String path) {
+            return TagKey.create(Registries.ENCHANTMENT, KapLibMod.res(path));
         }
     }
 
@@ -28,7 +37,7 @@ public class ExtraTags {
         TagKey<Item> HITS_ENDERMAN = modKey("hits_enderman");
 
         private static TagKey<Item> forgeKey(String path) {
-            return TagKey.create(Registries.ITEM, new ResourceLocation("forge", path));
+            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", path));
         }
         private static TagKey<Item> modKey(String path) {
             return TagKey.create(Registries.ITEM, KapLibMod.res(path));
@@ -42,7 +51,7 @@ public class ExtraTags {
         TagKey<EntityType<?>> ENDER_MOBS = forgeKey("ender_mobs");
 
         private static TagKey<EntityType<?>> forgeKey(String path) {
-            return TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation("forge", path));
+            return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("forge", path));
         }
     }
 
@@ -53,7 +62,7 @@ public class ExtraTags {
         TagKey<Block> VANILLA_GOLEM_HEADS = vanillaKey("golem_heads");
 
         static TagKey<Block> vanillaKey(String path) {
-            return TagKey.create(Registries.BLOCK, new ResourceLocation(path));
+            return TagKey.create(Registries.BLOCK, ResourceLocation.withDefaultNamespace(path));
         }
     }
 }

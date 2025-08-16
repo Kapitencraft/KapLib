@@ -3,10 +3,8 @@ package net.kapitencraft.kap_lib.client.cam.core;
 import net.kapitencraft.kap_lib.client.cam.modifiers.Modifier;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.util.Arrays;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TrackingShot {
@@ -25,17 +23,17 @@ public class TrackingShot {
     }
 
     public void setup() {
-        this.modifier = data.modifiers[0];
+        this.modifier = data.modifiers.get(0);
     }
 
     public void tick(CameraData camData) {
         try {
             int deltaTickTime = tickCount - posStartTick;
-            modifier.modify(deltaTickTime, (double) deltaTickTime / (data.times[posStartTick] - 1), camData);
+            modifier.modify(deltaTickTime, (double) deltaTickTime / (data.times.get(posStartTick) - 1), camData);
 
-            if (deltaTickTime >= data.times[index]) {
-                if (++index < data.modifiers.length) {
-                    modifier = data.modifiers[index];
+            if (deltaTickTime >= data.times.get(index)) {
+                if (++index < data.modifiers.size()) {
+                    modifier = data.modifiers.get(index);
                     posStartTick = tickCount;
                 }
             }
@@ -45,8 +43,8 @@ public class TrackingShot {
             //if (true) throw e;
             CrashReport report = new CrashReport("Ticking TrackingShot", e);
             report.addCategory("Tracking Shot Data")
-                    .setDetail("ModifierData", Arrays.toString(data.modifiers))
-                    .setDetail("ModifierTimes", Arrays.toString(data.times))
+                    .setDetail("ModifierData", data.modifiers)
+                    .setDetail("ModifierTimes", data.times)
                     .setDetail("Disable Shake", data.suppressShake);
             throw new ReportedException(report);
         }
@@ -57,6 +55,6 @@ public class TrackingShot {
     }
 
     public boolean done() {
-        return index == data.modifiers.length;
+        return index == data.modifiers.size();
     }
 }

@@ -38,11 +38,12 @@ public interface MathHelper {
     /**
      * merge the given r, g, b and a values into a packed integer
      */
-    static int RGBAtoInt(int r, int g, int b, int a) {
+    static int ARGBtoInt(int a, int r, int g, int b) {
         int returnable = (a << 8) + r;
         returnable = (returnable << 8) + g;
         return (returnable << 8) + b;
     }
+
 
     static IntSet intSetRange(int min, int max) {
         int[] range = new int[max - min + 1];

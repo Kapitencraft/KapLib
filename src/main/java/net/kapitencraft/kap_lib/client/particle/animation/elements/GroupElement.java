@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
@@ -42,13 +42,13 @@ public class GroupElement implements AnimationElement {
 
         @Override
         public GroupElement fromNW(FriendlyByteBuf buf) {
-            AnimationElement[] elements = NetworkHelper.readArray(buf, AnimationElement[]::new, AnimationElement::fromNw);
+            AnimationElement[] elements = ExtraStreamCodecs.readArray(buf, AnimationElement[]::new, AnimationElement::fromNw);
             return new GroupElement(elements);
         }
 
         @Override
         public void toNW(FriendlyByteBuf buf, GroupElement value) {
-            NetworkHelper.writeArray(buf, value.elements, AnimationElement::toNw);
+            ExtraStreamCodecs.writeArray(buf, value.elements, AnimationElement::toNw);
         }
     }
 

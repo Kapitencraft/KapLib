@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
-import net.kapitencraft.kap_lib.enchantments.extras.TestEnchantment;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
 import net.kapitencraft.kap_lib.registry.custom.*;
@@ -16,19 +15,17 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.StartupMessageManager;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.gametest.ForgeGameTestHooks;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.progress.StartupNotificationManager;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.gametest.GameTestHooks;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforgespi.language.IModInfo;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
@@ -45,7 +42,7 @@ public class KapLibMod {
     public static final Marker MARKER = Markers.getMarker("KapLib");
 
     public static ResourceLocation res(String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
     /**
@@ -56,8 +53,7 @@ public class KapLibMod {
     public static final File ROOT = new File("./kap_lib");
     public static final RandomSource RANDOM_SOURCE = RandomSource.create();
 
-    public KapLibMod() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public KapLibMod(IEventBus modEventBus, ModContainer container) {
 
         ExtraComponentContents.REGISTRY.register(modEventBus);
         ExtraAttributes.REGISTRY.register(modEventBus);
@@ -88,36 +84,32 @@ public class KapLibMod {
 
         AttributeModifierTypes.REGISTRY.register(modEventBus);
 
-        VanillaAttributeModifierTypes.REGISTRY.register(modEventBus);
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);
         VanillaDataSourceTypes.REGISTRY.register(modEventBus);
         VanillaInventoryPages.REGISTRY.register(modEventBus);
 
-        if (ForgeGameTestHooks.isGametestEnabled()) {
+        if (GameTestHooks.isGametestEnabled()) {
             TestItems.REGISTRY.register(modEventBus);
             TestCooldowns.REGISTRY.register(modEventBus);
         }
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
 
-        MinecraftForge.EVENT_BUS.addListener(CommandHelper::registerClient);
-        MinecraftForge.EVENT_BUS.addListener(CommandHelper::registerServer);
+        container.registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
+        container.registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
+
+        NeoForge.EVENT_BUS.addListener(CommandHelper::registerClient);
+        NeoForge.EVENT_BUS.addListener(CommandHelper::registerServer);
 
         ArtifactVersion modVersion = ModList.get().getModContainerById(KapLibMod.MOD_ID).map(ModContainer::getModInfo).map(IModInfo::getVersion).orElse(null);
 
         if (modVersion == null) throw new IllegalStateException("KapLib version not found");
 
-        StartupMessageManager.addModMessage("KapLib Mod v" + modVersion + " loaded");
+        StartupNotificationManager.addModMessage("KapLib Mod v" + modVersion + " loaded");
         LOGGER.info(MARKER, "KapLib v{} loaded", modVersion);
     }
 
     public static String doubleFormat(double d) {
         return new DecimalFormat("#.##").format(d);
-    }
-
-    public static <T> DeferredRegister<T> registry(IForgeRegistry<T> registry) {
-        return DeferredRegister.create(registry, MOD_ID);
     }
 
     public static <T> DeferredRegister<T> registry(ResourceKey<Registry<T>> key) {

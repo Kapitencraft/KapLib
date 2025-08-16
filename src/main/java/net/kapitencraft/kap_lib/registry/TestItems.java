@@ -2,13 +2,13 @@ package net.kapitencraft.kap_lib.registry;
 
 import net.kapitencraft.kap_lib.item.test.TestItem;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Supplier;
 
 public interface TestItems {
 
-    DeferredRegister<Item> REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, "test");
+    DeferredRegister<Item> REGISTRY = DeferredRegister.createItems("test");
 
-    RegistryObject<TestItem> OBJECT = REGISTRY.register("test", TestItem::new);
+    Supplier<TestItem> OBJECT = REGISTRY.register("test", TestItem::new);
 }

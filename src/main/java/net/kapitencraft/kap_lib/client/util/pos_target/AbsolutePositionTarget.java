@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.client.util.pos_target;
 
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 
@@ -15,12 +15,12 @@ public record AbsolutePositionTarget(Vec3 get) implements PositionTarget {
 
         @Override
         public void toNw(FriendlyByteBuf buf, AbsolutePositionTarget val) {
-            NetworkHelper.writeVec3(buf, val.get);
+            ExtraStreamCodecs.writeVec3(buf, val.get);
         }
 
         @Override
         public AbsolutePositionTarget fromNw(FriendlyByteBuf buf) {
-            return new AbsolutePositionTarget(NetworkHelper.readVec3(buf));
+            return new AbsolutePositionTarget(ExtraStreamCodecs.readVec3(buf));
         }
     }
 

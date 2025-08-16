@@ -3,13 +3,12 @@ package net.kapitencraft.kap_lib.client.overlay.holder;
 import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.overlay.box.ResizeBox;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec2;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 /**
  * an overlay element. attach it to the OverlayController
@@ -69,7 +68,7 @@ public abstract class Overlay {
      * render this overlay.
      * <br>the PoseStack inside the GuiGraphics is translated to the position of this overlay
      */
-    public abstract void render(ForgeGui gui, GuiGraphics graphics, int screenWidth, int screenHeight, LocalPlayer player);
+    public abstract void render(Gui gui, GuiGraphics graphics, int screenWidth, int screenHeight, LocalPlayer player);
 
     /**
      * @return the PositionHolder this object contains

@@ -7,16 +7,18 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.event.IModBusEvent;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * use to register custom models for custom tridents
  */
+@ApiStatus.Experimental
 public class RegisterTridentModelsEvent extends Event implements IModBusEvent {
     private final Map<Item, Model> models;
     private final EntityModelSet modelSet;
@@ -30,11 +32,11 @@ public class RegisterTridentModelsEvent extends Event implements IModBusEvent {
         return modelSet;
     }
 
-    public void register(RegistryObject<Item> item, Function<ModelPart, Model> modelConstructor, ModelLayerLocation location) {
+    public void register(Supplier<Item> item, Function<ModelPart, Model> modelConstructor, ModelLayerLocation location) {
         models.put(item.get(), modelConstructor.apply(modelSet.bakeLayer(location)));
     }
 
-    public void registerVanillaModel(RegistryObject<Item> item) {
+    public void registerVanillaModel(Supplier<Item> item) {
         register(item, TridentModel::new, ModelLayers.TRIDENT);
     }
 }

@@ -3,6 +3,10 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.serialization.ExtraJsonSerializers;
@@ -18,11 +22,26 @@ import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
+
 public class SetLeashedFunction extends SpawnEntityConditionalFunction {
+    public static final MapCodec<SetLeashedFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            Codec.mapEither(BlockPos.CODEC.fieldOf("pos"), LootContext.EntityTarget.CODEC.fieldOf("entity")).forGetter(SetLeashedFunction::createEither)
+    ).and(commonFields(i).t1()).apply(i, SetLeashedFunction::fromCodec));
+
+    private static SetLeashedFunction fromCodec(Either<BlockPos, LootContext.EntityTarget> either, List<LootItemCondition> lootItemConditions) {
+        return new SetLeashedFunction(lootItemConditions, either.left().orElse(null), either.right().orElse(null));
+    }
+
+    private Either<BlockPos, LootContext.EntityTarget> createEither() {
+        if (this.pos != null) return Either.left(this.pos);
+        return Either.right(this.entity);
+    }
+
     private final BlockPos pos;
     private final LootContext.EntityTarget entity;
 
-    protected SetLeashedFunction(LootItemCondition[] pPredicates, BlockPos pos, LootContext.EntityTarget entity) {
+    protected SetLeashedFunction(List<LootItemCondition> pPredicates, BlockPos pos, LootContext.EntityTarget entity) {
         super(pPredicates);
         this.pos = pos;
         this.entity = entity;
@@ -54,23 +73,6 @@ public class SetLeashedFunction extends SpawnEntityConditionalFunction {
 
     public static Builder with(LootContext.EntityTarget target) {
         return new Builder(null, target);
-    }
-
-    public static class Serializer extends SpawnEntityConditionalFunction.Serializer<SetLeashedFunction> {
-
-        @Override
-        public void serialize(JsonObject pJson, SetLeashedFunction pFunction, JsonSerializationContext pSerializationContext) {
-            super.serialize(pJson, pFunction, pSerializationContext);
-            if (pFunction.pos != null) pJson.add("pos", ExtraJsonSerializers.BLOCKPOS.encode(pFunction.pos));
-            else if (pFunction.entity != null) pJson.add("entity", pSerializationContext.serialize(pFunction.entity));
-        }
-
-        @Override
-        public SetLeashedFunction deserialize(JsonObject pObject, JsonDeserializationContext pDeserializationContext, LootItemCondition[] pConditions) {
-            LootContext.EntityTarget target = pObject.has("entity") ? pDeserializationContext.deserialize(pObject.get("entity"), LootContext.EntityTarget.class) : null;
-            BlockPos blockPos = pObject.has("pos") ? ExtraJsonSerializers.BLOCKPOS.parse(pObject.get("pos")) : null;
-            return new SetLeashedFunction(pConditions, blockPos, target);
-        }
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {

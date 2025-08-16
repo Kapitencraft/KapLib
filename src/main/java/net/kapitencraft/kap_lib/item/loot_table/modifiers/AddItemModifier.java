@@ -2,18 +2,19 @@ package net.kapitencraft.kap_lib.item.loot_table.modifiers;
 
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kapitencraft.kap_lib.helpers.LootTableHelper;
 import net.kapitencraft.kap_lib.helpers.RNGHelper;
 import net.kapitencraft.kap_lib.item.loot_table.IConditional;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
 public class AddItemModifier extends ModLootModifier implements IConditional {
     protected static <T extends AddItemModifier> Products.P5<RecordCodecBuilder.Mu<T>, LootItemCondition[], Item, Float, Integer, Optional<CompoundTag>> addItemCodecStart(RecordCodecBuilder.Instance<T> instance) {
         return codecStart(instance)
-                .and(ForgeRegistries.ITEMS.getCodec()
+                .and(BuiltInRegistries.ITEM.byNameCodec()
                         .fieldOf("item").forGetter(m -> m.item)
                 ).and(Codec.FLOAT
                         .fieldOf("chance").forGetter(m -> m.chance)
@@ -32,7 +33,7 @@ public class AddItemModifier extends ModLootModifier implements IConditional {
                         .optionalFieldOf("maxAmount", 1).forGetter(m -> m.maxAmount)
                 ).and(CompoundTag.CODEC.optionalFieldOf("nbt").forGetter(m -> Optional.ofNullable(m.tag)));
     }
-    public static final Codec<AddItemModifier> CODEC = RecordCodecBuilder.create(inst -> addItemCodecStart(inst).apply(inst, (conditionsIn, item1, chance1, maxAmount1, tagOptional) -> new AddItemModifier(conditionsIn, item1, chance1, maxAmount1, tagOptional.orElse(null))));
+    public static final MapCodec<AddItemModifier> CODEC = RecordCodecBuilder.mapCodec(inst -> addItemCodecStart(inst).apply(inst, (conditionsIn, item1, chance1, maxAmount1, tagOptional) -> new AddItemModifier(conditionsIn, item1, chance1, maxAmount1, tagOptional.orElse(null))));
     final Item item;
     final int maxAmount;
     float chance;
@@ -55,14 +56,14 @@ public class AddItemModifier extends ModLootModifier implements IConditional {
 
     public void addItem(Consumer<ItemStack> consumer, LootContext context, float chance) {
         ItemStack stack = RNGHelper.calculateAndDontDrop(item, maxAmount, LootTableHelper.getLivingSource(context), chance);
-        if (tag != null) stack.setTag(tag);
+        if (tag != null) stack.setTag(tag); //TODO data components
         if (stack != ItemStack.EMPTY) {
             consumer.accept(stack);
         }
     }
 
     @Override
-    public Codec<? extends IGlobalLootModifier> codec() {
+    public MapCodec<? extends IGlobalLootModifier> codec() {
         return CODEC;
     }
 }

@@ -1,29 +1,36 @@
 package net.kapitencraft.kap_lib.requirements.type;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
+import com.mojang.serialization.Codec;
+import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.minecraft.core.Registry;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceKey;
+import org.jetbrains.annotations.NotNull;
 
 public class RegistryReqType<T> implements RequirementType<T> {
-    public static final RegistryReqType<Item> ITEM = new RegistryReqType<>("item", ForgeRegistries.ITEMS);
-    public static final RegistryReqType<Enchantment> ENCHANTMENT = new RegistryReqType<>("enchantment", ForgeRegistries.ENCHANTMENTS);
 
+    private final DataPackSerializer<T> serializer;
     private final String name;
-    private final IForgeRegistry<T> registry;
 
-    public RegistryReqType(String name, IForgeRegistry<T> registry) {
+    public static <T> RegistryReqType<T> registry(String name, Registry<T> registry, ResourceKey<Registry<T>> resourceKey) {
+        return new RegistryReqType<>(name, registry.byNameCodec(), resourceKey);
+    }
+
+    public static <T> RegistryHolderReqType<T> registryHolder(String name, ResourceKey<Registry<T>> resourceKey) {
+        return new RegistryHolderReqType<>(name, resourceKey);
+    }
+
+    public RegistryReqType(String name, Codec<T> codec, ResourceKey<Registry<T>> registry) {
+        serializer = new DataPackSerializer<>(
+                codec,
+                ByteBufCodecs.registry(registry)
+        );
         this.name = name;
-        this.registry = registry;
     }
 
-    public ResourceLocation getId(T value) {
-        return this.registry.getKey(value);
-    }
-
-    public T getById(ResourceLocation location) {
-        return this.registry.getValue(location);
+    @Override
+    public @NotNull DataPackSerializer<T> serializer() {
+        return serializer;
     }
 
     public String getName() {

@@ -1,43 +1,37 @@
 package net.kapitencraft.kap_lib.io.network.S2C.capability;
 
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
-import net.kapitencraft.kap_lib.io.network.SimplePacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
-public class SyncWearablesToPlayerPacket implements SimplePacket {
-    private final int playerId;
-    private final List<ItemStack> stacks;
+public record SyncWearablesToPlayerPacket(int playerId, List<ItemStack> list) implements CustomPacketPayload {
+    public static final StreamCodec<RegistryFriendlyByteBuf, SyncWearablesToPlayerPacket> CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, SyncWearablesToPlayerPacket::playerId,
+            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), SyncWearablesToPlayerPacket::list,
+            SyncWearablesToPlayerPacket::new
+    );
 
-    public SyncWearablesToPlayerPacket(int playerId, List<ItemStack> stacks) {
-        this.playerId = playerId;
-        this.stacks = stacks;
-    }
+    public static final Type<SyncWearablesToPlayerPacket> TYPE = new Type<>(KapLibMod.res("sync_wearables"));
 
-    public SyncWearablesToPlayerPacket(FriendlyByteBuf buf) {
-        this.playerId = buf.readInt();
-        this.stacks = buf.readCollection(ArrayList::new, FriendlyByteBuf::readItem);
-    }
-
-    @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        buf.writeInt(playerId);
-        buf.writeCollection(stacks, FriendlyByteBuf::writeItem);
-    }
-
-    @Override
-    public void handle(Supplier<NetworkEvent.Context> sup) {
-        sup.get().enqueueWork(() -> {
+    public void handle(IPayloadContext sup) {
+        sup.enqueueWork(() -> {
             if (Minecraft.getInstance().level.getEntity(playerId) instanceof LivingEntity living) {
-                Wearables.get(living).copyFrom(stacks);
+                Wearables.get(living).copyFrom(list);
             }
         });
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

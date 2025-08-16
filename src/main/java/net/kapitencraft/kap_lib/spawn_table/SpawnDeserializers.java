@@ -5,7 +5,6 @@ import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.entries.SpawnPoolEntryContainer;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
-import net.minecraft.world.level.storage.loot.Deserializers;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;

@@ -1,14 +1,18 @@
 package net.kapitencraft.kap_lib.util;
 
 import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Range;
 
 public class Color {
     public static final Codec<Color> CODEC = Codec.INT.xmap(Color::new, Color::pack);
+    public static final StreamCodec<ByteBuf, Color> STREAM_CODEC = ByteBufCodecs.INT.map(Color::new, Color::pack);
 
     public final float r, g, b, a;
 
@@ -63,7 +67,7 @@ public class Color {
      * packs this color into 32-bit ARGB integer
      */
     public int pack() {
-        return MathHelper.RGBAtoInt((int) (this.r * 255), (int) (this.g * 255), (int) (this.b * 255), (int) (this.a * 255));
+        return MathHelper.ARGBtoInt((int) (this.r * 255), (int) (this.g * 255), (int) (this.b * 255), (int) (this.a * 255));
     }
 
 

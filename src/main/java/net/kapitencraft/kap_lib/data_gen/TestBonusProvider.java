@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.data_gen;
 
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.data_gen.abst.BonusProvider;
 import net.kapitencraft.kap_lib.item.bonus.type.AttributeModifiersBonus;
 import net.kapitencraft.kap_lib.item.bonus.type.EffectsBonus;
@@ -13,7 +14,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public class TestBonusProvider extends BonusProvider {
                 .slot(EquipmentSlot.FEET, Items.GOLDEN_BOOTS)
                 .slot(EquipmentSlot.MAINHAND, Items.GOLDEN_AXE)
                 .setBonus(AttributeModifiersBonus.builder()
-                        .addModifier(Attributes.LUCK, "TestBonusLuck", 20, AttributeModifier.Operation.ADDITION)
+                        .addModifier(Attributes.LUCK, KapLibMod.res("test"), 20, AttributeModifier.Operation.ADD_VALUE)
                         .build()
                 );
         this.createItemBonus(Items.NETHERITE_SWORD, "sword_strength")

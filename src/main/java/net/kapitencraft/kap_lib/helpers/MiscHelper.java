@@ -10,11 +10,13 @@ import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.kapitencraft.kap_lib.util.Color;
 import net.kapitencraft.kap_lib.util.ExtraRarities;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -34,7 +36,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -46,6 +47,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -53,13 +55,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -67,7 +68,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -79,16 +80,6 @@ public class MiscHelper {
     //WEST = new Rotation("x-",270, 3);
     //SOUTH = new Rotation("z+", 180, 2);
     //NORTH = new Rotation("z-", 360, 4);
-
-
-    /**
-     * @param stack the {@link ItemStack} to get the slot from
-     * @return the {@link EquipmentSlot} dedicated to this stack
-     */
-    public static EquipmentSlot getSlotForStack(@NotNull ItemStack stack) {
-        return LivingEntity.getEquipmentSlotForItem(stack);
-    }
-
 
     @Contract("null, _ -> param2; !null, _ -> param1")
     public static <T> T nonNullOr(@Nullable T value, @NotNull T or) {
@@ -122,16 +113,16 @@ public class MiscHelper {
     }
 
     /**
-     * method to repair items similar to {@link net.minecraft.world.item.enchantment.MendingEnchantment}
+     * method to repair items similar to the mending enchantment
      * @param player player to repair items on
      * @param value the base amount of repair capacity
-     * @param ench the enchantment this calculation is based on (see {@link net.minecraft.world.item.enchantment.MendingEnchantment})
+     * @param ench the enchantment component this calculation is based on
      * @return the amount of capacity that hasn't been used
      */
-    public static int repairPlayerItems(@NotNull Player player, int value, @NotNull Enchantment ench) {
-        Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(ench, player, ItemStack::isDamaged);
-        if (entry != null) {
-            ItemStack itemstack = entry.getValue();
+    public static int repairPlayerItems(@NotNull Player player, int value, @NotNull DataComponentType<?> ench) {
+        Optional<EnchantedItemInUse> entry = EnchantmentHelper.getRandomItemWith(ench, player, ItemStack::isDamaged);
+        if (entry.isPresent()) {
+            ItemStack itemstack = entry.get().itemStack();
             int i = Math.min((int) (value * itemstack.getXpRepairRatio()), itemstack.getDamageValue());
             itemstack.setDamageValue(itemstack.getDamageValue() - i);
             int j = value - i / 2;
@@ -153,7 +144,7 @@ public class MiscHelper {
      * @param enchantment the enchantment to check
      * @param enchConsumer the method to be executed when level > 0
      */
-    public static void getEnchantmentLevelAndDo(ItemStack stack, Enchantment enchantment, Consumer<Integer> enchConsumer) {
+    public static void getEnchantmentLevelAndDo(ItemStack stack, Holder<Enchantment> enchantment, Consumer<Integer> enchConsumer) {
         if (stack.getEnchantmentLevel(enchantment) > 0) {
             enchConsumer.accept(stack.getEnchantmentLevel(enchantment));
         }
@@ -243,7 +234,7 @@ public class MiscHelper {
     @Deprecated(forRemoval = true)
     public static boolean awardAchievement(ServerPlayer player, ResourceLocation achievementName) {
         ServerAdvancementManager manager = player.server.getAdvancements();
-        Advancement adv = manager.getAdvancement(achievementName);
+        AdvancementHolder adv = manager.get(achievementName);
         PlayerAdvancements advancements = player.getAdvancements();
         if (adv != null) {
             AdvancementProgress progress = advancements.getOrStartProgress(adv);
@@ -286,19 +277,17 @@ public class MiscHelper {
 
             public void start(int waitTicks) {
                 this.waitTicks = waitTicks;
-                MinecraftForge.EVENT_BUS.register(this);
+                NeoForge.EVENT_BUS.register(this);
             }
 
             @SubscribeEvent
-            public void tick(TickEvent.ServerTickEvent event) {
-                if (event.phase == TickEvent.Phase.END) {
-                    this.ticks += 1;
-                    if (this.ticks >= this.waitTicks)
-                        end();
-                }
+            public void tick(ServerTickEvent.Post event) {
+                this.ticks += 1;
+                if (this.ticks >= this.waitTicks)
+                    end();
             }
             private void end() {
-                MinecraftForge.EVENT_BUS.unregister(this);
+                NeoForge.EVENT_BUS.unregister(this);
                 run.run();
             }
         }.start(delayTicks);
@@ -445,7 +434,7 @@ public class MiscHelper {
     }
 
     public static Rarity getItemRarity(Item item) {
-        return item.getRarity(new ItemStack(item));
+        return item.components().getOrDefault(DataComponents.RARITY, Rarity.COMMON);
     }
 
     public static final EquipmentSlot[] ARMOR_EQUIPMENT = Arrays.stream(EquipmentSlot.values()).filter(EquipmentSlot::isArmor).toArray(EquipmentSlot[]::new);
@@ -462,7 +451,7 @@ public class MiscHelper {
      * @param ticks the amount of time, in ticks, to increase by
      * @return whether the effect was active and has been increased
      */
-    public static boolean increaseEffectDuration(LivingEntity living, MobEffect effect, int ticks) {
+    public static boolean increaseEffectDuration(LivingEntity living, Holder<MobEffect> effect, int ticks) {
         if (living.hasEffect(effect)) {
             MobEffectInstance oldInstance = living.getEffect(effect);
             assert oldInstance != null;
@@ -472,7 +461,7 @@ public class MiscHelper {
         return false;
     }
 
-    public static void maxEffectDuration(LivingEntity living, MobEffect effect, int minTicks) {
+    public static void maxEffectDuration(LivingEntity living, Holder<MobEffect> effect, int minTicks) {
         if (living.hasEffect(effect)) {
             MobEffectInstance oldInstance = living.getEffect(effect);
             assert oldInstance != null;
@@ -515,7 +504,7 @@ public class MiscHelper {
         List<ServerPlayer> targets = level.getEntitiesOfClass(ServerPlayer.class, new AABB(pos, pos).inflate(radius));
         targets.forEach(p -> {
             float dist = Mth.sqrt((float) p.distanceToSqr(pos));
-            ModMessages.sendToClientPlayer(new ActivateShakePacket(intensity, strength * (dist / radius), frequency), p);
+            PacketDistributor.sendToPlayer(p, new ActivateShakePacket(intensity, strength * (dist / radius), frequency));
         });
     }
 
@@ -528,7 +517,7 @@ public class MiscHelper {
      * @return an array of all items in the tag
      */
     public static Item[] getItemsFromTag(RegistryAccess access, TagKey<Item> tag) {
-        return access.registryOrThrow(ForgeRegistries.Keys.ITEMS)
+        return access.registryOrThrow(Registries.ITEM)
                 .getTag(tag).orElseThrow(NullPointerException::new).contents().stream().map(Holder::value)
                 .toArray(Item[]::new);
     }

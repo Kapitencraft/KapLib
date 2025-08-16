@@ -6,8 +6,9 @@ import net.kapitencraft.kap_lib.client.font.effect.effects.RainbowEffect;
 import net.kapitencraft.kap_lib.client.font.effect.effects.ShakeEffect;
 import net.kapitencraft.kap_lib.client.font.effect.effects.WaveEffect;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Supplier;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,10 +16,10 @@ import java.util.stream.Collectors;
 public interface GlyphEffects {
     DeferredRegister<GlyphEffect> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.GLYPH_EFFECTS);
     static Map<Character, GlyphEffect> effectsForKey() {
-        return REGISTRY.getEntries().stream().map(RegistryObject::get).collect(Collectors.toMap(GlyphEffect::getKey, effect -> effect));
+        return REGISTRY.getEntries().stream().map(Supplier::get).collect(Collectors.toMap(GlyphEffect::getKey, effect -> effect));
     }
 
-    RegistryObject<RainbowEffect> RAINBOW = REGISTRY.register("rainbow", RainbowEffect::new);
-    RegistryObject<WaveEffect> WAVE = REGISTRY.register("wave", WaveEffect::new);
-    RegistryObject<ShakeEffect> SHAKE = REGISTRY.register("shake", ShakeEffect::new);
+    Supplier<RainbowEffect> RAINBOW = REGISTRY.register("rainbow", RainbowEffect::new);
+    Supplier<WaveEffect> WAVE = REGISTRY.register("wave", WaveEffect::new);
+    Supplier<ShakeEffect> SHAKE = REGISTRY.register("shake", ShakeEffect::new);
 }

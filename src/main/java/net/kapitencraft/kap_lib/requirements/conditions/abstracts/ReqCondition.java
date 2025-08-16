@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.requirements.conditions.abstracts;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
@@ -9,27 +10,31 @@ import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGenElement<T> {
-    public static <T extends ReqCondition<T>> DataPackSerializer<T> createSerializer(Codec<T> codec, FriendlyByteBuf.Reader<T> reader) {
-        return IDataGenElement.createSerializer(codec, reader);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ReqCondition<?>> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.REQ_CONDITIONS).dispatch(ReqCondition::getSerializer, DataPackSerializer::getStreamCodec);
+    public static final Codec<ReqCondition<?>> CODEC = ExtraRegistries.REQUIREMENT_TYPES.byNameCodec().dispatch(ReqCondition::getSerializer, DataPackSerializer::getCodec);
+
+    public static <T extends ReqCondition<T>> DataPackSerializer<T> createSerializer(Codec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
+        return IDataGenElement.createSerializer(codec, streamCodec);
     }
 
-    public static <T extends ReqCondition<T>> ReqCondition<T> fromNetwork(FriendlyByteBuf buf) {
-        return IDataGenElement.fromNetwork(buf);
-    }
     //data-gen
     @SuppressWarnings("unchecked")
     public static <T extends ReqCondition<T>> ReqCondition<T> readFromJson(JsonObject object) {
         try {
-            DataPackSerializer<T> serializer = (DataPackSerializer<T>) ExtraRegistries.REQUIREMENT_TYPES.getValue(new ResourceLocation(GsonHelper.getAsString(object, "type")));
+            DataPackSerializer<T> serializer = (DataPackSerializer<T>) ExtraRegistries.REQUIREMENT_TYPES.get(ResourceLocation.parse(GsonHelper.getAsString(object, "type")));
             if (serializer == null)
                 throw new NullPointerException("unknown requirement type: '" + GsonHelper.getAsString(object, "type") + "'");
             return Objects.requireNonNull(serializer.parseOrThrow(GsonHelper.getAsJsonObject(object, "data")));
@@ -42,12 +47,6 @@ public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGe
     private Component displayCache;
 
     protected ReqCondition() {
-    }
-
-    //network
-    public final void toNetwork(FriendlyByteBuf byteBuf) {
-        byteBuf.writeRegistryId(ExtraRegistries.REQUIREMENT_TYPES, this.getSerializer());
-        this.getSerializer().toNetwork(byteBuf, (T) this);
     }
 
     public final JsonObject toJson() {

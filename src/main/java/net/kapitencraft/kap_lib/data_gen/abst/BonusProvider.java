@@ -10,7 +10,9 @@ import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.item.combat.armor.AbstractArmorItem;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.Util;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -23,9 +25,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -117,7 +117,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
             main.add("data", serializer.encode(bonus));
         }
 
-        if (item != null) main.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item), "unknown item with class: " + item.getClass().getCanonicalName()).toString());
+        if (item != null) main.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item), "unknown item with class: " + item.getClass().getCanonicalName()).toString());
         main.addProperty("type", Objects.requireNonNull(ExtraRegistries.BONUS_SERIALIZER.getKey(itemBuilder.bonus.getSerializer()), "unknown bonus with class: " + itemBuilder.bonus.getClass().getCanonicalName()).toString());
         return main;
     }
@@ -154,7 +154,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
         }
 
         public SetBuilder slot(EquipmentSlot slot, Consumer<SetSlotBuilder> builder) {
-            equipmentContent.putIfAbsent(slot, Util.make(new SetSlotBuilder(new ResourceLocation(BonusProvider.this.modId, "set/" + name + "/" + slot.getName())), builder));
+            equipmentContent.putIfAbsent(slot, Util.make(new SetSlotBuilder(ResourceLocation.fromNamespaceAndPath(BonusProvider.this.modId, "set/" + name + "/" + slot.getName())), builder));
             return this;
         }
 
@@ -166,8 +166,8 @@ public abstract class BonusProvider extends ItemTagsProvider {
             return this.slot(slot, supplier.get());
         }
 
-        public SetBuilder armor(Map<ArmorItem.Type, ? extends RegistryObject<? extends AbstractArmorItem>> armors) {
-            for (Map.Entry<ArmorItem.Type, ? extends RegistryObject<? extends AbstractArmorItem>> piece : armors.entrySet()) {
+        public SetBuilder armor(Map<ArmorItem.Type, ? extends Supplier<? extends AbstractArmorItem>> armors) {
+            for (Map.Entry<ArmorItem.Type, ? extends Supplier<? extends AbstractArmorItem>> piece : armors.entrySet()) {
                 EquipmentSlot slot = piece.getKey().getSlot();
                 this.slot(slot, piece.getValue());
             }
@@ -177,22 +177,22 @@ public abstract class BonusProvider extends ItemTagsProvider {
         public SetBuilder slot(WearableSlot slot, Consumer<SetSlotBuilder> builder) {
             ResourceLocation location = ExtraRegistries.WEARABLE_SLOTS.getKey(slot);
             if (location == null) throw new IllegalArgumentException("unregistered wearable slot detected!");
-            wearableContent.putIfAbsent(slot, Util.make(new SetSlotBuilder(new ResourceLocation(BonusProvider.this.modId, "set/" + name + "/wearable/" + location.getNamespace() + "/" + location.getPath())), builder));
+            wearableContent.putIfAbsent(slot, Util.make(new SetSlotBuilder(ResourceLocation.fromNamespaceAndPath(BonusProvider.this.modId, "set/" + name + "/wearable/" + location.getNamespace() + "/" + location.getPath())), builder));
             return this;
         }
 
-        public SetBuilder slot(RegistryObject<WearableSlot> slot, Item item) {
+        public SetBuilder slot(Holder<WearableSlot> slot, Item item) {
             return this.slot(slot, setSlotBuilder -> setSlotBuilder.add(item));
         }
 
-        public SetBuilder slot(RegistryObject<WearableSlot> slot, Supplier<? extends Item> supplier) {
+        public SetBuilder slot(Holder<WearableSlot> slot, Supplier<? extends Item> supplier) {
             return this.slot(slot, supplier.get());
         }
 
-        public SetBuilder slot(RegistryObject<WearableSlot> slot, Consumer<SetSlotBuilder> builder) {
-            ResourceLocation location = slot.getId();
-            if (location == null) throw new IllegalArgumentException("unregistered wearable slot detected!");
-            wearableContent.putIfAbsent(slot.get(), Util.make(new SetSlotBuilder(new ResourceLocation(BonusProvider.this.modId, "set/" + name + "/wearable/" + location.getNamespace() + "/" + location.getPath())), builder));
+        public SetBuilder slot(Holder<WearableSlot> slot, Consumer<SetSlotBuilder> builder) {
+            if (!slot.isBound()) throw new IllegalArgumentException("unregistered wearable slot detected!");
+            ResourceLocation location = slot.getKey().location();
+            wearableContent.putIfAbsent(slot.value(), Util.make(new SetSlotBuilder(ResourceLocation.fromNamespaceAndPath(BonusProvider.this.modId, "set/" + name + "/wearable/" + location.getNamespace() + "/" + location.getPath())), builder));
             return this;
         }
 

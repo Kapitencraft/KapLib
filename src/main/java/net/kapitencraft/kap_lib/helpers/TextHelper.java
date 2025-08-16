@@ -24,7 +24,6 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -158,7 +157,7 @@ public class TextHelper {
      * @return the string that gives any selected target the ItemStack serialized
      */
     public static String createGiveFromStack(String targetSelector, ItemStack stack) {
-        return "/give " + targetSelector + " " + ForgeRegistries.ITEMS.getKey(stack.getItem()) + stack.getOrCreateTag();
+        return "/give " + targetSelector + " " + BuiltInRegistries.ITEM.getKey(stack.getItem()) + stack.getOrCreateTag(); //TODO do components
     }
 
     /**

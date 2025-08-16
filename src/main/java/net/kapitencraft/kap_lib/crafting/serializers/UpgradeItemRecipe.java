@@ -1,33 +1,34 @@
 package net.kapitencraft.kap_lib.crafting.serializers;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.ExtraRecipeSerializers;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 
 public class UpgradeItemRecipe extends CustomRecipe {
-    private final Ingredient toUpgrade;
+    private final Ingredient source;
     private final Ingredient upgradeItem;
     private final ItemStack result;
     private final String group;
     private final CraftType type;
 
-    public UpgradeItemRecipe(ResourceLocation p_252125_, CraftingBookCategory p_249010_, Ingredient toUpgrade, Ingredient upgradeItem, ItemStack result, String group, CraftType type) {
-        super(p_252125_, p_249010_);
-        this.toUpgrade = toUpgrade;
+    public UpgradeItemRecipe(CraftingBookCategory bookCategory, Ingredient source, Ingredient upgradeItem, ItemStack result, String group, CraftType type) {
+        super(bookCategory);
+        this.source = source;
         this.upgradeItem = upgradeItem;
         this.result = result;
         this.group = group;
@@ -35,7 +36,7 @@ public class UpgradeItemRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean matches(@NotNull CraftingContainer craftingContainer, @NotNull Level level) {
+    public boolean matches(@NotNull CraftingInput craftingContainer, @NotNull Level level) {
         List<ItemStack> required = new ArrayList<>();
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
@@ -44,14 +45,13 @@ public class UpgradeItemRecipe extends CustomRecipe {
                 }
             }
         }
-        return toUpgrade.test(craftingContainer.getItem(4)) && required.stream().allMatch(upgradeItem);
+        return source.test(craftingContainer.getItem(4)) && required.stream().allMatch(upgradeItem);
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer pContainer, RegistryAccess pRegistryAccess) {
+    public ItemStack assemble(CraftingInput pContainer, HolderLookup.Provider pRegistryAccess) {
         ItemStack source = pContainer.getItem(4);
-        ItemStack result = this.result.copy();
-        result.setTag(source.getTag());
+        ItemStack result = this.result.copy(); //TODO data components
         return result;
     }
 
@@ -59,8 +59,8 @@ public class UpgradeItemRecipe extends CustomRecipe {
         return upgradeItem;
     }
 
-    public Ingredient getToUpgrade() {
-        return toUpgrade;
+    public Ingredient getSource() {
+        return source;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class UpgradeItemRecipe extends CustomRecipe {
     }
 
     @Override
-    public @NotNull ItemStack getResultItem(@NotNull RegistryAccess pRegistryAccess) {
+    public @NotNull ItemStack getResultItem(@NotNull HolderLookup.Provider pRegistryAccess) {
         return result;
     }
 
@@ -87,8 +87,8 @@ public class UpgradeItemRecipe extends CustomRecipe {
     }
 
     @Override
-    public @NotNull RecipeSerializer<UpgradeItemRecipe> getSerializer() {
-        return ExtraRecipeSerializers.UPGRADE_ITEM.get();
+    public @NotNull RecipeSerializer<?> getSerializer() {
+        return ExtraRecipeSerializers.UPGRADE_ITEM.value();
     }
 
     private interface PositionPredicate {
@@ -121,37 +121,43 @@ public class UpgradeItemRecipe extends CustomRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<UpgradeItemRecipe> {
+        public static final MapCodec<UpgradeItemRecipe> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                CraftingBookCategory.CODEC.fieldOf("category").forGetter(CustomRecipe::category),
+                Ingredient.CODEC.fieldOf("source").forGetter(UpgradeItemRecipe::getSource),
+                Ingredient.CODEC.fieldOf("material").forGetter(UpgradeItemRecipe::getUpgradeItem),
+                ItemStack.CODEC.fieldOf("result").forGetter(UpgradeItemRecipe::getResult),
+                Codec.STRING.optionalFieldOf("group", "").forGetter(UpgradeItemRecipe::getGroup),
+                CraftType.CODEC.fieldOf("craft_type").forGetter(UpgradeItemRecipe::getCraftType)
+                ).apply(i, UpgradeItemRecipe::new));
+        private static final StreamCodec<RegistryFriendlyByteBuf, UpgradeItemRecipe> STREAM_CODEC = StreamCodec.of(Serializer::toNetwork, Serializer::fromNetwork);
 
-        @Override
-        public @NotNull UpgradeItemRecipe fromJson(@NotNull ResourceLocation location, @NotNull JsonObject jsonObject) {
-            String s = GsonHelper.getAsString(jsonObject, "group", "");
-            CraftingBookCategory craftingbookcategory = CraftingBookCategory.CODEC.byName(GsonHelper.getAsString(jsonObject, "category", null), CraftingBookCategory.MISC);
-            Ingredient source = Ingredient.fromJson(jsonObject.get("source"));
-            Ingredient upgradeItem = Ingredient.fromJson(jsonObject.get("material"));
-            ItemStack result = ShapedRecipe.itemStackFromJson(jsonObject.getAsJsonObject("result"));
-            CraftType type = CraftType.CODEC.byName(GsonHelper.getAsString(jsonObject, "craft_type"));
-            return new UpgradeItemRecipe(location, craftingbookcategory, source, upgradeItem, result, s, type);
-        }
-
-        @Override
-        public @Nullable UpgradeItemRecipe fromNetwork(@NotNull ResourceLocation location, @NotNull FriendlyByteBuf buf) {
+        public static UpgradeItemRecipe fromNetwork(@NotNull RegistryFriendlyByteBuf buf) {
             String s = buf.readUtf();
             CraftingBookCategory category = buf.readEnum(CraftingBookCategory.class);
-            Ingredient source = Ingredient.fromNetwork(buf);
-            Ingredient upgradeItem = Ingredient.fromNetwork(buf);
-            ItemStack stack = buf.readItem();
+            Ingredient source = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
+            Ingredient upgradeItem = Ingredient.CONTENTS_STREAM_CODEC.decode(buf);
+            ItemStack stack = ItemStack.STREAM_CODEC.decode(buf);
             CraftType type = buf.readEnum(CraftType.class);
-            return new UpgradeItemRecipe(location, category, source, upgradeItem, stack, s, type);
+            return new UpgradeItemRecipe(category, source, upgradeItem, stack, s, type);
+        }
+
+        public static void toNetwork(RegistryFriendlyByteBuf buf, UpgradeItemRecipe recipe) {
+            buf.writeUtf(recipe.group);
+            buf.writeEnum(recipe.category());
+            Ingredient.CONTENTS_STREAM_CODEC.encode(buf, recipe.source);
+            Ingredient.CONTENTS_STREAM_CODEC.encode(buf, recipe.upgradeItem);
+            ItemStack.STREAM_CODEC.encode(buf, recipe.result);
+            buf.writeEnum(recipe.type);
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf buf, UpgradeItemRecipe recipe) {
-            buf.writeUtf(recipe.group);
-            buf.writeEnum(recipe.category());
-            recipe.toUpgrade.toNetwork(buf);
-            recipe.upgradeItem.toNetwork(buf);
-            buf.writeItem(recipe.result);
-            buf.writeEnum(recipe.type);
+        public MapCodec<UpgradeItemRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, UpgradeItemRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 }

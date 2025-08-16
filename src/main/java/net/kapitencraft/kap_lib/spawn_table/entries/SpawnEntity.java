@@ -1,29 +1,31 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * A loot pool entry that always generates a given item.
  */
 public class SpawnEntity extends SpawnPoolSingletonContainer {
+   public static final MapCodec<SpawnEntity> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+           BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entityType").forGetter(f -> f.entityType)
+   ).and(singletonFields(i)).apply(i, SpawnEntity::new));
+
    final EntityType<?> entityType;
 
-   SpawnEntity(EntityType<?> pEntity, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
+   SpawnEntity(EntityType<?> pEntity, int pWeight, int pQuality, List<LootItemCondition> pConditions, List<SpawnEntityFunction> pFunctions) {
       super(pWeight, pQuality, pConditions, pFunctions);
       this.entityType = pEntity;
    }
@@ -47,22 +49,5 @@ public class SpawnEntity extends SpawnPoolSingletonContainer {
       return simpleBuilder((p_79583_, p_79584_, p_79585_, p_79586_) ->
               new SpawnEntity(pEntity, p_79583_, p_79584_, p_79585_, p_79586_)
       );
-   }
-
-   public static class Serializer extends SpawnPoolSingletonContainer.Serializer<SpawnEntity> {
-      public void serializeCustom(JsonObject pObject, SpawnEntity pContainer, JsonSerializationContext pConditions) {
-         super.serializeCustom(pObject, pContainer, pConditions);
-         ResourceLocation resourcelocation = ForgeRegistries.ENTITY_TYPES.getKey(pContainer.entityType);
-         if (resourcelocation == null) {
-            throw new IllegalArgumentException("Can't serialize unknown item " + pContainer.entityType);
-         } else {
-            pObject.addProperty("name", resourcelocation.toString());
-         }
-      }
-
-      protected SpawnEntity deserialize(JsonObject pObject, JsonDeserializationContext pContext, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
-         EntityType<?> item = JsonHelper.getAsRegistryElement(pObject, "name", ForgeRegistries.ENTITY_TYPES);
-         return new SpawnEntity(item, pWeight, pQuality, pConditions, pFunctions);
-      }
    }
 }

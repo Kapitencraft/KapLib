@@ -4,46 +4,60 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
-import net.kapitencraft.kap_lib.KapLibMod;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.event.custom.RegisterRequirementTypesEvent;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
-import net.kapitencraft.kap_lib.requirements.type.BonusRequirementType;
+import net.kapitencraft.kap_lib.requirements.type.RegistryHolderReqType;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.ChainedJsonException;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import org.antlr.v4.runtime.misc.MultiMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.*;
-import java.util.logging.LogManager;
 
 public class RequirementManager extends SimpleJsonResourceReloadListener {
     public static final  Logger LOGGER = LogUtils.getLogger();
-    public static RequirementManager instance;
+    public static RequirementManager instance = new RequirementManager(); //load instantly
 
     //sync
     private final Map<String, Element<?>> elements = new HashMap<>();
     //don't sync
     private final List<RequirementType<?>> types = new ArrayList<>();
+    public final StreamCodec<RegistryFriendlyByteBuf, RequirementManager.Data> dataStreamCodec;
     private Map<String, RequirementType<?>> typesForNames;
 
     public RequirementManager() {
         super(JsonHelper.GSON, "requirements");
         registerTypes();
+        StreamCodec<RegistryFriendlyByteBuf, Element<?>> elementStreamCodec = StreamCodec.of((buffer, value) -> value.toNetwork(buffer), this::fromNetwork);
+        dataStreamCodec = ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, elementStreamCodec).map(Data::new, Data::elements);
+    }
+
+    public static void copyData(Data data) {
+        instance.elements.clear();
+        instance.elements.putAll(data.elements);
     }
 
     @Override
@@ -88,25 +102,22 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
         this.types.add(RequirementType.ITEM);
         this.types.add(RequirementType.ENCHANTMENT);
         this.types.add(RequirementType.BONUS);
-        MinecraftForge.EVENT_BUS.post(new RegisterRequirementTypesEvent(this.types::add));
+        NeoForge.EVENT_BUS.post(new RegisterRequirementTypesEvent(this.types::add));
         typesForNames = this.types.stream().collect(CollectorHelper.createMapForKeys(RequirementType::getName));
     }
 
-    public void toNetwork(FriendlyByteBuf buf) {
-        buf.writeMap(this.elements, FriendlyByteBuf::writeUtf, (buf1, element) -> element.toNetwork(buf1));
+    public record Data(HashMap<String, Element<?>> elements) {
     }
-
-    public void readFromNetwork(FriendlyByteBuf buf) {
-        this.elements.putAll(buf.readMap(FriendlyByteBuf::readUtf, this::fromNetwork));
-    }
-
 
     private static class Element<T> {
+        private final StreamCodec<RegistryFriendlyByteBuf, Multimap<T, ReqCondition<?>>> reqStreamCodec;
+
         private final RequirementType<T> type;
         private final Multimap<T, ReqCondition<?>> requirements = HashMultimap.create();
 
         private Element(RequirementType<T> type) {
             this.type = type;
+            this.reqStreamCodec = ExtraStreamCodecs.multimap(this.type.serializer().getStreamCodec(), ReqCondition.STREAM_CODEC);
         }
 
         public boolean isType(RequirementType<?> type) {
@@ -115,14 +126,17 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
 
         public void read(JsonElement jsonElement) {
             try {
-                JsonObject object = jsonElement.getAsJsonObject();
-                MapStream.of(object.asMap())
-                        .mapKeys(ResourceLocation::new)
-                        .mapKeys(this.type::getById)
-                        .filterKeys(Objects::nonNull)
-                        .mapValues(JsonElement::getAsJsonObject)
-                        .mapValues(ReqCondition::readFromJson)
-                        .forEach(this::addElement);
+                Codec<Map<T, List<ReqCondition<?>>>> codec = Codec.unboundedMap(this.type.serializer().getCodec(),  ReqCondition.CODEC.listOf());
+
+                DataResult<Map<T, List<ReqCondition<?>>>> result = codec.parse(JsonOps.INSTANCE, jsonElement);
+                result.resultOrPartial(s -> LOGGER.warn("error loading requirements for type: {}", s))
+                        .ifPresent(m ->
+                                m.forEach((t, reqConditions) ->
+                                        reqConditions.forEach(c ->
+                                                this.addElement(t, c)
+                                        )
+                                )
+                        );
             } catch (Exception e) {
                 LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "error loading requirements for type '{}': {}", this.type.getName(), e.getMessage());
             }
@@ -132,24 +146,16 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
             if (condition != null) this.requirements.put(value, condition);
         }
 
-        private void toNetwork(FriendlyByteBuf buf) {
+        private void toNetwork(RegistryFriendlyByteBuf buf) {
             buf.writeUtf(this.type.getName());
-                buf.writeMap(requirements.asMap(),
-                    (buf1, t) -> buf1.writeResourceLocation(this.type.getId(t)),
-                    (buf1, reqConditions) -> buf1.writeCollection(reqConditions, (byteBuf, reqCondition) -> reqCondition.toNetwork(byteBuf))
-            );
+            this.reqStreamCodec.encode(buf, requirements);
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> Element<T> fromNetwork(FriendlyByteBuf buf) {
+    private <T> Element<T> fromNetwork(RegistryFriendlyByteBuf buf) {
         RequirementType<T> type = (RequirementType<T>) typesForNames.get(buf.readUtf());
         Element<T> element = new Element<>(type);
-        Map<T, List<ReqCondition<?>>> map = buf.readMap(
-                buf1 -> type.getById(buf1.readResourceLocation()),
-                buf1 -> buf1.readList(ReqCondition::fromNetwork)
-        );
-        map.forEach((t, reqConditions) -> reqConditions.forEach(reqCondition -> element.addElement(t, reqCondition)));
+        element.requirements.putAll(element.reqStreamCodec.decode(buf));
         return element;
     }
 }

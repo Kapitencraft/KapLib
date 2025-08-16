@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.data_gen;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
 
@@ -15,7 +15,7 @@ public interface ModDamageTypes {
         return ResourceKey.create(Registries.DAMAGE_TYPE, KapLibMod.res(name));
     }
 
-    static void bootstrap(BootstapContext<DamageType> context) {
+    static void bootstrap(BootstrapContext<DamageType> context) {
         context.register(FEROCITY, new DamageType("ferocity", .1f));
         context.register(MANA_OVERFLOW, new DamageType("mana_overflow", 2f));
         context.register(MANA_OVERFLOW_SELF, new DamageType("mana_overflow_self", 20f));

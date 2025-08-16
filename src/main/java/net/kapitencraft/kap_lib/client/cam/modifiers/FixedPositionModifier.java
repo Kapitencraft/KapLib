@@ -1,9 +1,11 @@
 package net.kapitencraft.kap_lib.client.cam.modifiers;
 
 import net.kapitencraft.kap_lib.client.cam.core.CameraData;
-import net.kapitencraft.kap_lib.helpers.NetworkHelper;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.CameraModifiers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
 public class FixedPositionModifier implements Modifier {
@@ -25,15 +27,11 @@ public class FixedPositionModifier implements Modifier {
     }
 
     public static class Type implements Modifier.Type<FixedPositionModifier> {
+        public static final StreamCodec<? super FriendlyByteBuf, FixedPositionModifier> STREAM_CODEC = ExtraStreamCodecs.VEC_3.map(FixedPositionModifier::new, f -> f.position);
 
         @Override
-        public FixedPositionModifier fromNetwork(FriendlyByteBuf buf) {
-            return new FixedPositionModifier(NetworkHelper.readVec3(buf));
-        }
-
-        @Override
-        public void toNetwork(FriendlyByteBuf buf, FixedPositionModifier value) {
-            NetworkHelper.writeVec3(buf, value.position);
+        public StreamCodec<? super RegistryFriendlyByteBuf, FixedPositionModifier> codec() {
+            return STREAM_CODEC;
         }
     }
 }

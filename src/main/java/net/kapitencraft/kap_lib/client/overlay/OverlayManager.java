@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.client.overlay;
 
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
@@ -10,19 +11,22 @@ import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.event.ModEventFactory;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterConfigurableOverlaysEvent;
 import net.kapitencraft.kap_lib.helpers.*;
-import net.kapitencraft.kap_lib.registry.ExtraCodecs;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -34,7 +38,7 @@ import java.util.function.Function;
 /**
  * controls the location, and renders all registered overlays
  */
-@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class OverlayManager {
     /**
      * the Codec for saving
@@ -66,7 +70,7 @@ public class OverlayManager {
      * @return the positions of each overlay mapped to their UUID
      */
     private Map<ResourceLocation, OverlayProperties> getLocations() {
-        return MapStream.of(map).mapValues(Overlay::getProperties).mapKeys(RegistryObject::getId).toMap();
+        return MapStream.of(map).mapValues(Overlay::getProperties).mapKeys(Holder::getKey).mapKeys(ResourceKey::location).toMap();
     }
 
     /**
@@ -89,8 +93,8 @@ public class OverlayManager {
         return IOHelper.loadFile(getOrCreateFile(), CODEC, OverlayManager::new);
     }
 
-    private final Map<RegistryObject<OverlayProperties>, Function<OverlayProperties, Overlay>> constructors = new HashMap<>();
-    public final Map<RegistryObject<OverlayProperties>, Overlay> map = new HashMap<>();
+    private final Map<Holder<OverlayProperties>, Function<OverlayProperties, Overlay>> constructors = new HashMap<>();
+    public final Map<Holder<OverlayProperties>, Overlay> map = new HashMap<>();
 
     private final List<Overlay> visible = new ArrayList<>(), invisible = new ArrayList<>();
 
@@ -109,9 +113,9 @@ public class OverlayManager {
         construct();
     }
 
-    void createRenderer(RegistryObject<OverlayProperties> provider, Function<OverlayProperties, Overlay> constructor) {
+    void createRenderer(Holder<OverlayProperties> provider, Function<OverlayProperties, Overlay> constructor) {
         if (this.constructors.containsKey(provider))
-            throw new IllegalStateException("detected double registered Overlay with ID '" + provider.getId() + "'");
+            throw new IllegalStateException("detected double registered Overlay with ID '" + provider.getKey().location() + "'");
         this.constructors.put(provider, constructor);
     }
 
@@ -126,8 +130,8 @@ public class OverlayManager {
      * register the renderer
      */
     @SubscribeEvent
-    public static void overlays(RegisterGuiOverlaysEvent event) {
-        event.registerAboveAll("main", LibClient.overlays::render);
+    public static void overlays(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(KapLibMod.res("overlay"), LibClient.overlays::render);
     }
 
     /**
@@ -144,8 +148,12 @@ public class OverlayManager {
     /**
      * render all overlays
      */
-    private void render(ForgeGui forgeGui, GuiGraphics graphics, float partialTicks, int screenWidth, int screenHeight) {
-        LocalPlayer entity = Minecraft.getInstance().player;
+    private void render(GuiGraphics graphics, DeltaTracker tracker) {
+        Minecraft minecraft = Minecraft.getInstance();
+        Window window = minecraft.getWindow();
+        int screenWidth = window.getGuiScaledWidth();
+        int screenHeight = window.getGuiScaledHeight();
+        LocalPlayer entity = minecraft.player;
         if (entity != null && !ClientHelper.hideGui()) {
             visible.forEach(renderHolder -> {
                 graphics.pose().pushPose();
@@ -153,7 +161,7 @@ public class OverlayManager {
                 Vec2 renderLocation = renderHolder.getLoc(screenWidth, screenHeight);
                 graphics.pose().translate(renderLocation.x, renderLocation.y, 0);
                 graphics.pose().scale(holder.getXScale(), holder.getYScale(), 0);
-                renderHolder.render(forgeGui, graphics, screenWidth, screenHeight, entity);
+                renderHolder.render(minecraft.gui, graphics, screenWidth, screenHeight, entity);
                 graphics.pose().popPose();
             });
         }
@@ -164,7 +172,7 @@ public class OverlayManager {
      */
     private void construct() {
         this.constructors.forEach((location, constructor) -> {
-            OverlayProperties holder = MiscHelper.nonNullOr(this.loadedPositions.get(location.getId()), location.get().createCopy());
+            OverlayProperties holder = MiscHelper.nonNullOr(this.loadedPositions.get(location.getKey().location()), location.value().createCopy());
             Overlay overlay = constructor.apply(holder);
             if (holder.isVisible())
                 visible.add(overlay);
@@ -185,8 +193,8 @@ public class OverlayManager {
                 invisible.remove(dedicatedHolder);
                 visible.add(dedicatedHolder);
             }
-            RegistryObject<OverlayProperties> location = CollectionHelper.getKeyForValue(this.map, dedicatedHolder);
-            dedicatedHolder.getProperties().copy(location.get());
+            Holder<OverlayProperties> location = CollectionHelper.getKeyForValue(this.map, dedicatedHolder);
+            dedicatedHolder.getProperties().copy(location.value());
             return;
         }
         throw new IllegalStateException("attempted to reset non-existing Holder");
@@ -197,10 +205,10 @@ public class OverlayManager {
      */
     public static void resetAll() {
         OverlayManager controller = LibClient.overlays;
-        Collection<RegistryObject<OverlayProperties>> locations = controller.constructors.keySet();
+        Collection<Holder<OverlayProperties>> locations = controller.constructors.keySet();
         locations.forEach(location -> {
             Overlay holder = controller.map.get(location);
-            holder.getProperties().copy(location.get());
+            holder.getProperties().copy(location.value());
             controller.visible.add(holder);
         });
         controller.invisible.clear();
