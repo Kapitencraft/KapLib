@@ -147,9 +147,12 @@ public class DamageEvents {
             MathHelper.mul(event::getAmount, event::setAmount, (float) (1 + Strength / 100));
         }
         double doubleJump = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DOUBLE_JUMP.get(), attacker);
+        if (doubleJump > 0 && event.getSource().is(DamageTypes.FALL)) {
+            event.setAmount(event.getAmount() * (1 - (float) doubleJump / 100));
+        }
         LivingEntity attacked = event.getEntity();
-        if (AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER.get(), attacker) != -1) {
-            double armorShredder = AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER.get(), attacker);
+        double armorShredder = AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER.get(), attacker);
+        if (armorShredder > 0) {
             MiscHelper.getArmorEquipment(attacked)
                     .forEach(stack -> stack.hurt((int) (armorShredder / 3), attacked.level().getRandom(), attacker instanceof ServerPlayer serverPlayer ? serverPlayer : null));
         }
