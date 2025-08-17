@@ -5,28 +5,28 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.CountCondition;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatType;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.spongepowered.asm.mixin.injection.modify.LocalVariableDiscriminator;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
 
 /**
  * only use when Stat is entry from block mined, item used, -picked up or -crafted as well as entity killed <br>
@@ -80,10 +80,10 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
 
     private static <T> Stat<T> getStatFromSerializedName(String statName) {
         String[] split = statName.split(":");
-        ResourceLocation statTypeLoc = ResourceLocation.of(split[0], '.');
-        StatType<T> type = (StatType<T>) ForgeRegistries.STAT_TYPES.getValue(statTypeLoc);
+        ResourceLocation statTypeLoc = ResourceLocation.bySeparator(split[0], '.');
+        StatType<T> type = (StatType<T>) BuiltInRegistries.STAT_TYPE.get(statTypeLoc);
         if (type == null) throw new IllegalArgumentException("stat type '" + statTypeLoc + "' does not exist");
-        ResourceLocation statElementLoc = ResourceLocation.of(split[1], '.');
+        ResourceLocation statElementLoc = ResourceLocation.bySeparator(split[1], '.');
         T value = type.getRegistry().get(statElementLoc);
         if (value == null) throw new IllegalArgumentException("stat element '" + statElementLoc + "' does not exist");
         return type.get(value);
@@ -95,9 +95,10 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
                     Codec.INT.fieldOf("minCount").forGetter(StatReqCondition::getMinLevel)
             ).apply(instance, StatReqCondition::new)
     );
+    private static final StreamCodec<RegistryFriendlyByteBuf, StatReqCondition> STREAM_CODEC = StreamCodec.of(StatReqCondition::toNetwork, StatReqCondition::fromNetwork);
 
     public static final DataPackSerializer<StatReqCondition> SERIALIZER = new DataPackSerializer<>(
-            CODEC, StatReqCondition::fromNetwork, StatReqCondition::toNetwork
+            CODEC, STREAM_CODEC
     );
 
     protected final Stat<?> stat;
@@ -136,6 +137,6 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
     }
 
     private String getTranslationKey() {
-        return Objects.requireNonNull(ForgeRegistries.STAT_TYPES.getKey(this.stat.getType()), "unknown stat type: " + this.stat.getType().getClass().getCanonicalName()).toString().replace(':', '.');
+        return Objects.requireNonNull(BuiltInRegistries.STAT_TYPE.getKey(this.stat.getType()), "unknown stat type: " + this.stat.getType().getClass().getCanonicalName()).toString().replace(':', '.');
     }
 }

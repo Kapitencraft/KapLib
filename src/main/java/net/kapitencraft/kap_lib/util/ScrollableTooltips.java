@@ -7,19 +7,18 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ContainerScreenEvent;
-import net.minecraftforge.client.event.RenderTooltipEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.neoforged.neoforge.client.event.RenderTooltipEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector2i;
 
 import java.util.List;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 @ApiStatus.Internal
 public class ScrollableTooltips {
     private static int scrollY = 0;
@@ -68,7 +67,7 @@ public class ScrollableTooltips {
     public static void scrollEvent(ScreenEvent.MouseScrolled.Pre event) {
         if (active != null && active.hasItem() && allowScroll) {
             event.setCanceled(true);
-            float scrollDelta = (float) event.getScrollDelta();
+            float scrollDelta = (float) event.getScrollDeltaY();
             int scrollOffset = Mth.floor(scrollDelta * ClientModConfig.getScrollScale());
             if (Screen.hasControlDown()) {
                 scale += scrollOffset;

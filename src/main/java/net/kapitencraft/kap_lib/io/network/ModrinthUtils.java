@@ -6,7 +6,6 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.io.JsonHelper;
-import net.minecraftforge.versions.mcp.MCPVersion;
 import org.slf4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;

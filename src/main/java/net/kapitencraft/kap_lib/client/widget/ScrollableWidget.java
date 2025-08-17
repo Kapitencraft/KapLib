@@ -15,14 +15,14 @@ public abstract class ScrollableWidget extends AbstractWidget {
     protected abstract void updateScroll(boolean ignoreCursor);
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        float scrollOffset = (float) (ClientModConfig.getScrollScale() * pDelta);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        float scrollOffset = (float) (ClientModConfig.getScrollScale() * scrollY);
         if (canScroll(false)) {
             this.scrollY += scrollOffset;
         } else if (canScroll(true) && Screen.hasControlDown()) {
             this.scrollX += scrollOffset;
         } else {
-            return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
         updateScroll(true);
         return true;

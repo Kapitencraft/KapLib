@@ -7,11 +7,16 @@ import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.co
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ActivationTriggers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Objects;
 
 public class EntityAddedTrigger implements ActivationTrigger<EntityAddedTrigger.Instance> {
+    private static final StreamCodec<? super RegistryFriendlyByteBuf, Instance> STREAM_CODEC = ByteBufCodecs.INT.map(Instance::new, i -> i.entityId);
+
     private final Multimap<Integer, Listener<Instance>> instances = HashMultimap.create();
 
     public static TriggerInstance forEntity(Entity entity) {
@@ -34,13 +39,8 @@ public class EntityAddedTrigger implements ActivationTrigger<EntityAddedTrigger.
     }
 
     @Override
-    public void toNw(FriendlyByteBuf buf, Instance val) {
-        buf.writeInt(val.entityId);
-    }
-
-    @Override
-    public Instance fromNw(FriendlyByteBuf buf) {
-        return new Instance(buf.readInt());
+    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> codec() {
+        return STREAM_CODEC;
     }
 
     public void trigger(int id) {

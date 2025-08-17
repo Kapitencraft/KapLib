@@ -106,7 +106,7 @@ public class RingSpawner extends VisibleSpawner {
 
     public static class Type implements VisibleSpawner.Type<RingSpawner> {
         private static final StreamCodec<RegistryFriendlyByteBuf, RingSpawner> STREAM_CODEC = ExtraStreamCodecs.composite(
-                PositionTarget.CODEC, s -> s.target,
+                PositionTarget.STREAM_CODEC, s -> s.target,
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
                 RotationTarget.CODEC, s -> s.rotation,
                 ExtraStreamCodecs.enumCodec(Direction.Axis.values()), s -> s.axis,

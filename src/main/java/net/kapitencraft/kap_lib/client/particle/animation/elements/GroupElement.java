@@ -4,14 +4,19 @@ import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class GroupElement implements AnimationElement {
-    private final AnimationElement[] elements;
+    private final List<AnimationElement> elements;
 
-    public GroupElement(AnimationElement[] elements) {
+    public GroupElement(List<AnimationElement> elements) {
         this.elements = elements;
     }
 
@@ -39,16 +44,11 @@ public class GroupElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<GroupElement> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> STREAM_CODEC = AnimationElement.CODEC.apply(ByteBufCodecs.list()).map(GroupElement::new, e -> e.elements);
 
         @Override
-        public GroupElement fromNW(FriendlyByteBuf buf) {
-            AnimationElement[] elements = ExtraStreamCodecs.readArray(buf, AnimationElement[]::new, AnimationElement::fromNw);
-            return new GroupElement(elements);
-        }
-
-        @Override
-        public void toNW(FriendlyByteBuf buf, GroupElement value) {
-            ExtraStreamCodecs.writeArray(buf, value.elements, AnimationElement::toNw);
+        public StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> codec() {
+            return STREAM_CODEC;
         }
     }
 
@@ -61,7 +61,7 @@ public class GroupElement implements AnimationElement {
 
         @Override
         public AnimationElement build() {
-            return new GroupElement(Arrays.stream(builders).map(AnimationElement.Builder::build).toArray(AnimationElement[]::new));
+            return new GroupElement(Arrays.stream(builders).map(AnimationElement.Builder::build).toList());
         }
     }
 }

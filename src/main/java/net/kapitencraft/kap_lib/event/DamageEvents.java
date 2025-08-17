@@ -8,7 +8,6 @@ import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemo
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ExtendedCalculationEnchantment;
-import net.kapitencraft.kap_lib.enchantments.abstracts.IToolEnchantment;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.ModMessages;

@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.inventory.wearable;
 
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -34,8 +35,8 @@ public class WearableSlot {
         this(xPos, yPos, null);
     }
 
-    public boolean is(Supplier<WearableSlot> other) {
-        return this == other.get();
+    public boolean is(Holder<WearableSlot> other) {
+        return this == other.value();
     }
 
     public int getSlotIndex() {

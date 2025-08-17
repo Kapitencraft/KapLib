@@ -3,9 +3,9 @@ package net.kapitencraft.kap_lib.item.misc;
 import net.kapitencraft.kap_lib.event.ModEventFactory;
 import net.kapitencraft.kap_lib.event.custom.RegisterAnvilUsesEvent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.AnvilUpdateEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  * manager for anvil recipes.
  * register new ones using {@link RegisterAnvilUsesEvent}
  */
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class AnvilUses {
     private static final List<AnvilUse> uses = new ArrayList<>();
 

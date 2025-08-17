@@ -14,9 +14,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 /**
  * inventory page that contains all the wearable slots
@@ -26,7 +28,7 @@ public class EquipmentPage extends InventoryPage {
 
     public EquipmentPage(Player player, SlotAdder adder) {
         super(VanillaInventoryPages.EQUIPMENT.get());
-        Wearables wearable = player.getCapability(Wearables.CAPABILITY).orElseThrow(() -> new IllegalStateException("unable to obtain player wearables!"));
+        Wearables wearable = Objects.requireNonNull(player.getCapability(Wearables.CAPABILITY), "unable to obtain player wearables!");
         for (int i = 0; i < Wearables.SLOTS.length; i++) {
             WearableSlot slot = Wearables.SLOTS[i];
             adder.addSlot(new Slot(wearable, i, slot.getXPos(), slot.getYPos()) {
@@ -55,14 +57,14 @@ public class EquipmentPage extends InventoryPage {
     }
 
     public static void equip(LivingEntity living, WearableSlot slot, ItemStack newItem, ItemStack oldItem) {
-        if (!(oldItem.isEmpty() && newItem.isEmpty()) && !ItemStack.isSameItemSameTags(oldItem, newItem)) {
+        if (!(oldItem.isEmpty() && newItem.isEmpty()) && !ItemStack.isSameItemSameComponents(oldItem, newItem)) {
             if (newItem.getItem() instanceof IWearable wearable) {
                 living.getAttributes().addTransientAttributeModifiers(wearable.getModifiers(slot, newItem));
             }
             if (oldItem.getItem() instanceof IWearable wearable) {
                 living.getAttributes().removeAttributeModifiers(wearable.getModifiers(slot, oldItem));
             }
-            MinecraftForge.EVENT_BUS.post(new WearableSlotChangeEvent(living, slot, oldItem, newItem));
+            NeoForge.EVENT_BUS.post(new WearableSlotChangeEvent(living, slot, oldItem, newItem));
         }
     }
 

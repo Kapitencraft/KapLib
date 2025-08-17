@@ -49,7 +49,7 @@ public class TrackingShotData {
         }
 
         public Builder addGroupModifier(int duration, Modifier... modifiers) {
-            return this.addModifier(new GroupModifier(modifiers), duration);
+            return this.addModifier(new GroupModifier(List.of(modifiers)), duration);
         }
 
         public Builder suppressesShake() {

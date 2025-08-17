@@ -1,17 +1,12 @@
 package net.kapitencraft.kap_lib.event;
 
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.ExtraComponents;
-import net.kapitencraft.kap_lib.client.glyph.enchantment_applicable.EnchantmentApplicableAllocator;
 import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.collection.Queue;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
-import net.kapitencraft.kap_lib.cooldown.CooldownsProvider;
 import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
-import net.kapitencraft.kap_lib.inventory.wearable.WearableProvider;
 import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
-import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncBonusesPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
@@ -57,7 +52,7 @@ import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -112,7 +107,7 @@ public class Events {
     public static void playerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             PacketDistributor.sendToPlayer(serverPlayer,
-                    new SyncRequirementsPacket(RequirementManager.instance),
+                    new SyncRequirementsPacket(RequirementManager.createData()),
                     new SyncBonusesPacket(BonusManager.instance.createData())
             );
         }
@@ -189,7 +184,7 @@ public class Events {
     public static void leaveLevelEvent(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player) {
             //save mana to reset back to when re-joining
-            player.getPersistentData().putDouble("Mana", player.getAttributeValue(ExtraAttributes.MANA.get()));
+            player.getPersistentData().putDouble("Mana", player.getAttributeValue(ExtraAttributes.MANA));
         }
         if (event.getEntity().level().isClientSide()) {
             TerminatorTriggers.ENTITY_REMOVED.get().trigger(event.getEntity().getId());
@@ -269,9 +264,11 @@ public class Events {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onBlockBreak(BlockEvent.BreakEvent event) {
-        Player player = event.getPlayer();
-        event.setExpToDrop((int) (event.getExpToDrop() * AttributeHelper.getExperienceScale(player)));
+    public void onBlockBreak(BlockDropsEvent event) {
+        if (event.getBreaker() instanceof Player player) {
+            double scale = AttributeHelper.getExperienceScale(player);
+            event.setDroppedExperience((int) (event.getDroppedExperience() * scale));
+        }
     }
 
     @SubscribeEvent

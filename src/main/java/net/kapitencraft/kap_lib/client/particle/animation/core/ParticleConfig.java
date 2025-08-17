@@ -82,11 +82,11 @@ public class ParticleConfig {
      */
     @ApiStatus.Internal
     private void init() {
-        AnimationElement[] elements = animation.allElements();
-        int[] counts = new int[elements.length];
+        List<AnimationElement> elements = animation.allElements();
+        int[] counts = new int[elements.size()];
         int totalLength = 0;
-        for (int i = 0; i < elements.length; i++) {
-            totalLength += counts[i] = elements[i].createLength(this);
+        for (int i = 0; i < elements.size(); i++) {
+            totalLength += counts[i] = elements.get(i).createLength(this);
         }
         this.elementLengths = counts;
         this.totalLength = totalLength;
@@ -103,8 +103,8 @@ public class ParticleConfig {
 
         this.lifeTime = target.getLifetime();
 
-        if (elements.length > 0) {
-            this.active = elements[0];
+        if (!elements.isEmpty()) {
+            this.active = elements.getFirst();
             this.active.initialize(this);
         }
 
@@ -140,7 +140,7 @@ public class ParticleConfig {
      * @return the percentage of completion or {@code -1} if it hasn't been started or {@code 2} if it's already completed
      */
     public int completePercentage(AnimationElement element) {
-        int elementIndex = CollectionHelper.index(animation.allElements(), element);
+        int elementIndex = animation.allElements().indexOf(element);
         if (elementIndex == -1) throw new IllegalArgumentException("element " + element + " not found inside animation " + animation);
         if (this.elementIndex < elementIndex) return -1;
         else if (this.elementIndex > elementIndex) return 2;

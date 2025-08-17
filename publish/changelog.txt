@@ -4,3 +4,13 @@ removed MiscHelper#getSlotForStack. use ItemStack#getEquipmentSlot instead
 removed SimplePacket. use Neoforge's registration instead
 renamed NetworkHelper to ExtraStreamCodecs to better represent its purpose
 removed requests. handle that yourself
+removed TextHelper#makeDescriptionId(Item). use Item#getDescriptionId already
+removed ExtraEnchantmentCategories as EnchantmentCategories have been removed
+removed IUltimateEnchantment. use EnchantmentHelper#ultimate instead and don't add it to the tradable
+removed SimpleToolEnchantment. use EquipmentSlotGroup.HAND instead
+removed IArmorEnchantment, IToolEnchantment, IWeaponEnchantment
+removed StatBoost and ArmorStatBoost enchantment
+removed BasedAttributeUUIDs. use IAttributeExtension#getBaseId instead
+removed AbstractTridentClass
+removed Capability Provider and Abstract Capability
+modified WearableSlot's #is method to take a Holder<WearableSlot> instead of Supplier<WearableSlot>

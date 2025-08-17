@@ -5,6 +5,9 @@ import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,17 +45,16 @@ public class MoveAwayElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<MoveAwayElement> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, MoveAwayElement> STREAM_CODEC = StreamCodec.composite(
+                PositionTarget.STREAM_CODEC, e -> e.target,
+                ByteBufCodecs.FLOAT, e -> e.speed,
+                ByteBufCodecs.INT, e -> e.tickLength,
+                MoveAwayElement::new
+        );
 
         @Override
-        public MoveAwayElement fromNW(FriendlyByteBuf buf) {
-            return new MoveAwayElement(PositionTarget.fromNw(buf), buf.readFloat(), buf.readInt());
-        }
-
-        @Override
-        public void toNW(FriendlyByteBuf buf, MoveAwayElement value) {
-            value.target.toNw(buf);
-            buf.writeFloat(value.speed);
-            buf.writeInt(value.tickLength);
+        public StreamCodec<? super RegistryFriendlyByteBuf, MoveAwayElement> codec() {
+            return STREAM_CODEC;
         }
     }
 

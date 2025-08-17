@@ -4,6 +4,9 @@ import net.kapitencraft.kap_lib.client.cam.core.CameraData;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.registry.custom.CameraModifiers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import org.lwjgl.openal.EXTStereoAngles;
 
 public class GlideTowardsModifier implements Modifier {
     private final PositionTarget origin, target;
@@ -26,16 +29,16 @@ public class GlideTowardsModifier implements Modifier {
     }
 
     public static class Type implements Modifier.Type<GlideTowardsModifier> {
+        private static final StreamCodec<FriendlyByteBuf, GlideTowardsModifier> STREAM_CODEC = StreamCodec.composite(
+                PositionTarget.STREAM_CODEC, m -> m.origin,
+                PositionTarget.STREAM_CODEC, m -> m.target,
+                GlideTowardsModifier::new
+        );
+
 
         @Override
-        public GlideTowardsModifier fromNetwork(FriendlyByteBuf buf) {
-            return new GlideTowardsModifier(PositionTarget.fromNw(buf), PositionTarget.fromNw(buf));
-        }
-
-        @Override
-        public void toNetwork(FriendlyByteBuf buf, GlideTowardsModifier value) {
-            value.origin.toNw(buf);
-            value.target.toNw(buf);
+        public StreamCodec<? super RegistryFriendlyByteBuf, GlideTowardsModifier> codec() {
+            return STREAM_CODEC;
         }
     }
 }

@@ -5,16 +5,14 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.CountCondition;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -27,12 +25,13 @@ public class CustomStatReqCondition extends CountCondition<CustomStatReqConditio
             instance -> instance.group(
                     STAT_CODEC.fieldOf("stat").forGetter(i -> i.stat),
                     Codec.INT.fieldOf("amount").forGetter(i -> i.minLevel),
-                    ExtraCodecs.COMPONENT.fieldOf("display").forGetter(CustomStatReqCondition::display)
+                    ComponentSerialization.CODEC.fieldOf("display").forGetter(CustomStatReqCondition::display)
             ).apply(instance, CustomStatReqCondition::create)
     );
+    private static final StreamCodec<RegistryFriendlyByteBuf, CustomStatReqCondition> STREAM_CODEC = StreamCodec.of(CustomStatReqCondition::toNetwork, CustomStatReqCondition::fromNetwork);
 
     public static DataPackSerializer<CustomStatReqCondition> SERIALIZER = new DataPackSerializer<>(
-            CODEC, CustomStatReqCondition::fromNetwork, CustomStatReqCondition::toNetwork
+            CODEC, STREAM_CODEC
     );
 
     private static CustomStatReqCondition create(Stat<ResourceLocation> stat, Integer integer, Component component) {
@@ -57,18 +56,18 @@ public class CustomStatReqCondition extends CountCondition<CustomStatReqConditio
     }
 
     @SuppressWarnings("DataFlowIssue")
-    private static void toNetwork(FriendlyByteBuf buf, CustomStatReqCondition condition) {
+    private static void toNetwork(RegistryFriendlyByteBuf buf, CustomStatReqCondition condition) {
         buf.writeResourceLocation(BuiltInRegistries.CUSTOM_STAT.getKey(condition.stat.getValue()));
         buf.writeInt(condition.minLevel);
-        buf.writeComponent(condition.component);
+        ComponentSerialization.STREAM_CODEC.encode(buf, condition.component);
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public static CustomStatReqCondition fromNetwork(FriendlyByteBuf buf) {
+    public static CustomStatReqCondition fromNetwork(RegistryFriendlyByteBuf buf) {
         return new CustomStatReqCondition(
                 Stats.CUSTOM.get(BuiltInRegistries.CUSTOM_STAT.get(buf.readResourceLocation())),
                 buf.readInt(),
-                buf.readComponent()
+                ComponentSerialization.STREAM_CODEC.decode(buf)
         );
     }
 

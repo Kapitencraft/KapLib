@@ -4,12 +4,17 @@ import net.kapitencraft.kap_lib.client.cam.core.CameraData;
 import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.CameraModifiers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+
+import java.util.List;
 
 public class GroupModifier implements Modifier {
-    private final Modifier[] modifiers;
+    private final List<Modifier> modifiers;
 
-    public GroupModifier(Modifier[] modifiers) {
-        if (modifiers.length < 1) throw new IndexOutOfBoundsException("group modifier must contain at least one element");
+    public GroupModifier(List<Modifier> modifiers) {
+        if (modifiers.isEmpty()) throw new IndexOutOfBoundsException("group modifier must contain at least one element");
         this.modifiers = modifiers;
     }
 
@@ -26,15 +31,11 @@ public class GroupModifier implements Modifier {
     }
 
     public static class Type implements Modifier.Type<GroupModifier> {
+        private static final StreamCodec<RegistryFriendlyByteBuf, GroupModifier> STREAM_CODEC = Modifier.CODEC.apply(ByteBufCodecs.list()).map(GroupModifier::new, m -> m.modifiers);
 
         @Override
-        public GroupModifier fromNetwork(FriendlyByteBuf buf) {
-            return new GroupModifier(ExtraStreamCodecs.readArray(buf, Modifier[]::new, Modifier::fromNw));
-        }
-
-        @Override
-        public void toNetwork(FriendlyByteBuf buf, GroupModifier value) {
-            ExtraStreamCodecs.writeArray(buf, value.modifiers, Modifier::toNw);
+        public StreamCodec<? super RegistryFriendlyByteBuf, GroupModifier> codec() {
+            return STREAM_CODEC;
         }
     }
 }

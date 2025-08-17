@@ -6,6 +6,8 @@ import net.kapitencraft.kap_lib.item.loot_table.IConditional;
 import net.kapitencraft.kap_lib.item.loot_table.modifiers.ModLootModifier;
 import net.kapitencraft.kap_lib.registry.ExtraLootItemFunctions;
 import net.kapitencraft.kap_lib.io.serialization.JsonSerializer;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,29 +18,29 @@ import net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunct
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.BiFunction;
 
 public class AttributeAmountModifierFunction extends LootItemConditionalFunction implements IConditional {
     private static final Codec<AttributeAmountModifierFunction> CODEC = RecordCodecBuilder.create(attributeAmountModifierFunctionInstance ->
             attributeAmountModifierFunctionInstance.group(
                     ModLootModifier.LOOT_CONDITIONS_CODEC.fieldOf("conditions").forGetter(i -> i.predicates),
-                    ForgeRegistries.ATTRIBUTES.getCodec().fieldOf("attribute").forGetter(i -> i.modifier),
+                    BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(i -> i.modifier),
                     Formulas.CODEC.fieldOf("formula").forGetter(i -> i.formula)
             ).apply(attributeAmountModifierFunctionInstance, AttributeAmountModifierFunction::new)
     );
 
-    private final Attribute modifier;
+    private final Holder<Attribute> modifier;
     private final Formulas formula;
-    private AttributeAmountModifierFunction(LootItemCondition[] p_80678_, Attribute attribute, Formulas formula) {
-        super(p_80678_);
+    private AttributeAmountModifierFunction(List<LootItemCondition> conditions, Holder<Attribute> attribute, Formulas formula) {
+        super(conditions);
         this.modifier = attribute;
         this.formula = formula;
     }
 
-    public Attribute getModifier() {
+    public Holder<Attribute> getModifier() {
         return modifier;
     }
 
@@ -53,7 +55,7 @@ public class AttributeAmountModifierFunction extends LootItemConditionalFunction
     }
 
     @Override
-    public LootItemCondition[] getConditions() {
+    public List<LootItemCondition> getConditions() {
         return predicates;
     }
 
@@ -96,8 +98,8 @@ public class AttributeAmountModifierFunction extends LootItemConditionalFunction
     }
 
     @Override
-    public @NotNull LootItemFunctionType getType() {
-        return ExtraLootItemFunctions.ATTRIBUTE_MODIFIER.get();
+    public @NotNull LootItemFunctionType<?> getType() {
+        return ExtraLootItemFunctions.ATTRIBUTE_MODIFIER.value();
     }
 
     public static final JsonSerializer<AttributeAmountModifierFunction> SERIALIZER = new JsonSerializer<>(CODEC);

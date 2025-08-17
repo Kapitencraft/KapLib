@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ByNameRegistryElementSelectorWidget<T> extends SelectRegistryElementWidget<T> {
-    private final Function<T, String> keyExtractor;
+        private final Function<T, String> keyExtractor;
 
     public ByNameRegistryElementSelectorWidget(int x, int y, int width, int height, Component title, Font font, Registry<T> registry, Function<T, String> keyExtractor, Consumer<T> valueSink) {
         super(x, y, width, height, title, font, registry, valueSink);

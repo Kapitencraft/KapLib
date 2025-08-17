@@ -4,19 +4,17 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.io.serialization.BoundMapCodec;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
-import net.kapitencraft.kap_lib.mixin.duck.IKapLibComponentContents;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibDataSource;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeModifier;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.*;
 import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +23,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 public interface ExtraCodecs {
-    Codec<ComponentContents> COMPONENT_TYPES = ExtraRegistries.COMPONENT_CONTENT_TYPES.getCodec().dispatchStable(IKapLibComponentContents::codecFromVanilla, Function.identity());
+    Codec<ComponentContents> COMPONENT_TYPES = ExtraRegistries.COMPONENT_CONTENT_TYPES.byNameCodec().dispatchStable(IKapLibComponentContents::codecFromVanilla, Function.identity());
     Codec<Component> COMPONENT = COMPONENT_TYPES.xmap(MutableComponent::create, Component::getContents);
     Codec<Object[]> TRANSLATABLE_COMPONENT_ARGS = COMPONENT.listOf().xmap(list -> {
                 Object[] array = new Object[list.size()];
@@ -43,9 +41,9 @@ public interface ExtraCodecs {
                 return components;
             });
 
-    Codec<DataSource> DATA_SOURCE = ExtraRegistries.DATA_SOURCE_TYPES.getCodec().dispatchStable(IKapLibDataSource::codecFromVanilla, Function.identity());
+    Codec<DataSource> DATA_SOURCE = ExtraRegistries.DATA_SOURCE_TYPES.byNameCodec().dispatchStable(IKapLibDataSource::codecFromVanilla, Function.identity());
 
-    Codec<AttributeModifier> ATTRIBUTE_MODIFIER = ExtraRegistries.ATTRIBUTE_MODIFIER_TYPES.getCodec().dispatchStable(IKapLibAttributeModifier::codecFromVanilla, Function.identity());
+    Codec<AttributeModifier> ATTRIBUTE_MODIFIER = ExtraRegistries.ATTRIBUTE_MODIFIER_TYPES.byNameCodec().dispatchStable(IKapLibAttributeModifier::codecFromVanilla, Function.identity());
 
     /**
      * style mixin serializing custom glyph effects
@@ -60,7 +58,7 @@ public interface ExtraCodecs {
             Codec.BOOL.optionalFieldOf("obfuscated", false).forGetter(Style::isObfuscated),
             Codec.STRING.optionalFieldOf("insertion").forGetter((p_237269_) -> Optional.ofNullable(p_237269_.getInsertion())),
             ResourceLocation.CODEC.optionalFieldOf("font", Style.DEFAULT_FONT).forGetter(Style::getFont),
-            ExtraRegistries.GLYPH_EFFECTS.getCodec().listOf().optionalFieldOf("effects", List.of()).forGetter(style -> List.of(EffectsStyle.of(style).getEffects()))
+            ExtraRegistries.GLYPH_EFFECTS.byNameCodec().listOf().optionalFieldOf("effects", List.of()).forGetter(style -> List.of(EffectsStyle.of(style).getEffects()))
     ).apply(styleInstance, ExtraCodecs::createStyleFromCodec));
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -77,12 +75,12 @@ public interface ExtraCodecs {
     Codec<UUID> UUID = UUIDUtil.STRING_CODEC;
 
     Codec<MobEffectInstance> EFFECT = RecordCodecBuilder.create(instance -> instance.group(
-            ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(MobEffectInstance::getEffect),
+            BuiltInRegistries.MOB_EFFECT.holderByNameCodec().fieldOf("effect").forGetter(MobEffectInstance::getEffect),
             Codec.INT.optionalFieldOf("duration", 0).forGetter(MobEffectInstance::getDuration),
             Codec.INT.optionalFieldOf("amplifier", 0).forGetter(MobEffectInstance::getAmplifier),
             Codec.BOOL.optionalFieldOf("ambient", false).forGetter(MobEffectInstance::isAmbient),
             Codec.BOOL.optionalFieldOf("visible", true).forGetter(MobEffectInstance::isVisible)
     ).apply(instance, MobEffectInstance::new));
 
-    Codec<Bonus<?>> BONUS = ExtraRegistries.BONUS_SERIALIZER.getCodec().dispatchStable(Bonus::getSerializer, s -> s.getCodec().fieldOf("data").codec());
+    Codec<Bonus<?>> BONUS = ExtraRegistries.BONUS_SERIALIZER.byNameCodec().dispatchStable(Bonus::getSerializer, s -> s.getCodec().fieldOf("data").codec());
 }

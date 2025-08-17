@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.loot.IGlobalLootModifier;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import org.jetbrains.annotations.NotNull;
 
 public class OreModifier extends ModLootModifier implements IConditional {
@@ -31,7 +31,7 @@ public class OreModifier extends ModLootModifier implements IConditional {
             double attributeValue = AttributeHelper.getSaveAttributeValue(ExtraAttributes.MINING_FORTUNE.get(), LootTableHelper.getLivingSource(context));
             if (stack.getItem() != state.getBlock().asItem()) {
                 ModifyOreDropsEvent event = new ModifyOreDropsEvent(stack.getCount() * (int) (1 + attributeValue / 100));
-                MinecraftForge.EVENT_BUS.post(event);
+                NeoForge.EVENT_BUS.post(event);
                 stack.setCount(event.dropCount.calculate());
             }
         }));

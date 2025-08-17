@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.client.particle.animation.elements;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public class KeepAliveElement implements AnimationElement {
@@ -32,15 +35,11 @@ public class KeepAliveElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<KeepAliveElement> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, KeepAliveElement> STREAM_CODEC = ByteBufCodecs.INT.map(KeepAliveElement::new, e -> e.duration);
 
         @Override
-        public KeepAliveElement fromNW(FriendlyByteBuf buf) {
-            return new KeepAliveElement(buf.readInt());
-        }
-
-        @Override
-        public void toNW(FriendlyByteBuf buf, KeepAliveElement value) {
-            buf.writeInt(value.duration);
+        public StreamCodec<? super RegistryFriendlyByteBuf, KeepAliveElement> codec() {
+            return STREAM_CODEC;
         }
     }
 

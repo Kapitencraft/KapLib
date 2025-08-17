@@ -4,7 +4,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableItem;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
-import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.registry.TestCooldowns;
 import net.kapitencraft.kap_lib.registry.custom.WearableSlots;

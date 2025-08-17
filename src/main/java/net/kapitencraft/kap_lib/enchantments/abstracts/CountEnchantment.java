@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeaponEnchantment {
+public interface CountEnchantment extends ExtendedCalculationEnchantment {
     Codec<Map<UUID, Integer>> DATA_CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT);
     NbtSerializer<Map<UUID, Integer>> SERIALIZER = new NbtSerializer<>(DATA_CODEC, HashMap::new);
 

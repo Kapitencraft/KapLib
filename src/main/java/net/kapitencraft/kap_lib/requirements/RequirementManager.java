@@ -42,7 +42,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     public static RequirementManager instance = new RequirementManager(); //load instantly
 
     //sync
-    private final Map<String, Element<?>> elements = new HashMap<>();
+    private final HashMap<String, Element<?>> elements = new HashMap<>();
     //don't sync
     private final List<RequirementType<?>> types = new ArrayList<>();
     public final StreamCodec<RegistryFriendlyByteBuf, RequirementManager.Data> dataStreamCodec;
@@ -58,6 +58,10 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     public static void copyData(Data data) {
         instance.elements.clear();
         instance.elements.putAll(data.elements);
+    }
+
+    public static Data createData() {
+        return new Data(instance.elements);
     }
 
     @Override

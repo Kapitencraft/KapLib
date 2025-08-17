@@ -37,12 +37,10 @@ public class ParticleAnimator {
     @ApiStatus.Internal
     public ParticleAnimator(ParticleAnimation animation) {
         this.animation = animation;
-        TerminationTriggerInstance[] terminators = animation.getTerminators();
+        List<TerminationTriggerInstance> terminators = animation.getTerminators();
         for (TerminationTriggerInstance terminator : terminators) {
             TerminationTrigger<TerminationTriggerInstance> trigger = (TerminationTrigger<TerminationTriggerInstance>) terminator.getTrigger();
             trigger.addListener(this, new TerminationTrigger.Listener<>(terminator, this));
-        }
-        for (int i = 0; i < terminators.length; i++) {
         }
     }
 

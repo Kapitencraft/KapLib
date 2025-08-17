@@ -1,13 +1,8 @@
 package net.kapitencraft.kap_lib.spawn_table.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.helpers.LootTableHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
@@ -18,17 +13,14 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraftforge.common.ForgeHooks;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SetArmorFunction extends SpawnEntityConditionalFunction {
@@ -75,7 +67,7 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
-        private final LootTable[] items = new LootTable[4];
+        private final List<Holder<LootTable>> items = new ArrayList<>();
         private float[] dropChances = null;
 
         public Builder withItem(EquipmentSlot slot, LootPool.Builder entry) {
@@ -106,7 +98,7 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
 
         @Override
         public SpawnEntityFunction build() {
-            return new SetArmorFunction(getConditions(), items, dropChances);
+            return new SetArmorFunction(items, dropChances, getConditions());
         }
     }
 }

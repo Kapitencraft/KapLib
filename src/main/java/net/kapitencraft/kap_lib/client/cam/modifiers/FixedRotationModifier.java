@@ -4,6 +4,8 @@ import net.kapitencraft.kap_lib.client.cam.core.CameraData;
 import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.CameraModifiers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
 public class FixedRotationModifier implements Modifier {
@@ -24,15 +26,11 @@ public class FixedRotationModifier implements Modifier {
     }
 
     public static class Type implements Modifier.Type<FixedRotationModifier> {
+        private static final StreamCodec<? super FriendlyByteBuf, FixedRotationModifier> STREAM_CODEC = ExtraStreamCodecs.VEC_3.map(FixedRotationModifier::new, m -> m.rot);
 
         @Override
-        public FixedRotationModifier fromNetwork(FriendlyByteBuf buf) {
-            return new FixedRotationModifier(ExtraStreamCodecs.readVec3(buf));
-        }
-
-        @Override
-        public void toNetwork(FriendlyByteBuf buf, FixedRotationModifier value) {
-            ExtraStreamCodecs.writeVec3(buf, value.rot);
+        public StreamCodec<? super RegistryFriendlyByteBuf, FixedRotationModifier> codec() {
+            return STREAM_CODEC;
         }
     }
 }

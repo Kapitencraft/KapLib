@@ -2,14 +2,15 @@ package net.kapitencraft.kap_lib.util.attribute;
 
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -19,20 +20,19 @@ import java.util.function.Supplier;
 public class AttributeAdder {
     @SubscribeEvent
     public static void modifyAttributes(EntityAttributeModificationEvent event) {
-        addAll(event, ExtraAttributes.STRENGTH.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.CRIT_DAMAGE.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.RANGED_DAMAGE.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.ARROW_COUNT.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.MAGIC_DEFENCE.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.TRUE_DEFENCE.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.BONUS_ATTACK_SPEED.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.CRIT_CHANCE.get(), ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.COOLDOWN_REDUCTION.get(), LIVINGS);
-        addAll(event, ExtraAttributes.VITALITY.get(), ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.STRENGTH, ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.CRIT_DAMAGE, ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.RANGED_DAMAGE, ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.ARROW_COUNT, ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.MAGIC_DEFENCE, ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.TRUE_DEFENCE, ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.BONUS_ATTACK_SPEED, ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.CRIT_CHANCE, ONLY_WITH_BRAIN);
+        addAll(event, ExtraAttributes.COOLDOWN_REDUCTION, LIVINGS);
+        addAll(event, ExtraAttributes.VITALITY, ONLY_WITH_BRAIN);
         addToPlayer(event,
                 ExtraAttributes.MINING_FORTUNE,
                 ExtraAttributes.PRISTINE,
-                ExtraAttributes.MINING_SPEED,
                 ExtraAttributes.ABILITY_DAMAGE,
                 ExtraAttributes.MANA_COST,
                 ExtraAttributes.INTELLIGENCE,
@@ -60,13 +60,13 @@ public class AttributeAdder {
 
 
     @SafeVarargs
-    private static void addToPlayer(EntityAttributeModificationEvent event, Supplier<Attribute>... attributes) {
-        Arrays.stream(attributes).map(Supplier::get).forEach(attribute -> event.add(EntityType.PLAYER, attribute));
+    private static void addToPlayer(EntityAttributeModificationEvent event, Holder<Attribute>... attributes) {
+        Arrays.stream(attributes).forEach(attribute -> event.add(EntityType.PLAYER, attribute));
     }
 
 
-    private static void addAll(EntityAttributeModificationEvent event, Attribute attribute, isAInstance generator) {
-        ForgeRegistries.ENTITY_TYPES.getValues().stream().map(AttributeAdder::toLiving).filter(Objects::nonNull).filter(generator::is)
+    private static void addAll(EntityAttributeModificationEvent event, Holder<Attribute> attribute, isAInstance generator) {
+        BuiltInRegistries.ENTITY_TYPE.stream().map(AttributeAdder::toLiving).filter(Objects::nonNull).filter(generator::is)
                 .forEach(entityType -> event.add(entityType, attribute));
     }
 

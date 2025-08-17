@@ -8,28 +8,28 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.List;
 
-@Mod.EventBusSubscriber()
+@EventBusSubscriber()
 public class ManaHandler {
 
     public static final String OVERFLOW_MANA_ID = "overflowMana";
 
     @SuppressWarnings("all")
     @SubscribeEvent
-    public static void manaChange(TickEvent.PlayerTickEvent event) {
-        Player player = event.player;
-        AttributeInstance maxManaInstance = player.getAttribute(ExtraAttributes.MAX_MANA.get());
+    public static void manaChange(PlayerTickEvent event) {
+        Player player = event.getEntity();
+        AttributeInstance maxManaInstance = player.getAttribute(ExtraAttributes.MAX_MANA);
         if (!isMagical(player)) {
             throw new IllegalStateException("detected Player unable to use mana, expecting broken mod-state!");
         }
         double maxMana = maxManaInstance.getValue();
-        double intel = player.getAttributeValue(ExtraAttributes.INTELLIGENCE.get());
-        double curManaRegen = player.getAttributeValue(ExtraAttributes.MANA_REGEN.get());
+        double intel = player.getAttributeValue(ExtraAttributes.INTELLIGENCE);
+        double curManaRegen = player.getAttributeValue(ExtraAttributes.MANA_REGEN);
         double manaRegen = maxMana / 500 * (1 + curManaRegen / 100);
         CompoundTag tag = player.getPersistentData();
         tag.putDouble("manaRegen", manaRegen);
@@ -71,13 +71,13 @@ public class ManaHandler {
     }
 
     public static double getMana(LivingEntity living) {
-        return AttributeHelper.getSaveAttributeValue(ExtraAttributes.MANA.get(), living);
+        return AttributeHelper.getSaveAttributeValue(ExtraAttributes.MANA, living);
     }
 
     public static void setMana(LivingEntity living, double mana) {
-        AttributeInstance instance = living.getAttribute(ExtraAttributes.MANA.get());
+        AttributeInstance instance = living.getAttribute(ExtraAttributes.MANA);
         if (instance != null) {
-            instance.setBaseValue(Math.min(mana, living.getAttributeValue(ExtraAttributes.MAX_MANA.get())));
+            instance.setBaseValue(Math.min(mana, living.getAttributeValue(ExtraAttributes.MAX_MANA)));
         }
     }
 
@@ -87,11 +87,11 @@ public class ManaHandler {
     }
 
     public static boolean isMagical(LivingEntity living) {
-        return living.getAttribute(ExtraAttributes.MANA.get()) != null || living.getAttribute(ExtraAttributes.MAX_MANA.get()) != null;
+        return living.getAttribute(ExtraAttributes.MANA) != null || living.getAttribute(ExtraAttributes.MAX_MANA) != null;
     }
 
     public static void setOverflow(LivingEntity living, double overflow) {
-        if (overflow >= AttributeHelper.getSaveAttributeValue(ExtraAttributes.MAX_MANA.get(), living)) {
+        if (overflow >= AttributeHelper.getSaveAttributeValue(ExtraAttributes.MAX_MANA, living)) {
             living.hurt(living.damageSources().source(ModDamageTypes.MANA_OVERFLOW_SELF), Float.MAX_VALUE);
             List<LivingEntity> livings = MathHelper.getLivingAround(living, 5);
             for (LivingEntity living1 : livings) {

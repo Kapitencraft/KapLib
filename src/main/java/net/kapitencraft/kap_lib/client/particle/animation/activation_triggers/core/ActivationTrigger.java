@@ -3,7 +3,6 @@ package net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.c
 import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimator;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,7 +19,7 @@ public interface ActivationTrigger<T extends TriggerInstance> {
 
     StreamCodec<RegistryFriendlyByteBuf, TriggerInstance> CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.ACTIVATION_TRIGGERS).dispatch(TriggerInstance::getTrigger, ActivationTrigger::codec);
 
-    StreamCodec<RegistryFriendlyByteBuf, T> codec();
+    StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
 
     @OnlyIn(Dist.CLIENT)
     class Listener<T extends TriggerInstance> {

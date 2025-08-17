@@ -73,16 +73,4 @@ public class NestedSpawnTable extends SpawnPoolSingletonContainer {
       return simpleBuilder((p_79780_, p_79781_, p_79782_, p_79783_) ->
               new NestedSpawnTable(pTable, p_79780_, p_79781_, p_79782_, p_79783_));
    }
-
-   public static class Serializer extends SpawnPoolSingletonContainer.Serializer<NestedSpawnTable> {
-      public void serializeCustom(JsonObject pObject, NestedSpawnTable pContainer, JsonSerializationContext pConditions) {
-         super.serializeCustom(pObject, pContainer, pConditions);
-         pObject.addProperty("name", pContainer.name.toString());
-      }
-
-      protected NestedSpawnTable deserialize(JsonObject pObject, JsonDeserializationContext pContext, int pWeight, int pQuality, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions) {
-         ResourceLocation resourcelocation = new ResourceLocation(GsonHelper.getAsString(pObject, "name"));
-         return new NestedSpawnTable(resourcelocation, pWeight, pQuality, pConditions, pFunctions);
-      }
-   }
 }

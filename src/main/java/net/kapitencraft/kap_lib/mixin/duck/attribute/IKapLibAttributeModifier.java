@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.duck.attribute;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 public interface IKapLibAttributeModifier {
@@ -9,7 +10,7 @@ public interface IKapLibAttributeModifier {
         return ((IKapLibAttributeModifier) pModifier);
     }
 
-    Codec<? extends AttributeModifier> getCodec();
+    MapCodec<? extends AttributeModifier> getCodec();
 
     boolean tickBased();
 

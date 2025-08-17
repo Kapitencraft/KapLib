@@ -169,10 +169,6 @@ public class TextHelper {
         return Component.literal("§kA§r ").append(source).append(" §kA§r");
     }
 
-    public static String makeDescriptionId(Item item) {
-        return Util.makeDescriptionId("item", ForgeRegistries.ITEMS.getKey(item));
-    }
-
     public static String wrapInNameMarkers(String name) {
         return "'" + name + "'";
     }
@@ -193,11 +189,11 @@ public class TextHelper {
     }
 
     public static String getTextId(Item toGet) {
-        return ForgeRegistries.ITEMS.getKey(toGet).toString();
+        return BuiltInRegistries.ITEM.getKey(toGet).toString();
     }
 
     public static Item getFromId(String id) {
-        return ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
+        return BuiltInRegistries.ITEM.get(ResourceLocation.parse(id));
     }
 
     public static void clearTitle(Player player) {

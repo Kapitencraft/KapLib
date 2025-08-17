@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.item.IEventListener;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.core.Holder;
@@ -21,7 +22,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface Bonus<T extends Bonus<T>> extends IEventListener {
-    StreamCodec<RegistryFriendlyByteBuf, Bonus<?>> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.BONUS_SERIALIZERS).dispatch(Bonus::getSerializer, DataPackSerializer::getStreamCodec);
+    StreamCodec<RegistryFriendlyByteBuf, Bonus<?>> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.BONUS_SERIALIZERS).dispatch(Bonus::getSerializer, RegistrySerializer::streamCodec);
 
     /**
      * called whenever a LivingEntity equips an item with this bonus
@@ -41,7 +42,7 @@ public interface Bonus<T extends Bonus<T>> extends IEventListener {
         return null;
     }
 
-    DataPackSerializer<T> getSerializer();
+    RegistrySerializer<T> getSerializer();
 
     /**
      * @param tickCount the count of ticks since this bonus has been activated

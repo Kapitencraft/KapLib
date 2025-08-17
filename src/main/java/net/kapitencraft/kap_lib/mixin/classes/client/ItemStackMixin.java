@@ -2,11 +2,9 @@ package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
-import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManager;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.inventory.wearable.IWearable;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
-import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.item.modifier_display.DisplayExtension;

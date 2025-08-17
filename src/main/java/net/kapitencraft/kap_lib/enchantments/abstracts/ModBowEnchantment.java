@@ -5,14 +5,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
-public interface ModBowEnchantment extends ModEnchantment, IWeaponEnchantment {
+public interface ModBowEnchantment extends ModEnchantment {
     @ApiStatus.Internal
     HashMap<ResourceLocation, Execution> executionMap = new HashMap<>();
 

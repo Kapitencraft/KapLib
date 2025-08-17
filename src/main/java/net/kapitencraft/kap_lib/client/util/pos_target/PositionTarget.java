@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  * provides positions for spawning / moving particles
  */
 public interface PositionTarget extends Supplier<Vec3> {
-    StreamCodec<FriendlyByteBuf, PositionTarget> CODEC = StreamCodec.of(PositionTarget.Types::toNw, PositionTarget::fromNw);
+    StreamCodec<FriendlyByteBuf, PositionTarget> STREAM_CODEC = StreamCodec.of(PositionTarget.Types::toNw, PositionTarget::fromNw);
 
     static PositionTarget fromNw(FriendlyByteBuf buf) {
         Types t = Types.values()[buf.readInt()];

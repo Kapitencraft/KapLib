@@ -51,6 +51,6 @@ public interface AnimationElement {
     }
 
     interface Type<T extends AnimationElement> {
-        StreamCodec<RegistryFriendlyByteBuf, T> codec();
+        StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
     }
 }

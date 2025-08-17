@@ -7,7 +7,6 @@ import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticle;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterUniformsEvent;
 import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderers;
-import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.modifier_display.ModifierDisplayManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
@@ -52,7 +51,6 @@ public class ModEventBusClientEvents {
                 return living.getUseItem() != stack ? 0.0F : (float)((stack.getUseDuration(living) - living.getUseItemRemainingTicks()) / 20.0F  * living.getAttributeValue(ExtraAttributes.DRAW_SPEED) / 100);
             }
         });
-        BaseAttributeUUIDs.init();
         ModifierDisplayManager.init();
     }
 

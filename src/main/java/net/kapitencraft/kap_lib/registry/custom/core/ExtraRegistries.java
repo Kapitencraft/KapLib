@@ -12,6 +12,7 @@ import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
@@ -36,7 +37,7 @@ public interface ExtraRegistries {
     Registry<OverlayProperties> OVERLAY_PROPERTIES = reg(Keys.OVERLAY_PROPERTIES);
     Registry<GlyphEffect> GLYPH_EFFECTS = reg(Keys.GLYPH_EFFECTS);
     Registry<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
-    Registry<DataPackSerializer<? extends Bonus<?>>> BONUS_SERIALIZER = reg(Keys.BONUS_SERIALIZERS);
+    Registry<RegistrySerializer<? extends Bonus<?>>> BONUS_SERIALIZER = reg(Keys.BONUS_SERIALIZERS);
     Registry<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = reg(Keys.ATTRIBUTE_MODIFIER_TYPES);
     Registry<ComponentContents.Type<?>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
     Registry<Codec<? extends DataSource>> DATA_SOURCE_TYPES = reg(Keys.DATA_SOURCE_TYPES);
@@ -79,7 +80,7 @@ public interface ExtraRegistries {
         ResourceKey<Registry<OverlayProperties>> OVERLAY_PROPERTIES = createRegistry("overlay_properties");
         ResourceKey<Registry<GlyphEffect>> GLYPH_EFFECTS = createRegistry("glyph_effects");
         ResourceKey<Registry<DataPackSerializer<? extends ReqCondition<?>>>> REQ_CONDITIONS = createRegistry("requirement_conditions");
-        ResourceKey<Registry<DataPackSerializer<? extends Bonus<?>>>> BONUS_SERIALIZERS = createRegistry("bonus_serializers");
+        ResourceKey<Registry<RegistrySerializer<? extends Bonus<?>>>> BONUS_SERIALIZERS = createRegistry("bonus_serializers");
         ResourceKey<Registry<Codec<? extends AttributeModifier>>> ATTRIBUTE_MODIFIER_TYPES = vanillaRegistry("attribute_modifier_types");
         ResourceKey<Registry<ComponentContents.Type<?>>> COMPONENT_CONTENTS_TYPES = vanillaRegistry("component_contents_types");
         /**

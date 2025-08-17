@@ -33,12 +33,12 @@ public final class ParticleAnimationManager {
     /**
      * use {@link ParticleAnimation.Builder#register()}<br>
      * or {@link ParticleAnimation.Builder#sendToPlayer(ServerPlayer)}<br>
-     * or {@link  ParticleAnimation.Builder#sendToAllPlayers(ServerLevel)} to add animations
+     * or {@link  ParticleAnimation.Builder#sendToAllPlayers()} to add animations
      */
     @ApiStatus.Internal
     public void accept(ParticleAnimation animation) {
-        TriggerInstance[] triggers = animation.getTriggers();
-        if (triggers.length > 0) {
+        List<TriggerInstance> triggers = animation.getTriggers();
+        if (!triggers.isEmpty()) {
             ParticleAnimator animator = new ParticleAnimator(animation);
             List<TriggerInstance> remaining = new ArrayList<>();
             for (TriggerInstance instance : triggers) {

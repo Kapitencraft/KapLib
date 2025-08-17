@@ -13,16 +13,14 @@ import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Vanishable;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(FishingRodItem.class)
-public abstract class FishingRodMixin extends Item implements Vanishable {
+public abstract class FishingRodMixin extends Item {
 
     FishingRodItem self() {
         return (FishingRodItem) (Object) this;

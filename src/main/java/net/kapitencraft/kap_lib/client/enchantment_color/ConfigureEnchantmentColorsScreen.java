@@ -6,11 +6,13 @@ import net.kapitencraft.kap_lib.client.widget.SelectChatColorWidget;
 import net.kapitencraft.kap_lib.client.widget.SelectCountWidget;
 import net.kapitencraft.kap_lib.client.widget.SelectEnumWidget;
 import net.kapitencraft.kap_lib.client.widget.select.ByNameRegistryElementSelectorWidget;
+import net.kapitencraft.kap_lib.client.widget.select.HolderByNameRegistryElementSelectorWidget;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.util.range.simple.IntegerNumberRange;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
@@ -285,7 +287,17 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
                 this.toggleLevelReq();
             } else if (isEnchantmentAddHovered(relativeX, relativeY)) {
                 active = this;
-                selector = new ByNameRegistryElementSelectorWidget<>(leftPos + 90, topPos + 20, WIDTH - 180, HEIGHT - 40, Component.translatable("cec.select_enchantment"), font, ForgeRegistries.ENCHANTMENTS, Enchantment::getDescriptionId, this.enchantments::add);
+                selector = new HolderByNameRegistryElementSelectorWidget<>(
+                        leftPos + 90,
+                        topPos + 20,
+                        WIDTH - 180,
+                        HEIGHT - 40,
+                        Component.translatable("cec.select_enchantment"),
+                        font,
+                        Minecraft.getInstance().getConnection().registryAccess().registryOrThrow(Registries.ENCHANTMENT),
+                        this.enchantments::add,
+                        objectHolder -> Util.makeDescriptionId("enchantment", objectHolder.getKey().location())
+                );
             } else if (isGroupAddHovered(relativeX, relativeY)) {
                 List<EnchantmentGroup> groupValues = new ArrayList<>(List.of(EnchantmentGroup.values()));
                 groupValues.removeAll(this.groups);

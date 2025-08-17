@@ -14,15 +14,13 @@ import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringRepresentable;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.StartupMessageManager;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.loading.progress.ProgressMeter;
-import net.minecraftforge.forgespi.language.IModFileInfo;
-import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.versions.mcp.MCPVersion;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoader;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.progress.ProgressMeter;
+import net.neoforged.neoforgespi.language.IModFileInfo;
+import net.neoforged.neoforgespi.language.IModInfo;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -65,7 +63,7 @@ public class UpdateChecker {
 
     public static void run() {
         RegisterUpdateCheckersEvent event = new RegisterUpdateCheckersEvent(UpdateChecker::registerUpdater);
-        ModLoader.get().postEvent(event);
+        ModLoader.postEvent(event);
         Thread thread = new Thread(UpdateChecker::checkUpdates, "Update Checker");
         if (config.autoUpdate) thread.setPriority(10);
         thread.start();
