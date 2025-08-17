@@ -4,6 +4,9 @@ import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,16 +65,15 @@ public class MoveTowardsElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<MoveTowardsElement> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, MoveTowardsElement> STREAM_CODEC = StreamCodec.composite(
+                PositionTarget.STREAM_CODEC, e -> e.targetLoc,
+                ByteBufCodecs.INT, e -> e.duration,
+                MoveTowardsElement::new
+        );
 
         @Override
-        public MoveTowardsElement fromNW(FriendlyByteBuf buf) {
-            return new MoveTowardsElement(PositionTarget.fromNw(buf), buf.readInt());
-        }
-
-        @Override
-        public void toNW(FriendlyByteBuf buf, MoveTowardsElement value) {
-            value.targetLoc.toNw(buf);
-            buf.writeInt(value.duration);
+        public StreamCodec<? super RegistryFriendlyByteBuf, MoveTowardsElement> codec() {
+            return STREAM_CODEC;
         }
     }
 }

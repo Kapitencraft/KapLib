@@ -2,10 +2,14 @@ package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -79,19 +83,17 @@ public class RotateElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<RotateElement> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, RotateElement> STREAM_CODEC = StreamCodec.composite(
+                PositionTarget.STREAM_CODEC, e -> e.pivot,
+                ByteBufCodecs.FLOAT, e -> e.degreePerTick,
+                ByteBufCodecs.INT, e -> e.duration,
+                ExtraStreamCodecs.enumCodec(Direction.Axis.values()), e -> e.axis,
+                RotateElement::new
+        );
 
         @Override
-        public RotateElement fromNW(FriendlyByteBuf buf) {
-            PositionTarget pivot = PositionTarget.fromNw(buf);
-            return new RotateElement(pivot, buf.readFloat(), buf.readInt(), buf.readEnum(Direction.Axis.class));
-        }
-
-        @Override
-        public void toNW(FriendlyByteBuf buf, RotateElement value) {
-            value.pivot.toNw(buf);
-            buf.writeFloat(value.degreePerTick);
-            buf.writeInt(value.duration);
-            buf.writeEnum(value.axis);
+        public StreamCodec<? super RegistryFriendlyByteBuf, RotateElement> codec() {
+            return STREAM_CODEC;
         }
     }
 }

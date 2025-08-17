@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.client.particle.animation.elements;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public class StartFadeOutElement implements AnimationElement {
@@ -28,15 +31,11 @@ public class StartFadeOutElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<StartFadeOutElement> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, StartFadeOutElement> STREAM_CODEC = ByteBufCodecs.FLOAT.map(StartFadeOutElement::new, e -> e.rate);
 
         @Override
-        public StartFadeOutElement fromNW(FriendlyByteBuf buf) {
-            return new StartFadeOutElement(buf.readFloat());
-        }
-
-        @Override
-        public void toNW(FriendlyByteBuf buf, StartFadeOutElement value) {
-
+        public StreamCodec<? super RegistryFriendlyByteBuf, StartFadeOutElement> codec() {
+            return STREAM_CODEC;
         }
     }
 

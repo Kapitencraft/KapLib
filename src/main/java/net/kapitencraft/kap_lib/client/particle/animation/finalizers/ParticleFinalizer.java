@@ -19,7 +19,7 @@ public interface ParticleFinalizer {
     void finalize(ParticleConfig config);
 
     interface Type<T extends ParticleFinalizer> {
-        StreamCodec<RegistryFriendlyByteBuf, T> codec();
+        StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
     }
 
     interface Builder {

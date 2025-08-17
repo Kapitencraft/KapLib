@@ -8,7 +8,11 @@ import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -66,25 +70,19 @@ public class EntityBBSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<EntityBBSpawner> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, EntityBBSpawner> STREAM_CODEC = StreamCodec.composite(
+                ParticleTypes.STREAM_CODEC, s -> s.particle,
+                ByteBufCodecs.INT, s -> s.targetId,
+                ByteBufCodecs.BOOL, s -> s.onlyOutline,
+                ByteBufCodecs.FLOAT, s -> s.sizeXScale,
+                ByteBufCodecs.FLOAT, s -> s.sizeYScale,
+                ByteBufCodecs.INT, s -> s.perTick,
+                EntityBBSpawner::new
+        );
 
         @Override
-        public void toNW(FriendlyByteBuf buf, EntityBBSpawner value) {
-            ExtraStreamCodecs.writeParticleOptions(buf, value.particle);
-            buf.writeInt(value.targetId);
-            buf.writeBoolean(value.onlyOutline);
-            buf.writeFloat(value.sizeXScale);
-            buf.writeFloat(value.sizeYScale);
-            buf.writeInt(value.perTick);
-        }
-
-        @Override
-        public EntityBBSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new EntityBBSpawner(ExtraStreamCodecs.readParticleOptions(buf),
-                    buf.readInt(),
-                    buf.readBoolean(),
-                    buf.readFloat(),
-                    buf.readFloat(),
-                    buf.readInt());
+        public StreamCodec<? super RegistryFriendlyByteBuf, EntityBBSpawner> codec() {
+            return STREAM_CODEC;
         }
     }
 

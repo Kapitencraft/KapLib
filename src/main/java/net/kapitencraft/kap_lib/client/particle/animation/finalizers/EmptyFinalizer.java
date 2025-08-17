@@ -4,6 +4,8 @@ import net.kapitencraft.kap_lib.registry.custom.particle_animation.FinalizerType
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public class EmptyFinalizer implements ParticleFinalizer {
@@ -23,15 +25,11 @@ public class EmptyFinalizer implements ParticleFinalizer {
     }
 
     public static class Type implements ParticleFinalizer.Type<EmptyFinalizer> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
         @Override
-        public void toNw(FriendlyByteBuf buf, EmptyFinalizer val) {
-
-        }
-
-        @Override
-        public EmptyFinalizer fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return INSTANCE;
+        public StreamCodec<RegistryFriendlyByteBuf, EmptyFinalizer> codec() {
+            return STREAM_CODEC;
         }
     }
 

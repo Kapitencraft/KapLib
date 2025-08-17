@@ -27,7 +27,7 @@ public interface Spawner {
      * the type of the spawner
      */
     interface Type<T extends Spawner> {
-        StreamCodec<RegistryFriendlyByteBuf, T> codec();
+        StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
     }
 
     interface Builder {

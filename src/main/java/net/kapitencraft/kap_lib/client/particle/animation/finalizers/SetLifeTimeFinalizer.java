@@ -4,6 +4,9 @@ import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.FinalizerTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 public class SetLifeTimeFinalizer implements ParticleFinalizer {
@@ -31,16 +34,15 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
     }
 
     public static class Type implements ParticleFinalizer.Type<SetLifeTimeFinalizer> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, SetLifeTimeFinalizer> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.INT, f -> f.lifeTime,
+                ByteBufCodecs.BOOL, f -> f.resetAge,
+                SetLifeTimeFinalizer::new
+        );
 
         @Override
-        public void toNw(FriendlyByteBuf buf, SetLifeTimeFinalizer val) {
-            buf.writeInt(val.lifeTime);
-            buf.writeBoolean(val.resetAge);
-        }
-
-        @Override
-        public SetLifeTimeFinalizer fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new SetLifeTimeFinalizer(buf.readInt(), buf.readBoolean());
+        public StreamCodec<? super RegistryFriendlyByteBuf, SetLifeTimeFinalizer> codec() {
+            return STREAM_CODEC;
         }
     }
 
