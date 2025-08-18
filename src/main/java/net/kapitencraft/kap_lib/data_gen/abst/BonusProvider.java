@@ -1,13 +1,18 @@
 package net.kapitencraft.kap_lib.data_gen.abst;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.item.combat.armor.AbstractArmorItem;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
@@ -112,9 +117,10 @@ public abstract class BonusProvider extends ItemTagsProvider {
         T bonus = (T) itemBuilder.getBonus();
         JsonObject main = new JsonObject();
         if (itemBuilder.isHidden()) main.addProperty("hidden", true);
-        {
-            DataPackSerializer<T> serializer = bonus.getSerializer();
-            main.add("data", serializer.encode(bonus));
+        if (bonus != null) {
+            DataResult<JsonElement> result = Bonus.CODEC.encodeStart(JsonOps.INSTANCE, bonus);
+            result.resultOrPartial(e -> LOGGER.warn("unable to save item loader for item {}: {}", BuiltInRegistries.ITEM.getKey(item), e))
+                    .ifPresent(e -> main.add("bonus", e));
         }
 
         if (item != null) main.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item), "unknown item with class: " + item.getClass().getCanonicalName()).toString());

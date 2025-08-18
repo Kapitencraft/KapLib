@@ -54,6 +54,7 @@ public abstract class RequirementProvider<T> implements DataProvider {
         JsonObject json = new JsonObject();
 
         this.requirements.forEach((t, condition) -> {
+            this.type.serializer().encode(t);
             ResourceLocation elementId = this.type.getId(t);
             if (elementId == null) {
                 RequirementManager.LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "could not find element {} in requirement type '{}'; skipping!", t.getClass().getCanonicalName(), this.type.getName());

@@ -7,6 +7,7 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.io.serialization.IDataGenElement;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.minecraft.network.FriendlyByteBuf;
@@ -24,7 +25,7 @@ import java.util.function.Function;
 
 public abstract class ReqCondition<T extends ReqCondition<T>> implements IDataGenElement<T> {
     public static final StreamCodec<RegistryFriendlyByteBuf, ReqCondition<?>> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.REQ_CONDITIONS).dispatch(ReqCondition::getSerializer, DataPackSerializer::getStreamCodec);
-    public static final Codec<ReqCondition<?>> CODEC = ExtraRegistries.REQUIREMENT_TYPES.byNameCodec().dispatch(ReqCondition::getSerializer, DataPackSerializer::getCodec);
+    public static final Codec<ReqCondition<?>> CODEC = ExtraRegistries.REQUIREMENT_TYPES.byNameCodec().dispatch(ReqCondition::getSerializer, RegistrySerializer::codec);
 
     public static <T extends ReqCondition<T>> DataPackSerializer<T> createSerializer(Codec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
         return IDataGenElement.createSerializer(codec, streamCodec);

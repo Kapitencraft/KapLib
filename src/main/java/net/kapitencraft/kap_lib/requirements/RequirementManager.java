@@ -85,7 +85,6 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     /**
      * gets all requirements applied to the given value of the given type
      */
-    @SuppressWarnings("unchecked")
     public <T> Collection<ReqCondition<?>> getReqs(RequirementType<T> type, T t) {
         Element<T> element = (Element<T>) this.elements.get(type.getName());
         return element != null ? element.requirements.get(t) : List.of();

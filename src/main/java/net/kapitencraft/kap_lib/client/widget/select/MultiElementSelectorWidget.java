@@ -78,12 +78,12 @@ public abstract class MultiElementSelectorWidget<K> extends PositionedWidget {
     }
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double deltaX, double deltaY) {
         if (this.hovered(pMouseX, pMouseY)) {
-            this.scrollOffset += pDelta;
+            this.scrollOffset += (int) deltaY;
             return true;
         }
-        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+        return super.mouseScrolled(pMouseX, pMouseY, deltaX, deltaY);
     }
 
     @Override

@@ -518,7 +518,7 @@ public class MiscHelper {
      */
     public static Item[] getItemsFromTag(RegistryAccess access, TagKey<Item> tag) {
         return access.registryOrThrow(Registries.ITEM)
-                .getTag(tag).orElseThrow(NullPointerException::new).contents().stream().map(Holder::value)
+                .getTag(tag).orElseThrow(NullPointerException::new).stream().map(Holder::value)
                 .toArray(Item[]::new);
     }
 

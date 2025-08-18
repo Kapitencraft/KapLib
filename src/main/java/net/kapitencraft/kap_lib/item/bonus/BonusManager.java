@@ -347,9 +347,13 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         try {
             JsonObject main = element.getAsJsonObject();
 
-            DataResult<Bonus<?>> result = ExtraCodecs.BONUS.parse(JsonOps.INSTANCE, main);
+            Bonus<?> bonus = null;
 
-            Bonus<?> bonus = result.getOrThrow();
+            if (main.has("bonus")) {
+                DataResult<Bonus<?>> result = Bonus.CODEC.parse(JsonOps.INSTANCE, main.get("bonus"));
+
+                bonus = result.resultOrPartial(e -> LOGGER.warn("unable to read item element bonus at {}: {}", location, e)).orElse(null);
+            }
 
             ResourceLocation itemLocation = ResourceLocation.parse(GsonHelper.getAsString(main, "item"));
             Item item = BuiltInRegistries.ITEM.get(itemLocation);

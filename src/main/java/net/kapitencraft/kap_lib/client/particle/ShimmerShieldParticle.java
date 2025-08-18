@@ -120,11 +120,11 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
             float f7 = getU1();
             float f4 = getV0();
             float f5 = getV1();
-            int j = getLightColor(pPartialTicks);
-            pBuffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).uv(f7, f5).color(color.r, color.g, color.b, color.a).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).uv(f7, f4).color(color.r, color.g, color.b, color.a).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).uv(f6, f4).color(color.r, color.g, color.b, color.a).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).uv(f6, f5).color(color.r, color.g, color.b, color.a).uv2(j).endVertex();
+            int light = 15728880;
+            pBuffer.addVertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).setUv(f7, f5).setColor(color.r, color.g, color.b, color.a).setLight(light);
+            pBuffer.addVertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).setUv(f7, f4).setColor(color.r, color.g, color.b, color.a).setLight(light);
+            pBuffer.addVertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).setUv(f6, f4).setColor(color.r, color.g, color.b, color.a).setLight(light);
+            pBuffer.addVertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).setUv(f6, f5).setColor(color.r, color.g, color.b, color.a).setLight(light);
         }
 
 

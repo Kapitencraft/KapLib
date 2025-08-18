@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibDataSource;
 import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeModifier;
@@ -82,5 +83,5 @@ public interface ExtraCodecs {
             Codec.BOOL.optionalFieldOf("visible", true).forGetter(MobEffectInstance::isVisible)
     ).apply(instance, MobEffectInstance::new));
 
-    Codec<Bonus<?>> BONUS = ExtraRegistries.BONUS_SERIALIZER.byNameCodec().dispatchStable(Bonus::getSerializer, s -> s.getCodec().fieldOf("data").codec());
+    Codec<Bonus<?>> BONUS = ExtraRegistries.BONUS_SERIALIZER.byNameCodec().dispatchStable(Bonus::getSerializer, RegistrySerializer::codec);
 }

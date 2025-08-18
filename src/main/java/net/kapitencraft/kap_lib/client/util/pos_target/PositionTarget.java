@@ -1,7 +1,9 @@
 package net.kapitencraft.kap_lib.client.util.pos_target;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -14,11 +16,11 @@ import java.util.function.Supplier;
  * provides positions for spawning / moving particles
  */
 public interface PositionTarget extends Supplier<Vec3> {
-    StreamCodec<FriendlyByteBuf, PositionTarget> STREAM_CODEC = StreamCodec.of(PositionTarget.Types::toNw, PositionTarget::fromNw);
+    StreamCodec<RegistryFriendlyByteBuf, PositionTarget> STREAM_CODEC = StreamCodec.of(PositionTarget.Types::toNw, PositionTarget::fromNw);
 
-    static PositionTarget fromNw(FriendlyByteBuf buf) {
+    static PositionTarget fromNw(RegistryFriendlyByteBuf buf) {
         Types t = Types.values()[buf.readInt()];
-        return t.type.fromNw(buf);
+        return t.type.codec().decode(buf);
     }
 
     /**
@@ -66,10 +68,10 @@ public interface PositionTarget extends Supplier<Vec3> {
             this.type = typeSupplier.get();
         }
 
-        private static <T extends PositionTarget> void toNw(FriendlyByteBuf buf, T val) {
+        private static <T extends PositionTarget> void toNw(RegistryFriendlyByteBuf buf, T val) {
             Types types = val.getType();
             buf.writeInt(types.ordinal());
-            ((Type<T>) types.type).toNw(buf, val);
+            ((Type<T>) types.type).codec().encode(buf, val);
         }
 
         public static Types create(String name, Supplier<Type<? extends PositionTarget>> typeSupplier) {
@@ -78,8 +80,7 @@ public interface PositionTarget extends Supplier<Vec3> {
     }
 
     interface Type<T extends PositionTarget> {
-        void toNw(FriendlyByteBuf buf, T val);
 
-        T fromNw(FriendlyByteBuf buf);
+        StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
     }
 }

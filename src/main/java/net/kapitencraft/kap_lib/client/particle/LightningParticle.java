@@ -97,9 +97,8 @@ public class LightningParticle extends Particle {
     public void render(@NotNull VertexConsumer pBuffer, @NotNull Camera pRenderInfo, float pPartialTicks) {
         Vec3 camPos = pRenderInfo.getPosition();
         for (Vector3f vertex : this.vertexes) {
-            pBuffer.vertex(vertex.x - camPos.x, vertex.y - camPos.y, vertex.z - camPos.z)
-                    .color(.45f, .45f, .5f, alpha)
-                    .endVertex();
+            pBuffer.addVertex((float) (vertex.x - camPos.x), (float) (vertex.y - camPos.y), (float) (vertex.z - camPos.z))
+                    .setColor(.45f, .45f, .5f, alpha);
         }
     }
 

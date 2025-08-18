@@ -25,14 +25,13 @@ public class BackButton extends Button {
         return Math.abs(pMouseY - this.getY()) <= 10 && Math.abs(pMouseX - this.getX()) >= this.getWidth() - 10;
     }
 
-
     @Override
-    public void render(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         float scale = 8f / this.height;
-        graphics.pose().pushPose();
-        graphics.pose().scale(scale, scale, 0);
-        graphics.drawCenteredString(Minecraft.getInstance().font, this.left ? "<" : ">", this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2, -1);
-        graphics.pose().popPose();
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().scale(scale, scale, 0);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, this.left ? "<" : ">", this.getX() + this.getWidth() / 2, this.getY() + this.getHeight() / 2, -1);
+        guiGraphics.pose().popPose();
     }
 
     @Override

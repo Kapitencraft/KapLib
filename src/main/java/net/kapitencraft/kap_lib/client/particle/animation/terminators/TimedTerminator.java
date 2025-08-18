@@ -7,12 +7,17 @@ import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.Termi
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTriggerInstance;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.apache.commons.compress.utils.Lists;
 
 import java.util.List;
 import java.util.Set;
 
 public class TimedTerminator implements TerminationTrigger<TimedTerminator.Instance> {
+    private static final StreamCodec<? super RegistryFriendlyByteBuf, Instance> STREAM_CODEC = ByteBufCodecs.INT.map(Instance::new, Instance::duration);
+
     private final Set<Listener<TimedTerminator.Instance>> listeners = Sets.newHashSet();
 
     public static TerminationTriggerInstance seconds(int i) {
@@ -39,8 +44,8 @@ public class TimedTerminator implements TerminationTrigger<TimedTerminator.Insta
     }
 
     @Override
-    public void toNw(FriendlyByteBuf buf, Instance terminator) {
-        buf.writeInt(terminator.duration);
+    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> codec() {
+        return STREAM_CODEC;
     }
 
     public void trigger() {
@@ -57,18 +62,7 @@ public class TimedTerminator implements TerminationTrigger<TimedTerminator.Insta
         }
     }
 
-    @Override
-    public Instance fromNw(FriendlyByteBuf buf) {
-        return new Instance(buf.readInt());
-    }
-
-    public static class Instance implements TerminationTriggerInstance {
-        private final int duration;
-
-        public Instance(int duration) {
-            this.duration = duration;
-        }
-
+    public record Instance(int duration) implements TerminationTriggerInstance {
         @Override
         public TerminationTrigger<? extends TerminationTriggerInstance> getTrigger() {
             return TerminatorTriggers.TIMED.get();

@@ -48,9 +48,9 @@ public class ScrollableMenu extends Menu {
     }
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double deltaX, double deltaY) {
         if (pMouseX - this.x < this.width() && pMouseY - this.y < this.height()) {
-            this.startIndex += (int) (pDelta / 10);
+            this.startIndex += (int) (deltaY / 10);
             this.startIndex = Math.max(0, startIndex);
             return true;
         }

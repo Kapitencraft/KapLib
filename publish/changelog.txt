@@ -14,3 +14,4 @@ removed BasedAttributeUUIDs. use IAttributeExtension#getBaseId instead
 removed AbstractTridentClass
 removed Capability Provider and Abstract Capability
 modified WearableSlot's #is method to take a Holder<WearableSlot> instead of Supplier<WearableSlot>
+moved ExtraCodecs.BONUS -> Bonus.CODEC

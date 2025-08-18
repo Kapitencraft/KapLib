@@ -5,15 +5,18 @@ import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GroupSpawner implements Spawner {
-    private final Spawner[] spawners;
+    private final List<Spawner> spawners;
 
-    public GroupSpawner(Spawner[] spawners) {
+    public GroupSpawner(List<Spawner> spawners) {
         this.spawners = spawners;
     }
 
@@ -41,20 +44,16 @@ public class GroupSpawner implements Spawner {
 
         @Override
         public Spawner build() {
-            return new GroupSpawner(spawners.toArray(Spawner[]::new));
+            return new GroupSpawner(spawners);
         }
-    }
+        }
 
     public static class Type implements VisibleSpawner.Type<GroupSpawner> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> STREAM_CODEC = Spawner.CODEC.apply(ByteBufCodecs.list()).map(GroupSpawner::new, s -> s.spawners);
 
         @Override
-        public void toNW(FriendlyByteBuf buf, GroupSpawner value) {
-            ExtraStreamCodecs.writeArray(buf, value.spawners, Spawner::toNw);
-        }
-
-        @Override
-        public GroupSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new GroupSpawner(ExtraStreamCodecs.readArray(buf, Spawner[]::new, Spawner::fromNw));
+        public StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> codec() {
+            return STREAM_CODEC;
         }
     }
 }

@@ -2,16 +2,11 @@ package net.kapitencraft.kap_lib.client.util.pos_target;
 
 import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
-public class RelativePositionTarget implements PositionTarget {
-    private final PositionTarget target;
-    private final Vec3 offset;
-
-    public RelativePositionTarget(PositionTarget target, Vec3 offset) {
-        this.target = target;
-        this.offset = offset;
-    }
+public record RelativePositionTarget(PositionTarget target, Vec3 offset) implements PositionTarget {
 
     @Override
     public Vec3 get() {
@@ -24,16 +19,15 @@ public class RelativePositionTarget implements PositionTarget {
     }
 
     public static class Type implements PositionTarget.Type<RelativePositionTarget> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, RelativePositionTarget> STREAM_CODEC = StreamCodec.composite(
+                PositionTarget.STREAM_CODEC, RelativePositionTarget::target,
+                ExtraStreamCodecs.VEC_3, RelativePositionTarget::get,
+                RelativePositionTarget::new
+        );
 
         @Override
-        public void toNw(FriendlyByteBuf buf, RelativePositionTarget val) {
-            val.target.toNw(buf);
-            ExtraStreamCodecs.writeVec3(buf, val.offset);
-        }
-
-        @Override
-        public RelativePositionTarget fromNw(FriendlyByteBuf buf) {
-            return new RelativePositionTarget(PositionTarget.fromNw(buf), ExtraStreamCodecs.readVec3(buf));
+        public StreamCodec<? super RegistryFriendlyByteBuf, RelativePositionTarget> codec() {
+            return STREAM_CODEC;
         }
     }
 

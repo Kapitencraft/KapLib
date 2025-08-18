@@ -6,7 +6,10 @@ import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleSpawnSink;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,16 +39,15 @@ public class TrackingSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<TrackingSpawner> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, TrackingSpawner> STREAM_CODEC = StreamCodec.composite(
+                ParticleTypes.STREAM_CODEC, s -> s.particle,
+                PositionTarget.STREAM_CODEC, s -> s.target,
+                TrackingSpawner::new
+        );
 
         @Override
-        public void toNW(FriendlyByteBuf buf, TrackingSpawner value) {
-            ExtraStreamCodecs.writeParticleOptions(buf, value.particle);
-            value.target.toNw(buf);
-        }
-
-        @Override
-        public TrackingSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new TrackingSpawner(ExtraStreamCodecs.readParticleOptions(buf), PositionTarget.fromNw(buf));
+        public StreamCodec<? super RegistryFriendlyByteBuf, TrackingSpawner> codec() {
+            return STREAM_CODEC;
         }
     }
 

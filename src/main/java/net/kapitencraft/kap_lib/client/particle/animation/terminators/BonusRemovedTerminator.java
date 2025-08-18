@@ -5,6 +5,8 @@ import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.Termi
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTriggerInstance;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
@@ -18,15 +20,22 @@ public class BonusRemovedTerminator extends SimpleTerminationTrigger<BonusRemove
         this.trigger(i -> i.entityId == entityId && i.elementId == elementId);
     }
 
-    @Override
-    public void toNw(FriendlyByteBuf buf, Instance terminator) {
+    private static final StreamCodec<? super RegistryFriendlyByteBuf, Instance> STREAM_CODEC = StreamCodec.of(
+            BonusRemovedTerminator::toNw, BonusRemovedTerminator::fromNw
+    );
+
+    public static void toNw(FriendlyByteBuf buf, Instance terminator) {
         buf.writeInt(terminator.entityId);
         buf.writeResourceLocation(terminator.elementId);
     }
 
-    @Override
-    public Instance fromNw(FriendlyByteBuf buf) {
+    public static Instance fromNw(FriendlyByteBuf buf) {
         return new Instance(buf.readInt(), buf.readResourceLocation());
+    }
+
+    @Override
+    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> codec() {
+        return STREAM_CODEC;
     }
 
     public static class Instance implements TerminationTriggerInstance {

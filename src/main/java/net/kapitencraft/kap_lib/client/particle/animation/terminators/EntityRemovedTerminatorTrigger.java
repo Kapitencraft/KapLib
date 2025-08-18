@@ -4,20 +4,19 @@ import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.Simpl
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTriggerInstance;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class EntityRemovedTerminatorTrigger extends SimpleTerminationTrigger<EntityRemovedTerminatorTrigger.Instance> {
+    private static final StreamCodec<? super RegistryFriendlyByteBuf, Instance> STREAM_CODEC = ByteBufCodecs.INT.map(Instance::new, Instance::entityId),
 
     public static TerminationTriggerInstance create(Entity target) {
         return new Instance(target.getId());
-    }
-
-    @Override
-    public void toNw(FriendlyByteBuf buf, Instance terminator) {
-        buf.writeInt(terminator.entityId);
     }
 
     public void trigger(int entityId) {
@@ -25,8 +24,8 @@ public class EntityRemovedTerminatorTrigger extends SimpleTerminationTrigger<Ent
     }
 
     @Override
-    public Instance fromNw(FriendlyByteBuf buf) {
-        return new Instance(buf.readInt());
+    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> codec() {
+        return STREAM_CODEC;
     }
 
     public record Instance(int entityId) implements TerminationTriggerInstance {

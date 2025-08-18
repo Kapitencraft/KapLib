@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.item.bonus;
 
 import com.google.common.collect.Multimap;
+import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
@@ -22,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface Bonus<T extends Bonus<T>> extends IEventListener {
+    Codec<Bonus<?>> CODEC = ExtraRegistries.BONUS_SERIALIZER.byNameCodec().dispatchStable(Bonus::getSerializer, RegistrySerializer::codec);
     StreamCodec<RegistryFriendlyByteBuf, Bonus<?>> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.BONUS_SERIALIZERS).dispatch(Bonus::getSerializer, RegistrySerializer::streamCodec);
 
     /**

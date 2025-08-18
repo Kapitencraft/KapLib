@@ -28,7 +28,7 @@ public class EmptyFinalizer implements ParticleFinalizer {
         private static final StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, EmptyFinalizer> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> codec() {
             return STREAM_CODEC;
         }
     }

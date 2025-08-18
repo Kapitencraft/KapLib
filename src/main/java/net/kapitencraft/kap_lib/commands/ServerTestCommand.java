@@ -25,6 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -40,6 +41,7 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -48,6 +50,7 @@ import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * server tests.
@@ -81,8 +84,6 @@ public class ServerTestCommand {
     private static int testLargeTooltip(CommandContext<CommandSourceStack> context) {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
             ItemStack stack = new ItemStack(Items.DIAMOND);
-            CompoundTag tag = stack.getOrCreateTagElement("display");
-            ListTag lore = new ListTag();
             List<String> loreData = List.of(
                     "Minecraft is a 2011 sandbox game developed and published by the Swedish video game developer Mojang Studios.",
                     "Originally created by Markus \"Notch\" Persson using the Java programming language, the first public alpha build was released on 17 May 2009.",
@@ -106,8 +107,9 @@ public class ServerTestCommand {
                     "The wider Minecraft franchise includes several spin-off games including Minecraft: Story Mode, Minecraft Earth, Minecraft Dungeons, and Minecraft Legends.",
                     "A live-action film adaptation, titled A Minecraft Movie, was released in theatres on 4 April 2025. "
             );
-            loreData.stream().map(Component::literal).map(Component.Serializer::toJson).map(StringTag::valueOf).forEach(lore::add);
-            tag.put("Lore", lore);
+
+            List<Component> list = loreData.stream().map(Component::literal).collect(Collectors.toUnmodifiableList());
+            stack.set(DataComponents.LORE, new ItemLore(list));
             player.addItem(stack);
             return 1;
         });
@@ -134,7 +136,7 @@ public class ServerTestCommand {
                     .create(LootContextParamSets.COMMAND);
             SpawnContext spawnContext = new SpawnContext.Builder(params)
                     .create(null);
-            SpawnTable table = SpawnTableManager.instance.getSpawnTable(new ResourceLocation("test:test"));
+            SpawnTable table = SpawnTableManager.instance.getSpawnTable(ResourceLocation.parse("test:test"));
             table.getRandomEntities(spawnContext, entity ->
                     entity.setPos(commandSourceStack.getPosition())
             );

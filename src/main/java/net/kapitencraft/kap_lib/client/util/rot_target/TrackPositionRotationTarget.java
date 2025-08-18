@@ -3,19 +3,14 @@ package net.kapitencraft.kap_lib.client.util.rot_target;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec2;
 
 /**
  * a rotation target that tracks a position from a source position (like Aim-Bot)
  */
-public class TrackPositionRotationTarget implements RotationTarget {
-    private final PositionTarget source, target;
-
-    TrackPositionRotationTarget(PositionTarget source, PositionTarget target) {
-        this.source = source;
-        this.target = target;
-    }
-
+public record TrackPositionRotationTarget(PositionTarget source, PositionTarget target) implements RotationTarget {
     @Override
     public Vec2 get() {
         return MathHelper.createTargetRotationFromPos(source.get(), target.get());
@@ -27,16 +22,10 @@ public class TrackPositionRotationTarget implements RotationTarget {
     }
 
     public static class Type implements RotationTarget.Type<TrackPositionRotationTarget> {
-
-        @Override
-        public void toNw(FriendlyByteBuf buf, TrackPositionRotationTarget val) {
-            val.source.toNw(buf);
-            val.target.toNw(buf);
-        }
-
-        @Override
-        public TrackPositionRotationTarget fromNw(FriendlyByteBuf buf) {
-            return new TrackPositionRotationTarget(PositionTarget.fromNw(buf), PositionTarget.fromNw(buf));
-        }
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, TrackPositionRotationTarget> STREAM_CODEC = StreamCodec.composite(
+                PositionTarget.STREAM_CODEC, TrackPositionRotationTarget::source,
+                PositionTarget.STREAM_CODEC, TrackPositionRotationTarget::target,
+                TrackPositionRotationTarget::new
+        );
     }
 }

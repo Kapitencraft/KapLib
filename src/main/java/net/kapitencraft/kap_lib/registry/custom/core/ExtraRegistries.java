@@ -36,7 +36,7 @@ import java.util.function.Function;
 public interface ExtraRegistries {
     Registry<OverlayProperties> OVERLAY_PROPERTIES = reg(Keys.OVERLAY_PROPERTIES);
     Registry<GlyphEffect> GLYPH_EFFECTS = reg(Keys.GLYPH_EFFECTS);
-    Registry<DataPackSerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
+    Registry<RegistrySerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
     Registry<RegistrySerializer<? extends Bonus<?>>> BONUS_SERIALIZER = reg(Keys.BONUS_SERIALIZERS);
     Registry<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = reg(Keys.ATTRIBUTE_MODIFIER_TYPES);
     Registry<ComponentContents.Type<?>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
@@ -79,7 +79,7 @@ public interface ExtraRegistries {
          */
         ResourceKey<Registry<OverlayProperties>> OVERLAY_PROPERTIES = createRegistry("overlay_properties");
         ResourceKey<Registry<GlyphEffect>> GLYPH_EFFECTS = createRegistry("glyph_effects");
-        ResourceKey<Registry<DataPackSerializer<? extends ReqCondition<?>>>> REQ_CONDITIONS = createRegistry("requirement_conditions");
+        ResourceKey<Registry<RegistrySerializer<? extends ReqCondition<?>>>> REQ_CONDITIONS = createRegistry("requirement_conditions");
         ResourceKey<Registry<RegistrySerializer<? extends Bonus<?>>>> BONUS_SERIALIZERS = createRegistry("bonus_serializers");
         ResourceKey<Registry<Codec<? extends AttributeModifier>>> ATTRIBUTE_MODIFIER_TYPES = vanillaRegistry("attribute_modifier_types");
         ResourceKey<Registry<ComponentContents.Type<?>>> COMPONENT_CONTENTS_TYPES = vanillaRegistry("component_contents_types");

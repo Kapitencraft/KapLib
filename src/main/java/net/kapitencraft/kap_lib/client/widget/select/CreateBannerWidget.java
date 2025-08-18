@@ -69,8 +69,8 @@ public class CreateBannerWidget extends PositionedWidget {
     }
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
-        return this.widgets.stream().anyMatch(positionedWidget -> positionedWidget.mouseScrolled(pMouseX, pMouseY, pDelta));
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double deltaX, double deltaY) {
+        return this.widgets.stream().anyMatch(positionedWidget -> positionedWidget.mouseScrolled(pMouseX, pMouseY, deltaX, deltaY));
     }
 
     @Override

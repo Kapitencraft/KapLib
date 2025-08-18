@@ -7,11 +7,16 @@ import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.SpawnerTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public class LineSpawner extends VisibleSpawner {
     private final PositionTarget start, end;
@@ -65,18 +70,17 @@ public class LineSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<LineSpawner> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> STREAM_CODEC = StreamCodec.composite(
+                ParticleTypes.STREAM_CODEC, s -> s.particle,
+                PositionTarget.STREAM_CODEC, s -> s.start,
+                PositionTarget.STREAM_CODEC, s -> s.end,
+                ByteBufCodecs.FLOAT, s -> s.spacing,
+                LineSpawner::new
+        );
 
         @Override
-        public void toNW(FriendlyByteBuf buf, LineSpawner value) {
-            ExtraStreamCodecs.writeParticleOptions(buf, value.particle);
-            value.start.toNw(buf);
-            value.end.toNw(buf);
-            buf.writeFloat(value.spacing);
-        }
-
-        @Override
-        public LineSpawner fromNw(FriendlyByteBuf buf, ClientLevel level) {
-            return new LineSpawner(ExtraStreamCodecs.readParticleOptions(buf), PositionTarget.fromNw(buf), PositionTarget.fromNw(buf), buf.readFloat());
+        public StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> codec() {
+            return STREAM_CODEC;
         }
     }
 
