@@ -37,17 +37,25 @@ public class BannerPatternRenderer {
         return FLAG;
     }
 
+    /**
+     * @param graphics the GUI graphics for rendering it internal
+     * @param x the x position of the banner
+     * @param y the y position of the banner
+     * @param patterns the patterns to render
+     * @param height the height and scale of the banner
+     */
     public static void renderBanner(GuiGraphics graphics, float x, float y, List<Pair<Holder<BannerPattern>, DyeColor>> patterns, int height) {
         MultiBufferSource.BufferSource source = MINECRAFT.renderBuffers().bufferSource();
-        graphics.pose().pushPose();
-        graphics.pose().translate(x, y + height, 0.0F);
+        PoseStack poseStack = graphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(x, y + height, 0.0F);
         float scale = height / 40f;
-        graphics.pose().scale(24.0F * scale, -24.0F * scale, 1.0F);
-        graphics.pose().translate(0.5F, 0.5F, 0);
+        poseStack.scale(24.0F * scale, -24.0F * scale, 1.0F);
+        poseStack.translate(0.5F, 0.5F, 0);
         float f = 2 / 3f;
-        graphics.pose().scale(f, -f, -f);
-        BannerRenderer.renderPatterns(graphics.pose(), source, 15728880, OverlayTexture.NO_OVERLAY, FLAG, ModelBakery.BANNER_BASE, true, patterns);
-        graphics.pose().popPose();
+        poseStack.scale(f, -f, -f);
+        BannerRenderer.renderPatterns(poseStack, source, 15728880, OverlayTexture.NO_OVERLAY, FLAG, ModelBakery.BANNER_BASE, true, patterns);
+        poseStack.popPose();
         source.endBatch();
     }
 

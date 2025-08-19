@@ -5,6 +5,9 @@ import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
 
+/**
+ * Glyph effect that makes the glyphs move from left to right
+ */
 public class ShakeEffect extends GlyphEffect {
     @Override
     public void apply(EffectSettings settings) {

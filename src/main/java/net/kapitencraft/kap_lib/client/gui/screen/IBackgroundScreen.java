@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.client.gui.screen;
 
+/**
+ * interface for reducing effort when creating a screen with background
+ */
 public interface IBackgroundScreen {
 
     int getImageWidth();

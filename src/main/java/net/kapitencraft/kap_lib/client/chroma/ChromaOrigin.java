@@ -2,23 +2,26 @@ package net.kapitencraft.kap_lib.client.chroma;
 
 import net.minecraft.util.StringRepresentable;
 
+/**
+ * the origin (or alignment) of the Chroma
+ * <br> (from which point it's animated from
+ * <br> use as example
+ */
 public enum ChromaOrigin implements IShaderConfig, StringRepresentable {
-    TOP_LEFT("top_left", 1),
-    TOP_RIGHT("top_right", 3),
-    BOTTOM_LEFT("bottom_left", 0),
-    BOTTOM_RIGHT("bottom_right", 2);
+    BOTTOM_LEFT("bottom_left"),
+    TOP_LEFT("top_left"),
+    BOTTOM_RIGHT("bottom_right"),
+    TOP_RIGHT("top_right");
 
     private final String name;
-    private final int id;
 
-    ChromaOrigin(String name, int id) {
+    ChromaOrigin(String name) {
         this.name = name;
-        this.id = id;
     }
 
     @Override
     public int getConfigId() {
-        return id;
+        return ordinal();
     }
 
     @Override

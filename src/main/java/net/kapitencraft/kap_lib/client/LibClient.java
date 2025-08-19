@@ -1,13 +1,37 @@
 package net.kapitencraft.kap_lib.client;
 
-import net.kapitencraft.kap_lib.client.overlay.OverlayController;
-import net.kapitencraft.kap_lib.client.particle.animation.ParticleAnimationAcceptor;
+import net.kapitencraft.kap_lib.client.cam.core.CameraController;
+import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
+import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimationManager;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.request.RequestHandler;
-import org.checkerframework.checker.units.qual.A;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class LibClient {
-    public static final OverlayController controller = OverlayController.load();
-    public static final RequestHandler handler = new RequestHandler(ModMessages::sendToServer);
-    public static final ParticleAnimationAcceptor acceptor = new ParticleAnimationAcceptor();
+/**
+ * client handler for cached information
+ */
+@OnlyIn(Dist.CLIENT)
+public interface LibClient {
+
+
+    /**
+     * overlay controller; controls the given Overlays for the screen
+     */
+    OverlayManager overlays = OverlayManager.load();
+
+    /**
+     * handles the server data requests
+     */
+    RequestHandler requests = new RequestHandler(ModMessages::sendToServer);
+
+    /**
+     * handles particle animations
+     */
+    ParticleAnimationManager animations = new ParticleAnimationManager();
+
+    /**
+     * handles tracking shots
+     */
+    CameraController cameraControl = new CameraController();
 }

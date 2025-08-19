@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.client.chroma;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * the type how chroma should be rendered
+ */
 public enum ChromaType implements StringRepresentable, IShaderConfig {
     LINEAR("linear", 1),
     CIRCLE("circle", 0),

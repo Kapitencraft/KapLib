@@ -1,49 +1,79 @@
 package net.kapitencraft.kap_lib.client.overlay.box;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.kapitencraft.kap_lib.client.overlay.holder.RenderHolder;
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.phys.Vec2;
 
 public class RenderBox {
+    /**
+     * the top-left position of this RenderBox relative to the top left of the screen
+     */
     public Vec2 start;
-    protected Vec2 finish;
+    /**
+     * the bottom-right position of this RenderBox relative to the top left of the screen
+     */
+    public Vec2 end;
+    /**
+     * the cursorType which should be swapped to when hovered
+     * @see org.lwjgl.glfw.GLFW#GLFW_ARROW_CURSOR Arrow Cursor and others (below)
+     */
     private final int cursorType;
-    protected final PoseStack stack;
+    /**
+     * the color this box should be rendered in
+     */
     private final int color;
-    public final RenderHolder dedicatedHolder;
-    public RenderBox(Vec2 start, Vec2 finish, int cursorType, PoseStack stack, int color, RenderHolder dedicatedHolder) {
+
+    public RenderBox(Vec2 start, Vec2 end, int cursorType, int color) {
         this.start = start;
-        this.finish = finish;
+        this.end = end;
         this.cursorType = cursorType;
-        this.stack = stack;
         this.color = color;
-        this.dedicatedHolder = dedicatedHolder;
     }
 
+    /**
+     * @return the width of this Box
+     */
     protected float width() {
-        return Math.abs(this.finish.x - this.start.x);
+        return Math.abs(this.end.x - this.start.x);
     }
 
+    /**
+     * @return the height of this box
+     */
     protected float height() {
-        return Math.abs(this.finish.y - this.start.y);
+        return Math.abs(this.end.y - this.start.y);
     }
 
-    public void scale(float x, float y) {
-        this.dedicatedHolder.getPos().scale(x, y);
-    }
-
+    /**
+     * @param mouseX the mouse X position
+     * @param mouseY the mouse Y position
+     * @return the id of the Cursor type that should be rendered
+     */
     public int getCursorType(double mouseX, double mouseY) {
         return cursorType;
     }
 
+    /**
+     * moves this box around (change X and Y coordinates)
+     * @param toAdd the offset applied to this Box
+     */
     public void move(Vec2 toAdd) {
         this.start = this.start.add(toAdd);
-        this.finish = this.finish.add(toAdd);
+        this.end = this.end.add(toAdd);
     }
 
+    /**
+     * render this Box
+     */
     public void render(GuiGraphics graphics, double mouseX, double mouseY) {
-        ClientHelper.fill(graphics, start.x, start.y, finish.x, finish.y, color, -1);
+        ClientHelper.fill(graphics, start.x, start.y, end.x, end.y, color, -1);
+    }
+
+    public void moveX(float offset) {
+        this.start = new Vec2(this.start.x + offset, this.start.y);
+    }
+
+    public void moveY(float offset) {
+        this.start = new Vec2(this.start.x, this.start.y + offset);
     }
 }

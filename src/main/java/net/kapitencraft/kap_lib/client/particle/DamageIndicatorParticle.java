@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -23,24 +24,27 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * particle that shows Damage dealt in different colors depending on the damage type
+ */
 @SuppressWarnings("ALL")
 public class DamageIndicatorParticle extends Particle {
     public static final double MAX_MOVEMENT = 0.35;
 
-    protected DamageIndicatorParticle(ClientLevel p_107234_, double p_107235_, double p_107236_, double p_107237_, double amount, double damageType, float rangeOffset) {
-        super(p_107234_, p_107235_, p_107236_, p_107237_);
+    protected DamageIndicatorParticle(ClientLevel level, double x, double y, double z, double amount, double damageType, float rangeOffset) {
+        super(level, x, y, z);
 
-        this.text = KapLibMod.doubleFormat(amount);
+        this.text = amount == Float.MAX_VALUE ? "INFINITE" : KapLibMod.doubleFormat(amount);
         this.color = TextHelper.damageIndicatorColorFromDouble(damageType).getColor();
         this.setColor(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color));
         this.darkColor = FastColor.ARGB32.color(255, (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25));
-        this.lifetime = 35;
+        this.lifetime = ClientModConfig.getIndicatorLifetime();
 
         this.yd = rangeOffset;
         this.xd = Mth.nextDouble(KapLibMod.RANDOM_SOURCE, -MAX_MOVEMENT, MAX_MOVEMENT) * rangeOffset;
     }
 
-    private static final char CRIT_CHAR = ' ';
+    private static final char CRIT_CHAR = ' '; //TODO add stars around damage if critical
 
     private float fadeout = -1;
     private float prevFadeout = -1;
@@ -58,7 +62,7 @@ public class DamageIndicatorParticle extends Particle {
 
 
     @Override
-    public void render(@NotNull VertexConsumer p_107261_, @NotNull Camera camera, float partialTicks) {
+    public void render(@NotNull VertexConsumer consumer, @NotNull Camera camera, float partialTicks) {
         Vec3 camPos = camera.getPosition();
         float particleX = (float) (Mth.lerp(partialTicks, this.xo, this.x) - camPos.x());
         float particleY = (float) (Mth.lerp(partialTicks, this.yo, this.y) - camPos.y());
@@ -71,7 +75,6 @@ public class DamageIndicatorParticle extends Particle {
         double distanceFromCam = new Vec3(particleX, particleY, particleZ).length();
 
         double inc = Mth.clamp(distanceFromCam / 32f, 0, 5f);
-
 
         poseStack.translate(0, (1 + inc / 4f) * Mth.lerp(partialTicks, this.prevVisualDY, this.visualDY), 0);
 
@@ -109,7 +112,6 @@ public class DamageIndicatorParticle extends Particle {
         buffer.endBatch();
 
         poseStack.popPose();
-
     }
 
     @Override
@@ -146,13 +148,14 @@ public class DamageIndicatorParticle extends Particle {
 
     public static class Provider implements ParticleProvider<DamageIndicatorParticleOptions> {
 
-        public Provider(SpriteSet ignoredSpriteSet) {
+        public Provider() {
 
         }
 
         @Nullable
         @Override
         public DamageIndicatorParticle createParticle(@NotNull DamageIndicatorParticleOptions particleType, @NotNull ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+            if (!ClientModConfig.isIndicatorEnabled()) return null;
             return new DamageIndicatorParticle(level, x, y, z, particleType.getDamage(), particleType.getDamageType(), particleType.getRangeOffset());
         }
     }

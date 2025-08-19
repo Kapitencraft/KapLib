@@ -7,8 +7,11 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultBackgroundScreen extends Screen implements IBackgroundScreen {
-    private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation("mysticcraft:textures/gui/browsable_background.png");
+    private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation("kap_lib:textures/gui/background.png");
 
+    /**
+     * the position of the background texture
+     */
     protected int leftPos;
     protected int topPos;
 

@@ -9,7 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class GUISlotBlockItem extends Item implements IGuiHelper {
+/**
+ * add to custom Container slot to effectively block it (probably easier way to do this)
+ */
+public class GUISlotBlockItem extends Item {
     private List<Component> tooltip;
 
     public GUISlotBlockItem() {

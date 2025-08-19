@@ -4,13 +4,16 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.registry.ModParticleTypes;
+import net.kapitencraft.kap_lib.registry.ExtraParticleTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * particle Options for {@link DamageIndicatorParticle}
+ */
 public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicatorParticleOptions> implements ParticleOptions {
     private static final Codec<DamageIndicatorParticleOptions> CODEC = RecordCodecBuilder.create(optionsInstance ->
             optionsInstance.group(
@@ -46,7 +49,7 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
 
     @Override
     public @NotNull ParticleType<?> getType() {
-        return ModParticleTypes.DAMAGE_INDICATOR.get();
+        return ExtraParticleTypes.DAMAGE_INDICATOR.get();
     }
 
     @Override
@@ -58,7 +61,7 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
 
     @Override
     public @NotNull String writeToString() {
-        return String.format("%s %d", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()), damageType);
+        return String.format("%s %d", ForgeRegistries.PARTICLE_TYPES.getKey(this.getType()), damageType);
     }
 
     @Override

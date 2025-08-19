@@ -1,22 +1,25 @@
 package net.kapitencraft.kap_lib.client.overlay.box;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.kapitencraft.kap_lib.client.overlay.holder.RenderHolder;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 
+/**
+ * boxes that can be rendered on screen and interacted with
+ * <br> (hence the {@link GuiEventListener} implementation)
+ */
 public class InteractiveBox extends RenderBox implements GuiEventListener {
-    protected InteractiveBox(Vec2 start, Vec2 finish, int cursorType, PoseStack stack, int color, RenderHolder dedicatedHolder) {
-        super(start, finish, cursorType, stack, color, dedicatedHolder);
+    protected InteractiveBox(Vec2 start, Vec2 finish, int cursorType, int color) {
+        super(start, finish, cursorType, color);
     }
 
     @Override
     public boolean isMouseOver(double x, double y) {
-        return check(start.x, finish.x, x) && check(start.y, finish.y, y);
+        return check(start.x, end.x, x) && check(start.y, end.y, y);
     }
 
-    private static boolean check(float s, float f, double t) {
-        return s < f ? s < t && t < f : s > t && t > f;
+    private static boolean check(float s, float f, double v) {
+        return Mth.clamp(v, s, f) == v;
     }
 
     @Override
@@ -26,9 +29,21 @@ public class InteractiveBox extends RenderBox implements GuiEventListener {
         return this.mouseDrag(newX, newY, clickType, changeX, changeY, oldX, oldY);
     }
 
-    public boolean mouseDrag(double x, double y, int mouseType, double xChange, double yChange, double oldX, double oldY) {
+    /**
+     * @param x new X coordinate of the cursor
+     * @param y new Y coordinate of the cursor
+     * @param clickType the type of the click (LEFT, MIDDLE or RIGHT; see GLFW for more info)
+     * @see org.lwjgl.glfw.GLFW GLFW
+     * @param xChange the x movement the cursor has performed
+     * @param yChange the y movement the cursor has performed
+     * @param oldX the original x position of the cursor
+     * @param oldY the original y position of the cursor
+     * @return whether the even has been consumed
+     */
+    public boolean mouseDrag(double x, double y, int clickType, double xChange, double yChange, double oldX, double oldY) {
         return false;
     }
+
     public void mouseClick(double x, double y) {
     }
 

@@ -5,6 +5,9 @@ import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
 
+/**
+ * Glyph Effect that makes the Glyphs move up and down
+ */
 public class WaveEffect extends GlyphEffect {
     @Override
     public void apply(EffectSettings settings) {

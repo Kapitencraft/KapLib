@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+/**
+ * manages all the custom uniforms registered via the {@link RegisterUniformsEvent}
+ */
 public class UniformsProvider {
 
     private static final HashMap<String, Supplier<float[]>> vecSuppliers = new HashMap<>();
