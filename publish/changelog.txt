@@ -1,3 +1,5 @@
 fixed Enchantment Applicable using wrong font and removed the JSON font provider
 fixed Crossbow Enchantment Applicable using wrong texture
 fixed double jump not reducing damage from falling
+removed PlayerHeadAllocator debug saving
+added fallback for chat player heads

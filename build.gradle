@@ -93,7 +93,7 @@ minecraft {
         client {
             workingDirectory project.file('run')
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            args '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
+            //args '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
         }
 
         kaupenClient {
