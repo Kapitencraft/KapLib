@@ -17,7 +17,7 @@ public interface DisplayExtension<T> {
         Type type = getType();
         if (type == Type.NONE) return CommonComponents.EMPTY;
         return Component.literal(type.open +
-                (value < 0 ? "" : "+") +  ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value) +
+                (value < 0 ? "" : "+") + ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value) +
                 type.close
         ).withStyle(getStyle());
     }

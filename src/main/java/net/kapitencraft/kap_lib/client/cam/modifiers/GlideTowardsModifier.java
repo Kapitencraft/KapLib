@@ -29,7 +29,7 @@ public class GlideTowardsModifier implements Modifier {
     }
 
     public static class Type implements Modifier.Type<GlideTowardsModifier> {
-        private static final StreamCodec<FriendlyByteBuf, GlideTowardsModifier> STREAM_CODEC = StreamCodec.composite(
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, GlideTowardsModifier> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, m -> m.origin,
                 PositionTarget.STREAM_CODEC, m -> m.target,
                 GlideTowardsModifier::new

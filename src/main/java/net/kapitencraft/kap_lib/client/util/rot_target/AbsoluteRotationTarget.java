@@ -1,6 +1,10 @@
 package net.kapitencraft.kap_lib.client.util.rot_target;
 
+import net.kapitencraft.kap_lib.event.custom.RegisterAnvilUsesEvent;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec2;
 
 public class AbsoluteRotationTarget implements RotationTarget {
@@ -21,16 +25,15 @@ public class AbsoluteRotationTarget implements RotationTarget {
     }
 
     public static class Type implements RotationTarget.Type<AbsoluteRotationTarget> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, AbsoluteRotationTarget> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.FLOAT, t -> t.rot.x,
+                ByteBufCodecs.FLOAT, t -> t.rot.y,
+                (x, y) -> new AbsoluteRotationTarget(new Vec2(x, y))
+        );
 
         @Override
-        public void toNw(FriendlyByteBuf buf, AbsoluteRotationTarget val) {
-            buf.writeFloat(val.rot.x);
-            buf.writeFloat(val.rot.y);
-        }
-
-        @Override
-        public AbsoluteRotationTarget fromNw(FriendlyByteBuf buf) {
-            return new AbsoluteRotationTarget(new Vec2(buf.readFloat(), buf.readFloat()));
+        public StreamCodec<? super RegistryFriendlyByteBuf, AbsoluteRotationTarget> codec() {
+            return STREAM_CODEC;
         }
     }
 }

@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -34,9 +35,12 @@ public class ModPlugin implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         RecipeManager manager = Minecraft.getInstance().level.getRecipeManager();
-        registration.addRecipes(RecipeTypes.CRAFTING, manager.getAllRecipesFor(ExtraRecipeTypes.ARMOR_RECIPE.get()).stream()
+        registration.addRecipes(RecipeType.CRAFTING, manager.getAllRecipesFor(ExtraRecipeTypes.ARMOR_RECIPE.get()).stream()
                         .map(RecipeHolder::value)
-                .map(ArmorRecipe::getAll).flatMap(Collection::stream).map(CraftingRecipe.class::cast).toList()
+                .map(ArmorRecipe::getAll)
+                .flatMap(Collection::stream)
+                .map(CraftingRecipe.class::cast)
+                .toList()
         );
 
     }

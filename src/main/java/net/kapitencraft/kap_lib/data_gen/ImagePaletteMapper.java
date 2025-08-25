@@ -2,15 +2,37 @@ package net.kapitencraft.kap_lib.data_gen;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.kapitencraft.kap_lib.util.Color;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.neoforged.neoforge.client.model.generators.ModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
+import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.IntUnaryOperator;
 
 /**
  * idea and code by Startraveler. abridged and adapted
  */
-public class ImagePaletteMapper {
+public abstract class ImagePaletteMapper implements DataProvider {
+    private final ResourceManager resourceManager;
+    private final ExistingFileHelper existingFileHelper;
+    private final PackOutput output;
 
+    private final List<Entry> entries = new ArrayList<>();
+
+    public ImagePaletteMapper(ResourceManager resourceManager, ExistingFileHelper existingFileHelper, PackOutput output) {
+        this.resourceManager = resourceManager;
+        this.existingFileHelper = existingFileHelper;
+        this.output = output;
+    }
+
+    //region color-transfer
     /**
      * get color abgr
      */
@@ -185,7 +207,7 @@ public class ImagePaletteMapper {
     /**
      *make a mapper from one palette to another
      */
-    public static Function<Integer, Integer> makeColorMapper(List<Color> srcColors, List<Color> dstColors) {
+    public static IntUnaryOperator makeColorMapper(List<Color> srcColors, List<Color> dstColors) {
         List<Color> sortedSrc = sortByBrightness(new ArrayList<>(srcColors));
         List<Color> sortedDst = sortByBrightness(new ArrayList<>(dstColors));
 
@@ -214,18 +236,8 @@ public class ImagePaletteMapper {
     /**
      * apply a mapping func to a given nativeimage
      */
-    public static NativeImage mapImage(NativeImage source, Function<Integer, Integer> pixelMapper) {
-        NativeImage result = new NativeImage(source.getWidth(), source.getHeight(), false);
-
-        for (int y = 0; y < source.getHeight(); y++) {
-            for (int x = 0; x < source.getWidth(); x++) {
-                int originalPixel = source.getPixelRGBA(x, y);
-                int mappedPixel = pixelMapper.apply(originalPixel);
-                result.setPixelRGBA(x, y, mappedPixel);
-            }
-        }
-
-        return result;
+    public static NativeImage mapImage(NativeImage source, IntUnaryOperator pixelMapper) {
+        return source.mappedCopy(pixelMapper);
     }
 
     /**
@@ -235,8 +247,8 @@ public class ImagePaletteMapper {
         List<Color> sourcePalette = getPalette(paletteSource, paletteSize);
         List<Color> targetPalette = getPalette(targetTexture, paletteSize);
 
-        Function<Integer, Integer> mapper = makeColorMapper(targetPalette, sourcePalette);
-        return mapImage(targetTexture, mapper);
+        IntUnaryOperator mapper = makeColorMapper(targetPalette, sourcePalette);
+        return mapImage(paletteSource, mapper);
     }
 
     /**
@@ -244,5 +256,60 @@ public class ImagePaletteMapper {
      */
     public static NativeImage remapTexture(NativeImage paletteSource, NativeImage targetTexture) {
         return remapTexture(paletteSource, targetTexture, 256);
+    }
+
+    //endregion
+
+    @Override
+    public CompletableFuture<?> run(CachedOutput output) {
+        this.createEntries();
+        return this.entries.stream().map(e -> {
+            if (!existingFileHelper.exists(e.paletteSource, PackType.CLIENT_RESOURCES)) {
+                throw new IllegalStateException(e.paletteSource + "does not exist");
+            }
+            try {
+                try (NativeImage paletteSource = NativeImage.read(resourceManager.getResourceOrThrow(e.paletteSource).open())) {
+                    try (NativeImage shapeSource = NativeImage.read(resourceManager.getResourceOrThrow(e.paletteSource).open()) {
+
+                        NativeImage out = remapTexture(paletteSource, shapeSource);
+
+                        existingFileHelper.trackGenerated(e.target, ModelProvider.TEXTURE);
+                        this.output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "textures")
+                        return CompletableFuture.runAsync(() -> {
+                            out.writeToFile();
+                            out.close();
+                        });
+                    }
+                }
+            } catch (IOException ex) {
+                throw new IllegalStateException(ex);
+            }
+        });
+    }
+
+    protected abstract void createEntries();
+
+    @Override
+    public String getName() {
+        return "ImagePaletteMapper";
+    }
+
+    private record Entry(ResourceLocation paletteSource, ResourceLocation patternSource, ResourceLocation target, ResourceLocation mask) {
+        public static Entry create(ResourceLocation source, ResourceLocation patternSource, ResourceLocation target) {
+            return new Entry(expandLocation(source), expandLocation(patternSource), target, null);
+        }
+
+        public static Entry createWithMask(ResourceLocation source, ResourceLocation patternSource, ResourceLocation target, ResourceLocation maskSource) {
+            return new Entry(
+                    expandLocation(source),
+                    expandLocation(patternSource),
+                    target,
+                    expandLocation(maskSource)
+            );
+        }
+
+        private static ResourceLocation expandLocation(ResourceLocation location) {
+            return location.withPrefix("textures/").withSuffix(".png");
+        }
     }
 }

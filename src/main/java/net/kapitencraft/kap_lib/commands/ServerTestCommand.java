@@ -37,6 +37,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -199,7 +200,7 @@ public class ServerTestCommand {
 
     private static int testArrow(CommandContext<CommandSourceStack> context) {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
-            Arrow arrow = new Arrow(player.level(), player);
+            Arrow arrow = new Arrow(EntityType.ARROW, player.level());
             arrow.setPos(player.position());
             arrow.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 0.5f, 0f);
             player.level().addFreshEntity(arrow);

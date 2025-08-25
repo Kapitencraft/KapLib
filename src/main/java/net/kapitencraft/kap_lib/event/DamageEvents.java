@@ -186,8 +186,7 @@ public class DamageEvents {
         MiscHelper.DamageType type = MiscHelper.getDamageType(event.getDamageSource());
         ItemEnchantments enchantments = stack.getAllEnchantments(attacked.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT));
         if (!enchantments.isEmpty()) {
-
-            MapStream.of(enchantments)
+            MapStream.of()
                     .mapKeys(ExtendedCalculationEnchantment.class::cast)
                     .filterKeys(Objects::nonNull)
                     .filterKeys(ench -> ench instanceof IToolEnchantment)

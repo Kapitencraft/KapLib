@@ -2,6 +2,9 @@ package net.kapitencraft.kap_lib.client.util.rot_target;
 
 import net.kapitencraft.kap_lib.helpers.ClientHelper;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec2;
 
 public class FromEntityRotationTarget implements RotationTarget {
@@ -22,15 +25,11 @@ public class FromEntityRotationTarget implements RotationTarget {
     }
 
     public static class Type implements RotationTarget.Type<FromEntityRotationTarget> {
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, FromEntityRotationTarget> STREAM_CODEC = ByteBufCodecs.INT.map(FromEntityRotationTarget::new, t -> t.entityId);
 
         @Override
-        public void toNw(FriendlyByteBuf buf, FromEntityRotationTarget val) {
-            buf.writeInt(val.entityId);
-        }
-
-        @Override
-        public FromEntityRotationTarget fromNw(FriendlyByteBuf buf) {
-            return new FromEntityRotationTarget(buf.readInt());
+        public StreamCodec<? super RegistryFriendlyByteBuf, FromEntityRotationTarget> codec() {
+            return STREAM_CODEC;
         }
     }
 }

@@ -110,7 +110,7 @@ public class CreateBannerWidget extends PositionedWidget {
         }
 
         private static List<Holder<BannerPattern>> getElements() {
-            Iterator<Holder<BannerPattern>> patterns = BuiltInRegistries.BANNER_PATTERN.asHolderIdMap().iterator();
+            Iterator<Holder<BannerPattern>> patterns = BuiltInRegistries.BA.asHolderIdMap().iterator();
             List<Holder<BannerPattern>> list = new ArrayList<>();
             while (patterns.hasNext()) list.add(patterns.next());
             return list;

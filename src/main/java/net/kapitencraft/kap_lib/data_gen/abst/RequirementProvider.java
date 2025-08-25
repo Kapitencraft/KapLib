@@ -1,16 +1,14 @@
 package net.kapitencraft.kap_lib.data_gen.abst;
 
-import com.google.gson.JsonObject;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
@@ -20,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public abstract class RequirementProvider<T> implements DataProvider {
+    private final Codec<Map<T, ReqCondition<?>>> codec;
     private final PackOutput output;
     private final String modId;
     private final RequirementType<T> type;
@@ -30,6 +29,7 @@ public abstract class RequirementProvider<T> implements DataProvider {
         this.output = output;
         this.modId = modId;
         this.type = type;
+        this.codec = Codec.unboundedMap(type.serializer().getCodec(), ReqCondition.CODEC);
     }
 
     protected void add(T element, ReqCondition<?> condition) {
@@ -51,19 +51,11 @@ public abstract class RequirementProvider<T> implements DataProvider {
     }
 
     private CompletableFuture<?> save(CachedOutput cache, Path target) {
-        JsonObject json = new JsonObject();
 
-        this.requirements.forEach((t, condition) -> {
-            this.type.serializer().encode(t);
-            ResourceLocation elementId = this.type.getId(t);
-            if (elementId == null) {
-                RequirementManager.LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "could not find element {} in requirement type '{}'; skipping!", t.getClass().getCanonicalName(), this.type.getName());
-                return;
-            }
-            json.add(elementId.toString(), condition.toJson());
-        });
+        DataResult<JsonElement> result = codec.encodeStart(JsonOps.INSTANCE, this.requirements);
+        JsonElement element = result.getOrThrow(IllegalArgumentException::new);
 
-        return DataProvider.saveStable(cache, json, target);
+        return DataProvider.saveStable(cache, element, target);
     }
 
     protected abstract void register();

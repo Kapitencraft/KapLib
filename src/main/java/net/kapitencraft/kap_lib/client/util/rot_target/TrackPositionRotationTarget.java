@@ -27,5 +27,10 @@ public record TrackPositionRotationTarget(PositionTarget source, PositionTarget 
                 PositionTarget.STREAM_CODEC, TrackPositionRotationTarget::target,
                 TrackPositionRotationTarget::new
         );
+
+        @Override
+        public StreamCodec<? super RegistryFriendlyByteBuf, TrackPositionRotationTarget> codec() {
+            return STREAM_CODEC;
+        }
     }
 }
