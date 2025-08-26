@@ -1,0 +1,25 @@
+{
+  "items": {
+    "head": [
+      "minecraft:diamond_helmet"
+    ],
+    "chest": [
+      "minecraft:diamond_chestplate"
+    ],
+    "leggings": [
+      "minecraft:diamond_leggings"
+    ],
+    "feet": [
+      "minecraft:diamond_boots"
+    ],
+    "mainhand": [
+      "minecraft:diamond_sword"
+    ]
+  },
+  "type": "kap_lib:effect",
+  "type_data": {
+    "effect": "minecraft:haste",
+    "amplifier": "count",
+    "duration": "20"
+  }
+}

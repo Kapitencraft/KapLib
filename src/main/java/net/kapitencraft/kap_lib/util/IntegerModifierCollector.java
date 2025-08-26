@@ -33,9 +33,9 @@ public class IntegerModifierCollector {
 
     public int calculate() {
         int base = this.base;
-        for (int d : addition) base += d;
-        for (int d : multiplyBase) base *= d;
-        for (int d : multiplyTotal) base *= d;
+        for (int i : addition) base += i;
+        for (int i : multiplyBase) base *= i;
+        for (int i : multiplyTotal) base *= i;
         return base;
     }
 }

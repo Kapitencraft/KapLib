@@ -43,7 +43,7 @@ public class UnCollectableItemEntity extends ItemEntity {
             if (targets.size() > 0) {
                 Entity target0 = targets.get(0);
                 Vec3 offSet = target0.position().subtract(this.position());
-                this.move(MoverType.SELF, MathHelper.setLength(offSet, 5));
+                this.move(MoverType.SELF, MathHelper.clampLength(offSet, 5));
             }
         }
     }

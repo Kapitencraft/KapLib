@@ -2,13 +2,15 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.util.attribute.ChangingAttributeModifier;
+import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.util.attribute.DynamicAttributeModifier;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
@@ -16,17 +18,25 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public class AttributeHelper {
-
+public interface AttributeHelper {
 
     /**
+     * gets the players experience scale, which should be multiplied with the base experience to get the final dropped experience
+     */
+    static double getExperienceScale(Player player) {
+        double wisdom = player.getAttributeValue(ExtraAttributes.WISDOM.get());
+        return 1 + (wisdom / 100);
+    }
+
+    /**
+     * increases the value of all modifiers matching the predicate (Operations, Attribute) by {@code percent} percent (in decimal)
      * @param multimap {@link Multimap} to increase
      * @param percent percentage to increase all multimap contents with filter to operations and attributeReq
      * @param operations filter for {@link AttributeModifier.Operation}s
      * @param attributeReq filter to only increase param's {@link Attribute}
      * @return the multimap with all increased values
      */
-    public static Multimap<Attribute, AttributeModifier> increaseByPercent(Multimap<Attribute, AttributeModifier> multimap, double percent, AttributeModifier.Operation[] operations, @Nullable Attribute attributeReq) {
+    static Multimap<Attribute, AttributeModifier> increaseByPercent(Multimap<Attribute, AttributeModifier> multimap, double percent, AttributeModifier.Operation[] operations, @Nullable Attribute attributeReq) {
         HashMultimap<Attribute, AttributeModifier> toReturn = HashMultimap.create();
         Collection<AttributeModifier> attributeModifiers;
         for (Attribute attribute : multimap.keys()) {
@@ -51,21 +61,17 @@ public class AttributeHelper {
 
 
     /**
+     * merge {@code modifier} into the modifiers given as {@code multimap}
      * @param multimap the map to add to
      * @param attributeReq if there's a requirement for the attribute
      * @return the merged map
      */
-    public static Multimap<Attribute, AttributeModifier> increaseByAmount(Multimap<Attribute, AttributeModifier> multimap, Attribute attributeReq, AttributeModifier modifier) {
+    static Multimap<Attribute, AttributeModifier> increaseByAmount(Multimap<Attribute, AttributeModifier> multimap, Attribute attributeReq, AttributeModifier modifier) {
         HashMultimap<Attribute, AttributeModifier> toReturn = HashMultimap.create();
         boolean hasBeenAdded = attributeReq == null;
         Collection<AttributeModifier> attributeModifiers;
         AttributeModifier.Operation operation = modifier.getOperation();
         double amount = modifier.getAmount();
-        //switch operation of movement speed to multiply base since addition is to powerful
-        if ((attributeReq == Attributes.MOVEMENT_SPEED || attributeReq == ForgeMod.SWIM_SPEED.get()) && operation == AttributeModifier.Operation.ADDITION) {
-            operation = AttributeModifier.Operation.MULTIPLY_BASE;
-            amount *= 0.01;
-        }
         for (Attribute attribute : multimap.keys()) {
             attributeModifiers = multimap.get(attribute);
             for (AttributeModifier newModifier : attributeModifiers) {
@@ -80,28 +86,29 @@ public class AttributeHelper {
         if (!hasBeenAdded) {
             toReturn.put(attributeReq, modifier);
         }
-        multimap = toReturn;
+        return toReturn;
+    }
+
+    /**
+     * merge all Modifiers given in {@code toMerge} into the {@code multimap}
+     * @see AttributeHelper#increaseByAmount(Multimap, Attribute, AttributeModifier) increaseByAmount
+     * @param multimap to merge into
+     * @param toMerge the Map being merged into multimap
+     * @return {@link Multimap} with the toMerge content added to it
+     */
+    static Multimap<Attribute, AttributeModifier> increaseAllByAmount(Multimap<Attribute, AttributeModifier> multimap, Map<Attribute, AttributeModifier> toMerge) {
+        for (Attribute attribute : toMerge.keySet()) {
+            for (AttributeModifier modifier : List.of(toMerge.get(attribute)))
+                multimap = increaseByAmount(multimap, attribute, modifier);
+        }
         return multimap;
     }
 
     /**
-     * @param list to merge into
-     * @param toMerge the Map being merged into list
-     * @return {@link Multimap} with the toMerge content added to it
+     * merge two attribute multimaps together
+     * @see AttributeHelper#increaseAllByAmount(Multimap, Map) basic map version
      */
-    public static Multimap<Attribute, AttributeModifier> increaseAllByAmount(Multimap<Attribute, AttributeModifier> list, Map<Attribute, AttributeModifier> toMerge) {
-        for (Attribute attribute : toMerge.keySet()) {
-            for (AttributeModifier modifier : List.of(toMerge.get(attribute)))
-                list = increaseByAmount(list, attribute, modifier);
-        }
-        return list;
-    }
-
-    /**
-     * see {@link Map} version above
-     * @param toMerge map -> multimap
-     */
-    public static Multimap<Attribute, AttributeModifier> increaseAllByAmount(Multimap<Attribute, AttributeModifier> map, Multimap<Attribute, AttributeModifier> toMerge) {
+    static Multimap<Attribute, AttributeModifier> increaseAllByAmount(Multimap<Attribute, AttributeModifier> map, Multimap<Attribute, AttributeModifier> toMerge) {
         for (Attribute attribute : toMerge.keySet()) {
             for (AttributeModifier modifier : toMerge.get(attribute)) {
                 map = increaseByAmount(map, attribute, modifier);
@@ -114,7 +121,7 @@ public class AttributeHelper {
     /**
      * simple null-save attribute value method
      */
-    public static double getSaveAttributeValue(Attribute attribute, @Nullable LivingEntity living) {
+    static double getSaveAttributeValue(Attribute attribute, @Nullable LivingEntity living) {
         if (living != null && living.getAttribute(attribute) != null) {
             return living.getAttributeValue(attribute);
         }
@@ -126,7 +133,7 @@ public class AttributeHelper {
      * @param baseValue the base value
      * @return the value of the instance using the base value
      */
-    public static double getAttributeValue(@Nullable AttributeInstance instance, double baseValue) {
+    static double getAttributeValue(@Nullable AttributeInstance instance, double baseValue) {
         if (instance == null) {
             return baseValue;
         }
@@ -149,41 +156,41 @@ public class AttributeHelper {
     }
 
     /**
-     * method to copy an {@link AttributeModifier}
+     * method to copy an {@link AttributeModifier}, changing its value
      * @return the copy with the new value
      */
-    public static AttributeModifier copyWithValue(AttributeModifier modifier, double value) {
+    static AttributeModifier copyWithValue(AttributeModifier modifier, double value) {
         return new AttributeModifier(modifier.getId(), modifier.getName(), value, modifier.getOperation());
     }
 
     /**
      * adds a modifier that is dependent on the entity
-     * @return the new {@link ChangingAttributeModifier}
+     * @return the new {@link DynamicAttributeModifier}
      */
-    public static AttributeModifier addLiquidModifier(@Nullable UUID uuid, String name, AttributeModifier.Operation operation, Function<LivingEntity, Double> transfer, LivingEntity living) {
-        if (modUUIDs.containsKey(name) && modUUIDs.get(name) == uuid) return new ChangingAttributeModifier(uuid, name, operation, living, transfer);
+    static AttributeModifier addLiquidModifier(@Nullable UUID uuid, String name, AttributeModifier.Operation operation, Function<LivingEntity, Double> transfer, LivingEntity living) {
+        if (modUUIDs.containsKey(name) && modUUIDs.get(name) == uuid) return new DynamicAttributeModifier(uuid, name, operation, living, transfer);
         else {
             modUUIDs.put(name, Objects.requireNonNullElseGet(uuid, UUID::randomUUID));
         }
-        return new ChangingAttributeModifier(modUUIDs.get(name), name, operation, living, transfer);
+        return new DynamicAttributeModifier(modUUIDs.get(name), name, operation, living, transfer);
     }
 
 
 
-    private static final HashMap<String, UUID> modUUIDs = new HashMap<>();
-    private static final HashMap<EquipmentSlot, HashMap<String, UUID>> slotModUUIDs = new HashMap<>();
+    HashMap<String, UUID> modUUIDs = new HashMap<>();
+    HashMap<EquipmentSlot, HashMap<String, UUID>> slotModUUIDs = new HashMap<>();
 
     /**
      * gets the UUID of a saved Name
      */
-    public static UUID getByName(String name) {
+    static UUID getByName(String name) {
         return modUUIDs.get(name);
     }
 
     /**
      * simple Attribute modifier creation method
      */
-    public static AttributeModifier createModifier(String name, AttributeModifier.Operation operation, double amount) {
+    static AttributeModifier createModifier(String name, AttributeModifier.Operation operation, double amount) {
         if (!modUUIDs.containsKey(name)) {
             modUUIDs.put(name, UUID.randomUUID());
         }
@@ -193,7 +200,7 @@ public class AttributeHelper {
     /**
      * simple Attribute modifier creation method for Armor Modifiers
      */
-    public static AttributeModifier createModifierForSlot(String name, AttributeModifier.Operation operation, double am, EquipmentSlot slot) {
+    static AttributeModifier createModifierForSlot(String name, AttributeModifier.Operation operation, double am, EquipmentSlot slot) {
         if (!slotModUUIDs.containsKey(slot)) {
             slotModUUIDs.put(slot, new HashMap<>());
         }
@@ -207,7 +214,7 @@ public class AttributeHelper {
     /**
      * a class that makes merging attribute Modifiers easy
      */
-    public static class AttributeBuilder {
+    class AttributeBuilder {
         private Multimap<Attribute, AttributeModifier> modifiers;
 
 

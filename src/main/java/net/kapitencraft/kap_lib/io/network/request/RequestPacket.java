@@ -4,13 +4,13 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.SimplePacket;
-import net.kapitencraft.kap_lib.registry.custom.ModRegistries;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import org.slf4j.Marker;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class RequestPacket<T, K> implements SimplePacket {
@@ -32,13 +32,11 @@ public class RequestPacket<T, K> implements SimplePacket {
 
     public static <T, K> IRequestable<T, K> getRequestable(String id) {
         ResourceLocation location = new ResourceLocation(id);
-        IRequestable<T, K> requestable = (IRequestable<T, K>) ModRegistries.REQUESTABLES_REGISTRY.getValue(location);
-        if (requestable == null) throw new IllegalStateException("unable to read requestable for key '" + id + "'");
-        return requestable;
+        return (IRequestable<T, K>) Objects.requireNonNull(ExtraRegistries.REQUESTABLES.getValue(location), "unable to read requestable for key '" + id + "'");
     }
 
     public static <T, K> String saveRequestable(IRequestable<T, K> requestable) {
-        ResourceLocation location = ModRegistries.REQUESTABLES_REGISTRY.getKey(requestable);
+        ResourceLocation location = ExtraRegistries.REQUESTABLES.getKey(requestable);
         if (location == null) throw new IllegalStateException("can not send request without valid requestable");
         return location.toString();
     }
@@ -51,7 +49,7 @@ public class RequestPacket<T, K> implements SimplePacket {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> sup) {
+    public void handle(Supplier<NetworkEvent.Context> sup) {
         NetworkEvent.Context context = sup.get();
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
@@ -59,10 +57,9 @@ public class RequestPacket<T, K> implements SimplePacket {
                     try {
                         ModMessages.sendToClientPlayer(new RequestDataPacket<>(this.requestId, this.provider, this.provider.pack(this.value, player)), player);
                     } catch (Exception e) {
-                        KapLibMod.LOGGER.warn((Marker) Markers.REQUESTS, "unable to handle Request Packet of provider '{}': {}", ModRegistries.REQUESTABLES_REGISTRY.getKey(this.provider), e.getMessage());
+                        KapLibMod.LOGGER.warn(Markers.REQUESTS, "unable to handle Request Packet of provider '{}': {}", ExtraRegistries.REQUESTABLES.getKey(this.provider), e.getMessage());
                     }
                 }
         });
-        return true;
     }
 }

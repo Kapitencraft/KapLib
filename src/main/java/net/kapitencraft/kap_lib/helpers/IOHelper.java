@@ -1,22 +1,20 @@
 package net.kapitencraft.kap_lib.helpers;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.codecs.PrimitiveCodec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.collection.MapStream;
-import net.kapitencraft.kap_lib.stream.TriConsumer;
+import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.io.StringSegment;
+import net.kapitencraft.kap_lib.stream.Consumers;
 import net.minecraft.nbt.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,43 +24,78 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class IOHelper {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final String LENGTH_ID = "Length";
 
 
+    /**
+     * @return if the tag contains the given id, and it's an Integer type, and it's value is > 0
+     */
     public static boolean checkForIntAbove0(CompoundTag tag, String name) {
-        return tag.contains(name) && tag.getInt(name) > 0;
+        return tag.contains(name, 3) && tag.getInt(name) > 0;
     }
 
 
+    /**
+     * @return if the tag is null or empty
+     */
     public static boolean isTagEmpty(@Nullable CompoundTag tag) {
         return tag == null || tag.isEmpty();
     }
 
+    /**
+     * increase the given tag's float element found under name
+     * @return the new set value
+     */
     public static float increaseFloatTagValue(CompoundTag tag, String name, float f) {
         float value = tag.getFloat(name)+f;
         tag.putFloat(name, value);
         return value;
     }
 
-    public static <T> T get(DataResult<T> result, @NotNull Supplier<T> defaulted) {
+    /**
+     * get the data result or the defaulted if the data result is empty
+     */
+    public static <T> T orElse(DataResult<T> result, @NotNull Supplier<T> defaulted) {
         Optional<T> optional = result.result();
         return optional.orElseGet(defaulted);
     }
 
+    /**
+     * creates or gets the given file and apply the given codec to the content or get the defaulted if
+     */
     @SuppressWarnings("all")
     public static <T> T loadFile(File file, Codec<T> codec, Supplier<T> defaulted) {
         try {
-            createFile(file);
-            return get(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
+            if (!file.exists()) return defaulted.get();
+
+            return orElse(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
+        } catch (IOException e) {
+            KapLibMod.LOGGER.warn("unable to load file: " + file.getPath());
+        }
+        return defaulted.get();
+    }
+
+    @SuppressWarnings("all")
+    public static <T> T loadOrCreateFile(File file, Codec<T> codec, Supplier<T> defaulted) {
+        try {
+            if (!file.exists()) {
+                saveFile(file, codec, defaulted.get());
+                return defaulted.get();
+            }
+            return orElse(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
         } catch (IOException e) {
         }
         return defaulted.get();
     }
 
+    /**
+     * creates the given file if it doesn't exist
+     */
     @SuppressWarnings("all")
     private static void createFile(File file) {
         try {
@@ -75,32 +108,43 @@ public class IOHelper {
         }
     }
 
+    /**
+     * create a JsonReader of the given file
+     * @throws FileNotFoundException if the file doesn't exist
+     */
     private static JsonReader createReader(File file) throws FileNotFoundException {
         return new JsonReader(new FileReader(file));
     }
 
-    private static JsonWriter createWriter(File file) throws IOException {
-        return new JsonWriter(new FileWriter(file));
-    }
-
+    /**
+     * save the given element to the file, using the given codec
+     * <br> will try to create the file if it doesn't already exist
+     */
     @SuppressWarnings("all")
     public static <T> void saveFile(File file, Codec<T> codec, T in) {
         try {
             createFile(file);
             FileWriter writer = new FileWriter(file);
-            writer.write(GSON.toJson(get(codec.encodeStart(JsonOps.INSTANCE, in), JsonObject::new)));
+            writer.write(JsonHelper.GSON.toJson(orElse(codec.encodeStart(JsonOps.INSTANCE, in), JsonObject::new)));
             writer.close();
         } catch (Exception e) {
             KapLibMod.LOGGER.warn("unable to save file: {}", e.getMessage());
         }
     }
 
+    /**
+     * increases the given tag element
+     * @see IOHelper#increaseFloatTagValue(CompoundTag, String, float)
+     */
     public static int increaseIntegerTagValue(CompoundTag tag, String name, int i) {
         int value = tag.getInt(name)+i;
         tag.putInt(name, value);
         return value;
     }
 
+    /**
+     * increases the given tag element if the element's value is above 0
+     */
     public static int increaseIntOnlyAbove0(CompoundTag tag, String name, int i) {
         if (checkForIntAbove0(tag, name)) {
             return increaseIntegerTagValue(tag, name, i);
@@ -108,10 +152,16 @@ public class IOHelper {
         return tag.getInt(name);
     }
 
+    /**
+     * reduces the given int tag element by 1
+     */
     public static int reduceBy1(CompoundTag tag, String name) {
         return increaseIntOnlyAbove0(tag, name, -1);
     }
 
+    /**
+     * create a UUID -> Integer map compoundtag implementation
+     */
     public static @NotNull CompoundTag putHashMapTag(@NotNull HashMap<UUID, Integer> hashMap) {
         CompoundTag mapTag = new CompoundTag();
         List<Integer> IntArray = CollectionHelper.fromAny(hashMap.values());
@@ -121,6 +171,9 @@ public class IOHelper {
         return mapTag;
     }
 
+    /**
+     * merge the CompoundTag into the given entity
+     */
     @SuppressWarnings("ALL")
     public static void injectCompoundTag(Entity toInject, CompoundTag tag) {
         CompoundTag data = toInject.getPersistentData();
@@ -134,10 +187,16 @@ public class IOHelper {
         });
     }
 
+    /**
+     * convert a CompoundTag into a string
+     */
     public static String fromCompoundTag(CompoundTag tag) {
         return new StringTagVisitor().visit(tag);
     }
 
+    /**
+     * read a CompoundTag list from the given tag
+     */
     public static Stream<CompoundTag> readCompoundList(CompoundTag tag, String name) {
         return readList(tag, name, CompoundTag.class, Function.identity(), 10);
     }
@@ -147,13 +206,6 @@ public class IOHelper {
         return listTag.stream().filter(tClass::isInstance)
                 .map(tClass::cast)
                 .map(creator);
-    }
-
-    public static <T, K> MapStream<T, K> readMap(CompoundTag tag, String name, BiFunction<CompoundTag, String, T> keyMapper, BiFunction<CompoundTag, String, K> valueMapper) {
-        HashMap<T, K> map = new HashMap<>();
-        readCompoundList(tag, name)
-                .forEach(tag1 -> map.put(keyMapper.apply(tag1, "Key"), valueMapper.apply(tag1, "Value")));
-        return MapStream.of(map);
     }
 
     public static CompoundTag fromString(String s) {
@@ -195,18 +247,6 @@ public class IOHelper {
         return null;
     }
 
-    public static final PrimitiveCodec<UUID> UUID_CODEC = new PrimitiveCodec<>() {
-        @Override
-        public <T> DataResult<UUID> read(DynamicOps<T> ops, T input) {
-            return ops.getStringValue(input).map(UUID::fromString);
-        }
-
-        @Override
-        public <T> T write(DynamicOps<T> ops, UUID value) {
-            return ops.createString(value.toString());
-        }
-    };
-
     public static CompoundTag putUuidList(List<UUID> list) {
         CompoundTag arrayTag = new CompoundTag();
         for (int i = 0; i < list.size(); i++) {
@@ -216,21 +256,86 @@ public class IOHelper {
         return arrayTag;
     }
 
-    public static <T, K> ListTag writeMap(Map<T, K> map, DataWriter<T> keyWriter, DataWriter<K> valueWriter) {
+    /**
+     * write a map to a list tag for data-saving
+     * @param map the map to write
+     * @param keyWriter the key writer
+     * @param valueWriter the value writer
+     * @return a list tag containing the written map
+     * @see IOHelper#readMap(ListTag, BiFunction, BiFunction) readMap
+     */
+    public static <K, V> ListTag writeMap(Map<K, V> map, DataWriter<K> keyWriter, DataWriter<V> valueWriter) {
         ListTag listTag = new ListTag();
-        map.forEach((t, k) -> {
+        map.forEach((k, v) -> {
             CompoundTag tag = new CompoundTag();
-            tag.put("Key", keyWriter.createData(t));
-            tag.put("Value", valueWriter.createData(k));
+            tag.put("Key", keyWriter.createData(k));
+            tag.put("Value", valueWriter.createData(v));
             listTag.add(tag);
         });
         return listTag;
+    }
+
+    public static CompoundTag getOrCreateTag(CompoundTag tag, String name) {
+        if (tag.contains(name, 10)) return tag.getCompound(name);
+        CompoundTag data = new CompoundTag();
+        tag.put(name, data);
+        return data;
     }
 
     @FunctionalInterface
     public interface DataWriter<T> {
         Tag createData(T t);
     }
+
+    /**
+     * @param tag the tag in which the map is saved
+     * @param keyExtractor the function that extracts each key out of their entry
+     * @param valueExtractor the function that extracts each value out of their entry
+     * @return a MapStream containing all extracted map entries
+     */
+    public static <K, V> MapStream<K, V> readMap(ListTag tag, BiFunction<CompoundTag, String, K> keyExtractor, BiFunction<CompoundTag, String, V> valueExtractor) {
+        HashMap<K, V> map = new HashMap<>();
+        tag.stream()
+                .filter(CompoundTag.class::isInstance)
+                .map(CompoundTag.class::cast)
+                .forEach(tag1 -> map.put(keyExtractor.apply(tag1, "Key"), valueExtractor.apply(tag1, "Value")));
+        return MapStream.of(map);
+    }
+
+    /**
+     * @param map the map to write
+     * @param keyMapper a function to convert each key of the map into an JsonElement
+     * @param valueMapper a function to convert each value of the map into an JsonElement
+     * @return an JsonArray containing each entry of the map
+     * @see IOHelper#readMap(JsonArray, BiFunction, BiFunction)
+     */
+    public static <K, V> JsonArray writeMap(Map<K, V> map, Function<K, JsonElement> keyMapper, Function<V, JsonElement> valueMapper) {
+        JsonArray array = new JsonArray(map.size());
+        map.forEach((k, v) -> {
+            JsonObject object = new JsonObject();
+            object.add("key", keyMapper.apply(k));
+            object.add("value", valueMapper.apply(v));
+        });
+        return array;
+    }
+
+    /**
+     * @param array the json array containing all map entries
+     * @param keyExtractor a function that extracts each map key out of the entry
+     * @param valueExtractor a function that extracts each map value out of the entry
+     * @return a MapStream containing all the entries extracted
+     */
+    public static <K, V> MapStream<K, V> readMap(JsonArray array, BiFunction<JsonObject, String, K> keyExtractor, BiFunction<JsonObject, String, V> valueExtractor) {
+        HashMap<K, V> map = new HashMap<>();
+        JsonHelper.castToObjects(array)
+                .forEach(object -> map.put(keyExtractor.apply(object, "key"), valueExtractor.apply(object, "value")));
+        return MapStream.of(map);
+    }
+
+    public static <K, V> MapStream<K, V> readMap(JsonArray array, Function<JsonElement, K> keyMapper, Function<JsonElement, V> valueMapper) {
+        return readMap(array, (object, string) -> keyMapper.apply(object.get(string)), (object, string) -> valueMapper.apply(object.get(string)));
+    }
+
 
     public static <T> ListTag writeList(List<T> list, Function<T, Tag> mapper) {
         ListTag tag = new ListTag();
@@ -245,8 +350,8 @@ public class IOHelper {
             return new TagBuilder();
         }
 
-        public <T> TagBuilder withArg(String name, T value, TriConsumer<CompoundTag, String, T> consumer) {
-            consumer.accept(tag, name, value);
+        public <T> TagBuilder withArg(String name, T value, Consumers.C3<CompoundTag, String, T> consumer) {
+            consumer.apply(tag, name, value);
             return this;
         }
 
@@ -262,4 +367,51 @@ public class IOHelper {
             return tag;
         }
     }
+
+    public static List<File> listResources(File file) {
+        if (!file.exists()) return List.of();
+        if (!file.isDirectory()) return List.of(file);
+        List<File> finals = new ArrayList<>();
+        List<File> queue = new ArrayList<>();
+        queue.add(file);
+        while (!queue.isEmpty()) {
+            if (queue.get(0).isDirectory()) {
+                String[] childNames = queue.get(0).list();
+                if (childNames != null) for (String childName : childNames) {
+                    queue.add(new File(queue.get(0), childName));
+                }
+            } else {
+                finals.add(queue.get(0));
+            }
+            queue.remove(0);
+        }
+        return finals;
+    }
+
+    public static List<ResourceLocation> toNames(List<File> files) {
+        File file = new File("test");
+        return files.stream().map(File::getPath).map(s -> {
+            String[] directories = s.split("\\\\"); //why 4 bro?
+            return new ResourceLocation("a");
+        }).toList();
+    }
+
+    /**
+     * @param in the String to check
+     * @param openRegex the char that opens the bracket
+     * @param closeRegex the char that closes the bracket
+     * @return a list of StringSegments that contain the start and end position and the substring inclusive the brackets
+     */
+    public static List<StringSegment> collectBracketContent(String in, String openRegex, String closeRegex) {
+        List<StringSegment> strings = new ArrayList<>();
+        Matcher openMatcher = Pattern.compile(openRegex).matcher(in);
+        Matcher closeMatcher = Pattern.compile(closeRegex).matcher(in);
+        for (int i = 0; i < in.length(); i++) {
+            if (openMatcher.find(i) && closeMatcher.find(openMatcher.end())) {
+                strings.add(StringSegment.fromString(openMatcher.start(), closeMatcher.end(), in));
+            }
+        }
+        return strings;
+    }
+
 }

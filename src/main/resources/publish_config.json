@@ -1,0 +1,13 @@
+{
+  "author": "Kapitencraft",
+  "author_email": "kapitencraft@gmail.com",
+  "project_id": "IrKTRsiH",
+  "extra_files": [
+    "sources"
+  ],
+  "mod_id": "${mod_id}",
+  "mod_name": "${mod_name}",
+  "mod_version": "${mod_version}",
+  "mc_version": "${minecraft_version}",
+  "fml_version": "${forge_version}"
+}

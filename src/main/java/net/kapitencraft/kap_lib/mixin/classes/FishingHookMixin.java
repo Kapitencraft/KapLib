@@ -1,8 +1,9 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.kapitencraft.kap_lib.entity.fishing.IFishingHook;
-import net.kapitencraft.kap_lib.entity.fishing.ModFishingHook;
+import net.kapitencraft.kap_lib.entity.fishing.AbstractFishingHook;
 import net.kapitencraft.kap_lib.entity.item.NoFireItemEntity;
+import net.kapitencraft.kap_lib.helpers.AttributeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -13,31 +14,33 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import javax.annotation.Nullable;
+
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin extends Projectile implements IFishingHook {
 
-    private FishingHook self() {
-        return (FishingHook) (Object) this;
-    }
     @Shadow
     public int lureSpeed;
 
+    @Unique
     private int hookSpeedModifier = 0;
 
     @Override
@@ -53,6 +56,10 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
     @Shadow
     private int timeUntilLured;
 
+    @Shadow @Nullable public abstract Player getPlayerOwner();
+
+    @Shadow public int luck;
+
     protected FishingHookMixin(EntityType<? extends Projectile> p_37248_, Level p_37249_) {
         super(p_37248_, p_37249_);
     }
@@ -64,11 +71,18 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
 
     @Redirect(method = "retrieve", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", ordinal = 0))
     public boolean add(Level instance, Entity entity) {
-        if (self() instanceof ModFishingHook) {
+        if (self() instanceof AbstractFishingHook) {
             ItemEntity item = (ItemEntity) entity;
             return instance.addFreshEntity(NoFireItemEntity.copy(item));
         }
         return instance.addFreshEntity(entity);
+    }
+
+    @Redirect(method = "retrieve", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/Level;DDDI)Lnet/minecraft/world/entity/ExperienceOrb;"))
+    private ExperienceOrb modifyExperience(Level pLevel, double pX, double pY, double pZ, int pValue) {
+        Player player = this.getPlayerOwner();
+        if (player != null) pValue = (int) (pValue * AttributeHelper.getExperienceScale(player));
+        return new ExperienceOrb(pLevel, pX, pY, pZ, pValue);
     }
 
     @ModifyArg(method = {"tick", "getOpenWaterTypeForBlock"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FluidState;is(Lnet/minecraft/tags/TagKey;)Z"))
@@ -105,6 +119,4 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
         }
         return level.sendParticles(options, d, d1, d2, i1, d3, d4, d5, d6);
     }
-
-
 }

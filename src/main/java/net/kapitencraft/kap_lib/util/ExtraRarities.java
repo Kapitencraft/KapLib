@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.util;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.Rarity;
 
+/**
+ * more rarities
+ */
 public class ExtraRarities {
 
     public static final Rarity LEGENDARY = Rarity.create("LEGENDARY", ChatFormatting.GOLD);

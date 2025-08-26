@@ -1,19 +1,15 @@
 package net.kapitencraft.kap_lib.util.particle_help;
 
-public final class ParticleGradientHolder {
-    private final ParticleAmountHolder holder1;
-    private final ParticleAmountHolder holder2;
+import net.minecraft.network.FriendlyByteBuf;
 
-    public ParticleGradientHolder(ParticleAmountHolder holder1, ParticleAmountHolder holder2) {
-        this.holder1 = holder1;
-        this.holder2 = holder2;
+public record ParticleGradientHolder(ParticleAmountHolder holder1, ParticleAmountHolder holder2) {
+
+    public static ParticleGradientHolder fromNW(FriendlyByteBuf buf) {
+        return new ParticleGradientHolder(ParticleAmountHolder.fromNW(buf), ParticleAmountHolder.fromNW(buf));
     }
 
-    public ParticleAmountHolder getHolder1() {
-        return holder1;
-    }
-
-    public ParticleAmountHolder getHolder2() {
-        return holder2;
+    public void toNW(FriendlyByteBuf buf) {
+        holder1.toNW(buf);
+        holder2.toNW(buf);
     }
 }

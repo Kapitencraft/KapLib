@@ -1,22 +1,21 @@
 package net.kapitencraft.kap_lib.requirements.type;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
+import net.kapitencraft.kap_lib.item.bonus.AbstractBonusElement;
+import net.kapitencraft.kap_lib.item.bonus.BonusManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.function.ToIntFunction;
+public interface RequirementType<T> {
+    RequirementType<Enchantment> ENCHANTMENT = new RegistryReqType<>("enchantment", ForgeRegistries.ENCHANTMENTS);
+    RequirementType<Item> ITEM = new RegistryReqType<>("item", ForgeRegistries.ITEMS);
+    RequirementType<AbstractBonusElement> BONUS = new BonusRequirementType();
 
-public abstract class RequirementType {
-    private final ToIntFunction<Player> toId;
-    protected final int minLevel;
 
-    public RequirementType(ToIntFunction<Player> toId, int minLevel) {
-        this.toId = toId;
-        this.minLevel = minLevel;
-    }
+    ResourceLocation getId(T value);
 
-    public abstract Component display();
+    T getById(ResourceLocation location);
 
-    public boolean matchesPlayer(Player player) {
-        return minLevel <= toId.applyAsInt(player);
-    }
+    String getName();
 }

@@ -4,15 +4,23 @@ import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.particle.DamageIndicatorParticleOptions;
-import net.kapitencraft.kap_lib.tags.DamageTypeTags;
+import net.kapitencraft.kap_lib.io.network.ModMessages;
+import net.kapitencraft.kap_lib.io.network.S2C.ActivateShakePacket;
+import net.kapitencraft.kap_lib.tags.ExtraTags;
+import net.kapitencraft.kap_lib.util.Color;
 import net.kapitencraft.kap_lib.util.ExtraRarities;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
@@ -20,10 +28,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -32,21 +43,23 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,12 +67,14 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class MiscHelper {
+    public static final String OVERFLOW_MANA_ID = "overflowMana";
     //EAST = new Rotation("x+", 90, 1);
     //WEST = new Rotation("x-",270, 3);
     //SOUTH = new Rotation("z+", 180, 2);
@@ -70,8 +85,7 @@ public class MiscHelper {
      * @param stack the {@link ItemStack} to get the slot from
      * @return the {@link EquipmentSlot} dedicated to this stack
      */
-    @Contract("null -> fail")
-    public static EquipmentSlot getSlotForStack(ItemStack stack) {
+    public static EquipmentSlot getSlotForStack(@NotNull ItemStack stack) {
         return LivingEntity.getEquipmentSlotForItem(stack);
     }
 
@@ -82,14 +96,13 @@ public class MiscHelper {
     }
 
     /**
-     * need in order for the Mixin invoker on serverside not to cry
+     * needed in order for the Mixin invoker on serverside not to cry
      */
     public static void sendManaBoostParticles(Entity target, RandomSource random, Vec3 delta) {
-        ClientHelper.sendManaBoostParticles(target, random, delta);
+        ClientHelper.sendElytraBoostParticles(target, random, delta, new Color(0, 0, 1, 1), new Color(.5f, 0, .5f, 1));
     }
 
-    @Contract("null -> fail")
-    public static void swapHands(LivingEntity living) {
+    public static void swapHands(@NotNull LivingEntity living) {
         ItemStack mainHand = living.getMainHandItem();
         living.setItemInHand(InteractionHand.MAIN_HAND, living.getOffhandItem());
         living.setItemInHand(InteractionHand.OFF_HAND, mainHand);
@@ -100,11 +113,12 @@ public class MiscHelper {
      * @param effect the effect to be added
      * @return the new Style with applied effect
      */
+    public static Style withSpecial(Style style, Supplier<? extends GlyphEffect> effect) {
+        return withSpecial(style, effect.get());
+    }
+
     public static Style withSpecial(Style style, GlyphEffect effect) {
-        Style newStyle = style.withClickEvent(style.getClickEvent());
-        EffectsStyle effectsStyle = (EffectsStyle) newStyle;
-        effectsStyle.addEffect(effect);
-        return newStyle;
+        return EffectsStyle.of(style).addEffect(effect);
     }
 
     /**
@@ -114,8 +128,7 @@ public class MiscHelper {
      * @param ench the enchantment this calculation is based on (see {@link net.minecraft.world.item.enchantment.MendingEnchantment})
      * @return the amount of capacity that hasn't been used
      */
-    @Contract("null, _, _ -> fail; _, _, null -> fail")
-    public static int repairPlayerItems(Player player, int value, Enchantment ench) {
+    public static int repairPlayerItems(@NotNull Player player, int value, @NotNull Enchantment ench) {
         Map.Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(ench, player, ItemStack::isDamaged);
         if (entry != null) {
             ItemStack itemstack = entry.getValue();
@@ -123,12 +136,16 @@ public class MiscHelper {
             itemstack.setDamageValue(itemstack.getDamageValue() - i);
             int j = value - i / 2;
             return j > 0 ? repairPlayerItems(player, j, ench) : 0;
-        } else {
-            return value;
         }
-
+        return value;
     }
 
+    /**
+     * checks whether the given item is contained inside the given tag
+     */
+    public static boolean is(Item item, TagKey<Item> tagKey) {
+        return item.builtInRegistryHolder().is(tagKey);
+    }
 
     /**
      * method to get the enchantment level of a stack and execute the consumer when above 0
@@ -221,18 +238,18 @@ public class MiscHelper {
      * @param player player to add achievement to
      * @param achievementName name of the achievement
      * @return true if the achievement has been awarded, false otherwise
+     * @deprecated use custom achievement triggers
      */
-    public static boolean awardAchievement(Player player, String achievementName) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            ServerAdvancementManager manager = serverPlayer.server.getAdvancements();
-            Advancement adv = manager.getAdvancement(new ResourceLocation(achievementName));
-            PlayerAdvancements advancements = serverPlayer.getAdvancements();
-            if (adv != null) {
-                AdvancementProgress progress = advancements.getOrStartProgress(adv);
-                if (!progress.isDone()) {
-                    for (String s : progress.getRemainingCriteria()) advancements.award(adv, s);
-                    return true;
-                }
+    @Deprecated(forRemoval = true)
+    public static boolean awardAchievement(ServerPlayer player, ResourceLocation achievementName) {
+        ServerAdvancementManager manager = player.server.getAdvancements();
+        Advancement adv = manager.getAdvancement(achievementName);
+        PlayerAdvancements advancements = player.getAdvancements();
+        if (adv != null) {
+            AdvancementProgress progress = advancements.getOrStartProgress(adv);
+            if (!progress.isDone()) {
+                for (String s : progress.getRemainingCriteria()) advancements.award(adv, s);
+                return true;
             }
         }
         return false;
@@ -255,10 +272,12 @@ public class MiscHelper {
     }
 
     /**
-     * a method to delay {@code run} by delayTicks
+     * a method to delay {@code run} by delayTicks.
+     * <br><b>do avoid this method if possible. use a level or a current running event you created instead</b>
      * @author Kapitencraft
      * @param delayTicks time (in ticks) to delay
      * @param run runnable to execute at the end of the delay
+     * @see Level#scheduleTick(BlockPos, Block, int)
      */
     public static void schedule(int delayTicks, Runnable run) {
         new Object() {
@@ -269,6 +288,7 @@ public class MiscHelper {
                 this.waitTicks = waitTicks;
                 MinecraftForge.EVENT_BUS.register(this);
             }
+
             @SubscribeEvent
             public void tick(TickEvent.ServerTickEvent event) {
                 if (event.phase == TickEvent.Phase.END) {
@@ -345,12 +365,7 @@ public class MiscHelper {
      * @return the {@link Nullable} {@link LivingEntity} to get from the damagesource
      */
     public static @Nullable LivingEntity getAttacker(@NotNull DamageSource source) {
-        if (source.getEntity() instanceof Projectile projectile && projectile.getOwner() instanceof LivingEntity living) {
-            return living;
-        } else if (source.getEntity() instanceof LivingEntity living) {
-            return living;
-        }
-        return null;
+        return source.getEntity() instanceof LivingEntity living ? living : null;
     }
 
     /**
@@ -359,15 +374,15 @@ public class MiscHelper {
      * @param source source to get DamageType from
      * @return DamageType from the source
      */
-    @Contract("null -> fail")
+    @Contract(value = "null -> fail", pure = true)
     public static DamageType getDamageType(DamageSource source) {
-        if (source.is(DamageTypeTags.MAGIC)) {
+        if (source.is(ExtraTags.DamageTypes.MAGIC)) {
             return DamageType.MAGIC;
         }
-        if (source.getDirectEntity() == source.getEntity()) {
-            return DamageType.MELEE;
-        }
         if (source.getEntity() != null) {
+            if (source.getDirectEntity() == source.getEntity()) {
+                return DamageType.MELEE;
+            }
             return DamageType.RANGED;
         }
         return DamageType.MISC;
@@ -414,7 +429,7 @@ public class MiscHelper {
     private static Vec3 getUpdateForPos(Vec3 cam, LivingEntity living) {
         Vec3 livingPos = living.position();
         Vec3 delta = cam.subtract(livingPos);
-        return MathHelper.setLength(delta, 0.5);
+        return MathHelper.clampLength(delta, 0.5);
     }
 
     public static final char HEART = '\u2661';
@@ -439,28 +454,31 @@ public class MiscHelper {
     public static Stream<ItemStack> getArmorEquipment(LivingEntity living) {
         return Arrays.stream(ARMOR_EQUIPMENT).map(living::getItemBySlot);
     }
-    public static int createCustomIndex(EquipmentSlot slot) {
-        return switch (slot) {
-            case HEAD -> 0;
-            case CHEST -> 1;
-            case LEGS -> 2;
-            case FEET -> 3;
-            case OFFHAND -> 4;
-            case MAINHAND -> 5;
-        };
-    }
 
+    /**
+     * only increases, not adds the effect duration
+     * @param living the entity to increase the effect of
+     * @param effect the effect to increase
+     * @param ticks the amount of time, in ticks, to increase by
+     * @return whether the effect was active and has been increased
+     */
     public static boolean increaseEffectDuration(LivingEntity living, MobEffect effect, int ticks) {
         if (living.hasEffect(effect)) {
             MobEffectInstance oldInstance = living.getEffect(effect);
             assert oldInstance != null;
-            MobEffectInstance effectInstance = new MobEffectInstance(effect, oldInstance.getDuration() + ticks, oldInstance.getAmplifier(), oldInstance.isAmbient(), oldInstance.isVisible(), oldInstance.showIcon(), oldInstance, oldInstance.getFactorData());
-            living.removeEffect(effect);
-            living.addEffect(effectInstance);
-            return false;
-        } else {
-            living.addEffect(new MobEffectInstance(effect, 1, ticks));
+            oldInstance.duration += ticks;
             return true;
+        }
+        return false;
+    }
+
+    public static void maxEffectDuration(LivingEntity living, MobEffect effect, int minTicks) {
+        if (living.hasEffect(effect)) {
+            MobEffectInstance oldInstance = living.getEffect(effect);
+            assert oldInstance != null;
+            oldInstance.duration = Math.max(oldInstance.duration, minTicks);
+        } else {
+            living.addEffect(new MobEffectInstance(effect, minTicks));
         }
     }
 
@@ -473,8 +491,8 @@ public class MiscHelper {
         return copy;
     }
 
-    @Contract("null, _, _ -> fail; _, _, _ -> param1")
-    public static List<ItemStack> shrinkDrops(List<ItemStack> drops, Item item, final int amount) {
+    @Contract("_, _, _ -> param1")
+    public static List<ItemStack> shrinkDrops(@NotNull List<ItemStack> drops, Item item, final int amount) {
         repeat(drops.size(), i -> {
             int varAmount = amount;
             ItemStack stack = drops.get(i);
@@ -490,5 +508,32 @@ public class MiscHelper {
             }
         });
         return drops;
+    }
+
+    public static void shakeGround(ServerLevel level, Vec3 pos, float intensity, float strength, float frequency) {
+        float radius = strength / intensity;
+        List<ServerPlayer> targets = level.getEntitiesOfClass(ServerPlayer.class, new AABB(pos, pos).inflate(radius));
+        targets.forEach(p -> {
+            float dist = Mth.sqrt((float) p.distanceToSqr(pos));
+            ModMessages.sendToClientPlayer(new ActivateShakePacket(intensity, strength * (dist / radius), frequency), p);
+        });
+    }
+
+    /**
+     * you may ask why.
+     * <br> but I ask <i>why not</i>
+     * gets an array of all items in the given tag
+     * @param access access to
+     * @param tag the tag to get all elements of
+     * @return an array of all items in the tag
+     */
+    public static Item[] getItemsFromTag(RegistryAccess access, TagKey<Item> tag) {
+        return access.registryOrThrow(ForgeRegistries.Keys.ITEMS)
+                .getTag(tag).orElseThrow(NullPointerException::new).contents().stream().map(Holder::value)
+                .toArray(Item[]::new);
+    }
+
+    public static Holder<net.minecraft.world.damagesource.DamageType> lookupDamageTypeHolder(Level level, ResourceKey<net.minecraft.world.damagesource.DamageType> key) {
+        return level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key);
     }
 }

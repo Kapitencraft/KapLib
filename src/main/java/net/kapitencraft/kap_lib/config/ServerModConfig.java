@@ -6,7 +6,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 
-@Mod.EventBusSubscriber(modid = KapLibMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ServerModConfig {
 
     private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
@@ -17,18 +16,21 @@ public class ServerModConfig {
     private static final ForgeConfigSpec.IntValue MAX_ITERATION_BROKEN_BLOCKS = BUILDER
             .comment("determines how many blocks per tick should be broken by the multi-break enchantments")
             .defineInRange("iter_max_broken", 20, 1, 200);
+    private static final ForgeConfigSpec.BooleanValue DISABLE_ANVIL_LIMIT = BUILDER
+            .comment("determines whether to disable anvil \"Too Expensive\" cap")
+            .define("disable_anvil_limit", true);
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 
-    public static boolean enableSocial = true;
-    public static int iterationMaxBroken = 20;
+    public static boolean areSocialCommandsEnabled() {
+        return ENABLE_SOCIAL_COMMANDS.get();
+    }
 
-    @SubscribeEvent
-    public static void registerConfig(final ModConfigEvent event) {
-        if (SPEC.isLoaded()) {
-            KapLibMod.LOGGER.info("loading server config...");
-            enableSocial = ENABLE_SOCIAL_COMMANDS.get();
-            iterationMaxBroken = MAX_ITERATION_BROKEN_BLOCKS.get();
-        }
+    public static int getMaxBrokenBlocks() {
+        return MAX_ITERATION_BROKEN_BLOCKS.get();
+    }
+
+    public static boolean disableAnvilLimit() {
+        return DISABLE_ANVIL_LIMIT.get();
     }
 }

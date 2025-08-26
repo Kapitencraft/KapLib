@@ -1,9 +1,11 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.kapitencraft.kap_lib.entity.fishing.IFishingHook;
-import net.kapitencraft.kap_lib.entity.fishing.ModFishingHook;
+import net.kapitencraft.kap_lib.entity.fishing.AbstractFishingHook;
 import net.kapitencraft.kap_lib.event.custom.ModifyFishingHookStatsEvent;
 import net.kapitencraft.kap_lib.item.tools.fishing.ModFishingRod;
+import net.kapitencraft.kap_lib.requirements.RequirementManager;
+import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -33,15 +35,19 @@ public abstract class FishingRodMixin extends Item implements Vanishable {
     @Redirect(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
     public boolean spawnHook(Level level, Entity entity, Level ignored, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (!RequirementManager.instance.meetsRequirements(RegistryReqType.ITEM, stack.getItem(), player)) {
+            return false;
+        }
+
         int lureSpeed = EnchantmentHelper.getFishingSpeedBonus(stack);
         int luckBonus = EnchantmentHelper.getFishingLuckBonus(stack);
-        ModifyFishingHookStatsEvent event = new ModifyFishingHookStatsEvent(entity, player, lureSpeed, luckBonus);
+        ModifyFishingHookStatsEvent event = new ModifyFishingHookStatsEvent(entity, player, lureSpeed, luckBonus, stack);
         MinecraftForge.EVENT_BUS.post(event);
         lureSpeed = event.lureSpeed.calculate();
         luckBonus = event.luck.calculate();
         int hookSpeed = event.hookSpeed.calculate();
         if (self() instanceof ModFishingRod fishingRod) {
-            ModFishingHook hook = fishingRod.create(player, level, lureSpeed, luckBonus);
+            AbstractFishingHook hook = fishingRod.create(player, level, lureSpeed, luckBonus);
             hook.setHookSpeedModifier(hookSpeed);
             return level.addFreshEntity(hook);
         }

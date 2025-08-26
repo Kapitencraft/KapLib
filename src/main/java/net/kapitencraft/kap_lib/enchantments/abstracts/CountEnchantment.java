@@ -1,55 +1,73 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
+import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
+import net.kapitencraft.kap_lib.io.serialization.NbtSerializer;
+import net.kapitencraft.kap_lib.registry.ExtraCodecs;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentCategory;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
-public abstract class CountEnchantment extends ExtendedCalculationEnchantment implements IWeaponEnchantment {
-    private final String mapName;
-    private final CountType type;
-    protected CountEnchantment(Rarity p_44676_, EnchantmentCategory category, EquipmentSlot[] slots, String mapName, CountType type, CalculationType calculationType, ProcessPriority priority) {
-        super(p_44676_, category, slots, calculationType, priority);
-        this.mapName = mapName;
-        this.type = type;
+public interface CountEnchantment extends ExtendedCalculationEnchantment, IWeaponEnchantment {
+    Codec<Map<UUID, Integer>> DATA_CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT);
+    NbtSerializer<Map<UUID, Integer>> SERIALIZER = new NbtSerializer<>(DATA_CODEC, HashMap::new);
+
+    @ApiStatus.Internal
+    default String mapName() {
+        return Objects.requireNonNull(ForgeRegistries.ENCHANTMENTS.getKey((Enchantment) this), "unknown enchantment").toString();
     }
 
-    protected abstract int getCountAmount(int level);
+    CountType countType();
+
+    int getCountAmount(int level);
 
     @Override
-    public double execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, DamageSource source) {
-        CompoundTag attackerTag = attacker.getPersistentData();
-        HashMap<UUID, Integer> map = !attackerTag.getCompound(this.mapName).isEmpty() ? IOHelper.getHashMapTag(attackerTag.getCompound(this.mapName)) : new HashMap<>();
-        if (!map.containsKey(attacked.getUUID())) {
-            map.put(attacked.getUUID(), 0);
-        }
+    default float execute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, float damageAmount, DamageSource source, float attackStrenghtScale) {
+        CompoundTag attackerTag = IOHelper.getOrCreateTag(attacker.getPersistentData(), "CountEnchantment");
+        String mapName = this.mapName();
+        HashMap<UUID, Integer> map = new HashMap<>(SERIALIZER.parse(attackerTag.contains(mapName, 10) ? attackerTag.get(mapName) : new CompoundTag()));
+        map.putIfAbsent(attacked.getUUID(), 1);
         int i = map.get(attacked.getUUID());
         if (i >= this.getCountAmount(level)) {
-            i = 0;
-            if (this.type == CountType.NORMAL) {
-                damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, i, source);
+            if (this.countType() != CountType.EXCEPT) {
+                damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, 0, source, attackStrenghtScale);
             }
+            i = this.countType() == CountType.ONCE ? -1 : 1;
         } else {
-            i++;
-            if (this.type == CountType.EXCEPT) {
-                damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, i, source);
+            if (i >= 0) {
+                if (this.countType() != CountType.NORMAL) damageAmount = this.mainExecute(level, enchanted, attacker, attacked, damageAmount, i, source, attackStrenghtScale);
+                i++;
             }
         }
         map.put(attacked.getUUID(), i);
-        attackerTag.put(this.mapName, IOHelper.putHashMapTag(map));
+        attackerTag.put(mapName, SERIALIZER.encode(map));
         return damageAmount;
     }
 
-    protected abstract double mainExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, double damageAmount, int curHit, DamageSource source);
+    float mainExecute(int level, ItemStack enchanted, LivingEntity attacker, LivingEntity attacked, float damageAmount, int curHit, DamageSource source, float attackStrenghtScale);
 
-    protected enum CountType {
+    enum CountType {
+        /**
+         * executed when reaching the given count
+         */
         NORMAL,
-        EXCEPT;
+        /**
+         * executed except the counter is the given count
+         */
+        EXCEPT,
+        /**
+         * executed counter times, and then never again
+         */
+        ONCE;
     }
 }

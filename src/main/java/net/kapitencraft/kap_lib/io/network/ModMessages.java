@@ -1,14 +1,15 @@
 package net.kapitencraft.kap_lib.io.network;
 
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.event.ModEventFactory;
-import net.kapitencraft.kap_lib.event.custom.RegisterRequestEvent;
+import net.kapitencraft.kap_lib.io.network.S2C.*;
+import net.kapitencraft.kap_lib.io.network.S2C.capability.CooldownStartedPacket;
+import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncCooldownsToPlayerPacket;
+import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncWearablesToPlayerPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.function.Function;
@@ -28,11 +29,6 @@ public class ModMessages {
         PACKET_HANDLER.sendToServer(message);
     }
 
-
-    public static <MSG> void sendToClient(MSG message, ServerPlayer player) {
-        PACKET_HANDLER.send(PacketDistributor.PLAYER.with(()-> player), message);
-    }
-
     public static <MSG> void sendToClientPlayer(MSG message, ServerPlayer player) {
         PACKET_HANDLER.sendTo(message, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
@@ -49,7 +45,16 @@ public class ModMessages {
                 .clientAcceptedVersions(s -> true)
                 .serverAcceptedVersions(s -> true)
                 .simpleChannel();
-        ModEventFactory.fireModEvent(new RegisterRequestEvent(PACKET_HANDLER, messageID));
+        addMessage(SyncRequirementsPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncRequirementsPacket::new);
+        addMessage(SyncBonusesPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncBonusesPacket::new);
+        addMessage(DisplayTotemActivationPacket.class, NetworkDirection.PLAY_TO_CLIENT, DisplayTotemActivationPacket::new);
+        addMessage(SendParticleAnimationPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendParticleAnimationPacket::new);
+        addMessage(SendTrackingShotPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendTrackingShotPacket::new);
+        addMessage(ActivateShakePacket.class, NetworkDirection.PLAY_TO_CLIENT, ActivateShakePacket::new);
+        addMessage(SyncWearablesToPlayerPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncWearablesToPlayerPacket::new);
+        addMessage(SyncCooldownsToPlayerPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncCooldownsToPlayerPacket::new);
+        addMessage(CooldownStartedPacket.class, NetworkDirection.PLAY_TO_CLIENT, CooldownStartedPacket::new);
+        addMessage(UpdateBonusDataPacket.class, NetworkDirection.PLAY_TO_CLIENT, UpdateBonusDataPacket::new);
     }
 
 

@@ -1,33 +1,32 @@
 package net.kapitencraft.kap_lib.collection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.minecraft.Util;
+
+import java.util.*;
 
 public class Leveled<K, V> {
-    protected final HashMap<K, V> content = new HashMap<>();
-    private final List<Integer> levels = new ArrayList<>();
+    private final Deque<Map<K, V>> stack = Util.make(new ArrayDeque<>(), maps -> maps.add(new HashMap<>()));
 
+    /**
+     * push the stack; use pop to revert changes made after push
+     */
     public void push() {
-        levels.add(content.size());
+        stack.push(new HashMap<>(stack.getLast()));
     }
 
+    /**
+     * pop the stack; removes any changes made since the last `'push' call
+     */
     public void pop() {
-        int index = levels.get(levels.size() - 1);
-        List<Map.Entry<K, V>> set = new ArrayList<>(content.entrySet());
-        content.clear();
-        for (int i = 0; i < index; i++) {
-            Map.Entry<K, V> entry = set.get(i);
-            content.put(entry.getKey(), entry.getValue());
-        }
+        stack.removeLast();
+        if (stack.isEmpty()) throw new IllegalStateException("leveled has been completely cleared");
     }
 
     public V getValue(K name) {
-        return content.get(name);
+        return stack.getLast().get(name);
     }
 
     public void addValue(K key, V value) {
-        content.put(key, value);
+        stack.getLast().put(key, value);
     }
 }
