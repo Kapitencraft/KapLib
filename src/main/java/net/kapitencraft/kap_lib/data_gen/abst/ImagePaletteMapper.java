@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.data_gen;
+package net.kapitencraft.kap_lib.data_gen.abst;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.kapitencraft.kap_lib.util.Color;
@@ -12,6 +12,7 @@ import net.neoforged.neoforge.client.model.generators.ModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.IntUnaryOperator;
@@ -20,14 +21,12 @@ import java.util.function.IntUnaryOperator;
  * idea and code by Startraveler. abridged and adapted
  */
 public abstract class ImagePaletteMapper implements DataProvider {
-    private final ResourceManager resourceManager;
     private final ExistingFileHelper existingFileHelper;
     private final PackOutput output;
 
     private final List<Entry> entries = new ArrayList<>();
 
-    public ImagePaletteMapper(ResourceManager resourceManager, ExistingFileHelper existingFileHelper, PackOutput output) {
-        this.resourceManager = resourceManager;
+    public ImagePaletteMapper(ExistingFileHelper existingFileHelper, PackOutput output) {
         this.existingFileHelper = existingFileHelper;
         this.output = output;
     }
@@ -263,28 +262,33 @@ public abstract class ImagePaletteMapper implements DataProvider {
     @Override
     public CompletableFuture<?> run(CachedOutput output) {
         this.createEntries();
-        return this.entries.stream().map(e -> {
+        return CompletableFuture.allOf(this.entries.stream().map(e -> {
             if (!existingFileHelper.exists(e.paletteSource, PackType.CLIENT_RESOURCES)) {
                 throw new IllegalStateException(e.paletteSource + "does not exist");
             }
             try {
-                try (NativeImage paletteSource = NativeImage.read(resourceManager.getResourceOrThrow(e.paletteSource).open())) {
-                    try (NativeImage shapeSource = NativeImage.read(resourceManager.getResourceOrThrow(e.paletteSource).open()) {
+                try (NativeImage paletteSource = NativeImage.read(existingFileHelper.getResource(e.paletteSource, PackType.CLIENT_RESOURCES, ".png", "textures").open())) {
+                    try (NativeImage shapeSource = NativeImage.read(existingFileHelper.getResource(e.paletteSource, PackType.CLIENT_RESOURCES, ".png", "textures").open())) {
 
                         NativeImage out = remapTexture(paletteSource, shapeSource);
 
                         existingFileHelper.trackGenerated(e.target, ModelProvider.TEXTURE);
-                        this.output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "textures")
+                        Path path = this.output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "textures").file(e.target, ".png");
                         return CompletableFuture.runAsync(() -> {
-                            out.writeToFile();
-                            out.close();
+                            try {
+                                out.writeToFile(path);
+                            } catch (IOException ex) {
+                                throw new RuntimeException("Unable to store image: " + ex.getMessage());
+                            } finally {
+                                out.close();
+                            }
                         });
                     }
                 }
             } catch (IOException ex) {
                 throw new IllegalStateException(ex);
             }
-        });
+        }).toArray(CompletableFuture[]::new));
     }
 
     protected abstract void createEntries();
@@ -295,11 +299,11 @@ public abstract class ImagePaletteMapper implements DataProvider {
     }
 
     private record Entry(ResourceLocation paletteSource, ResourceLocation patternSource, ResourceLocation target, ResourceLocation mask) {
-        public static Entry create(ResourceLocation source, ResourceLocation patternSource, ResourceLocation target) {
+        private static Entry create(ResourceLocation source, ResourceLocation patternSource, ResourceLocation target) {
             return new Entry(expandLocation(source), expandLocation(patternSource), target, null);
         }
 
-        public static Entry createWithMask(ResourceLocation source, ResourceLocation patternSource, ResourceLocation target, ResourceLocation maskSource) {
+        private static Entry createWithMask(ResourceLocation source, ResourceLocation patternSource, ResourceLocation target, ResourceLocation maskSource) {
             return new Entry(
                     expandLocation(source),
                     expandLocation(patternSource),
@@ -311,5 +315,24 @@ public abstract class ImagePaletteMapper implements DataProvider {
         private static ResourceLocation expandLocation(ResourceLocation location) {
             return location.withPrefix("textures/").withSuffix(".png");
         }
+    }
+
+    /**
+     * @param paletteSource the texture to use for the colors
+     * @param patternSource the texture to use for the shape
+     * @param target the output location
+     */
+    protected void register(ResourceLocation paletteSource, ResourceLocation patternSource, ResourceLocation target) {
+        this.entries.add(Entry.create(paletteSource, patternSource, target));
+    }
+
+    /**
+     * @param paletteSource the texture to use for the colors
+     * @param patternSource the texture to use for the shape
+     * @param target the output location
+     * @param mask the mask used to dedicate whether the pixel should be modified or not
+     */
+    protected void registerMasked(ResourceLocation paletteSource, ResourceLocation patternSource, ResourceLocation target, ResourceLocation mask) {
+        this.entries.add(Entry.createWithMask(paletteSource, patternSource, target, mask));
     }
 }

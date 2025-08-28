@@ -4,8 +4,10 @@ import com.google.common.collect.Lists;
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
@@ -37,12 +39,12 @@ public class SpawnTable {
            p_338123_ -> p_338123_.group(
                            LootContextParamSets.CODEC.lenientOptionalFieldOf("type", DEFAULT_PARAM_SET).forGetter(p_298001_ -> p_298001_.paramSet),
                            ResourceLocation.CODEC.optionalFieldOf("random_sequence").forGetter(p_297998_ -> Optional.ofNullable(p_297998_.randomSequence)),
-                           net.neoforged.neoforge.common.CommonHooks.lootPoolsCodec(LootPool::setName).optionalFieldOf("pools", List.of()).forGetter(p_298002_ -> p_298002_.pools),
-                           net.neoforged.neoforge.common.conditions.ConditionalOps.decodeListWithElementConditions(LootItemFunctions.ROOT_CODEC).optionalFieldOf("functions", List.of()).forGetter(p_298000_ -> p_298000_.functions)
+                           SpawnPool.lootPoolsCodec(SpawnPool::setName).optionalFieldOf("pools", List.of()).forGetter(p_298002_ -> p_298002_.pools),
+                           net.neoforged.neoforge.common.conditions.ConditionalOps.decodeListWithElementConditions(SpawnEntityFunctions.ROOT_CODEC).optionalFieldOf("functions", List.of()).forGetter(p_298000_ -> p_298000_.functions)
                    )
                    .apply(p_338123_, SpawnTable::new)
    );
-   public static final Codec<Holder<SpawnTable>> CODEC = RegistryFileCodec.create(Registries.LOOT_TABLE, DIRECT_CODEC);
+   public static final Codec<Holder<SpawnTable>> CODEC = RegistryFileCodec.create(ExtraRegistries.Keys.SPAWN_TABLES, DIRECT_CODEC);
 
 
    public static final Gson PARSER = SpawnDeserializers.createSpawnTableSerializer().create();
@@ -56,15 +58,15 @@ public class SpawnTable {
    }
 
    static final Logger LOGGER = LogUtils.getLogger();
-   public static final SpawnTable EMPTY = new SpawnTable(LootContextParamSets.EMPTY, null, new SpawnPool[0], new SpawnEntityFunction[0]);
+   public static final SpawnTable EMPTY = new SpawnTable(LootContextParamSets.EMPTY, null, new SpawnPool[0], List.of());
    final LootContextParamSet paramSet;
    @Nullable
    final ResourceLocation randomSequence;
    private final List<SpawnPool> pools;
-   final SpawnEntityFunction[] functions;
+   final List<SpawnEntityFunction> functions;
    private final BiFunction<Entity, SpawnContext, Entity> compositeFunction;
 
-   SpawnTable(LootContextParamSet pParamSet, @Nullable ResourceLocation pRandomSequence, SpawnPool[] pPools, SpawnEntityFunction[] pFunctions) {
+   SpawnTable(LootContextParamSet pParamSet, @Nullable ResourceLocation pRandomSequence, SpawnPool[] pPools, List<SpawnEntityFunction> pFunctions) {
       this.paramSet = pParamSet;
       this.randomSequence = pRandomSequence;
       this.pools = Lists.newArrayList(pPools);
@@ -138,8 +140,8 @@ public class SpawnTable {
          this.pools.get(i).validate(pValidator.forChild(".pools[" + i + "]"));
       }
 
-      for(int j = 0; j < this.functions.length; ++j) {
-         this.functions[j].validate(pValidator.forChild(".functions[" + j + "]"));
+      for(int j = 0; j < this.functions.size(); ++j) {
+         this.functions.get(j).validate(pValidator.forChild(".functions[" + j + "]"));
       }
 
    }
@@ -224,56 +226,7 @@ public class SpawnTable {
       }
 
       public SpawnTable build() {
-         return new SpawnTable(this.paramSet, this.randomSequence, this.pools.toArray(new SpawnPool[0]), this.functions.toArray(new SpawnEntityFunction[0]));
-      }
-   }
-
-   public static class Serializer implements JsonDeserializer<SpawnTable>, JsonSerializer<SpawnTable> {
-      public SpawnTable deserialize(JsonElement pJson, Type pTypeOfT, JsonDeserializationContext pContext) throws JsonParseException {
-         JsonObject jsonobject = GsonHelper.convertToJsonObject(pJson, "loot table");
-         SpawnPool[] alootpool = GsonHelper.getAsObject(jsonobject, "pools", new SpawnPool[0], pContext, SpawnPool[].class);
-         LootContextParamSet lootcontextparamset = null;
-         if (jsonobject.has("type")) {
-            String s = GsonHelper.getAsString(jsonobject, "type");
-            lootcontextparamset = LootContextParamSets.get(new ResourceLocation(s));
-         }
-
-         ResourceLocation resourcelocation;
-         if (jsonobject.has("random_sequence")) {
-            String s1 = GsonHelper.getAsString(jsonobject, "random_sequence");
-            resourcelocation = new ResourceLocation(s1);
-         } else {
-            resourcelocation = null;
-         }
-
-         SpawnEntityFunction[] alootitemfunction = GsonHelper.getAsObject(jsonobject, "functions", new SpawnEntityFunction[0], pContext, SpawnEntityFunction[].class);
-         return new SpawnTable(lootcontextparamset != null ? lootcontextparamset : LootContextParamSets.ALL_PARAMS, resourcelocation, alootpool, alootitemfunction);
-      }
-
-      public JsonElement serialize(SpawnTable pSrc, Type pTypeOfSrc, JsonSerializationContext pContext) {
-         JsonObject jsonobject = new JsonObject();
-         if (pSrc.paramSet != SpawnTable.DEFAULT_PARAM_SET) {
-            ResourceLocation resourcelocation = LootContextParamSets.getKey(pSrc.paramSet);
-            if (resourcelocation != null) {
-               jsonobject.addProperty("type", resourcelocation.toString());
-            } else {
-               SpawnTable.LOGGER.warn("Failed to find id for param set {}", pSrc.paramSet);
-            }
-         }
-
-         if (pSrc.randomSequence != null) {
-            jsonobject.addProperty("random_sequence", pSrc.randomSequence.toString());
-         }
-
-         if (!pSrc.pools.isEmpty()) {
-            jsonobject.add("pools", pContext.serialize(pSrc.pools));
-         }
-
-         if (!ArrayUtils.isEmpty(pSrc.functions)) {
-            jsonobject.add("functions", pContext.serialize(pSrc.functions));
-         }
-
-         return jsonobject;
+         return new SpawnTable(this.paramSet, this.randomSequence, this.pools.toArray(new SpawnPool[0]), this.functions);
       }
    }
 }

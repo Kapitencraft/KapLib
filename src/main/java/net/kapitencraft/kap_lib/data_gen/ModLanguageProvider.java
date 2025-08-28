@@ -31,7 +31,6 @@ public class ModLanguageProvider extends EnglishLanguageProvider {
         addAttribute(ExtraAttributes.MANA_COST, null);
         addAttribute(ExtraAttributes.MANA_REGEN, ChatFormatting.BLUE);
         addAttribute(ExtraAttributes.MAX_MANA, ChatFormatting.DARK_AQUA);
-        addAttribute(ExtraAttributes.MINING_SPEED, null);
         addAttribute(ExtraAttributes.STRENGTH, ChatFormatting.DARK_RED);
     }
 }

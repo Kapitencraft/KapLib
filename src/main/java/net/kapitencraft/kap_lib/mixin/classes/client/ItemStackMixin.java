@@ -99,7 +99,7 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
                 );
             }
             if (self().getItem() instanceof IWearable wearable) {
-                for (Map.Entry<ResourceKey<WearableSlot>, WearableSlot> slotEntry : ExtraRegistries.WEARABLE_SLOTS.getEntries()) {
+                for (Map.Entry<ResourceKey<WearableSlot>, WearableSlot> slotEntry : ExtraRegistries.WEARABLE_SLOTS.entrySet()) {
                     appendModifiersDisplay(list, pPlayer,
                             wearable.getModifiers(slotEntry.getValue(), self()),
                             "item.modifiers.wearable." + getWearableKey(slotEntry.getKey()),

@@ -11,6 +11,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.RandomSequence;
 import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.storage.loot.*;
@@ -54,12 +55,9 @@ public class SpawnTableProvider implements DataProvider {
             throw new IllegalStateException("Duplicate loot table " + sequence);
          }
       }));
-      ValidationContext validationcontext = new ValidationContext(LootContextParamSets.ALL_PARAMS, new LootDataResolver() {
-         @Nullable
-         public <T> T getElement(LootDataId<T> pId) {
-            return (T)(pId.type() == LootDataType.TABLE ? map.get(pId.location()) : null);
-         }
-      });
+      ProblemReporter.Collector collector = new ProblemReporter.Collector();
+
+      ValidationContext validationcontext = new ValidationContext(collector, LootContextParamSets.ALL_PARAMS,
 
       validate(map, validationcontext);
 

@@ -17,6 +17,7 @@ import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
+import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.entries.SpawnPoolEntryType;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
 import net.minecraft.core.Registry;
@@ -101,6 +102,7 @@ public interface ExtraRegistries {
         //SPAWN TABLE
         ResourceKey<Registry<SpawnEntityFunctionType<?>>> FUNCTION_TYPES = createRegistry("spawn_table/function_types");
         ResourceKey<Registry<SpawnPoolEntryType>> POOL_ENTRY_TYPES = createRegistry("spawn_table/pool_entry_types");
+        ResourceKey<Registry<SpawnTable>> SPAWN_TABLES = createRegistry("spawn_table");
 
         ResourceKey<Registry<WearableSlot>> WEARABLE_SLOTS = createRegistry("wearable_slots");
 
