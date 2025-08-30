@@ -33,7 +33,7 @@ public class AttributeAdder {
                 ExtraAttributes.MINING_FORTUNE,
                 ExtraAttributes.PRISTINE,
                 ExtraAttributes.MINING_SPEED,
-                ExtraAttributes.ABILITY_DAMAGE,
+                ExtraAttributes.MAGIC_DAMAGE,
                 ExtraAttributes.MANA_COST,
                 ExtraAttributes.INTELLIGENCE,
                 ExtraAttributes.FEROCITY,

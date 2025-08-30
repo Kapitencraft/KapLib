@@ -9,6 +9,8 @@ import net.minecraftforge.registries.RegistryObject;
 
 public interface ExtraAttributes {
     DeferredRegister<Attribute> REGISTRY = KapLibMod.registry(ForgeRegistries.ATTRIBUTES);
+
+    //region register
     private static RegistryObject<Attribute> register(String name, double initValue, double minValue, double maxValue) {
         return REGISTRY.register("generic." + name, ()-> new RangedAttribute("generic." + name, initValue, minValue, maxValue).setSyncable(true));
     }
@@ -16,8 +18,9 @@ public interface ExtraAttributes {
     private static RegistryObject<Attribute> register0Max(String name, double initValue) {
         return register(name, initValue, 0, Double.MAX_VALUE);
     }
+    //endregion
 
-    //Defensive Stats
+    //region defensive
     /**
      * chance to dodge attacks
      */
@@ -38,8 +41,9 @@ public interface ExtraAttributes {
      * health regeneration scale
      */
     RegistryObject<Attribute> VITALITY = register0Max("vitality", 0);
+    //endregion
 
-    //Offensive Stats
+    //region offensive
     /**
      * reduces iFrames of hit enemies
      */
@@ -65,9 +69,9 @@ public interface ExtraAttributes {
      */
     RegistryObject<Attribute> INTELLIGENCE = register0Max("intelligence", 0);
     /**
-     * increases damage dealt by abilities
+     * increases damage dealt by magic
      */
-    RegistryObject<Attribute> ABILITY_DAMAGE = register0Max("ability_damage", 0);
+    RegistryObject<Attribute> MAGIC_DAMAGE = register0Max("magic_damage", 0);
     /**
      * increases the damage arrows and other projectiles deal
      */
@@ -84,8 +88,9 @@ public interface ExtraAttributes {
      * increases the traveling speed of projectiles
      */
     RegistryObject<Attribute> PROJECTILE_SPEED = register("projectile_speed", 0, 0, 10000);
+    //endregion
 
-    //Mining
+    //region mining
     /**
      * increases the speed of mining
      */
@@ -95,8 +100,9 @@ public interface ExtraAttributes {
      * increases the chance to get more drops from mining
      */
     RegistryObject<Attribute> MINING_FORTUNE = register0Max("mining_fortune", 0);
+    //endregion
 
-    //Misc
+    //region misc
     RegistryObject<Attribute> COOLDOWN_REDUCTION = register("cooldown_reduction", 0, 0, 100);
     /**
      * amount of health regenerated when attacking
@@ -111,10 +117,12 @@ public interface ExtraAttributes {
      * increases experience gained from mining and combat
      */
     RegistryObject<Attribute> WISDOM = register("wisdom", 0, -100, 10000);
+    //endregion
 
-    //Mana
+    //region mana
     RegistryObject<Attribute> MAX_MANA = register0Max("max_mana", 100);
     RegistryObject<Attribute> MANA = register0Max("mana", 100);
     RegistryObject<Attribute> MANA_COST = register("mana_cost", 0, 0, 100000);
     RegistryObject<Attribute> MANA_REGEN = register0Max("mana_regen", 0);
+    //endregion
 }

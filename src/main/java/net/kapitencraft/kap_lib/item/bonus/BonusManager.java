@@ -474,9 +474,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             Vec2i count = getSetBonusCount(living, setBonusElement);
             TextColor color = !enabled || count.x == 0 ?
                     TextColor.fromLegacyFormat(ChatFormatting.RED) :
-                    new Color(ChatFormatting.GREEN)
+                    Color.fromFormatting(ChatFormatting.GREEN)
                             .mix(
-                                    new Color(ChatFormatting.RED),
+                                    Color.fromFormatting(ChatFormatting.RED),
                                     count.x / (float) count.y
                             ).toTextColor();
             join1.append(" (")

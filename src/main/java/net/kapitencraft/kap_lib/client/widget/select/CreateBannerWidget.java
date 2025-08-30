@@ -92,7 +92,7 @@ public class CreateBannerWidget extends PositionedWidget {
 
         @Override
         protected void createElement(Consumer<MultiElementSelectorWidget<DyeColor>.ElementButton> adder, int xStart, int yStart, int elementSize, DyeColor element) {
-            adder.accept(new ElementButton(xStart, yStart, 16, element, new Color(element.getTextColor()).setAlpha(255).pack()));
+            adder.accept(new ElementButton(xStart, yStart, 16, element, Color.fromARGBPacked(element.getTextColor()).setAlpha(255).pack()));
         }
     }
 

@@ -7,37 +7,27 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextColor;
 import org.jetbrains.annotations.Range;
 
-public class Color {
-    public static final Codec<Color> CODEC = Codec.INT.xmap(Color::new, Color::pack);
-
-    public final float r, g, b, a;
+public record Color(float r, float g, float b, float a) {
+    public static final Codec<Color> CODEC = Codec.INT.xmap(Color::fromARGBPacked, Color::pack);
 
     /**
      * color from r, g, b and a values
      */
-    public Color(float r, float g, float b, float a) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
+    public Color {
     }
 
-    /**
-     * color from vanilla ChatFormatting
-     */
     @SuppressWarnings("DataFlowIssue")
-    public Color(ChatFormatting color) {
-        this(color.getColor());
+    public static Color fromFormatting(ChatFormatting formatting) {
+        return fromARGBPacked(formatting.getColor());
     }
 
-    /**
-     * color from packed 32-bit integer. format ARGB
-     */
-    public Color(int packed) {
-        this.a = (packed >> 24 & 255) / 255f;
-        this.r = (packed >> 16 & 255) / 255f;
-        this.g = (packed >> 8 & 255) / 255f;
-        this.b = (packed & 255) / 255f;
+    public static Color fromARGBPacked(int packed) {
+        return new Color(
+                (packed >> 16 & 255) / 255f,
+                (packed >> 8 & 255) / 255f,
+                (packed & 255) / 255f,
+                (packed >> 24 & 255) / 255f
+        );
     }
 
     /**
@@ -63,7 +53,7 @@ public class Color {
      * packs this color into 32-bit ARGB integer
      */
     public int pack() {
-        return MathHelper.RGBAtoInt((int) (this.r * 255), (int) (this.g * 255), (int) (this.b * 255), (int) (this.a * 255));
+        return MathHelper.ARGBtoInt((int) (this.a * 255), (int) (this.r * 255), (int) (this.g * 255), (int) (this.b * 255));
     }
 
 
@@ -76,7 +66,7 @@ public class Color {
     }
 
     public static Color read(FriendlyByteBuf buf) {
-        return new Color(buf.readInt());
+        return Color.fromARGBPacked(buf.readInt());
     }
 
     public TextColor toTextColor() {

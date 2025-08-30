@@ -14,7 +14,7 @@ public class ModLanguageProvider extends EnglishLanguageProvider {
     @Override
     protected void addTranslations() {
         addDeathMessage("ferocity", "%1$s was ferociously murdered by %2$s");
-        addAttribute(ExtraAttributes.ABILITY_DAMAGE, ChatFormatting.RED);
+        addAttribute(ExtraAttributes.MAGIC_DAMAGE, ChatFormatting.RED);
         addAttribute(ExtraAttributes.ARMOR_SHREDDER, null);
         addAttribute(ExtraAttributes.PROJECTILE_SPEED, null);
         addAttribute(ExtraAttributes.ARROW_COUNT, null);

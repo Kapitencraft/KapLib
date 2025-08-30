@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.client.particle;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.util.Color;
 import net.minecraft.client.Camera;
@@ -121,10 +120,10 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
             float f4 = getV0();
             float f5 = getV1();
             int j = getLightColor(pPartialTicks);
-            pBuffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).uv(f7, f5).color(color.r, color.g, color.b, color.a).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).uv(f7, f4).color(color.r, color.g, color.b, color.a).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).uv(f6, f4).color(color.r, color.g, color.b, color.a).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).uv(f6, f5).color(color.r, color.g, color.b, color.a).uv2(j).endVertex();
+            pBuffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).uv(f7, f5).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
+            pBuffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).uv(f7, f4).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
+            pBuffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).uv(f6, f4).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
+            pBuffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).uv(f6, f5).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
         }
 
 

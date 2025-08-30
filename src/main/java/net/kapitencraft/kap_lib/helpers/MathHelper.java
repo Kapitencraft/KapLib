@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -38,10 +37,14 @@ public interface MathHelper {
     /**
      * merge the given r, g, b and a values into a packed integer
      */
-    static int RGBAtoInt(int r, int g, int b, int a) {
+    static int ARGBtoInt(int a, int r, int g, int b) {
         int returnable = (a << 8) + r;
         returnable = (returnable << 8) + g;
         return (returnable << 8) + b;
+    }
+
+    static int RGBAtoInt(int r, int g, int b, int a) {
+        return (((((r & 255) << 8) | (g & 255) << 8) | (b & 255)) << 8) | (a & 255);
     }
 
     static IntSet intSetRange(int min, int max) {

@@ -28,9 +28,10 @@ public class Generator {
         generator.addProvider(true, new ModTagsProvider.EntityTypes(output, lookupProvider));
         generator.addProvider(true, new ModTagsProvider.DamageType(output, lookupProvider, helper));
         generator.addProvider(true, new TestSpawnTableProvider(output));
-        generator.addProvider(true, new TestBonusProvider(output, lookupProvider, helper));
+        generator.addProvider(false, new TestBonusProvider(output, lookupProvider, helper));
         generator.addProvider(true, new TestLanguageProvider(output));
         generator.addProvider(false, new ModLanguageProvider(output));
         generator.addProvider(false, new TestRecipeProvider(output));
+        generator.addProvider(true, new TestTextureProvider(helper, output));
     }
 }

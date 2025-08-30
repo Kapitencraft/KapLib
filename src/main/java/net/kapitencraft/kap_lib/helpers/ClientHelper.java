@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.brigadier.Command;
 import com.mojang.math.Axis;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.kapitencraft.kap_lib.util.Color;
@@ -194,7 +193,7 @@ public class ClientHelper {
         ParticleEngine engine = Minecraft.getInstance().particleEngine;
         SpriteSet spriteSet = engine.spriteSets.get(ForgeRegistries.PARTICLE_TYPES.getKey(ParticleTypes.FIREWORK.getType()));
         FireworkParticles.SparkParticle particle = new FireworkParticles.SparkParticle(level, loc.x, loc.y, loc.z, random.nextGaussian() * 0.05D, -delta.y * 0.5D, random.nextGaussian() * 0.05D, engine, spriteSet);
-        particle.setColor(startColor.r, startColor.g, startColor.b);
+        particle.setColor(startColor.r(), startColor.g(), startColor.b());
         particle.setFadeColor(fadeColor.pack());
         engine.add(particle);
     }

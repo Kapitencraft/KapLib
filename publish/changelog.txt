@@ -1,3 +1,5 @@
 fixed Enchantment Applicable using wrong font and removed the JSON font provider
 fixed Crossbow Enchantment Applicable using wrong texture
 fixed double jump not reducing damage from falling
+renamed ExtraAttributes.ABILITY_DAMAGE -> MAGIC_DAMAGE
+added TextureProvider used to data generate textures. see it's documentation for more details
