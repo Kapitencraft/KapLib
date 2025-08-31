@@ -4,18 +4,23 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.item.modifier_display.EquipmentDisplayExtension;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -29,17 +34,17 @@ import java.util.function.UnaryOperator;
 
 public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, EquipmentDisplayExtension {
     private static final Codec<Multimap<Holder<Attribute>, AttributeModifier>> ENTRIES_CODEC = Codec.unboundedMap(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), ExtraCodecs.ATTRIBUTE_MODIFIER.listOf()).xmap(CollectionHelper::fromListMap, CollectionHelper::fromMultimap);
-    private static final Codec<AttributeModifiersBonus> CODEC = RecordCodecBuilder.create(attributeModifiersBonusInstance -> attributeModifiersBonusInstance.group(
+    private static final MapCodec<AttributeModifiersBonus> CODEC = RecordCodecBuilder.mapCodec(attributeModifiersBonusInstance -> attributeModifiersBonusInstance.group(
             ENTRIES_CODEC.fieldOf("entries").forGetter(AttributeModifiersBonus::getModifiers),
             Type.CODEC.optionalFieldOf("bracket_type", Type.NONE).forGetter(AttributeModifiersBonus::getType),
             ExtraCodecs.EFFECT_SERIALIZING_STYLE.optionalFieldOf("style", Style.EMPTY).forGetter(AttributeModifiersBonus::getStyle)
     ).apply(attributeModifiersBonusInstance, AttributeModifiersBonus::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, AttributeModifiersBonus> STREAM_CODEC = StreamCodec.composite(
-
+            ExtraStreamCodecs.multimap(ByteBufCodecs.holderRegistry(Registries.ATTRIBUTE), AttributeModifier.STREAM_CODEC)
     );
 
-    public static final DataPackSerializer<AttributeModifiersBonus> SERIALIZER = new DataPackSerializer<>(
+    public static final RegistrySerializer<AttributeModifiersBonus> SERIALIZER = new RegistrySerializer<>(
             CODEC,
             STREAM_CODEC
     );
@@ -64,7 +69,7 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
     }
 
     @Override
-    public DataPackSerializer<AttributeModifiersBonus> getSerializer() {
+    public RegistrySerializer<AttributeModifiersBonus> getSerializer() {
         return SERIALIZER;
     }
 

@@ -1,36 +1,32 @@
 package net.kapitencraft.kap_lib.spawn_table;
 
 import com.google.common.collect.Lists;
-import com.google.gson.*;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.entries.SpawnPoolEntryContainer;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -41,9 +37,9 @@ import java.util.function.Predicate;
 public class SpawnPool {
    public static final Codec<SpawnPool> CODEC = RecordCodecBuilder.create(
            p_344669_ -> p_344669_.group(
-                           LootPoolEntries.CODEC.listOf().fieldOf("entries").forGetter(p_297995_ -> p_297995_.entries),
+                           SpawnPoolEntries.CODEC.listOf().fieldOf("entries").forGetter(p_297995_ -> p_297995_.entries),
                            LootItemCondition.DIRECT_CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(p_297992_ -> p_297992_.conditions),
-                           LootItemFunctions.ROOT_CODEC.listOf().optionalFieldOf("functions", List.of()).forGetter(p_297994_ -> p_297994_.functions),
+                           SpawnEntityFunctions.ROOT_CODEC.listOf().optionalFieldOf("functions", List.of()).forGetter(p_297994_ -> p_297994_.functions),
                            NumberProviders.CODEC.fieldOf("rolls").forGetter(p_297993_ -> p_297993_.rolls),
                            NumberProviders.CODEC.fieldOf("bonus_rolls").orElse(ConstantValue.exactly(0.0F)).forGetter(p_297997_ -> p_297997_.bonusRolls),
                            Codec.STRING.optionalFieldOf("name").forGetter(pool -> java.util.Optional.ofNullable(pool.name).filter(name -> !name.startsWith("custom#")))
@@ -68,23 +64,23 @@ public class SpawnPool {
 
                  return pools.stream().filter(Optional::isPresent).map(Optional::get).toList();
               });
-      return Codec.of(LootPool.CODEC.listOf(), decoder);
+      return Codec.of(SpawnPool.CODEC.listOf(), decoder);
    }
 
 
-   final SpawnPoolEntryContainer[] entries;
-   final LootItemCondition[] conditions;
+   final List<SpawnPoolEntryContainer> entries;
+   final List<LootItemCondition> conditions;
    private final Predicate<LootContext> compositeCondition;
-   final SpawnEntityFunction[] functions;
+   final List<SpawnEntityFunction> functions;
    private final BiFunction<Entity, SpawnContext, Entity> compositeFunction;
    NumberProvider rolls;
    NumberProvider bonusRolls;
 
-   SpawnPool(SpawnPoolEntryContainer[] pEntries, LootItemCondition[] pConditions, SpawnEntityFunction[] pFunctions, NumberProvider pRolls, NumberProvider pBonusRolls, @org.jetbrains.annotations.Nullable String name) {
-      this.name = name;
+   SpawnPool(List<SpawnPoolEntryContainer> pEntries, List<LootItemCondition> pConditions, List<SpawnEntityFunction> pFunctions, NumberProvider pRolls, NumberProvider pBonusRolls, Optional<String> name) {
+      this.name = name.orElse(null);
       this.entries = pEntries;
       this.conditions = pConditions;
-      this.compositeCondition = LootItemConditions.andConditions(pConditions);
+      this.compositeCondition = Util.allOf(pConditions);
       this.functions = pFunctions;
       this.compositeFunction = SpawnEntityFunctions.compose(pFunctions);
       this.rolls = pRolls;
@@ -148,16 +144,16 @@ public class SpawnPool {
     * Validate this LootPool according to the given context.
     */
    public void validate(ValidationContext pContext) {
-      for(int i = 0; i < this.conditions.length; ++i) {
-         this.conditions[i].validate(pContext.forChild(".condition[" + i + "]"));
+      for(int i = 0; i < this.conditions.size(); ++i) {
+         this.conditions.get(i).validate(pContext.forChild(".condition[" + i + "]"));
       }
 
-      for(int j = 0; j < this.functions.length; ++j) {
-         this.functions[j].validate(pContext.forChild(".functions[" + j + "]"));
+      for(int j = 0; j < this.functions.size(); ++j) {
+         this.functions.get(j).validate(pContext.forChild(".functions[" + j + "]"));
       }
 
-      for(int k = 0; k < this.entries.length; ++k) {
-         this.entries[k].validate(pContext.forChild(".entries[" + k + "]"));
+      for(int k = 0; k < this.entries.size(); ++k) {
+         this.entries.get(k).validate(pContext.forChild(".entries[" + k + "]"));
       }
 
       this.rolls.validate(pContext.forChild(".rolls"));
@@ -172,9 +168,13 @@ public class SpawnPool {
          throw new RuntimeException("Attempted to modify LootPool after being frozen!");
    }
    @org.jetbrains.annotations.Nullable
-   private final String name;
+   private String name;
    @org.jetbrains.annotations.Nullable
    public String getName() { return this.name; }
+   public void setName(String name) {
+      this.name = name;
+   }
+
    public NumberProvider getRolls()      { return this.rolls; }
    public NumberProvider getBonusRolls() { return this.bonusRolls; }
    public void setRolls     (NumberProvider v){ checkFrozen(); this.rolls = v; }
@@ -229,38 +229,8 @@ public class SpawnPool {
          if (this.rolls == null) {
             throw new IllegalArgumentException("Rolls not set");
          } else {
-            return new SpawnPool(this.entries.toArray(new SpawnPoolEntryContainer[0]), this.conditions.toArray(new LootItemCondition[0]), this.functions.toArray(new SpawnEntityFunction[0]), this.rolls, this.bonusRolls, name);
+            return new SpawnPool(this.entries, this.conditions, this.functions, this.rolls, this.bonusRolls, Optional.ofNullable(name));
          }
-      }
-   }
-
-   public static class Serializer implements JsonDeserializer<SpawnPool>, JsonSerializer<SpawnPool> {
-      public SpawnPool deserialize(JsonElement pJson, Type pTypeOfT, JsonDeserializationContext pContext) throws JsonParseException {
-         JsonObject jsonobject = GsonHelper.convertToJsonObject(pJson, "loot pool");
-         SpawnPoolEntryContainer[] containers = GsonHelper.getAsObject(jsonobject, "entries", pContext, SpawnPoolEntryContainer[].class);
-         LootItemCondition[] alootitemcondition = GsonHelper.getAsObject(jsonobject, "conditions", new LootItemCondition[0], pContext, LootItemCondition[].class);
-         SpawnEntityFunction[] functions = GsonHelper.getAsObject(jsonobject, "functions", new SpawnEntityFunction[0], pContext, SpawnEntityFunction[].class);
-         NumberProvider rolls = GsonHelper.getAsObject(jsonobject, "rolls", pContext, NumberProvider.class);
-         NumberProvider bonusRolls = GsonHelper.getAsObject(jsonobject, "bonus_rolls", ConstantValue.exactly(0.0F), pContext, NumberProvider.class);
-         return new SpawnPool(containers, alootitemcondition, functions, rolls, bonusRolls, GsonHelper.getAsString(jsonobject, "name"));
-      }
-
-      public JsonElement serialize(SpawnPool pSrc, Type pTypeOfSrc, JsonSerializationContext pContext) {
-         JsonObject jsonobject = new JsonObject();
-         if (pSrc.name != null && !pSrc.name.startsWith("custom#"))
-            jsonobject.add("name", pContext.serialize(pSrc.name));
-         jsonobject.add("rolls", pContext.serialize(pSrc.rolls));
-         jsonobject.add("bonus_rolls", pContext.serialize(pSrc.bonusRolls));
-         jsonobject.add("entries", pContext.serialize(pSrc.entries));
-         if (!ArrayUtils.isEmpty(pSrc.conditions)) {
-            jsonobject.add("conditions", pContext.serialize(pSrc.conditions));
-         }
-
-         if (!ArrayUtils.isEmpty(pSrc.functions)) {
-            jsonobject.add("functions", pContext.serialize(pSrc.functions));
-         }
-
-         return jsonobject;
       }
    }
 }

@@ -51,7 +51,7 @@ public interface AttributeHelper {
             d1 += d0 * attributeModifier1.amount();
         }
 
-        for (AttributeModifier attributeModifier2 : instance.getModifiers(AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)) {
+        for (AttributeModifier attributeModifier2 : instance.getModifiers(AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL).values()) {
             d1 *= 1.0D + attributeModifier2.amount();
         }
         return instance.getAttribute().value().sanitizeValue(d1);

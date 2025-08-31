@@ -1,10 +1,8 @@
 package net.kapitencraft.kap_lib.io.network.S2C.capability;
 
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.item.capability.AbstractCapability;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.capabilities.EntityCapability;

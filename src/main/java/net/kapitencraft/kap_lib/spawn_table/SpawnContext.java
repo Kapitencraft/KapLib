@@ -82,7 +82,7 @@ public class SpawnContext extends LootContext {
             randomsource = serverlevel.getRandom();
          }
 
-         return new SpawnContext(this.params, randomsource, minecraftserver.getLootData(), queriedLootTableId, SpawnTableManager.instance);
+         return new SpawnContext(this.params, randomsource, minecraftserver.reloadableRegistries().lookup(), SpawnTableManager.instance);
       }
    }
 }

@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.helpers;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.item.loot_table.IConditional;
 import net.kapitencraft.kap_lib.item.loot_table.LootContextReader;
@@ -12,11 +13,12 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
+import java.util.List;
 import java.util.function.Function;
 
 public interface LootTableHelper {
-    static <T extends IConditional> Codec<T> simpleCodec(Function<LootItemCondition[], T> function) {
-        return RecordCodecBuilder.create(instance -> instance.group(
+    static <T extends IConditional> MapCodec<T> simpleCodec(Function<LootItemCondition[], T> function) {
+        return RecordCodecBuilder.mapCodec(instance -> instance.group(
                 ModLootModifier.LOOT_CONDITIONS_CODEC.optionalFieldOf("conditions", new LootItemCondition[0]).forGetter(IConditional::getConditions)
         ).apply(instance, function));
     }

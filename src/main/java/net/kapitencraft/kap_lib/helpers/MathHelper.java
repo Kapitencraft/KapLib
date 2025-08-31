@@ -341,7 +341,7 @@ public interface MathHelper {
      * gets the cooldown time for the given {@link LivingEntity} and the defaultTime
      */
     static int cooldown(LivingEntity living, int defaultTime) {
-        return (int) (defaultTime * (1 - living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION.get()) / 100));
+        return (int) (defaultTime * (1 - living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION) / 100));
     }
 
     /**

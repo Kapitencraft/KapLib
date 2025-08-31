@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.entity.fishing;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
@@ -11,6 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 public interface IFishingHook {
 
@@ -25,7 +27,7 @@ public interface IFishingHook {
     void setHookSpeedModifier(int modifier);
     int getHookSpeedModifier();
 
-    default ResourceLocation lootTableId() {
+    default ResourceKey<LootTable> lootTableId() {
         return BuiltInLootTables.FISHING;
     }
 

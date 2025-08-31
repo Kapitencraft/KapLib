@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface IConditional {
 
-    List<LootItemCondition> getConditions();
+    LootItemCondition[] getConditions();
 }

@@ -55,7 +55,7 @@ public abstract class AbstractFishingHook extends FishingHook implements IFishin
     }
 
     public void readAdditionalSaveData(CompoundTag tag) {
-        this.fluidType = TagKey.create(Registries.FLUID, new ResourceLocation(tag.getString("fluidType")));
+        this.fluidType = TagKey.create(Registries.FLUID, ResourceLocation.parse(tag.getString("fluidType")));
     }
 
     @Override

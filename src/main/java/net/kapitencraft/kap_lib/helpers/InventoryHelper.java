@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.helpers;
 
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -64,7 +65,7 @@ public interface InventoryHelper {
     static boolean removeFromInventory(ItemStack stack, Player player) {
         Inventory inventory = player.getInventory();
         forInventory(inventory, stack1 -> {
-            if (ItemStack.isSameItemSameTags(stack, stack1) && stack.getCount() > 0) {
+            if (ItemStack.isSameItemSameComponents(stack, stack1) && stack.getCount() > 0) {
                 int size = Math.min(stack1.getCount(), stack.getCount());
                 stack1.shrink(size);
                 stack.shrink(size);
@@ -126,7 +127,7 @@ public interface InventoryHelper {
      * check if the player has a full set (helmet, chestplate, leggings, boots) if the given {@code material}
      * equipped
      */
-    static boolean hasSetInInventory(Player player, ArmorMaterial material) {
+    static boolean hasSetInInventory(Player player, Holder<ArmorMaterial> material) {
         List<EquipmentSlot> slots = new ArrayList<>();
         allInventory(player.getInventory()).stream().map(ItemStack::getItem).filter(
                 item -> item instanceof ArmorItem armorItem && armorItem.getMaterial() == material
@@ -147,7 +148,7 @@ public interface InventoryHelper {
     static List<ItemStack> getRemaining(List<ItemStack> content, Player player) {
         List<ItemStack> ret = new ArrayList<>();
         for (ItemStack stack : content) {
-            Collection<ItemStack> list = getByFilter(player, stack1 -> ItemStack.isSameItemSameTags(stack, stack1));
+            Collection<ItemStack> list = getByFilter(player, stack1 -> ItemStack.isSameItemSameComponents(stack, stack1));
             list.forEach(stack1 -> stack.shrink(stack1.getCount()));
             if (stack.getCount() > 0) {
                 ret.add(stack);

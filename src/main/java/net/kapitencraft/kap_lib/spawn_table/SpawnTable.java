@@ -52,23 +52,17 @@ public class SpawnTable {
            SpawnTableProvider.getSpawnTableSerializer(PARSER, "spawn_tables");
    //public static final LootDataType<SpawnTable> DATA_TYPE = new LootDataType<>(PARSER, SpawnTableProvider::getSpawnTableSerializer, "spawn_tables", createValidator());
 
-   private static LootDataType.Validator<SpawnTable> createValidator() {
-      return (context, dataId, table) ->
-              table.validate(context.setParams(table.getParamSet()).enterElement("{" + dataId.type().directory() + ":" + dataId.location() + "}", dataId));
-   }
-
    static final Logger LOGGER = LogUtils.getLogger();
-   public static final SpawnTable EMPTY = new SpawnTable(LootContextParamSets.EMPTY, null, new SpawnPool[0], List.of());
+   public static final SpawnTable EMPTY = new SpawnTable(LootContextParamSets.EMPTY, null, List.of(), List.of());
    final LootContextParamSet paramSet;
-   @Nullable
    final ResourceLocation randomSequence;
    private final List<SpawnPool> pools;
    final List<SpawnEntityFunction> functions;
    private final BiFunction<Entity, SpawnContext, Entity> compositeFunction;
 
-   SpawnTable(LootContextParamSet pParamSet, @Nullable ResourceLocation pRandomSequence, SpawnPool[] pPools, List<SpawnEntityFunction> pFunctions) {
+   SpawnTable(LootContextParamSet pParamSet, @Nullable Optional<ResourceLocation> pRandomSequence, List<SpawnPool> pPools, List<SpawnEntityFunction> pFunctions) {
       this.paramSet = pParamSet;
-      this.randomSequence = pRandomSequence;
+      this.randomSequence = pRandomSequence.orElse(null);
       this.pools = Lists.newArrayList(pPools);
       this.functions = pFunctions;
       this.compositeFunction = SpawnEntityFunctions.compose(pFunctions);

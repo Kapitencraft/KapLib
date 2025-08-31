@@ -40,23 +40,23 @@ public class TestItem extends WearableItem implements ExtendedItem {
 
     @Override
     public WearableSlot getSlot() {
-        return WearableSlots.BELT.get();
+        return WearableSlots.BELT.value();
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
 
-        if (TestCooldowns.TEST.get().isActive(pPlayer)) {
+        if (TestCooldowns.TEST.value().isActive(pPlayer)) {
             pPlayer.sendSystemMessage(Component.literal("not work"));
         } else {
-            if (!pLevel.isClientSide()) TestCooldowns.TEST.get().applyCooldown(pPlayer, false);
+            if (!pLevel.isClientSide()) TestCooldowns.TEST.value().applyCooldown(pPlayer, false);
             pPlayer.sendSystemMessage(Component.literal("started"));
         }
         return super.use(pLevel, pPlayer, pUsedHand);
     }
 
     @Override
-    public void appendHoverTextWithPlayer(@NotNull ItemStack itemStack, @Nullable Level level, @NotNull List<Component> list, @NotNull TooltipFlag flag, Player player) {
-        list.add(TestCooldowns.TEST.get().createDisplay(player));
+    public void appendHoverTextWithPlayer(@NotNull ItemStack itemStack, @Nullable TooltipContext context, @NotNull List<Component> list, @NotNull TooltipFlag flag, Player player) {
+        list.add(TestCooldowns.TEST.value().createDisplay(player));
     }
 }

@@ -11,11 +11,13 @@ import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class BannerPatternRenderer {
      * @param patterns the patterns to render
      * @param height the height and scale of the banner
      */
-    public static void renderBanner(GuiGraphics graphics, float x, float y, List<Pair<Holder<BannerPattern>, DyeColor>> patterns, int height) {
+    public static void renderBanner(GuiGraphics graphics, float x, float y, BannerPatternLayers patterns, DyeColor baseColor, int height) {
         MultiBufferSource.BufferSource source = MINECRAFT.renderBuffers().bufferSource();
         PoseStack poseStack = graphics.pose();
         poseStack.pushPose();
@@ -54,17 +56,16 @@ public class BannerPatternRenderer {
         poseStack.translate(0.5F, 0.5F, 0);
         float f = 2 / 3f;
         poseStack.scale(f, -f, -f);
-        BannerRenderer.renderPatterns(poseStack, source, 15728880, OverlayTexture.NO_OVERLAY, FLAG, ModelBakery.BANNER_BASE, true, patterns);
+        BannerRenderer.renderPatterns(poseStack, source, 15728880, OverlayTexture.NO_OVERLAY, FLAG, ModelBakery.BANNER_BASE, true, baseColor, patterns);
         poseStack.popPose();
         source.endBatch();
     }
 
     public static void renderBannerFromStack(GuiGraphics graphics, int x, int y, ItemStack stack, int height) {
-        renderBanner(graphics, x, y, fromStack(stack), height);
+        renderBanner(graphics, x, y, fromStack(stack), ((BannerItem)stack.getItem()).getColor(), height);
     }
 
-    public static List<Pair<Holder<BannerPattern>, DyeColor>> fromStack(ItemStack bannerStack) {
-        BannerItem banner = (BannerItem) bannerStack.getItem();
-        return BannerBlockEntity.createPatterns(banner.getColor(), BannerBlockEntity.getItemPatterns(bannerStack));
+    public static BannerPatternLayers fromStack(ItemStack bannerStack) {
+        return bannerStack.get(DataComponents.BANNER_PATTERNS);
     }
 }

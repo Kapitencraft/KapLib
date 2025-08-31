@@ -20,7 +20,7 @@ public class EquipmentPageRenderer implements InventoryPageRenderer {
     @SuppressWarnings("DataFlowIssue")
     @Override
     public void render(GuiGraphics graphics, Minecraft minecraft, int mouseX, int mouseY, float mouseXOld, float mouseYOld, int leftPos, int topPos) {
-        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, leftPos + 88, topPos + 75, 30, (float)(leftPos + 88) - mouseXOld, (float)(topPos + 25) - mouseYOld, minecraft.player);
+        InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, leftPos + 88, topPos + 75, leftPos + 137, topPos + 145, 30, 0.0625f, (float)(leftPos + 88) - mouseXOld, (float)(topPos + 25) - mouseYOld, minecraft.player);
         for (WearableSlot slot : Wearables.SLOTS) {
             UsefulTextures.renderSlotBackground(graphics, slot.getXPos() + leftPos, slot.getYPos() + topPos);
         }

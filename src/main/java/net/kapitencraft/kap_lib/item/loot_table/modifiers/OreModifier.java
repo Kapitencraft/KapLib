@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.item.loot_table.modifiers;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kapitencraft.kap_lib.event.custom.ModifyOreDropsEvent;
 import net.kapitencraft.kap_lib.helpers.AttributeHelper;
@@ -28,7 +29,7 @@ public class OreModifier extends ModLootModifier implements IConditional {
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
         LootContextReader.simple(context, BlockState.class, LootContextParams.BLOCK_STATE).ifPresent(state -> generatedLoot.forEach(stack -> {
-            double attributeValue = AttributeHelper.getSaveAttributeValue(ExtraAttributes.MINING_FORTUNE.get(), LootTableHelper.getLivingSource(context));
+            double attributeValue = AttributeHelper.getSaveAttributeValue(ExtraAttributes.MINING_FORTUNE, LootTableHelper.getLivingSource(context));
             if (stack.getItem() != state.getBlock().asItem()) {
                 ModifyOreDropsEvent event = new ModifyOreDropsEvent(stack.getCount() * (int) (1 + attributeValue / 100));
                 NeoForge.EVENT_BUS.post(event);
@@ -39,7 +40,7 @@ public class OreModifier extends ModLootModifier implements IConditional {
     }
 
     @Override
-    public Codec<? extends IGlobalLootModifier> codec() {
+    public MapCodec<? extends IGlobalLootModifier> codec() {
         return CODEC;
     }
 }

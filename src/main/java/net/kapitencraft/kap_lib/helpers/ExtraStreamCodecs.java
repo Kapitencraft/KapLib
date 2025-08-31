@@ -210,7 +210,7 @@ public class ExtraStreamCodecs {
         return ResourceLocation.STREAM_CODEC.map(r -> TagKey.create(key, r), TagKey::location);
     }
 
-    public static <B extends ByteBuf, K, V> StreamCodec<B, Multimap<K, V>> multimap(StreamCodec<B, K> keyCodec, StreamCodec<B, V> valueCodec) {
+    public static <B extends ByteBuf, K, V> StreamCodec<B, Multimap<K, V>> multimap(StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec) {
         return ByteBufCodecs.map(HashMap::new, keyCodec, valueCodec.apply(ByteBufCodecs.list())).map(CollectionHelper::fromListMap, CollectionHelper::fromMultimap);
     }
 

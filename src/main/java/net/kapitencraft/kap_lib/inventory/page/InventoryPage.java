@@ -31,7 +31,7 @@ public abstract class InventoryPage {
         return type;
     }
 
-    ResourceLocation TAB_LOCATION = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+    ResourceLocation TAB_LOCATION = ResourceLocation.withDefaultNamespace("textures/gui/container/creative_inventory/tabs.png");
 
     public @NotNull ResourceLocation tabLocation() {
         return TAB_LOCATION;

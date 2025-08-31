@@ -2,6 +2,9 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.util.Reference;
 import net.kapitencraft.kap_lib.util.Vec2i;
 import net.minecraft.ChatFormatting;
@@ -9,7 +12,13 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTagVisitor;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagVisitor;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -139,9 +148,9 @@ public class TextHelper {
     public static void removeUnnecessaryEmptyLines(List<Component> components) {
         Reference<Component> reference = Reference.of(null);
         components.removeIf(component -> {
-            if (component.getString().equals("") || component == CommonComponents.EMPTY) {
+            if (component.getString().isEmpty() || component == CommonComponents.EMPTY) {
                 Component value = reference.getValue();
-                if (value != null && value.getString().equals("") || value == CommonComponents.EMPTY) {
+                if (value != null && value.getString().isEmpty() || value == CommonComponents.EMPTY) {
                     return true;
                 }
             }
@@ -157,7 +166,29 @@ public class TextHelper {
      * @return the string that gives any selected target the ItemStack serialized
      */
     public static String createGiveFromStack(String targetSelector, ItemStack stack) {
-        return "/give " + targetSelector + " " + BuiltInRegistries.ITEM.getKey(stack.getItem()) + stack.getOrCreateTag(); //TODO do components
+        return "/give " + targetSelector + " " + BuiltInRegistries.ITEM.getKey(stack.getItem()) + parseDataComponents(stack.getComponentsPatch());
+    }
+
+    private static String parseDataComponents(DataComponentPatch patch) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        patch.entrySet().forEach(entry -> {
+            if (entry.getValue().isEmpty() || entry.getKey().isTransient()) return;
+            appendComponent(builder, entry, new StringTagVisitor());
+
+        });
+        builder.append("]");
+        return builder.toString();
+    }
+
+    private static <T> void appendComponent(StringBuilder builder, Map.Entry<DataComponentType<?>, Optional<?>> entry, StringTagVisitor visitor) {
+        Codec<T> codec = (Codec<T>) entry.getKey().codecOrThrow();
+        DataResult<Tag> parse = codec.encodeStart(NbtOps.INSTANCE, ((T) entry.getValue().get()));
+        parse.resultOrPartial(s -> KapLibMod.LOGGER.warn("unable to parse component!")).ifPresent(tag -> {
+            builder.append(BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey()));
+            builder.append("=");
+            builder.append(visitor.visit(tag));
+        });
     }
 
     /**

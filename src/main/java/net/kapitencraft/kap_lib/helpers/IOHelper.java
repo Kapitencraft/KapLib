@@ -388,13 +388,6 @@ public class IOHelper {
         return finals;
     }
 
-    public static List<ResourceLocation> toNames(List<File> files) {
-        File file = new File("test");
-        return files.stream().map(File::getPath).map(s -> {
-            String[] directories = s.split("\\\\"); //why 4 bro?
-            return new ResourceLocation("a");
-        }).toList();
-    }
 
     /**
      * @param in the String to check

@@ -23,10 +23,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.entity.BannerBlockEntity;
-import net.minecraft.world.level.block.entity.BannerPattern;
-import net.minecraft.world.level.block.entity.BannerPatterns;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
@@ -160,6 +157,9 @@ public class CreateBannerWidget extends PositionedWidget {
             @Contract("null -> fail")
             private void renderPattern(DyeColor color) {
                 CompoundTag compoundtag = new CompoundTag();
+                BannerPatternLayers layers = new BannerPatternLayers(List.of(
+                        new BannerPatternLayers.Layer()
+                ))
                 ListTag listtag = (new BannerPattern.Builder()).addPattern(BannerPatterns.BASE, lights.contains(color) ? DyeColor.GRAY : DyeColor.WHITE).addPattern(this.own, color).toListTag();
                 compoundtag.put("Patterns", listtag);
                 ItemStack itemstack = new ItemStack(lights.contains(color) ? Items.GRAY_BANNER : Items.WHITE_BANNER);
@@ -173,8 +173,8 @@ public class CreateBannerWidget extends PositionedWidget {
                 float f = 0.6666667F;
                 posestack.scale(f, -f, -f);
                 MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
-                List<Pair<Holder<BannerPattern>, DyeColor>> list = BannerBlockEntity.createPatterns(DyeColor.GRAY, BannerBlockEntity.getItemPatterns(itemstack));
-                BannerRenderer.renderPatterns(posestack, source, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, list);
+                BannerPatternLayers list = BannerBlockEntity.createPatterns(DyeColor.GRAY, BannerBlockEntity.getItemPatterns(itemstack));
+                BannerRenderer.renderPatterns(posestack, source, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, DyeColor.GRAY, );
                 posestack.popPose();
                 source.endBatch();
             }

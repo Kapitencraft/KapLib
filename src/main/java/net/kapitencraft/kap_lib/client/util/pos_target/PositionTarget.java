@@ -46,7 +46,7 @@ public interface PositionTarget extends Supplier<Vec3> {
     }
 
     static PositionTarget entityBB(Entity entity) {
-        return new EntityBBPositionTarget(entity);
+        return new EntityBBPositionTarget(entity.getId());
     }
 
     /**
