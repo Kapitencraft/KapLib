@@ -102,9 +102,14 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
             Vec3 origin = target.position().add(0, target.getBbHeight() / 2, 0);
             Vec3 pos = origin.add(offset(pPartialTicks));
             Vec2 rot = MathHelper.createTargetRotationFromPos(pos, origin);
-            Quaternionf quaternionf = new Quaternionf(rot.x, rot.y, 0, 1);
+            Quaternionf quaternionf = new Quaternionf(rot.x * ((float)Math.PI / 180F), rot.y * ((float)Math.PI / 180F), 0, 1);
 
-            Vector3f[] avector3f = new Vector3f[]{new Vector3f(-1.0F, -1.0F, 0.0F), new Vector3f(-1.0F, 1.0F, 0.0F), new Vector3f(1.0F, 1.0F, 0.0F), new Vector3f(1.0F, -1.0F, 0.0F)};
+            Vector3f[] avector3f = new Vector3f[]{
+                    new Vector3f(-1.0F, 0, -1.0F),
+                    new Vector3f(-1.0F, 0, 1.0F),
+                    new Vector3f(1.0F, 0, 1.0F),
+                    new Vector3f(1.0F, 0, -1.0F)
+            };
 
             Vec3 relative = pos.subtract(camPos);
             for(int i = 0; i < 4; ++i) {
@@ -120,12 +125,19 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
             float f4 = getV0();
             float f5 = getV1();
             int j = getLightColor(pPartialTicks);
-            pBuffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).uv(f7, f5).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).uv(f7, f4).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).uv(f6, f4).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
-            pBuffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).uv(f6, f5).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
+            vertex(pBuffer, avector3f[0], f7, f5, color, j);
+            vertex(pBuffer, avector3f[1], f7, f4, color, j);
+            vertex(pBuffer, avector3f[2], f6, f4, color, j);
+            vertex(pBuffer, avector3f[3], f6, f5, color, j);
+            vertex(pBuffer, avector3f[3], f7, f5, color, j);
+            vertex(pBuffer, avector3f[2], f7, f4, color, j);
+            vertex(pBuffer, avector3f[1], f6, f4, color, j);
+            vertex(pBuffer, avector3f[0], f6, f5, color, j);
         }
 
+        private void vertex(VertexConsumer pBuffer, Vector3f vector3f, float f7, float f5, Color color, int j) {
+            pBuffer.vertex(vector3f.x(), vector3f.y(), vector3f.z()).uv(f7, f5).color(color.r(), color.g(), color.b(), color.a()).uv2(j).endVertex();
+        }
 
         private boolean tick() {
             this.x.tick();

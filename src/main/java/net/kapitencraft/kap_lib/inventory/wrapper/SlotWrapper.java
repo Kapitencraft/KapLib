@@ -45,4 +45,14 @@ public class SlotWrapper extends Slot {
     public void setByPlayer(ItemStack pStack) {
         this.wrapped.setByPlayer(pStack);
     }
+
+    @Override
+    public void onTake(Player pPlayer, ItemStack pStack) {
+        this.wrapped.onTake(pPlayer, pStack);
+    }
+
+    @Override
+    public void onQuickCraft(ItemStack pOldStack, ItemStack pNewStack) {
+        this.wrapped.onQuickCraft(pOldStack, pNewStack);
+    }
 }
