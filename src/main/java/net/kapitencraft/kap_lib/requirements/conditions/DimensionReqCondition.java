@@ -1,14 +1,17 @@
 package net.kapitencraft.kap_lib.requirements.conditions;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,14 +21,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
-    private static final Codec<DimensionReqCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    private static final MapCodec<DimensionReqCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).listOf().fieldOf("dimensions").forGetter(i -> i.dimensions),
             Codec.BOOL.fieldOf("inverted").forGetter(i -> i.inverted)
             ).apply(instance, DimensionReqCondition::new)
     );
 
-    public static final DataPackSerializer<DimensionReqCondition> SERIALIZER = new DataPackSerializer<>(
-            CODEC, DimensionReqCondition::fromNetwork, DimensionReqCondition::toNetwork
+    public static final RegistrySerializer<DimensionReqCondition> SERIALIZER = new DataPackSerializer<>(
+            CODEC, StreamCodec.of(DimensionReqCondition::fromNetwork, DimensionReqCondition::toNetwork)
     );
 
     private final List<ResourceKey<Level>> dimensions;
@@ -64,7 +67,7 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
     }
 
     @Override
-    public DataPackSerializer<DimensionReqCondition> getSerializer() {
+    public RegistrySerializer<DimensionReqCondition> getSerializer() {
         return SERIALIZER;
     }
 }

@@ -18,8 +18,10 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class OreModifier extends ModLootModifier implements IConditional {
-    public static final Codec<OreModifier> CODEC = LootTableHelper.simpleCodec(OreModifier::new);
+    public static final MapCodec<OreModifier> CODEC = LootTableHelper.simpleCodec(OreModifier::new);
 
     protected OreModifier(LootItemCondition[] conditionsIn) {
         super(conditionsIn);

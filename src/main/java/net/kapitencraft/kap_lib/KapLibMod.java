@@ -63,6 +63,7 @@ public class KapLibMod {
         ExtraRecipeSerializers.REGISTRY.register(modEventBus);
         ExtraRecipeTypes.REGISTRY.register(modEventBus);
         ExtraMobEffects.REGISTRY.register(modEventBus);
+        ExtraEnchantmentEffectComponents.REGISTRY.register(modEventBus);
 
         RequirementTypes.REGISTRY.register(modEventBus);
         BonusTypes.REGISTRY.register(modEventBus);
@@ -81,8 +82,6 @@ public class KapLibMod {
         SpawnPoolEntries.REGISTRY.register(modEventBus);
 
         Overlays.REGISTRY.register(modEventBus);
-
-        AttributeModifierTypes.REGISTRY.register(modEventBus);
 
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);
         VanillaDataSourceTypes.REGISTRY.register(modEventBus);

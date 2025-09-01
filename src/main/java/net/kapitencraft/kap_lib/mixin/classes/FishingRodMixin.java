@@ -15,6 +15,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.NeoForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -36,20 +37,19 @@ public abstract class FishingRodMixin extends Item {
         if (!RequirementManager.instance.meetsRequirements(RegistryReqType.ITEM, stack.getItem(), player)) {
             return false;
         }
-
-        int lureSpeed = EnchantmentHelper.getFishingSpeedBonus(stack);
-        int luckBonus = EnchantmentHelper.getFishingLuckBonus(stack);
+        FishingHook hook = (FishingHook) entity;
+        int lureSpeed = hook.lureSpeed;
+        int luckBonus = hook.luck;
         ModifyFishingHookStatsEvent event = new ModifyFishingHookStatsEvent(entity, player, lureSpeed, luckBonus, stack);
-        MinecraftForge.EVENT_BUS.post(event);
+        NeoForge.EVENT_BUS.post(event);
         lureSpeed = event.lureSpeed.calculate();
         luckBonus = event.luck.calculate();
         int hookSpeed = event.hookSpeed.calculate();
         if (self() instanceof ModFishingRod fishingRod) {
-            AbstractFishingHook hook = fishingRod.create(player, level, lureSpeed, luckBonus);
-            hook.setHookSpeedModifier(hookSpeed);
-            return level.addFreshEntity(hook);
+            AbstractFishingHook modHook = fishingRod.create(player, level, lureSpeed, luckBonus);
+            modHook.setHookSpeedModifier(hookSpeed);
+            return level.addFreshEntity(modHook);
         }
-        FishingHook hook = (FishingHook) entity;
         hook.lureSpeed = lureSpeed;
         hook.luck = luckBonus;
         ((IFishingHook) hook).setHookSpeedModifier(hookSpeed);

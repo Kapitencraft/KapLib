@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.item.loot_table.modifiers;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kapitencraft.kap_lib.helpers.LootTableHelper;
@@ -21,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class EnchantmentAddItemModifier extends AddItemModifier {
-    public static final Codec<EnchantmentAddItemModifier> CODEC = RecordCodecBuilder.create(enchantmentAddItemModifierInstance ->
+    public static final MapCodec<EnchantmentAddItemModifier> CODEC = RecordCodecBuilder.mapCodec(enchantmentAddItemModifierInstance ->
             addItemCodecStart(enchantmentAddItemModifierInstance).and(
                     Enchantment.CODEC.fieldOf("enchantment").forGetter(i -> i.enchantment)
             ).and(

@@ -56,6 +56,6 @@ public class SequenceFunction implements SpawnEntityFunction {
 
     @Override
     public SpawnEntityFunctionType<SequenceFunction> getType() {
-        return SpawnEntityFunctions.SEQUENCE;
+        return SpawnEntityFunctions.SEQUENCE.get();
     }
 }

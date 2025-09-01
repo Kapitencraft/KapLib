@@ -72,7 +72,7 @@ public class SetArmorFunction extends SpawnEntityConditionalFunction {
 
         public Builder withItem(EquipmentSlot slot, LootPool.Builder entry) {
             if (!slot.isArmor()) throw new IllegalArgumentException("can not set armor item of non-armor slot");
-            items[slot.getIndex()] = LootTable.lootTable().withPool(entry.setRolls(ConstantValue.exactly(1)).setBonusRolls(ConstantValue.exactly(1))).build();
+            items.set(slot.getIndex(), LootTable.lootTable().withPool(entry.setRolls(ConstantValue.exactly(1)).setBonusRolls(ConstantValue.exactly(1))).build());
             return this;
         }
 

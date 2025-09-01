@@ -1,35 +1,13 @@
 package net.kapitencraft.kap_lib.helpers;
 
-import net.kapitencraft.kap_lib.collection.MapStream;
-import net.kapitencraft.kap_lib.enchantments.abstracts.ExtendedAbilityEnchantment;
-import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 
 public interface BonusHelper {
-
-
-    /**
-     * @param living the target entity to tick enchantments of
-     * ticks any {@link ExtendedAbilityEnchantment} applied to any of the 6 {@link EquipmentSlot}s available
-     */
-    static void tickEnchantments(LivingEntity living) {
-        doForSlot((stack, slot) -> MapStream.of(stack.getAllEnchantments())
-                        .filterKeys(ExtendedAbilityEnchantment.class::isInstance)
-                        .mapKeys(ExtendedAbilityEnchantment.class::cast)
-                        .filter((extendedAbilityEnchantment, integer) -> RequirementManager.instance.meetsRequirements(RequirementType.ENCHANTMENT, (Enchantment) extendedAbilityEnchantment, living))
-                        .forEach((enchantment, integer) -> enchantment.onTick(living, integer)),
-                living,
-                (stack, slot) -> stack.isEnchanted() && stack.getEquipmentSlot() == slot
-        );
-    }
-
 
     /**
      * do something with each of the 6 {@link EquipmentSlot}s available on the {@link LivingEntity} given

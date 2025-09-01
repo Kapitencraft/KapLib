@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,8 +12,11 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.function.Function;
 
-public interface ModBowEnchantment extends ModEnchantment {
+public interface EnchantmentBowEffect {
+    Codec<EnchantmentBowEffect> CODEC = ExtraRegistries.ENCHANTMENT_BOW_EFFECT_TYPE.byNameCodec().dispatch(EnchantmentBowEffect::codec, Function.identity());
+
     @ApiStatus.Internal
     HashMap<ResourceLocation, Execution> executionMap = new HashMap<>();
 
@@ -36,7 +42,7 @@ public interface ModBowEnchantment extends ModEnchantment {
     }
 
     /**
-     * use to add extra tags which are needed in {@link ModBowEnchantment#execute(int, LivingEntity, CompoundTag, ExePhase, float, AbstractArrow) execute}, to the bow
+     * use to add extra tags which are needed in {@link EnchantmentBowEffect#execute(int, LivingEntity, CompoundTag, ExePhase, float, AbstractArrow) execute}, to the bow
      * the enchantment level is written automatically
      * @return the populated data
      */
@@ -45,7 +51,7 @@ public interface ModBowEnchantment extends ModEnchantment {
     /**
      * @param level the enchantment level applied
      * @param target the hit entity, or null if it hit a block, or it's a tick event (see {@code type})
-     * @param tag the data saved to the arrow via the {@link ModBowEnchantment#write(CompoundTag, int, ItemStack, LivingEntity, AbstractArrow) write} method
+     * @param tag the data saved to the arrow via the {@link EnchantmentBowEffect#write(CompoundTag, int, ItemStack, LivingEntity, AbstractArrow) write} method
      * @param type the type of the execution. either TICK or HIT
      * @param oldDamage the damage the arrow would do (only HIT)
      * @param arrow the arrow that's currently used
@@ -60,7 +66,7 @@ public interface ModBowEnchantment extends ModEnchantment {
 
     enum ExePhase {
         /**
-         * the TICK execution type. only used when the Enchantment specifies {@link ModBowEnchantment#shouldTick()} as true
+         * the TICK execution type. only used when the Enchantment specifies {@link EnchantmentBowEffect#shouldTick()} as true
          */
         TICK,
         /**
@@ -68,4 +74,6 @@ public interface ModBowEnchantment extends ModEnchantment {
          */
         HIT;
     }
+
+    MapCodec<? extends EnchantmentBowEffect> codec();
 }

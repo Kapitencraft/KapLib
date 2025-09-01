@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.neoforged.neoforge.common.loot.LootModifier;
 
 import java.util.List;
 import java.util.function.Function;
@@ -19,7 +20,7 @@ import java.util.function.Function;
 public interface LootTableHelper {
     static <T extends IConditional> MapCodec<T> simpleCodec(Function<LootItemCondition[], T> function) {
         return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ModLootModifier.LOOT_CONDITIONS_CODEC.optionalFieldOf("conditions", new LootItemCondition[0]).forGetter(IConditional::getConditions)
+                LootModifier.LOOT_CONDITIONS_CODEC.optionalFieldOf("conditions", new LootItemCondition[0]).forGetter(IConditional::getConditions)
         ).apply(instance, function));
     }
 
@@ -38,9 +39,9 @@ public interface LootTableHelper {
     }
 
     /**
-     * atempts to get the Killer entity or this entity if the killer entity is null (or null, if neither can be found)
+     * attempts to get the Killer entity or this entity if the killer entity is null (or null, if neither can be found)
      */
     static Entity getEntitySource(LootContext context) {
-        return LootContextReader.of(context, Entity.class).withParam(LootContextParams.KILLER_ENTITY).ifNull(LootContextParams.THIS_ENTITY).getValue();
+        return LootContextReader.of(context, Entity.class).withParam(LootContextParams.ATTACKING_ENTITY).ifNull(LootContextParams.THIS_ENTITY).getValue();
     }
 }

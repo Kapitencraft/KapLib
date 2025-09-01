@@ -10,6 +10,7 @@ import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageReader;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
@@ -66,9 +67,9 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         this.renderer = renderers[reader.getPageIndex()];
     }
 
-    @Redirect(method = "init", at = @At(value = "NEW", target = "(IIIIIIILnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/ImageButton;"))
-    private ImageButton wrapRecipeBookButton(int pX, int pY, int pWidth, int pHeight, int pXTexStart, int pYTexStart, int pYDiffTex, ResourceLocation pResourceLocation, Button.OnPress pOnPress) {
-        return new RecipeBookButtonWrapper(pX, pY, pWidth, pHeight, pXTexStart, pYTexStart, pYDiffTex, pResourceLocation, pOnPress, (InventoryPageReader) this.menu);
+    @Redirect(method = "init", at = @At(value = "NEW", target = "(IIIILnet/minecraft/client/gui/components/WidgetSprites;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/ImageButton;"))
+    private ImageButton wrapRecipeBookButton(int x, int y, int width, int height, WidgetSprites sprites, Button.OnPress onPress) {
+        return new RecipeBookButtonWrapper(x, y, width, height, sprites, onPress, (InventoryPageReader) this.menu);
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
@@ -116,15 +117,15 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
     }
 
     @Override
-    public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta) {
+    public boolean mouseScrolled(double pMouseX, double pMouseY, double deltaX, double deltaY) {
         int relativeY = (int) pMouseY - this.topPos;
         int relativeX = (int) pMouseX - this.leftPos;
         if (relativeX > 0 && relativeX < this.imageWidth) {
             if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
-                return this.renderer.onMouseScrolled(relativeX, relativeY, pDelta);
+                return this.renderer.onMouseScrolled(relativeX, relativeY, deltaX);
             }
         }
-        return super.mouseScrolled(pMouseX, pMouseY, pDelta);
+        return super.mouseScrolled(pMouseX, pMouseY, deltaX, deltaY);
     }
 
     @SuppressWarnings("DataFlowIssue")

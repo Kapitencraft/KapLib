@@ -1,8 +1,10 @@
 package net.kapitencraft.kap_lib.requirements.conditions;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.CountCondition;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -89,7 +91,7 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
         return type.get(value);
     }
 
-    private static final Codec<StatReqCondition> CODEC = RecordCodecBuilder.create(instance ->
+    private static final MapCodec<StatReqCondition> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     STAT_CODEC.fieldOf("stat").forGetter(StatReqCondition::getStat),
                     Codec.INT.fieldOf("minCount").forGetter(StatReqCondition::getMinLevel)
@@ -97,7 +99,7 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
     );
     private static final StreamCodec<RegistryFriendlyByteBuf, StatReqCondition> STREAM_CODEC = StreamCodec.of(StatReqCondition::toNetwork, StatReqCondition::fromNetwork);
 
-    public static final DataPackSerializer<StatReqCondition> SERIALIZER = new DataPackSerializer<>(
+    public static final RegistrySerializer<StatReqCondition> SERIALIZER = new RegistrySerializer<>(
             CODEC, STREAM_CODEC
     );
 
@@ -114,7 +116,7 @@ public class StatReqCondition extends CountCondition<StatReqCondition> {
     }
 
     @Override
-    public DataPackSerializer<StatReqCondition> getSerializer() {
+    public RegistrySerializer<StatReqCondition> getSerializer() {
         return SERIALIZER;
     }
 

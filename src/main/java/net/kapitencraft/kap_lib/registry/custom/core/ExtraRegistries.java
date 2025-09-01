@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.registry.custom.core;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.cam.modifiers.Modifier;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
@@ -9,9 +10,9 @@ import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.co
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
-import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
 import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
@@ -42,6 +43,8 @@ public interface ExtraRegistries {
     Registry<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = reg(Keys.ATTRIBUTE_MODIFIER_TYPES);
     Registry<ComponentContents.Type<?>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
     Registry<Codec<? extends DataSource>> DATA_SOURCE_TYPES = reg(Keys.DATA_SOURCE_TYPES);
+
+    Registry<MapCodec<? extends EnchantmentBowEffect>> ENCHANTMENT_BOW_EFFECT_TYPE = reg(Keys.ENCHANTMENT_BOW_EFFECTS);
 
     Registry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = reg(Keys.MODIFIER_TYPES);
     Registry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = reg(Keys.SPAWNER_TYPES);
@@ -88,6 +91,8 @@ public interface ExtraRegistries {
          * used to create codec. very unlikely that anyone finds an actual use for this
          */
         ResourceKey<Registry<Codec<? extends DataSource>>> DATA_SOURCE_TYPES = vanillaRegistry("data_source_types");
+
+        ResourceKey<Registry<MapCodec<? extends EnchantmentBowEffect>>> ENCHANTMENT_BOW_EFFECTS = createRegistry("enchantment_bow_effects");
 
         //PARTICLE ANIMATION
         ResourceKey<Registry<AnimationElement.Type<?>>> MODIFIER_TYPES = createRegistry("particle_animation/element_types");

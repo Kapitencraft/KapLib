@@ -5,10 +5,12 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.extensions.IAttributeExtension;
 import org.jetbrains.annotations.NotNull;
 
 public interface DisplayExtension<T> {
@@ -17,15 +19,15 @@ public interface DisplayExtension<T> {
         Type type = getType();
         if (type == Type.NONE) return CommonComponents.EMPTY;
         return Component.literal(type.open +
-                (value < 0 ? "" : "+") + ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value) +
+                IAttributeExtension.FORMAT.format(value) +
                 type.close
         ).withStyle(getStyle());
     }
 
     /**
-     * @return the list of modifiers this extension applies. return an empty map if it doesn't apply any
+     * @return the RL used by any item modifier this extension provides
      */
-    @NotNull Multimap<Holder<Attribute>, AttributeModifier> getModifiers(T slot);
+    ResourceLocation getModifiersLocation();
 
     Style getStyle();
 

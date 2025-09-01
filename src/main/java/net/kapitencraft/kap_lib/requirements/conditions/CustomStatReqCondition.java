@@ -1,8 +1,10 @@
 package net.kapitencraft.kap_lib.requirements.conditions;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.CountCondition;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,7 +23,7 @@ import java.util.function.Supplier;
 public class CustomStatReqCondition extends CountCondition<CustomStatReqCondition> {
     private static final Codec<Stat<ResourceLocation>> STAT_CODEC = BuiltInRegistries.CUSTOM_STAT.byNameCodec().xmap(Stats.CUSTOM::get, Stat::getValue);
 
-    private static final Codec<CustomStatReqCondition> CODEC = RecordCodecBuilder.create(
+    private static final MapCodec<CustomStatReqCondition> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     STAT_CODEC.fieldOf("stat").forGetter(i -> i.stat),
                     Codec.INT.fieldOf("amount").forGetter(i -> i.minLevel),
@@ -30,7 +32,7 @@ public class CustomStatReqCondition extends CountCondition<CustomStatReqConditio
     );
     private static final StreamCodec<RegistryFriendlyByteBuf, CustomStatReqCondition> STREAM_CODEC = StreamCodec.of(CustomStatReqCondition::toNetwork, CustomStatReqCondition::fromNetwork);
 
-    public static DataPackSerializer<CustomStatReqCondition> SERIALIZER = new DataPackSerializer<>(
+    public static RegistrySerializer<CustomStatReqCondition> SERIALIZER = new RegistrySerializer<>(
             CODEC, STREAM_CODEC
     );
 
@@ -72,7 +74,7 @@ public class CustomStatReqCondition extends CountCondition<CustomStatReqConditio
     }
 
     @Override
-    public DataPackSerializer<CustomStatReqCondition> getSerializer() {
+    public RegistrySerializer<CustomStatReqCondition> getSerializer() {
         return SERIALIZER;
     }
 

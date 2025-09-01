@@ -64,11 +64,6 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
     }
 
     @Override
-    public @NotNull Multimap<Holder<Attribute>, AttributeModifier> getModifiers(EquipmentSlot slot) {
-        return modifiers;
-    }
-
-    @Override
     public RegistrySerializer<AttributeModifiersBonus> getSerializer() {
         return SERIALIZER;
     }

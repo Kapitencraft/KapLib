@@ -6,20 +6,17 @@ import net.kapitencraft.kap_lib.client.particle.animation.finalizers.RemoveParti
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.EntityBBSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
-import net.kapitencraft.kap_lib.collection.MapStream;
-import net.kapitencraft.kap_lib.enchantments.abstracts.ExtendedCalculationEnchantment;
-import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.helpers.*;
-import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.DisplayTotemActivationPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.item.combat.totem.AbstractTotemItem;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.registry.ExtraEnchantmentEffectComponents;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.util.DamageCounter;
 import net.kapitencraft.kap_lib.util.FerociousDamageSource;
 import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,8 +24,10 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -36,8 +35,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.item.enchantment.*;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -52,8 +53,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.List;
 
 @ApiStatus.Internal
 @EventBusSubscriber
@@ -119,19 +119,7 @@ public class DamageEvents {
         LivingEntity attacked = event.getEntity();
         if (event.getSource().getDirectEntity() instanceof Arrow arrow) {
             CompoundTag tag = arrow.getPersistentData();
-            event.setNewDamage(ModBowEnchantment.loadFromTag(attacked, tag, ModBowEnchantment.ExePhase.HIT, event.getNewDamage(), arrow));
-            return;
-        }
-
-        DamageSource source = event.getSource();
-        @Nullable LivingEntity attacker = MiscHelper.getAttacker(source);
-        if (attacker == null) { return; }
-        MiscHelper.DamageType type = MiscHelper.getDamageType(source);
-        ItemStack stack = attacker.getMainHandItem();
-        ItemEnchantments enchantments = stack.getAllEnchantments(attacker.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT));
-        if (!enchantments.isEmpty()) {
-            event.setNewDamage(ExtendedCalculationEnchantment.runWithPriority(stack, attacker, attacked, event.getNewDamage(), type, source));
-            MiscHelper.getArmorEquipment(attacked).forEach(stack1 -> event.setNewDamage(ExtendedCalculationEnchantment.runWithPriority(stack1, attacker, attacked, event.getNewDamage(), type, source)));
+            event.setNewDamage(EnchantmentBowEffect.loadFromTag(attacked, tag, EnchantmentBowEffect.ExePhase.HIT, event.getNewDamage(), arrow));
         }
     }
 
@@ -184,13 +172,22 @@ public class DamageEvents {
         if (attacker == null) { return; }
         ItemStack stack = attacker.getUseItem();
         MiscHelper.DamageType type = MiscHelper.getDamageType(event.getDamageSource());
-        ItemEnchantments enchantments = stack.getAllEnchantments(attacked.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT));
-        if (!enchantments.isEmpty()) {
-            MapStream.of()
-                    .mapKeys(ExtendedCalculationEnchantment.class::cast)
-                    .filterKeys(Objects::nonNull)
-                    .filterKeys(ench -> ench instanceof IToolEnchantment)
-                    .forEach((enchantment, integer) -> enchantment.tryExecute(integer, stack, attacker, attacked, event.getBlockedDamage(), type, event.getDamageSource()));
+        EnchantedItemInUse shield = new EnchantedItemInUse(stack, attacked.getUsedItemHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND, attacked);
+        if (attacker.level() instanceof ServerLevel serverLevel) {
+            EnchantmentHelper.runIterationOnItem(stack, (enchantment, level) -> {
+                List<TargetedConditionalEffect<EnchantmentEntityEffect>> effects = enchantment.value().getEffects(ExtraEnchantmentEffectComponents.SHIELD_BLOCK.get());
+                LootContext lootContext = Enchantment.damageContext(serverLevel, level, event.getEntity(), event.getDamageSource());
+                effects.forEach(effect -> {
+                    if (effect.matches(lootContext)) {
+                        Entity entity = switch (effect.affected()) {
+                            case ATTACKER -> attacker;
+                            case DAMAGING_ENTITY -> event.getDamageSource().getDirectEntity();
+                            case VICTIM -> attacked;
+                        };
+                        effect.effect().apply(serverLevel, level, shield, entity, attacked.position());
+                    }
+                });
+            });
         }
     }
 

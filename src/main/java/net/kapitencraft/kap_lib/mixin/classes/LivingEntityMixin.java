@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.kapitencraft.kap_lib.helpers.AttributeHelper;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.mixin.duck.attribute.IKapLibAttributeMap;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ExtraMobEffects;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
@@ -47,11 +46,6 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
             setSharedFlag(7, false);
             ci.cancel();
         }
-    }
-
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void addAttributeTick(CallbackInfo ci) {
-        IKapLibAttributeMap.of(this.attributes).tick();
     }
 
 

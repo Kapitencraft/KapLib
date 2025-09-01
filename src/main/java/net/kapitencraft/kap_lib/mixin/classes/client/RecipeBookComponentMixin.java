@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,7 +22,7 @@ public class RecipeBookComponentMixin {
 
     @Shadow protected Minecraft minecraft;
     @Unique
-    private Recipe<?> lastRecipe = null;
+    private RecipeHolder<?> lastRecipe = null;
     @Unique
     private RecipeCollection lastCollection = null;
     @Shadow @Final private RecipeBookPage recipeBookPage;
@@ -37,7 +38,7 @@ public class RecipeBookComponentMixin {
         }
     }
 
-    @Inject(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;handlePlaceRecipe(ILnet/minecraft/world/item/crafting/Recipe;Z)V"))
+    @Inject(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;handlePlaceRecipe(ILnet/minecraft/world/item/crafting/RecipeHolder;Z)V"))
     private void setLastRecipe(double p_100294_, double p_100295_, int p_100296_, CallbackInfoReturnable<Boolean> cir) {
         lastRecipe = this.recipeBookPage.getLastClickedRecipe();
         lastCollection = this.recipeBookPage.getLastClickedRecipeCollection();

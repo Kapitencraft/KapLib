@@ -7,6 +7,7 @@ import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.registry.TestCooldowns;
 import net.kapitencraft.kap_lib.registry.custom.WearableSlots;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -30,10 +31,10 @@ public class TestItem extends WearableItem implements ExtendedItem {
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getModifiers(WearableSlot slot, ItemStack stack) {
-        HashMultimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
+    public Multimap<Holder<Attribute>, AttributeModifier> getModifiers(WearableSlot slot, ItemStack stack) {
+        HashMultimap<Holder<Attribute>, AttributeModifier> multimap = HashMultimap.create();
         if (slot.is(WearableSlots.BELT)) {
-            multimap.put(Attributes.LUCK, new AttributeModifier(BaseAttributeUUIDs.LUCK, "Lucky Belt Modifier", 10, AttributeModifier.Operation.ADDITION));
+            multimap.put(Attributes.LUCK, new AttributeModifier(BaseAttributeUUIDs.LUCK, "Lucky Belt Modifier", 10, AttributeModifier.Operation.ADD_VALUE));
         }
         return multimap;
     }

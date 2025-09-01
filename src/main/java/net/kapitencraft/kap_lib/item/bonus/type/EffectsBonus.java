@@ -1,7 +1,9 @@
 package net.kapitencraft.kap_lib.item.bonus.type;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.io.serialization.DataPackSerializer;
+import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.item.bonus.Bonus;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -19,11 +21,11 @@ import java.util.List;
  */
 public class EffectsBonus implements Bonus<EffectsBonus> {
 
-    private static final Codec<EffectsBonus> CODEC = MobEffectInstance.CODEC.listOf().xmap(EffectsBonus::new, EffectsBonus::getEffects);
+    private static final MapCodec<EffectsBonus> CODEC = MobEffectInstance.CODEC.listOf().xmap(EffectsBonus::new, EffectsBonus::getEffects);
 
     private static final StreamCodec<RegistryFriendlyByteBuf, EffectsBonus> STREAM_CODEC = ByteBufCodecs.collection(ArrayList::new, MobEffectInstance.STREAM_CODEC).map(EffectsBonus::new, EffectsBonus::getEffects);
 
-    public static final DataPackSerializer<EffectsBonus> SERIALIZER = new DataPackSerializer<>(CODEC, STREAM_CODEC);
+    public static final RegistrySerializer<EffectsBonus> SERIALIZER = new RegistrySerializer<>(CODEC, STREAM_CODEC);
 
     public EffectsBonus(List<MobEffectInstance> effects) {
         this.effects.addAll(effects);
@@ -36,7 +38,7 @@ public class EffectsBonus implements Bonus<EffectsBonus> {
     private final List<MobEffectInstance> effects = new ArrayList<>();
 
     @Override
-    public DataPackSerializer<EffectsBonus> getSerializer() {
+    public RegistrySerializer<EffectsBonus> getSerializer() {
         return SERIALIZER;
     }
 

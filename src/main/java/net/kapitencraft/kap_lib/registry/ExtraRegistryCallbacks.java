@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.registry;
 
-import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -14,8 +14,8 @@ public interface ExtraRegistryCallbacks {
 
         @Override
         public void onAdd(Registry<Enchantment> registry, int id, ResourceKey<Enchantment> key, Enchantment value) {
-            if (value instanceof ModBowEnchantment bowEnchantment) {
-                ModBowEnchantment.executionMap.put(key.location(), bowEnchantment::execute);
+            if (value instanceof EnchantmentBowEffect bowEnchantment) {
+                EnchantmentBowEffect.executionMap.put(key.location(), bowEnchantment::execute);
             }
         }
     }

@@ -5,11 +5,17 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.component.Tool;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class LibSwordItem extends SwordItem {
-    public LibSwordItem(Tier pTier, int pAttackDamageModifier, float pAttackSpeedModifier, Properties pProperties) {
-        super(pTier, pAttackDamageModifier, pAttackSpeedModifier, pProperties);
+
+    public LibSwordItem(Tier tier, Properties properties) {
+        super(tier, properties);
+    }
+
+    public LibSwordItem(Tier p_tier, Properties p_properties, Tool toolComponentData) {
+        super(p_tier, p_properties, toolComponentData);
     }
 
     /**

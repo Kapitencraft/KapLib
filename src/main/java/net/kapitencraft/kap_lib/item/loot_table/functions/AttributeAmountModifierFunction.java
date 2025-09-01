@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.item.loot_table.functions;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.item.loot_table.IConditional;
 import net.kapitencraft.kap_lib.item.loot_table.modifiers.ModLootModifier;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 public class AttributeAmountModifierFunction extends LootItemConditionalFunction implements IConditional {
-    private static final Codec<AttributeAmountModifierFunction> CODEC = RecordCodecBuilder.create(attributeAmountModifierFunctionInstance ->
+    public static final MapCodec<AttributeAmountModifierFunction> CODEC = RecordCodecBuilder.mapCodec(attributeAmountModifierFunctionInstance ->
             attributeAmountModifierFunctionInstance.group(
                     ModLootModifier.LOOT_CONDITIONS_CODEC.fieldOf("conditions").forGetter(i -> i.predicates),
                     BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(i -> i.modifier),
@@ -55,7 +55,7 @@ public class AttributeAmountModifierFunction extends LootItemConditionalFunction
     }
 
     @Override
-    public List<LootItemCondition> getConditions() {
+    public LootItemCondition[] getConditions() {
         return predicates;
     }
 
@@ -98,9 +98,7 @@ public class AttributeAmountModifierFunction extends LootItemConditionalFunction
     }
 
     @Override
-    public @NotNull LootItemFunctionType<?> getType() {
-        return ExtraLootItemFunctions.ATTRIBUTE_MODIFIER.value();
+    public LootItemFunctionType<? extends LootItemConditionalFunction> getType() {
+        return ExtraLootItemFunctions.ATTRIBUTE_MODIFIER.get();
     }
-
-    public static final JsonSerializer<AttributeAmountModifierFunction> SERIALIZER = new JsonSerializer<>(CODEC);
 }

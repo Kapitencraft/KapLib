@@ -14,12 +14,15 @@ import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
@@ -31,18 +34,18 @@ public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
             Codec.BOOL.optionalFieldOf("canPickupLoot", false).forGetter(f -> f.canPickupLoot),
             Codec.BOOL.optionalFieldOf("persistenceRequired", false).forGetter(f -> f.persistenceRequired),
             Codec.BOOL.optionalFieldOf("noAi", false).forGetter(f -> f.noAi),
-            ResourceLocation.CODEC.optionalFieldOf("lootTable").forGetter(f -> Optional.ofNullable(f.lootTable))
+            ResourceKey.codec(Registries.LOOT_TABLE).optionalFieldOf("lootTable").forGetter(f -> Optional.ofNullable(f.lootTable))
     ).and(commonFields(i).t1()).apply(i, MobPropertiesFunction::new));
 
     private final LootContext.EntityTarget attackTarget;
     private final boolean canPickupLoot, persistenceRequired, noAi;
-    private final ResourceLocation lootTable;
+    private final ResourceKey<LootTable> lootTable;
 
-    protected MobPropertiesFunction(Optional<LootContext.EntityTarget> attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, Optional<ResourceLocation> lootTable, List<LootItemCondition> pPredicates) {
+    protected MobPropertiesFunction(Optional<LootContext.EntityTarget> attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, Optional<ResourceKey<LootTable>> lootTable, List<LootItemCondition> pPredicates) {
         this(attackTarget.orElse(null), canPickupLoot, persistenceRequired, noAi, lootTable.orElse(null), pPredicates);
     }
 
-    protected MobPropertiesFunction(LootContext.EntityTarget attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, ResourceLocation lootTable, List<LootItemCondition> pPredicates) {
+    protected MobPropertiesFunction(LootContext.EntityTarget attackTarget, boolean canPickupLoot, boolean persistenceRequired, boolean noAi, ResourceKey<LootTable> lootTable, List<LootItemCondition> pPredicates) {
         super(pPredicates);
         this.attackTarget = attackTarget;
         this.canPickupLoot = canPickupLoot;
@@ -76,7 +79,7 @@ public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
         private LootContext.EntityTarget attackTarget;
         private boolean canPickupLoot, persistenceRequired, noAi;
-        private ResourceLocation lootTable;
+        private ResourceKey<LootTable> lootTable;
 
         public Builder setTarget(LootContext.EntityTarget target) {
             this.attackTarget = target;
@@ -93,7 +96,7 @@ public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
             return this;
         }
 
-        public Builder setLootTable(ResourceLocation lootTable) {
+        public Builder setLootTable(ResourceKey<LootTable> lootTable) {
             this.lootTable = lootTable;
             return this;
         }

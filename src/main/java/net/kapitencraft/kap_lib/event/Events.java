@@ -4,13 +4,14 @@ import net.kapitencraft.kap_lib.client.ExtraComponents;
 import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.collection.Queue;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
-import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncBonusesPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.registry.ExtraEnchantmentEffectComponents;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
@@ -147,8 +149,12 @@ public class Events {
                 if (bow.is(ExtraTags.Items.HITS_ENDERMAN)) {
                     arrowTag.putBoolean("HitsEnderMan", true);
                 }
+                EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) -> {
+                    enchantment.value().getEffects(ExtraEnchantmentEffectComponents.)
+                });
+                EnchantmentHelper.runLocationChangedEffects();
                 for (Enchantment enchantment : bow.getAllEnchantments().keySet()) {
-                    if (enchantment instanceof ModBowEnchantment bowEnchantment && RequirementManager.instance.meetsRequirements(RequirementType.ENCHANTMENT, enchantment, living)) {
+                    if (enchantment instanceof EnchantmentBowEffect bowEnchantment && RequirementManager.instance.meetsRequirements(RequirementType.ENCHANTMENT, enchantment, living)) {
                         CompoundTag tag = new CompoundTag();
                         int level = bow.getEnchantmentLevel(enchantment);
                         tag.putInt("Level", level);
@@ -200,7 +206,7 @@ public class Events {
                 Arrow arrow = (Arrow) serverLevel.getEntity(uuid);
                 if (arrow != null) {
                     CompoundTag arrowTag = arrow.getPersistentData();
-                    ModBowEnchantment.loadFromTag(null, arrowTag, ModBowEnchantment.ExePhase.TICK, 0, arrow);
+                    EnchantmentBowEffect.loadFromTag(null, arrowTag, EnchantmentBowEffect.ExePhase.TICK, 0, arrow);
                 } else {
                     queue.remove(uuid);
                 }
@@ -250,8 +256,6 @@ public class Events {
         Entity entity = event.getEntity();
         if (!(entity instanceof LivingEntity living) || living.isDeadOrDying()) return;
         Cooldowns.get(living).tick();
-        BonusHelper.tickEnchantments(living);
-        CompoundTag tag = living.getPersistentData();
         if (living instanceof Mob mob) {
             if (mob.getTarget() != null && mob.getTarget().isInvisible()) {
                 mob.setTarget(null);

@@ -18,7 +18,11 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.sounds.SoundEvents;
@@ -32,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * a widget to create a custom banner
@@ -107,10 +113,8 @@ public class CreateBannerWidget extends PositionedWidget {
         }
 
         private static List<Holder<BannerPattern>> getElements() {
-            Iterator<Holder<BannerPattern>> patterns = BuiltInRegistries.BA.asHolderIdMap().iterator();
-            List<Holder<BannerPattern>> list = new ArrayList<>();
-            while (patterns.hasNext()) list.add(patterns.next());
-            return list;
+            HolderLookup.RegistryLookup<BannerPattern> lookup = Minecraft.getInstance().level.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN);
+            return lookup.listElements().collect(Collectors.toUnmodifiableList());
         }
 
         @Override
@@ -145,7 +149,7 @@ public class CreateBannerWidget extends PositionedWidget {
             public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
                 if (this.hovered(pMouseX, pMouseY)) {
                     CreateBannerWidget widget = CreateBannerWidget.this;
-                    if (this.own.get() == BuiltInRegistries.BANNER_PATTERN.get(BannerPatterns.BASE)) {
+                    if (this.own.is(BannerPatterns.BASE)) {
                         widget.builder.background = widget.selectDyeColorWidget.active;
                         return true;
                     }
@@ -157,11 +161,9 @@ public class CreateBannerWidget extends PositionedWidget {
             @Contract("null -> fail")
             private void renderPattern(DyeColor color) {
                 CompoundTag compoundtag = new CompoundTag();
-                BannerPatternLayers layers = new BannerPatternLayers(List.of(
-                        new BannerPatternLayers.Layer()
-                ))
-                ListTag listtag = (new BannerPattern.Builder()).addPattern(BannerPatterns.BASE, lights.contains(color) ? DyeColor.GRAY : DyeColor.WHITE).addPattern(this.own, color).toListTag();
-                compoundtag.put("Patterns", listtag);
+                BannerPatternLayers layers = new BannerPatternLayers.Builder()
+                        .add(this.own, color)
+                        .build();
                 ItemStack itemstack = new ItemStack(lights.contains(color) ? Items.GRAY_BANNER : Items.WHITE_BANNER);
                 BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, compoundtag);
                 PoseStack posestack = new PoseStack();
@@ -173,8 +175,7 @@ public class CreateBannerWidget extends PositionedWidget {
                 float f = 0.6666667F;
                 posestack.scale(f, -f, -f);
                 MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
-                BannerPatternLayers list = BannerBlockEntity.createPatterns(DyeColor.GRAY, BannerBlockEntity.getItemPatterns(itemstack));
-                BannerRenderer.renderPatterns(posestack, source, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, DyeColor.GRAY, );
+                BannerRenderer.renderPatterns(posestack, source, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, DyeColor.GRAY, layers);
                 posestack.popPose();
                 source.endBatch();
             }
@@ -250,22 +251,30 @@ public class CreateBannerWidget extends PositionedWidget {
         @Override
         public void render(@NotNull GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
             super.render(graphics, pMouseX, pMouseY, pPartialTick);
-            ArrayList<Pair<Holder<BannerPattern>, DyeColor>> arrayList = new ArrayList<>(bakePatterns());
-            arrayList.add(0, Pair.of(BuiltInRegistries.BANNER_PATTERN.getHolderOrThrow(BannerPatterns.BASE), this.background));
-            BannerPatternRenderer.renderBanner(graphics, this.x + 10, this.y + 1, arrayList, this.height - 2);
+
+            BannerPatternLayers layers = bakePatterns();
+            BannerPatternRenderer.renderBanner(graphics, this.x + 10, this.y + 1, layers, this.background, this.height - 2);
         }
 
-        private List<Pair<Holder<BannerPattern>, DyeColor>> bakePatterns() {
-            return this.buttons.stream().map(elementButton -> elementButton.own).toList();
+        private BannerPatternLayers bakePatterns() {
+            return this.buttons
+                    .stream()
+                    .map(elementButton -> elementButton.own).collect(COLLECTOR);
         }
+
+        private static final Collector<Pair<Holder<BannerPattern>, DyeColor>, BannerPatternLayers.Builder, BannerPatternLayers> COLLECTOR = Collector.of(
+                BannerPatternLayers.Builder::new,
+                (builder1, holderDyeColorPair) -> builder1.add(holderDyeColorPair.getFirst(), holderDyeColorPair.getSecond()),
+                (builder1, builder2) -> {
+                    builder1.addAll(builder2.build());
+                    return builder1;
+                },
+                BannerPatternLayers.Builder::build
+        );
 
         @Contract("null, _, _, _ -> fail; _, _, _, null -> fail")
         private void renderPattern(Holder<BannerPattern> pPattern, int pX, int pY, DyeColor color) {
-            CompoundTag compoundtag = new CompoundTag();
-            ListTag listtag = (new BannerPattern.Builder()).addPattern(BannerPatterns.BASE, lights.contains(color) ? DyeColor.GRAY : DyeColor.WHITE).addPattern(pPattern, color).toListTag();
-            compoundtag.put("Patterns", listtag);
-            ItemStack itemstack = new ItemStack(lights.contains(color) ? Items.GRAY_BANNER : Items.WHITE_BANNER);
-            BlockItem.setBlockEntityData(itemstack, BlockEntityType.BANNER, compoundtag);
+            BannerPatternLayers layers = new BannerPatternLayers.Builder().add(pPattern, color).build();
             PoseStack posestack = new PoseStack();
             posestack.pushPose();
             posestack.translate(pX + .5F, pY + 16, 0.0F);
@@ -275,19 +284,14 @@ public class CreateBannerWidget extends PositionedWidget {
             float f = 0.6666667F;
             posestack.scale(f, -f, -f);
             MultiBufferSource.BufferSource source = Minecraft.getInstance().renderBuffers().bufferSource();
-            List<Pair<Holder<BannerPattern>, DyeColor>> list = BannerBlockEntity.createPatterns(DyeColor.GRAY, BannerBlockEntity.getItemPatterns(itemstack));
-            BannerRenderer.renderPatterns(posestack, source, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, list);
+            BannerRenderer.renderPatterns(posestack, source, 15728880, OverlayTexture.NO_OVERLAY, this.flag, ModelBakery.BANNER_BASE, true, DyeColor.GRAY, layers);
             posestack.popPose();
             source.endBatch();
         }
 
         public ItemStack createBanner() {
             ItemStack stack = new ItemStack(getBannerItem(this.background));
-            CompoundTag compoundTag = new CompoundTag();
-            BannerPattern.Builder builder = new BannerPattern.Builder();
-            this.bakePatterns().forEach(builder::addPattern);
-            compoundTag.put("Patterns", builder.toListTag());
-            stack.setTag(compoundTag);
+            stack.set(DataComponents.BANNER_PATTERNS, bakePatterns());
             return stack;
         }
 

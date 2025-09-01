@@ -40,7 +40,7 @@ public abstract class InventoryMenuMixin extends AbstractContainerMenu implement
     @SuppressWarnings("Convert2MethodRef")
     @Inject(method = "<init>", at = @At("TAIL"))
     private void loadPages(Inventory pPlayerInventory, boolean pActive, Player pOwner, CallbackInfo ci) {
-        Collection<InventoryPageType<?>> pageTypes = ExtraRegistries.INVENTORY_PAGES.getValues();
+        Collection<InventoryPageType<?>> pageTypes = ExtraRegistries.INVENTORY_PAGES.stream().toList();
         InventoryPage[] pages = new InventoryPage[pageTypes.size()];
         SlotAdder adder = new SlotAdder(s -> addSlot(s), this); //DO NOT convert to method reference as that will load the mixin class, crashing the game
         int i = 0;

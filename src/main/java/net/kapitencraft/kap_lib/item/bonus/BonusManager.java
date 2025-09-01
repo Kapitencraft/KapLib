@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
@@ -165,8 +166,16 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         return Objects.requireNonNull(sets.get(location), "unknown set bonus: '" + location + "'");
     }
 
+    public Optional<BonusElement> tryGetSet(ResourceLocation location) {
+        return Optional.ofNullable(sets.get(location));
+    }
+
     public BonusElement getItemBonus(ResourceLocation location) {
         return Objects.requireNonNull(bonusData.get(location), "unknown item bonus: '" + location + "'");
+    }
+
+    public Optional<BonusElement> tryGetItemBonus(ResourceLocation location) {
+        return Optional.ofNullable(bonusData.get(location));
     }
 
     public List<AbstractBonusElement> getAllActive(LivingEntity living) {
@@ -187,6 +196,19 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     public Data createData() {
         return new Data(this.sets, this.itemBonuses);
+    }
+
+    public Codec<AbstractBonusElement> getElementCodec() {
+        return ResourceLocation.CODEC.comapFlatMap(location -> {
+            if (location.getPath().startsWith("set/"))
+                return BonusManager.instance
+                        .tryGetSet(location.withPath(s -> s.substring(4)))
+                        .map(DataResult::success)
+                        .orElseGet(() -> DataResult.error(() -> "unknown set bonus: '" + location + "'"));
+            return BonusManager.instance.tryGetItemBonus(location)
+                    .map(DataResult::success)
+                    .orElseGet(() -> DataResult.error(() -> "unknown item bonus: '" + location + "'"));
+        }, AbstractBonusElement::getId);
     }
 
     private class BonusLookup {
