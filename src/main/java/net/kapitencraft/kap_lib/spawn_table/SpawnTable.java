@@ -46,10 +46,6 @@ public class SpawnTable {
    );
    public static final Codec<Holder<SpawnTable>> CODEC = RegistryFileCodec.create(ExtraRegistries.Keys.SPAWN_TABLES, DIRECT_CODEC);
 
-
-   public static final Gson PARSER = SpawnDeserializers.createSpawnTableSerializer().create();
-   public static final TriFunction<ResourceLocation, JsonElement, ResourceManager, Optional<SpawnTable>> CREATOR =
-           SpawnTableProvider.getSpawnTableSerializer(PARSER, "spawn_tables");
    //public static final LootDataType<SpawnTable> DATA_TYPE = new LootDataType<>(PARSER, SpawnTableProvider::getSpawnTableSerializer, "spawn_tables", createValidator());
 
    static final Logger LOGGER = LogUtils.getLogger();
@@ -220,7 +216,7 @@ public class SpawnTable {
       }
 
       public SpawnTable build() {
-         return new SpawnTable(this.paramSet, this.randomSequence, this.pools.toArray(new SpawnPool[0]), this.functions);
+         return new SpawnTable(this.paramSet, Optional.ofNullable(this.randomSequence), this.pools, this.functions);
       }
    }
 }
