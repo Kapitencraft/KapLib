@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.client.gui.screen.tooltip;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -44,8 +45,8 @@ public class HoverTooltip {
         return MathHelper.is2dBetween(xMousePos, yMousePos, xPos + this.xOffsetStart, yPos + this.yOffsetStart, xPos + xOffsetStart + xSize, yPos + yOffsetStart + ySize);
     }
 
-    public ImageButton createButton(ResourceLocation imageLocation, int leftPos, int topPos, Button.OnPress task) {
-        return new ImageButton(leftPos + xOffsetStart, topPos + yOffsetStart, 16, 16, 0, 0, 16, imageLocation, 16, 16, task);
+    public ImageButton createButton(WidgetSprites sprites, int leftPos, int topPos, Button.OnPress task) {
+        return new ImageButton(leftPos + xOffsetStart, topPos + yOffsetStart, 16, 16, sprites, task);
     }
 
     public List<Component> getText() {

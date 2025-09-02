@@ -161,7 +161,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     private final Map<ResourceLocation, BonusElement> bonusData = new HashMap<>();
     private final DoubleMap<Item, ResourceLocation, BonusElement> itemBonuses = DoubleMap.create();
     private final Map<LivingEntity, BonusLookup> lookupMap = new HashMap<>();
-    public final StreamCodec<? super RegistryFriendlyByteBuf, AbstractBonusElement> streamCodec = ResourceLocation.STREAM_CODEC.map(location -> {
+    public final StreamCodec<? super RegistryFriendlyByteBuf, ? extends AbstractBonusElement> streamCodec = ResourceLocation.STREAM_CODEC.map(location -> {
         if (location.getPath().startsWith("set/")) {
             return getSet(location.withPath(s -> s.substring(4)));
         }

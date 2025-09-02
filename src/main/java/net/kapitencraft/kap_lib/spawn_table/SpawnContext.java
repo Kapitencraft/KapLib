@@ -21,12 +21,10 @@ import java.util.function.Consumer;
  */
 public class SpawnContext extends LootContext {
    private final Map<ResourceLocation, DynamicSpawn> dynamicSpawns = new HashMap<>();
-   private final SpawnTableManager manager;
 
 
-   SpawnContext(LootParams params, RandomSource randomsource, HolderGetter.Provider provider, SpawnTableManager manager) {
+   SpawnContext(LootParams params, RandomSource randomsource, HolderGetter.Provider provider) {
       super(params, randomsource, provider);
-      this.manager = manager;
    }
 
    public void addDynamicSpawn(ResourceLocation pName, Consumer<Entity> pConsumer) {
