@@ -150,7 +150,7 @@ public class Events {
                     arrowTag.putBoolean("HitsEnderMan", true);
                 }
                 EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) -> {
-                    enchantment.value().getEffects(ExtraEnchantmentEffectComponents.)
+                    enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW_TICK.value()).forEach();
                 });
                 EnchantmentHelper.runLocationChangedEffects();
                 for (Enchantment enchantment : bow.getAllEnchantments().keySet()) {

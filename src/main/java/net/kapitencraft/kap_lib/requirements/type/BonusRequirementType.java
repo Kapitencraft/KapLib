@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 public class BonusRequirementType implements RequirementType<AbstractBonusElement> {
     private static final  DataPackSerializer<AbstractBonusElement> SERIALIZER = new DataPackSerializer<>(
             BonusManager.instance.getElementCodec(),
-
+            BonusManager.instance.streamCodec
     );
 
     @Override
