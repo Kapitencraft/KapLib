@@ -32,10 +32,6 @@ public class SpawnContext extends LootContext {
       if (spawn != null) spawn.createEntity(pConsumer, this);
    }
 
-   public SpawnTableManager getSpawnTableManager() {
-      return manager;
-   }
-
    public static class Builder {
       private final LootParams params;
       @Nullable

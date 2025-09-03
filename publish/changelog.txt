@@ -10,6 +10,7 @@ removed IUltimateEnchantment. use EnchantmentHelper#ultimate instead and add it 
 removed SimpleToolEnchantment. use EquipmentSlotGroup.HAND instead
 removed IArmorEnchantment, IToolEnchantment, IWeaponEnchantment
 removed StatBoost and ArmorStatBoost enchantment in favour of EnchantmentAttributeEffect
+removed ExtendedCalculationEnchantment in favour of EnchantmentEntityEffect
 removed ExtendedAbilityEnchantment in favour of EnchantmentEntityEffect
 removed EffectApplicationEnchantment in favour of ApplyMobEffect
 removed BasedAttributeUUIDs. use IAttributeExtension#getBaseId instead

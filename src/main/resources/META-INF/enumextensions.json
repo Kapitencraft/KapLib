@@ -1,0 +1,8 @@
+{
+  "entries": [
+    {
+      "enum": "net/minecraft/world/item/Rarity",
+      "name": "LEGENDARY"
+    }
+  ]
+}
