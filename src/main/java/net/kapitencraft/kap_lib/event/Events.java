@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.client.ExtraComponents;
 import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
-import net.kapitencraft.kap_lib.collection.Queue;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.helpers.*;
@@ -15,15 +14,13 @@ import net.kapitencraft.kap_lib.registry.ExtraEnchantmentEffectComponents;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
-import net.kapitencraft.kap_lib.requirements.type.RequirementType;
-import net.kapitencraft.kap_lib.spawn_table.SpawnTableManager;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,11 +28,9 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.ICancellableEvent;
@@ -55,9 +50,7 @@ import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
-import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
@@ -96,7 +89,6 @@ public class Events {
     public static void addRequirementListener(AddReloadListenerEvent event) {
         event.addListener(RequirementManager.instance);
         event.addListener(BonusManager.updateInstance());
-        event.addListener(SpawnTableManager.instance = new SpawnTableManager());
     }
 
     @SubscribeEvent
@@ -130,38 +122,19 @@ public class Events {
         event.setCharge((int) (event.getCharge() * event.getEntity().getAttributeValue(ExtraAttributes.DRAW_SPEED) / 100));
     }
 
-    private static final Map<ResourceKey<Level>, Queue<UUID>> arrowHelper = new HashMap<>();
-
-    @SubscribeEvent
-    public static void onLevelUnload(LevelEvent.Unload event) {
-        if (!event.getLevel().isClientSide()) {
-            Level level = (Level) event.getLevel();
-            arrowHelper.remove(level.dimension()); //clear arrow holder when dimension gets unloaded
-        }
-    }
-
     @SubscribeEvent
     public static void joinLevelEvent(EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof AbstractArrow arrow && !arrow.level().isClientSide()) {
+        if (event.getEntity() instanceof AbstractArrow arrow && arrow.level() instanceof ServerLevel serverLevel) {
             if (arrow.getOwner() instanceof LivingEntity living) {
-                ItemStack bow = living.getMainHandItem();
+                ItemStack bow = living.getUseItem();
                 CompoundTag arrowTag = arrow.getPersistentData();
                 if (bow.is(ExtraTags.Items.HITS_ENDERMAN)) {
                     arrowTag.putBoolean("HitsEnderMan", true);
                 }
-                EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) -> {
-                    enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW_TICK.value()).forEach();
-                });
-                EnchantmentHelper.runLocationChangedEffects();
-                for (Enchantment enchantment : bow.getAllEnchantments().keySet()) {
-                    if (enchantment instanceof EnchantmentBowEffect bowEnchantment && RequirementManager.instance.meetsRequirements(RequirementType.ENCHANTMENT, enchantment, living)) {
-                        CompoundTag tag = new CompoundTag();
-                        int level = bow.getEnchantmentLevel(enchantment);
-                        tag.putInt("Level", level);
-                        arrowTag.put(Objects.requireNonNull(ForgeRegistries.ENCHANTMENTS.getKey(enchantment), "unknown enchantment: " + enchantment).toString(), bowEnchantment.write(tag, level, bow, living, arrow));
-                        if (bowEnchantment.shouldTick()) arrowHelper.get(arrow.level().dimension()).add(arrow.getUUID());
-                    }
-                }
+                EnchantedItemInUse itemInUse = new EnchantedItemInUse(bow, living.getUsedItemHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND, living);
+                EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) ->
+                        enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW_SPAWN.value()).forEach(enchantmentEntityEffect ->
+                                enchantmentEntityEffect.apply(serverLevel, level, itemInUse, arrow, arrow.position())));
             }
         }
         if (event.getEntity() instanceof Player player) {
@@ -198,19 +171,10 @@ public class Events {
     }
 
     @SubscribeEvent
-    public static void serverTick(LevelTickEvent event) {
-        if (event.getLevel() instanceof ServerLevel serverLevel) {
-            arrowHelper.putIfAbsent(serverLevel.dimension(), Queue.create());
-            Queue<UUID> queue = arrowHelper.get(serverLevel.dimension());
-            queue.queue(uuid -> {
-                Arrow arrow = (Arrow) serverLevel.getEntity(uuid);
-                if (arrow != null) {
-                    CompoundTag arrowTag = arrow.getPersistentData();
-                    EnchantmentBowEffect.loadFromTag(null, arrowTag, EnchantmentBowEffect.ExePhase.TICK, 0, arrow);
-                } else {
-                    queue.remove(uuid);
-                }
-            });
+    public static void serverTick(EntityTickEvent event) {
+        if (event.getEntity() instanceof AbstractArrow arrow) {
+            CompoundTag arrowTag = arrow.getPersistentData();
+            EnchantmentBowEffect.loadFromTag(null, arrowTag, EnchantmentBowEffect.ExePhase.TICK, 0, arrow);
         }
     }
 

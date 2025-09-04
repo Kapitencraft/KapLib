@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.item.loot_table.IConditional;
 import net.kapitencraft.kap_lib.item.loot_table.modifiers.ModLootModifier;
 import net.kapitencraft.kap_lib.registry.ExtraLootItemFunctions;
-import net.kapitencraft.kap_lib.io.serialization.JsonSerializer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.StringRepresentable;
@@ -23,13 +22,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class AttributeAmountModifierFunction extends LootItemConditionalFunction implements IConditional {
+public class AttributeAmountModifierFunction extends LootItemConditionalFunction {
     public static final MapCodec<AttributeAmountModifierFunction> CODEC = RecordCodecBuilder.mapCodec(attributeAmountModifierFunctionInstance ->
-            attributeAmountModifierFunctionInstance.group(
-                    ModLootModifier.LOOT_CONDITIONS_CODEC.fieldOf("conditions").forGetter(i -> i.predicates),
-                    BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(i -> i.modifier),
-                    Formulas.CODEC.fieldOf("formula").forGetter(i -> i.formula)
-            ).apply(attributeAmountModifierFunctionInstance, AttributeAmountModifierFunction::new)
+            commonFields(attributeAmountModifierFunctionInstance)
+                    .and(BuiltInRegistries.ATTRIBUTE.holderByNameCodec().fieldOf("attribute").forGetter(i -> i.modifier))
+                    .and(Formulas.CODEC.fieldOf("formula").forGetter(i -> i.formula))
+                    .apply(attributeAmountModifierFunctionInstance, AttributeAmountModifierFunction::new)
     );
 
     private final Holder<Attribute> modifier;
@@ -52,11 +50,6 @@ public class AttributeAmountModifierFunction extends LootItemConditionalFunction
             return formula.provide(stack, amount);
         }
         return stack;
-    }
-
-    @Override
-    public LootItemCondition[] getConditions() {
-        return predicates;
     }
 
     public interface Formula {

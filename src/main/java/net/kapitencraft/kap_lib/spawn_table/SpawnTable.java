@@ -1,10 +1,8 @@
 package net.kapitencraft.kap_lib.spawn_table;
 
 import com.google.common.collect.Lists;
-import com.google.gson.*;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
@@ -12,22 +10,15 @@ import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.*;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.function.TriFunction;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -113,6 +104,15 @@ public class SpawnTable {
       //   LOGGER.warn("Detected infinite loop in loot tables");
       //}
       return objectarraylist;
+   }
+
+
+   public void getRandomEntitiesRaw(SpawnContext context, Consumer<Entity> output) {
+      Consumer<Entity> consumer = SpawnEntityFunction.decorate(this.compositeFunction, output, context);
+
+      for(SpawnPool pool : this.pools) {
+         pool.addRandomEntities(consumer, context);
+      }
    }
 
    /**

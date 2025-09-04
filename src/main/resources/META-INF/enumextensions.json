@@ -2,7 +2,30 @@
   "entries": [
     {
       "enum": "net/minecraft/world/item/Rarity",
-      "name": "LEGENDARY"
+      "name": "LEGENDARY",
+      "constructor": "(ILjava/lang/String;Lnet/minecraft/ChatFormatting",
+      "parameters": {
+        "class": "net/kapitencraft/kap_lib/util/ExtraRarityProxies",
+        "field": "LEGENDARY_PROXY"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/Rarity",
+      "name": "MYTHIC",
+      "constructor": "(ILjava/lang/String;Lnet/minecraft/ChatFormatting",
+      "parameters": {
+        "class": "net/kapitencraft/kap_lib/util/ExtraRarityProxies",
+        "field": "MYTHIC_PROXY"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/Rarity",
+      "name": "DIVINE",
+      "constructor": "(ILjava/lang/String;Lnet/minecraft/ChatFormatting",
+      "parameters": {
+        "class": "net/kapitencraft/kap_lib/util/ExtraRarityProxies",
+        "field": "DIVINE_PROXY"
+      }
     }
   ]
 }

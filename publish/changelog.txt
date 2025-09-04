@@ -16,6 +16,10 @@ removed EffectApplicationEnchantment in favour of ApplyMobEffect
 removed BasedAttributeUUIDs. use IAttributeExtension#getBaseId instead
 removed AbstractTridentClass
 removed Capability Provider and Abstract Capability
+removed SyncCapabilityToPlayer and -Block Packets
+removed ExtraCodecs.COMPONENT in favour of ComponentSerialization.CODEC
+removed ExtraCodecs.EFFECT in favour of MobEffectInstance.CODEC
+removed ExtraCodecs.DATA_SOURCE in favour of DataSource.CODEC
 modified WearableSlot's #is method to take a Holder<WearableSlot> instead of Supplier<WearableSlot>
 moved ExtraCodecs.BONUS -> Bonus.CODEC
 removed IDatagenElement as it wasn't useful anymore

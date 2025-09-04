@@ -1,26 +1,24 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -29,7 +27,7 @@ import java.util.function.Function;
  */
 public class NestedSpawnTable extends SpawnPoolSingletonContainer {
    public static final MapCodec<NestedSpawnTable> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-           Codec.either(ResourceKey.codec(), SpawnTable.DIRECT_CODEC).fieldOf("value").forGetter(f -> f.entry)
+           Codec.either(ResourceKey.codec(ExtraRegistries.Keys.SPAWN_TABLES), SpawnTable.DIRECT_CODEC).fieldOf("value").forGetter(f -> f.entry)
    ).and(singletonFields(i)).apply(i, NestedSpawnTable::new));
 
 
@@ -49,28 +47,40 @@ public class NestedSpawnTable extends SpawnPoolSingletonContainer {
     * Contrary to the method name this method does not always generate one stack, it can also generate zero or multiple
     * stacks.
     */
-   public void createEntity(Consumer<Entity> pStackConsumer, SpawnContext pLootContext) {
-      SpawnTable spawnTable = this.entry.map(k -> pLootContext.getSpawnTableManager().getSpawnTable(k.location()), Function.identity());
-      if (spawnTable == null) KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "unknown spawn table: {}", this.name);
-      else spawnTable.getRandomEntities(pLootContext, pStackConsumer);
+   public void createEntity(Consumer<Entity> stackConsumer, SpawnContext lootContext) {
+      this.entry.map(
+              (p_335324_) -> lootContext.getResolver().get(ExtraRegistries.Keys.SPAWN_TABLES, p_335324_).map(Holder::value).orElse(SpawnTable.EMPTY),
+              Function.identity()).getRandomEntitiesRaw(lootContext, stackConsumer);
    }
 
-   public void validate(ValidationContext pValidationContext) {
-      LootDataId<LootTable> lootdataid = new LootDataId<>(LootDataType.TABLE, this.name);
-      if (pValidationContext.hasVisitedElement(lootdataid)) {
-         pValidationContext.reportProblem("Table " + this.name + " is recursively called");
-      } else {
-         super.validate(pValidationContext);
-         pValidationContext.resolver().getElementOptional(lootdataid).ifPresentOrElse((p_279078_) -> {
-            p_279078_.validate(pValidationContext.enterElement("->{" + this.name + "}", lootdataid));
-         }, () -> {
-            pValidationContext.reportProblem("Unknown loot table called " + this.name);
-         });
+   public void validate(ValidationContext validationContext) {
+      Optional<ResourceKey<SpawnTable>> optional = this.entry.left();
+      if (optional.isPresent()) {
+         ResourceKey<SpawnTable> resourcekey = optional.get();
+         if (!validationContext.allowsReferences()) {
+            validationContext.reportProblem("Uses reference to " + resourcekey.location() + ", but references are not allowed");
+            return;
+         }
+
+         if (validationContext.hasVisitedElement(resourcekey)) {
+            validationContext.reportProblem("Table " + resourcekey.location() + " is recursively called");
+            return;
+         }
       }
+
+      super.validate(validationContext);
+      this.entry.ifLeft((p_335332_) -> validationContext.resolver().get(ExtraRegistries.Keys.SPAWN_TABLES, p_335332_).ifPresentOrElse((p_339565_) -> p_339565_.value().validate(validationContext.enterElement("->{" + String.valueOf(p_335332_.location()) + "}", p_335332_)), () -> validationContext.reportProblem("Unknown loot table called " + String.valueOf(p_335332_.location())))).ifRight((p_331183_) -> p_331183_.validate(validationContext.forChild("->{inline}")));
    }
 
-   public static Builder<?> spawnTableReference(ResourceLocation pTable) {
+   public static Builder<?> spawnTableReference(ResourceKey<SpawnTable> pTable) {
       return simpleBuilder((p_79780_, p_79781_, p_79782_, p_79783_) ->
-              new NestedSpawnTable(pTable, p_79780_, p_79781_, p_79782_, p_79783_));
+              new NestedSpawnTable(Either.left(pTable), p_79780_, p_79781_, p_79782_, p_79783_)
+      );
+   }
+
+   public static Builder<?> inlineSpawnTable(SpawnTable table) {
+      return simpleBuilder((pWeight, pQuality, pConditions, pFunctions) ->
+              new NestedSpawnTable(Either.right(table), pWeight, pQuality, pConditions, pFunctions)
+      );
    }
 }

@@ -74,7 +74,7 @@
 
   "effect.kap_lib.stun": "Stun",
   "effect.stun.released": "Stun ended!",
-  "effect.stun.timer": "Stunned for another %1$ss",
+  "effect.stun.timer": "Stunned",
 
   "enchantment_colors.curse": "Curse",
   "enchantment_colors.max_level": "Max Level",
@@ -150,5 +150,6 @@
   "bonus.name": "Bonus",
   "set.bonus.name": "Set Bonus",
 
-  "bonus_type.simple_mob_effect.def": "Adds following Effects each tick:"
+  "bonus_type.simple_mob_effect.def": "Adds following Effects each tick:",
+  "command.server_test.spawn_table.not_found": "Spawn Table \"test:test\" not found"
 }

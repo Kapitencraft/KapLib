@@ -90,7 +90,7 @@ public interface ExtraRegistries {
         /**
          * used to create codec. very unlikely that anyone finds an actual use for this
          */
-        ResourceKey<Registry<Codec<? extends DataSource>>> DATA_SOURCE_TYPES = vanillaRegistry("data_source_types");
+        ResourceKey<Registry<MapCodec<? extends DataSource>>> DATA_SOURCE_TYPES = vanillaRegistry("data_source_types");
 
         ResourceKey<Registry<MapCodec<? extends EnchantmentBowEffect>>> ENCHANTMENT_BOW_EFFECTS = createRegistry("enchantment_bow_effects");
 

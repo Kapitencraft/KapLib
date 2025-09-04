@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.registry.vanilla;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.network.chat.contents.BlockDataSource;
 import net.minecraft.network.chat.contents.DataSource;
@@ -13,23 +14,23 @@ import java.util.function.Supplier;
 
 public interface VanillaDataSourceTypes {
 
-    DeferredRegister<Codec<? extends DataSource>> REGISTRY = DeferredRegister.create(ExtraRegistries.Keys.DATA_SOURCE_TYPES, "minecraft");
+    DeferredRegister<MapCodec<? extends DataSource>> REGISTRY = DeferredRegister.create(ExtraRegistries.Keys.DATA_SOURCE_TYPES, "minecraft");
 
-    Supplier<Codec<EntityDataSource>> ENTITY = REGISTRY.register("entity", VanillaDataSourceTypes::createEntity);
+    Supplier<MapCodec<EntityDataSource>> ENTITY = REGISTRY.register("entity", VanillaDataSourceTypes::createEntity);
 
-    Supplier<Codec<StorageDataSource>> STORAGE = REGISTRY.register("storage", VanillaDataSourceTypes::createStorage);
+    Supplier<MapCodec<StorageDataSource>> STORAGE = REGISTRY.register("storage", VanillaDataSourceTypes::createStorage);
 
-    Supplier<Codec<BlockDataSource>> BLOCK = REGISTRY.register("block", VanillaDataSourceTypes::createBlock);
+    Supplier<MapCodec<BlockDataSource>> BLOCK = REGISTRY.register("block", VanillaDataSourceTypes::createBlock);
 
-    private static Codec<EntityDataSource> createEntity() {
-        return Codec.STRING.xmap(EntityDataSource::new, EntityDataSource::selectorPattern);
+    private static MapCodec<EntityDataSource> createEntity() {
+        return Codec.STRING.xmap(EntityDataSource::new, EntityDataSource::selectorPattern).fieldOf("entity");
     }
 
-    private static Codec<StorageDataSource> createStorage() {
-        return ResourceLocation.CODEC.xmap(StorageDataSource::new, StorageDataSource::id);
+    private static MapCodec<StorageDataSource> createStorage() {
+        return ResourceLocation.CODEC.xmap(StorageDataSource::new, StorageDataSource::id).fieldOf("storage");
     }
 
-    private static Codec<BlockDataSource> createBlock() {
-        return Codec.STRING.xmap(BlockDataSource::new, BlockDataSource::posPattern);
+    private static MapCodec<BlockDataSource> createBlock() {
+        return Codec.STRING.xmap(BlockDataSource::new, BlockDataSource::posPattern).fieldOf("block");
     }
 }

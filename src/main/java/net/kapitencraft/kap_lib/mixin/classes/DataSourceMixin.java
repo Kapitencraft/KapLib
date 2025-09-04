@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.mixin.duck.IKapLibDataSource;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaDataSourceTypes;
 import net.minecraft.network.chat.contents.DataSource;
@@ -12,7 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 public interface DataSourceMixin extends IKapLibDataSource {
 
     @Override
-    default Codec<? extends DataSource> getCodec() {
+    default MapCodec<? extends DataSource> getCodec() {
         DataSource dataSource = (DataSource) this;
         if (dataSource instanceof EntityDataSource) return VanillaDataSourceTypes.ENTITY.get();
         else if (dataSource instanceof StorageDataSource) return VanillaDataSourceTypes.STORAGE.get();

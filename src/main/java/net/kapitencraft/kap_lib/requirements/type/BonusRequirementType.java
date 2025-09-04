@@ -13,7 +13,7 @@ public class BonusRequirementType implements RequirementType<AbstractBonusElemen
 
     @Override
     public DataPackSerializer<AbstractBonusElement> serializer() {
-        return null;
+        return SERIALIZER;
     }
 
     @Override

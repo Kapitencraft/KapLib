@@ -41,7 +41,9 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
     ).apply(attributeModifiersBonusInstance, AttributeModifiersBonus::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, AttributeModifiersBonus> STREAM_CODEC = StreamCodec.composite(
-            ExtraStreamCodecs.multimap(ByteBufCodecs.holderRegistry(Registries.ATTRIBUTE), AttributeModifier.STREAM_CODEC)
+            ExtraStreamCodecs.multimap(ByteBufCodecs.holderRegistry(Registries.ATTRIBUTE), AttributeModifier.STREAM_CODEC), AttributeModifiersBonus::getModifiers,
+            Type.STREAM_CODEC, AttributeModifiersBonus::getType,
+            Style
     );
 
     public static final RegistrySerializer<AttributeModifiersBonus> SERIALIZER = new RegistrySerializer<>(
@@ -75,6 +77,11 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    @Override
+    public ResourceLocation getModifiersLocation() {
+        return null;
     }
 
     @Override

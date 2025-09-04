@@ -8,6 +8,7 @@ import net.kapitencraft.kap_lib.helpers.LootTableHelper;
 import net.kapitencraft.kap_lib.util.string_converter.converter.TextToDoubleConverter;
 import net.kapitencraft.kap_lib.util.string_converter.param_storage.ParamStorage;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.HolderSetCodec;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,7 +33,7 @@ public class EnchantmentAddItemModifier extends AddItemModifier {
     private final Holder<Enchantment> enchantment;
     private final TextToDoubleConverter converter;
     @SuppressWarnings("all")
-    protected EnchantmentAddItemModifier(LootItemCondition[] conditionsIn, Item item, float chance, int maxAmount, Optional<CompoundTag> tag, Holder<Enchantment> enchantment, String provider) {
+    protected EnchantmentAddItemModifier(LootItemCondition[] conditionsIn, Item item, float chance, int maxAmount, Optional<DataComponentPatch> tag, Holder<Enchantment> enchantment, String provider) {
         super(conditionsIn, item, chance, maxAmount, tag.orElse(null));
         this.converter = new TextToDoubleConverter(provider);
         this.enchantment = enchantment;

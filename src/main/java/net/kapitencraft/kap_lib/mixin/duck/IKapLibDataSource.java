@@ -1,13 +1,14 @@
 package net.kapitencraft.kap_lib.mixin.duck;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.network.chat.contents.DataSource;
 
 public interface IKapLibDataSource {
 
-    Codec<? extends DataSource> getCodec();
+    MapCodec<? extends DataSource> getCodec();
 
-    static Codec<? extends DataSource> codecFromVanilla(DataSource dataSource) {
+    static MapCodec<? extends DataSource> codecFromVanilla(DataSource dataSource) {
         return ((IKapLibDataSource) dataSource).getCodec();
     }
 }

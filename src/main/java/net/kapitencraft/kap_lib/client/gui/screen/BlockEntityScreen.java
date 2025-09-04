@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.client.gui.BlockEntityMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -29,7 +30,7 @@ public abstract class BlockEntityScreen<BE extends BlockEntity, M extends BlockE
         this.hoverTooltips.add(tooltip);
     }
 
-    protected void addHoverTooltipAndImgButton(HoverTooltip tooltip, ResourceLocation location, Button.OnPress onPress) {
+    protected void addHoverTooltipAndImgButton(HoverTooltip tooltip, WidgetSprites location, Button.OnPress onPress) {
         this.hoverTooltips.add(tooltip);
         this.addRenderableWidget(tooltip.createButton(location, leftPos, topPos, onPress));
     }

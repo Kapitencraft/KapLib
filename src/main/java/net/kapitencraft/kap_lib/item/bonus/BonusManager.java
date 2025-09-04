@@ -400,7 +400,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         try {
             JsonObject main = jsonElement.getAsJsonObject();
 
-            DataResult<Bonus<?>> result = ExtraCodecs.BONUS.parse(JsonOps.INSTANCE, main);
+            DataResult<Bonus<?>> result = Bonus.CODEC.parse(JsonOps.INSTANCE, main);
 
             Bonus<?> bonus = result.getOrThrow();
 

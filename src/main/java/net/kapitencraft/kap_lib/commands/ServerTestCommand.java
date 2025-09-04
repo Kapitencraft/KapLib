@@ -16,12 +16,15 @@ import net.kapitencraft.kap_lib.client.particle.animation.spawners.RingSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.client.util.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.data_gen.TestSpawnTableProvider;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -42,6 +45,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -128,10 +132,14 @@ public class ServerTestCommand {
                     .create(LootContextParamSets.COMMAND);
             SpawnContext spawnContext = new SpawnContext.Builder(params)
                     .create(null);
-            SpawnTable table = SpawnTableManager.instance.getSpawnTable(ResourceLocation.parse("test:test"));
-            table.getRandomEntities(spawnContext, entity ->
-                    entity.setPos(commandSourceStack.getPosition())
-            );
+            Optional<SpawnTable> table = player.registryAccess().lookupOrThrow(ExtraRegistries.Keys.SPAWN_TABLES).get(TestSpawnTableProvider.TEST).map(Holder::value);
+            if (table.isPresent()) {
+                table.get().getRandomEntities(spawnContext, entity ->
+                        entity.setPos(commandSourceStack.getPosition())
+                );
+            } else {
+                commandSourceStack.sendFailure(Component.translatable("command.server_test.spawn_table.not_found"));
+            }
             return 1;
         });
     }

@@ -11,6 +11,7 @@ import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringRepresentable;
@@ -19,6 +20,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.progress.ProgressMeter;
+import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforgespi.language.IModFileInfo;
 import net.neoforged.neoforgespi.language.IModInfo;
 import org.apache.maven.artifact.versioning.ComparableVersion;
@@ -141,7 +143,7 @@ public class UpdateChecker {
         try {
             info("running version check on '" + projectId + "'");
             ComparableVersion currentModVersion = new ComparableVersion(modInfo.versionString());
-            Stream<JsonObject> rawVersionData = ModrinthUtils.readVersions(projectId, MCPVersion.getMCVersion(), "KapLibAutoUpdater");
+            Stream<JsonObject> rawVersionData = ModrinthUtils.readVersions(projectId, SharedConstants.getCurrentVersion().getName(), "KapLibAutoUpdater");
             if (rawVersionData == null) {
                 LOGGER.warn("connection to {} failed", updateData.modId);
                 return Result.connectionFailed(updateData.modId, currentModVersion);
@@ -261,7 +263,7 @@ public class UpdateChecker {
                 FileOutputStream outputStream = new FileOutputStream(outputTarget);
 
                 byte[] buffer = new byte[4096]; //read 4kb at once
-                ProgressMeter downloadProgress = StartupMessageManager.addProgressBar("Downloading '" + fileName + "'", size);
+                ProgressMeter downloadProgress = StartupNotificationManager.addProgressBar("Downloading '" + fileName + "'", size);
                 int bytesRead;
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
@@ -281,7 +283,7 @@ public class UpdateChecker {
     }
 
     private static void info(String msg) {
-        StartupMessageManager.addModMessage(msg);
+        StartupNotificationManager.addModMessage(msg);
         LOGGER.info(Markers.UPDATE_CHECKER, msg);
     }
 

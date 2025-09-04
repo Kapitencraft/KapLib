@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.mob_effect;
 
-import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -20,11 +19,10 @@ public class StunMobEffect extends MobEffect {
         return true;
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Override
     public boolean applyEffectTick(@NotNull LivingEntity pLivingEntity, int pAmplifier) {
         if (pLivingEntity instanceof Player player) {
-            TextHelper.setHotbarDisplay(player, Component.translatable("effect.stun.timer", MathHelper.shortRound(pLivingEntity.getEffect(this).duration / 20.)).withStyle(ChatFormatting.RED));
+            TextHelper.setHotbarDisplay(player, Component.translatable("effect.stun.timer").withStyle(ChatFormatting.RED));
         }
         return true;
     }

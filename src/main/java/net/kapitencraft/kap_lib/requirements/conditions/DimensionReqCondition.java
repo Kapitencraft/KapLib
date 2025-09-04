@@ -27,8 +27,8 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
             ).apply(instance, DimensionReqCondition::new)
     );
 
-    public static final RegistrySerializer<DimensionReqCondition> SERIALIZER = new DataPackSerializer<>(
-            CODEC, StreamCodec.of(DimensionReqCondition::fromNetwork, DimensionReqCondition::toNetwork)
+    public static final RegistrySerializer<DimensionReqCondition> SERIALIZER = new RegistrySerializer<>(
+            CODEC, StreamCodec.of(DimensionReqCondition::toNetwork, DimensionReqCondition::fromNetwork)
     );
 
     private final List<ResourceKey<Level>> dimensions;
