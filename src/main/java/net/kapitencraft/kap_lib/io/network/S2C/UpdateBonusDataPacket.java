@@ -13,11 +13,12 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
 public record UpdateBonusDataPacket(ItemStack from, ItemStack to, EquipmentSlot slot, int entityId) implements CustomPacketPayload {
     public static final StreamCodec<RegistryFriendlyByteBuf, UpdateBonusDataPacket> CODEC = StreamCodec.composite(
-            ItemStack.STREAM_CODEC, UpdateBonusDataPacket::from,
-            ItemStack.STREAM_CODEC, UpdateBonusDataPacket::to,
+            ItemStack.OPTIONAL_STREAM_CODEC, UpdateBonusDataPacket::from,
+            ItemStack.OPTIONAL_STREAM_CODEC, UpdateBonusDataPacket::to,
             ExtraStreamCodecs.EQUIPMENT_SLOT, UpdateBonusDataPacket::slot,
             ByteBufCodecs.INT, UpdateBonusDataPacket::entityId,
             UpdateBonusDataPacket::new
@@ -35,7 +36,7 @@ public record UpdateBonusDataPacket(ItemStack from, ItemStack to, EquipmentSlot 
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

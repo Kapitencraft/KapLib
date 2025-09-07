@@ -55,7 +55,7 @@ public class ModEventBusClientEvents {
     }
 
     @SubscribeEvent
-    public void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
+    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(ModBEWLR.setInstance());
     }
 

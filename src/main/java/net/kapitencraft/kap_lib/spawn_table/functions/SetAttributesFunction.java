@@ -31,7 +31,6 @@ public final class SetAttributesFunction extends SpawnEntityConditionalFunction 
     ).and(commonFields(i).t1()).apply(i, SetAttributesFunction::new));
 
     private final List<Pair<Holder<Attribute>, Modifiers>> data;
-    private static final JsonSerializer<AttributeModifier> SERIALIZER = new JsonSerializer<>(ExtraCodecs.ATTRIBUTE_MODIFIER);
 
     private SetAttributesFunction(List<Pair<Holder<Attribute>, Modifiers>> data, List<LootItemCondition> pPredicates) {
         super(pPredicates);

@@ -7,6 +7,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.collection.MapStream;
+import net.kapitencraft.kap_lib.collection.StreamEntry;
 import net.kapitencraft.kap_lib.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
@@ -29,7 +30,7 @@ import java.util.function.Function;
 
 public class ArmorRecipe extends CustomRecipe {
     private final Ingredient material;
-    private final List<ShapedRecipe> all;
+    private final Map<ArmorType, CraftingRecipe> all;
     private final Map<ArmorType, ItemStack> entries;
     private final String group;
 
@@ -38,23 +39,23 @@ public class ArmorRecipe extends CustomRecipe {
         this.material = material;
         this.group = group;
         this.entries = all;
-        this.all = MapStream.of(all).mapToSimple(this::create).toList();
+        this.all = MapStream.of(all).biMap((armorType, stack) -> new StreamEntry<>(armorType, this.create(armorType, stack))).toMap();
     }
 
-    private ShapedRecipe create(ArmorType type, ItemStack stack) {
+    private CraftingRecipe create(ArmorType type, ItemStack stack) {
         ShapedRecipePattern pattern = type.makePattern(this.material);
         return new ShapedRecipe(getGroup(), category(), pattern, stack);
     }
 
     @Override
     public boolean matches(@NotNull CraftingInput container, @NotNull Level level) {
-        return this.all.stream().anyMatch(recipe -> recipe.matches(container, level));
+        return this.all.values().stream().anyMatch(recipe -> recipe.matches(container, level));
     }
 
     @SuppressWarnings("DataFlowIssue")
     @Override
     public @NotNull ItemStack assemble(@NotNull CraftingInput pContainer, @NotNull HolderLookup.Provider pRegistryAccess) {
-        for (ShapedRecipe recipe : all) {
+        for (CraftingRecipe recipe : all.values()) {
             if (recipe.matches(pContainer, null)) {
                 return recipe.assemble(pContainer, pRegistryAccess);
             }
@@ -62,7 +63,7 @@ public class ArmorRecipe extends CustomRecipe {
         return ItemStack.EMPTY;
     }
 
-    public List<ShapedRecipe> getAll() {
+    public Map<ArmorType, CraftingRecipe> getAll() {
         return all;
     }
 
@@ -156,7 +157,7 @@ public class ArmorRecipe extends CustomRecipe {
                 if (!BuiltInRegistries.ITEM.containsValue(stack.getItem())) return DataResult.error(() -> "unable to find item '" + stack.getItem() + "' in the registry");
                 ResourceLocation location = BuiltInRegistries.ITEM.getKey(stack.getItem());
                 String val = location.getPath();
-                if ( !val.endsWith("_" + entry.getKey().getSerializedName())) merged = null;
+                if (!val.endsWith("_" + entry.getKey().getSerializedName())) merged = null;
                 else {
                     String element = val.substring(0, val.length() - entry.getKey().getSerializedName().length() - 1);
                     if (merged == null) {
@@ -165,7 +166,7 @@ public class ArmorRecipe extends CustomRecipe {
                 }
                 locations.add(location);
             }
-            if (!merged.isEmpty()) return DataResult.success(Either.left(merged));
+            if (merged != null && !merged.isEmpty()) return DataResult.success(Either.left(merged));
             return DataResult.success(Either.right(locations));
         }
 
@@ -185,7 +186,6 @@ public class ArmorRecipe extends CustomRecipe {
             }
             return DataResult.success(ImmutableMap.copyOf(stackMap));
         }
-        //TODO codec
 
         public static @NotNull ArmorRecipe fromNetwork(RegistryFriendlyByteBuf buf) {
             String group = buf.readUtf();
@@ -204,7 +204,7 @@ public class ArmorRecipe extends CustomRecipe {
         public static void toNetwork(RegistryFriendlyByteBuf buf, ArmorRecipe recipe) {
             buf.writeUtf(recipe.group);
             Ingredient.CONTENTS_STREAM_CODEC.encode(buf, recipe.material);
-            recipe.all.stream()
+            recipe.all.values().stream()
                     .map(shapedRecipe -> shapedRecipe.getResultItem(null))
                     .map(ItemStack::getItem)
                     .map(BuiltInRegistries.ITEM::getKey)

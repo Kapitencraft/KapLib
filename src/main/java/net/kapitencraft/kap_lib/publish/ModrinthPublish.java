@@ -23,7 +23,7 @@ public class ModrinthPublish {
         String modName = config.modName();
         String modVersion = config.modVersion();
         String mcVersion = config.mcVersion();
-        String fmlVersion = config.fmlVersion();
+        String fmlVersion = config.loaderVersion();
         try {
             URL url = new URL(API_URL);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();

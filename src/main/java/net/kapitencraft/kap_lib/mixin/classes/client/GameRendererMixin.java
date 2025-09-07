@@ -16,8 +16,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
-    @Shadow protected abstract void renderItemInHand(PoseStack pPoseStack, Camera pActiveRenderInfo, float pPartialTicks);
-
     @Redirect(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V"))
     private void addCameraControl(Camera instance, BlockGetter pLevel, Entity pEntity, boolean pDetached, boolean pThirdPersonReverse, float pPartialTicks) {
         CameraController controller = LibClient.cameraControl;

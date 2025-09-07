@@ -1,53 +1,68 @@
 package net.kapitencraft.kap_lib.spawn_table.functions;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
-import net.kapitencraft.kap_lib.spawn_table.SpawnPool;
+import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class AddPassengersFunction extends SpawnEntityConditionalFunction {
     public static final MapCodec<AddPassengersFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            SpawnPool.CODEC.fieldOf("passengers").forGetter(f -> f.pool)
+            SpawnTable.GATHER_CODEC.fieldOf("passengers").forGetter(f -> f.passengers)
     ).and(commonFields(i).t1()).apply(i, AddPassengersFunction::new));
 
-    private final SpawnPool pool;
+    private final Either<ResourceKey<SpawnTable>, SpawnTable> passengers;
 
-    protected AddPassengersFunction(SpawnPool pool, List<LootItemCondition> pPredicates) {
+    protected AddPassengersFunction(Either<ResourceKey<SpawnTable>, SpawnTable> passengers, List<LootItemCondition> pPredicates) {
         super(pPredicates);
-        this.pool = pool;
+        this.passengers = passengers;
     }
 
-    public static Builder builder(SpawnPool.Builder builder) {
-        return new Builder(builder);
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
     protected Entity run(Entity pEntity, SpawnContext pContext) {
         pEntity.getIndirectPassengers();
-        pool.addRandomEntities(entity -> {
+        SpawnTable table = passengers.map(k -> pContext.getResolver().get(ExtraRegistries.Keys.SPAWN_TABLES, k).map(Holder::value).orElse(SpawnTable.EMPTY), Function.identity());
+        table.getRandomEntitiesRaw(pContext, entity -> {
             entity.startRiding(pEntity, true);
-        }, pContext);
+        });
         return pEntity;
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.ADD_PASSENGERS.get();
     }
 
     public static class Builder extends SpawnEntityConditionalFunction.Builder<Builder> {
-        private final SpawnPool builder;
+        private Either<ResourceKey<SpawnTable>, SpawnTable> builder;
 
-        public Builder(SpawnPool.Builder builder) {
-            this.builder = builder.build();
+        public Builder() {
+        }
+
+        public Builder withTable(ResourceKey<SpawnTable> key) {
+            builder = Either.left(key);
+            return this;
+        }
+
+        public Builder withTable(SpawnTable table) {
+            builder = Either.right(table);
+            return this;
         }
 
         @Override

@@ -20,6 +20,6 @@ public interface ExtraParticleTypes {
     DeferredRegister<ParticleType<?>> REGISTRY = KapLibMod.registry(Registries.PARTICLE_TYPE);
 
     Supplier<DamageIndicatorParticleOptions> DAMAGE_INDICATOR = REGISTRY.register("damage_indicator", () -> new DamageIndicatorParticleOptions(TextHelper.damageIndicatorCoder("heal"), 1, 1));
-    Supplier<ShimmerShieldParticleOptions> SHIMMER_SHIELD = REGISTRY.register("shimmer_shield", ()-> new ShimmerShieldParticleOptions(0, 0, 0, 0, 0, 0, new Color(0), new Color(0), 0, UUID.randomUUID()));
+    Supplier<ShimmerShieldParticleOptions> SHIMMER_SHIELD = REGISTRY.register("shimmer_shield", ()-> new ShimmerShieldParticleOptions(0, 0, 0, 0, 0, 0, Color.BLACK_NO_ALPHA, Color.BLACK_NO_ALPHA, 0, UUID.randomUUID()));
     Supplier<LightningParticleOptions> LIGHTNING = REGISTRY.register("lightning", () -> new LightningParticleOptions(Vec3.ZERO, Vec3.ZERO, 2, 100, 0, 0));
 }

@@ -33,7 +33,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 
-@EventBusSubscriber(Dist.CLIENT)
 public class EnchantmentDescriptionManager {
 
     private static final Style INFO_STYLE = Style.EMPTY.withColor(ChatFormatting.WHITE).withBold(false).withStrikethrough(false).withItalic(false).withObfuscated(false).withUnderlined(false);

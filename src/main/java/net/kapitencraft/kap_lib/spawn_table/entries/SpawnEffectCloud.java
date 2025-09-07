@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
 import com.mojang.datafixers.Products;
+import com.mojang.datafixers.kinds.App;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -46,7 +47,7 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
         ).apply(i, SpawnEffectCloud::fromCodec);
     });
 
-    private static Object fromCodec(Integer integer, Integer integer1,
+    private static SpawnEffectCloud fromCodec(Integer integer, Integer integer1,
                                     List<LootItemCondition> lootItemConditions, List<SpawnEntityFunction> spawnEntityFunctions,
                                     Either<Holder<Potion>, List<MobEffectInstance>> holderListEither,
                                     Float aFloat, Float aFloat1, Float aFloat2, Integer integer2, Integer integer3, Integer integer4, Optional<LootContext.EntityTarget> entityTarget) {

@@ -1,11 +1,13 @@
 package net.kapitencraft.kap_lib.helpers;
 
+import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.client.particle.DamageIndicatorParticleOptions;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.ActivateShakePacket;
+import net.kapitencraft.kap_lib.spawn_table.SpawnPool;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.kapitencraft.kap_lib.util.Color;
 import net.kapitencraft.kap_lib.util.ExtraRarities;
@@ -59,8 +61,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,6 +73,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -524,5 +529,26 @@ public class MiscHelper {
 
     public static Holder<net.minecraft.world.damagesource.DamageType> lookupDamageTypeHolder(Level level, ResourceKey<net.minecraft.world.damagesource.DamageType> key) {
         return level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key);
+    }
+
+    @ApiStatus.Internal
+    public static Codec<List<SpawnPool>> spawnPoolsCodec(BiConsumer<SpawnPool, String> nameSetter) {
+        var decoder = ConditionalOps.createConditionalCodec(SpawnPool.CODEC).listOf()
+                .map(pools -> {
+                    if (pools.size() == 1) {
+                        if (pools.getFirst().isPresent() && pools.getFirst().get().getName() == null) {
+                            nameSetter.accept(pools.getFirst().get(), "main");
+                        }
+                    } else {
+                        for (int i = 0; i < pools.size(); ++i) {
+                            if (pools.get(i).isPresent() && pools.get(i).get().getName() == null) {
+                                nameSetter.accept(pools.get(i).get(), "pool" + i);
+                            }
+                        }
+                    }
+
+                    return pools.stream().filter(Optional::isPresent).map(Optional::get).toList();
+                });
+        return Codec.of(SpawnPool.CODEC.listOf(), decoder);
     }
 }

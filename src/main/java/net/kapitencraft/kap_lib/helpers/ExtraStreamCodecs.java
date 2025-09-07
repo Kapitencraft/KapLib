@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.helpers;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Function10;
 import com.mojang.datafixers.util.Function7;
@@ -27,9 +29,7 @@ import org.checkerframework.checker.units.qual.K;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 
 public class ExtraStreamCodecs {
@@ -210,11 +210,74 @@ public class ExtraStreamCodecs {
         return ResourceLocation.STREAM_CODEC.map(r -> TagKey.create(key, r), TagKey::location);
     }
 
-    public static <B extends ByteBuf, K, V> StreamCodec<B, Multimap<K, V>> multimap(StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec) {
-        return ByteBufCodecs.map(HashMap::new, keyCodec, valueCodec.apply(ByteBufCodecs.list())).map(CollectionHelper::fromListMap, CollectionHelper::fromMultimap);
+    static <B extends ByteBuf, V, K> StreamCodec.CodecOperation<B, V, Map<K, V>> map(StreamCodec<? super B, K> keyCodec) {
+        return p_320272_ -> ByteBufCodecs.map(HashMap::new, keyCodec, p_320272_);
     }
 
-    public static <B extends ByteBuf, MK, K, V> StreamCodec<ByteBuf, DoubleMap<MK, K, V>> doubleMap(StreamCodec<? super B, MK> key1Codec, StreamCodec<? super B, K> key2Codec, StreamCodec<? super B, V> valueCodec) {
-        return ByteBufCodecs.map(HashMap::new, key1Codec, ByteBufCodecs.map(HashMap::new, key2Codec, valueCodec)).map(DoubleMap::of, d -> d);
+    public static <B extends ByteBuf, K, V> StreamCodec<B, Multimap<K, V>> multimap(StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec) {
+        return new StreamCodec<>() {
+            @Override
+            public Multimap<K, V> decode(B buffer) {
+                int size = buffer.readInt();
+                Multimap<K, V> map = HashMultimap.create();
+                for (int i = 0; i < size; i++) {
+                    K key = keyCodec.decode(buffer);
+                    int vSize = buffer.readInt();
+                    List<V> values = new ArrayList<>();
+                    for (int j = 0; j < vSize; j++) {
+                        values.add(valueCodec.decode(buffer));
+                        map.putAll(key, values);
+                    }
+                }
+                return map;
+            }
+
+            @Override
+            public void encode(B buffer, Multimap<K, V> value) {
+                Set<K> keys = value.keySet();
+                buffer.writeInt(keys.size());
+                for (K k : keys) {
+                    keyCodec.encode(buffer, k);
+                    Collection<V> values = value.get(k);
+                    buffer.writeInt(value.size());
+                    values.forEach(v -> valueCodec.encode(buffer, v));
+                }
+            }
+        };
+    }
+
+    public static <B extends ByteBuf, MK, K, V> StreamCodec<B, DoubleMap<MK, K, V>> doubleMap(StreamCodec<? super B, MK> key1Codec, StreamCodec<? super B, K> key2Codec, StreamCodec<? super B, V> valueCodec) {
+        return new StreamCodec<>() {
+            @Override
+            public DoubleMap<MK, K, V> decode(B buffer) {
+                int size = buffer.readInt();
+                DoubleMap<MK, K, V> map = new DoubleMap<>();
+                for (int i = 0; i < size; i++) {
+                    MK mk = key1Codec.decode(buffer);
+                    int size1 = buffer.readInt();
+                    Map<K, V> entry = new HashMap<>();
+                    for (int i1 = 0; i1 < size1; i1++) {
+                        entry.put(key2Codec.decode(buffer), valueCodec.decode(buffer));
+                    }
+                    map.put(mk, entry);
+                }
+                return map;
+            }
+
+            @Override
+            public void encode(B buffer, DoubleMap<MK, K, V> value) {
+                Set<MK> keys = value.keySet();
+                buffer.writeInt(keys.size());
+                for (MK key : keys) {
+                    key1Codec.encode(buffer, key);
+                    Map<K, V> map = value.get(key);
+                    buffer.writeInt(map.size());
+                    map.forEach((k, v) -> {
+                        key2Codec.encode(buffer, k);
+                        valueCodec.encode(buffer, v);
+                    });
+                }
+            }
+        };
     }
 }

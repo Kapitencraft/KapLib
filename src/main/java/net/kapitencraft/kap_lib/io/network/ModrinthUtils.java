@@ -25,7 +25,7 @@ public class ModrinthUtils {
 
         String projectVersionURL = PROJECT_URL + projectId + "/version";
         String requestParams = "?loaders=" +
-                URLEncoder.encode(JsonHelper.GSON.toJson(new String[]{"forge"}), StandardCharsets.UTF_8) +
+                URLEncoder.encode(JsonHelper.GSON.toJson(new String[]{"neoforge"}), StandardCharsets.UTF_8) +
                 "&game_versions=" + URLEncoder.encode(JsonHelper.GSON.toJson(new Object[]{gameVersion}), StandardCharsets.UTF_8);
         URL url = new URL(projectVersionURL + requestParams);
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();

@@ -60,7 +60,7 @@ public class UpdateChecker {
 
     private static Config loadConfig() {
         File file = new File(KapLibMod.ROOT, "update_checker_config.json");
-        return IOHelper.loadOrCreateFile(file, Config.CODEC, () -> new Config(false, ReleaseState.RELEASE));
+        return IOHelper.loadOrCreateFile(file, Config.CODEC, () -> new Config(false, Channel.RELEASE));
     }
 
     public static void run() {
@@ -71,23 +71,23 @@ public class UpdateChecker {
         thread.start();
     }
 
-    private record Config(boolean autoUpdate, ReleaseState state) {
+    private record Config(boolean autoUpdate, Channel channel) {
         private static final Codec<Config> CODEC = RecordCodecBuilder.create(configInstance -> configInstance
                 .group(
                         Codec.BOOL.optionalFieldOf("auto_update", false).forGetter(Config::autoUpdate),
-                        ReleaseState.CODEC.optionalFieldOf("release_state", ReleaseState.RELEASE).forGetter(Config::state)
+                        Channel.CODEC.optionalFieldOf("channel", Channel.RELEASE).forGetter(Config::channel)
                 ).apply(configInstance, Config::new)
         );
     }
 
-    private enum ReleaseState implements StringRepresentable {
+    private enum Channel implements StringRepresentable {
         RELEASE("release"),
         BETA("beta"),
         ALPHA("alpha");
 
         private final String name;
 
-        ReleaseState(String name) {
+        Channel(String name) {
             this.name = name;
         }
 
@@ -100,7 +100,7 @@ public class UpdateChecker {
             return this == ALPHA || (this == BETA ? !"alpha".equals(val) : "release".equals(val));
         }
 
-        private static final EnumCodec<ReleaseState> CODEC = StringRepresentable.fromEnum(ReleaseState::values);
+        private static final EnumCodec<Channel> CODEC = StringRepresentable.fromEnum(Channel::values);
     }
 
     private static void registerUpdater(String projectId, String modId, Pattern versionExtractor) {
@@ -165,10 +165,15 @@ public class UpdateChecker {
                     .filterKeys(Objects::nonNull)
                     .mapKeys(ComparableVersion::new).toMap();
 
+            if (versionData.isEmpty()) {
+                LOGGER.warn("unable to find any versions.");
+                return Result.failed(updateData.modId);
+            }
+
             List<ComparableVersion> versions = new ArrayList<>(versionData.keySet());
             versions.sort(ComparableVersion::compareTo);
 
-            ComparableVersion newest = versions.get(versions.size() - 1);
+            ComparableVersion newest = versions.getLast();
             int compare = newest.compareTo(currentModVersion);
             if (compare > 0) {
                 JsonObject newestVersionData = versionData.get(newest);
@@ -187,7 +192,7 @@ public class UpdateChecker {
         } catch (IOException e) {
             LOGGER.warn("error checking for update on project '{}'", updateData.modId);
         } catch (IllegalStateException | IndexOutOfBoundsException e) {
-            LOGGER.warn("provided pattern for mod '{}' was unable to parse version string '{}'", updateData.modId, e.getMessage());
+            LOGGER.warn("provided pattern for mod '{}' was unable to parse version string '{}'", updateData.modId, modInfo.versionString());
         }
         return Result.failed(updateData.modId);
     }

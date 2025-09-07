@@ -9,5 +9,5 @@
   "mod_name": "${mod_name}",
   "mod_version": "${mod_version}",
   "mc_version": "${minecraft_version}",
-  "fml_version": "${forge_version}"
+  "loader_version": "${neo_version}"
 }

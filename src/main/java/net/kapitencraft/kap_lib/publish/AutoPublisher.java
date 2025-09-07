@@ -28,14 +28,12 @@ public class AutoPublisher {
     static final File CATEGORIES = new File("publish/categories.json");
 
     record Config(String email, String author,
-                          String modId, String modName,
-                          String modVersion, String mcVersion,
-                          String fmlVersion, String projectId,
-                          String[] extraFiles,
-                          JsonObject[] dependencies
-    ) {
-
-    }
+                  String modId, String modName,
+                  String modVersion, String mcVersion,
+                  String loaderVersion, String projectId,
+                  String[] extraFiles,
+                  JsonObject[] dependencies
+    ) {}
 
     private static Config loadConfig() throws FileNotFoundException {
         FileReader reader = new FileReader(CONFIG);
@@ -47,7 +45,7 @@ public class AutoPublisher {
                 object.getAsJsonPrimitive("mod_name").getAsString(),
                 object.getAsJsonPrimitive("mod_version").getAsString(),
                 object.getAsJsonPrimitive("mc_version").getAsString(),
-                object.getAsJsonPrimitive("fml_version").getAsString(),
+                object.getAsJsonPrimitive("loader_version").getAsString(),
                 object.getAsJsonPrimitive("project_id").getAsString(),
                 optionalList("extra_files", object).stream().map(JsonElement::getAsString).toArray(String[]::new),
                 optionalList("dependencies", object).stream().map(JsonElement::getAsJsonObject).toArray(JsonObject[]::new)
@@ -71,9 +69,9 @@ public class AutoPublisher {
         String modName = config.modName;
         String modVersion = config.modVersion;
         String mcVersion = config.mcVersion;
-        String fmlVersion = config.fmlVersion;
+        String fmlVersion = config.loaderVersion;
         LOGGER.info("Auto Publish activated with args:");
-        LOGGER.info("modId=\"{}\", modName=\"{}\", modVersion={}, mcVersion={}, fmlVersion={}", modId, modName, modVersion, mcVersion, fmlVersion);
+        LOGGER.info("modId=\"{}\", modName=\"{}\", modVersion={}, mcVersion={}, loaderVersion={}", modId, modName, modVersion, mcVersion, fmlVersion);
 
         try {
             if (DATA_CACHE.exists()) {

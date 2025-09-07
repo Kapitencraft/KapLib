@@ -84,14 +84,12 @@ public class KapLibMod {
         Overlays.REGISTRY.register(modEventBus);
 
         VanillaComponentContentTypes.REGISTRY.register(modEventBus);
-        VanillaDataSourceTypes.REGISTRY.register(modEventBus);
         VanillaInventoryPages.REGISTRY.register(modEventBus);
 
         if (GameTestHooks.isGametestEnabled()) {
             TestItems.REGISTRY.register(modEventBus);
             TestCooldowns.REGISTRY.register(modEventBus);
         }
-
 
         container.registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         container.registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);

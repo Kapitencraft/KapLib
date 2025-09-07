@@ -17,7 +17,6 @@ public class ModLanguageProvider extends EnglishLanguageProvider {
         addAttribute(ExtraAttributes.ABILITY_DAMAGE, ChatFormatting.RED);
         addAttribute(ExtraAttributes.ARMOR_SHREDDER, null);
         addAttribute(ExtraAttributes.PROJECTILE_SPEED, null);
-        addAttribute(ExtraAttributes.ARROW_COUNT, null);
         addAttribute(ExtraAttributes.BONUS_ATTACK_SPEED, ChatFormatting.YELLOW);
         addAttribute(ExtraAttributes.CRIT_DAMAGE, ChatFormatting.DARK_BLUE);
         addAttribute(ExtraAttributes.DODGE, ChatFormatting.BLACK);

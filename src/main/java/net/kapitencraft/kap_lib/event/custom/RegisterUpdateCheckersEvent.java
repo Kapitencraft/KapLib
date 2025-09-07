@@ -13,7 +13,7 @@ public class RegisterUpdateCheckersEvent extends Event implements IModBusEvent {
     private final Consumers.C3<String, String, Pattern> sink;
 
     public static final Pattern VERSION_PATTERN = Pattern.compile("\\d+.\\d+(.\\d+)?");
-    public static final Pattern DEFAULT_PATTERN = Pattern.compile("v(" + VERSION_PATTERN.pattern() + ")-mc" + VERSION_PATTERN.pattern() + "-FML" + VERSION_PATTERN.pattern());
+    public static final Pattern DEFAULT_PATTERN = Pattern.compile("v(" + VERSION_PATTERN.pattern() + ")-mc" + VERSION_PATTERN.pattern());
 
     public RegisterUpdateCheckersEvent(Consumers.C3<String, String, Pattern> sink) {
         this.sink = sink;

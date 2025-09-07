@@ -16,7 +16,7 @@ import java.util.List;
 public record SyncWearablesToPlayerPacket(int playerId, List<ItemStack> list) implements CustomPacketPayload {
     public static final StreamCodec<RegistryFriendlyByteBuf, SyncWearablesToPlayerPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, SyncWearablesToPlayerPacket::playerId,
-            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), SyncWearablesToPlayerPacket::list,
+            ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()), SyncWearablesToPlayerPacket::list,
             SyncWearablesToPlayerPacket::new
     );
 

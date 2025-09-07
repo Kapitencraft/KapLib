@@ -9,7 +9,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -28,6 +30,12 @@ public class ClientboundSetEntityMotionPacketMixin implements ScaledClientMotion
         this.ya = (int) (pDeltaMovement.y * deltaScale * 8000);
         this.za = (int) (pDeltaMovement.z * deltaScale * 8000);
     }
+
+    @ModifyConstant(method = {"getXa", "getYa", "getZa"}, constant = @Constant(doubleValue = 8000d))
+    private double addDeltaScale(double constant) {
+        return constant * getScale();
+    }
+
 
     @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("TAIL"))
     private void readScaleFromNW(FriendlyByteBuf pBuffer, CallbackInfo ci) {

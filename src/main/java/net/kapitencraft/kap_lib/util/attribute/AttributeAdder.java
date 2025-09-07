@@ -23,7 +23,6 @@ public class AttributeAdder {
         addAll(event, ExtraAttributes.STRENGTH, ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.CRIT_DAMAGE, ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.RANGED_DAMAGE, ONLY_WITH_BRAIN);
-        addAll(event, ExtraAttributes.ARROW_COUNT, ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.MAGIC_DEFENCE, ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.TRUE_DEFENCE, ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.BONUS_ATTACK_SPEED, ONLY_WITH_BRAIN);

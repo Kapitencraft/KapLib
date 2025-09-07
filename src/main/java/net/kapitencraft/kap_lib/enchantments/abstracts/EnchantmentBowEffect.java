@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
@@ -11,14 +13,13 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.function.Function;
 
 public interface EnchantmentBowEffect {
     Codec<EnchantmentBowEffect> CODEC = ExtraRegistries.ENCHANTMENT_BOW_EFFECT_TYPE.byNameCodec().dispatch(EnchantmentBowEffect::codec, Function.identity());
 
     @ApiStatus.Internal
-    HashMap<ResourceLocation, Execution> executionMap = new HashMap<>();
+    Multimap<ResourceLocation, Execution> executionMap = HashMultimap.create();
 
     static int getLevel(CompoundTag tag) {
         return tag.getInt("Level");
@@ -35,7 +36,9 @@ public interface EnchantmentBowEffect {
             if (tag.contains(string, 10)) {
                 CompoundTag elementTag = tag.getCompound(string);
                 int level = getLevel(elementTag);
-                oldDamage = executionMap.get(location).execute(level, target, elementTag, type, oldDamage, arrow);
+                for (Execution execution : executionMap.get(location)) {
+                    oldDamage = execution.execute(level, target, elementTag, type, oldDamage, arrow);
+                }
             }
         }
         return oldDamage;

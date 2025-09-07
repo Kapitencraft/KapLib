@@ -1,11 +1,11 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.minecraft.SharedConstants;
+import net.minecraft.util.StringUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(SharedConstants.class)
-public class SharedConstantsMixin {
+@Mixin(StringUtil.class)
+public class StringUtilMixin {
 
     @ModifyConstant(method = "isAllowedChatCharacter")
     private static int modify(int in) {

@@ -27,7 +27,7 @@ import java.util.function.Function;
  */
 public class NestedSpawnTable extends SpawnPoolSingletonContainer {
    public static final MapCodec<NestedSpawnTable> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-           Codec.either(ResourceKey.codec(ExtraRegistries.Keys.SPAWN_TABLES), SpawnTable.DIRECT_CODEC).fieldOf("value").forGetter(f -> f.entry)
+           SpawnTable.GATHER_CODEC.fieldOf("value").forGetter(f -> f.entry)
    ).and(singletonFields(i)).apply(i, NestedSpawnTable::new));
 
 

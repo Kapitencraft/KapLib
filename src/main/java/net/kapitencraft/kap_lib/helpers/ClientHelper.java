@@ -208,7 +208,7 @@ public class ClientHelper {
         ParticleEngine engine = Minecraft.getInstance().particleEngine;
         SpriteSet spriteSet = engine.spriteSets.get(BuiltInRegistries.PARTICLE_TYPE.getKey(ParticleTypes.FIREWORK.getType()));
         FireworkParticles.SparkParticle particle = new FireworkParticles.SparkParticle(level, loc.x, loc.y, loc.z, random.nextGaussian() * 0.05D, -delta.y * 0.5D, random.nextGaussian() * 0.05D, engine, spriteSet);
-        particle.setColor(startColor.r, startColor.g, startColor.b);
+        particle.setColor(startColor.r(), startColor.g(), startColor.b());
         particle.setFadeColor(fadeColor.pack());
         engine.add(particle);
     }

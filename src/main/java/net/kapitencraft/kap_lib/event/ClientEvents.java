@@ -34,7 +34,7 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    public void onAddAttributeTooltips(AddAttributeTooltipsEvent event) {
+    public static void onAddAttributeTooltips(AddAttributeTooltipsEvent event) {
         ItemStack stack = event.getStack();
         if (stack.getItem() instanceof IWearable wearable) {
             for (Map.Entry<ResourceKey<WearableSlot>, WearableSlot> slotEntry : ExtraRegistries.WEARABLE_SLOTS.entrySet()) {

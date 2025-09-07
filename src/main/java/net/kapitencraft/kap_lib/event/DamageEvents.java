@@ -7,6 +7,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.spawners.EntityBBSpawn
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentCountEffect;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.S2C.DisplayTotemActivationPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
@@ -54,6 +55,7 @@ import org.jetbrains.annotations.ApiStatus;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @ApiStatus.Internal
 @EventBusSubscriber
@@ -121,6 +123,16 @@ public class DamageEvents {
             CompoundTag tag = arrow.getPersistentData();
             event.setNewDamage(EnchantmentBowEffect.loadFromTag(attacked, tag, EnchantmentBowEffect.ExePhase.HIT, event.getNewDamage(), arrow));
         }
+
+        DamageSource source = event.getSource();
+        @Nullable LivingEntity attacker = MiscHelper.getAttacker(source);
+        if (attacker == null) { return; }
+        MiscHelper.DamageType type = MiscHelper.getDamageType(source);
+        ItemStack stack = attacker.getMainHandItem();
+        EnchantmentHelper.runIterationOnEquipment(attacker, (enchantment, level, item) -> {
+            EnchantmentCountEffect effect = enchantment.value().effects().get(ExtraEnchantmentEffectComponents.COUNT.get());
+            if (effect != null) event.setNewDamage(effect.tryExecute(enchantment, level, item, attacker, attacked, event.getNewDamage(), source));
+        });
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

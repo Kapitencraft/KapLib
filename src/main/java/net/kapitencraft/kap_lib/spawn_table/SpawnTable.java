@@ -1,16 +1,19 @@
 package net.kapitencraft.kap_lib.spawn_table;
 
 import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.*;
@@ -30,24 +33,25 @@ public class SpawnTable {
            p_338123_ -> p_338123_.group(
                            LootContextParamSets.CODEC.lenientOptionalFieldOf("type", DEFAULT_PARAM_SET).forGetter(p_298001_ -> p_298001_.paramSet),
                            ResourceLocation.CODEC.optionalFieldOf("random_sequence").forGetter(p_297998_ -> Optional.ofNullable(p_297998_.randomSequence)),
-                           SpawnPool.lootPoolsCodec(SpawnPool::setName).optionalFieldOf("pools", List.of()).forGetter(p_298002_ -> p_298002_.pools),
+                           MiscHelper.spawnPoolsCodec(SpawnPool::setName).optionalFieldOf("pools", List.of()).forGetter(p_298002_ -> p_298002_.pools),
                            net.neoforged.neoforge.common.conditions.ConditionalOps.decodeListWithElementConditions(SpawnEntityFunctions.ROOT_CODEC).optionalFieldOf("functions", List.of()).forGetter(p_298000_ -> p_298000_.functions)
                    )
                    .apply(p_338123_, SpawnTable::new)
    );
    public static final Codec<Holder<SpawnTable>> CODEC = RegistryFileCodec.create(ExtraRegistries.Keys.SPAWN_TABLES, DIRECT_CODEC);
+   public static final Codec<Either<ResourceKey<SpawnTable>, SpawnTable>> GATHER_CODEC = Codec.either(ResourceKey.codec(ExtraRegistries.Keys.SPAWN_TABLES), SpawnTable.DIRECT_CODEC);
 
    //public static final LootDataType<SpawnTable> DATA_TYPE = new LootDataType<>(PARSER, SpawnTableProvider::getSpawnTableSerializer, "spawn_tables", createValidator());
 
    static final Logger LOGGER = LogUtils.getLogger();
-   public static final SpawnTable EMPTY = new SpawnTable(LootContextParamSets.EMPTY, null, List.of(), List.of());
+   public static final SpawnTable EMPTY = new SpawnTable(LootContextParamSets.EMPTY, Optional.empty(), List.of(), List.of());
    final LootContextParamSet paramSet;
    final ResourceLocation randomSequence;
    private final List<SpawnPool> pools;
    final List<SpawnEntityFunction> functions;
    private final BiFunction<Entity, SpawnContext, Entity> compositeFunction;
 
-   SpawnTable(LootContextParamSet pParamSet, @Nullable Optional<ResourceLocation> pRandomSequence, List<SpawnPool> pPools, List<SpawnEntityFunction> pFunctions) {
+   SpawnTable(LootContextParamSet pParamSet, Optional<ResourceLocation> pRandomSequence, List<SpawnPool> pPools, List<SpawnEntityFunction> pFunctions) {
       this.paramSet = pParamSet;
       this.randomSequence = pRandomSequence.orElse(null);
       this.pools = Lists.newArrayList(pPools);

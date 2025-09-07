@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageReader;
 import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageWriter;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -36,8 +37,8 @@ public abstract class CreativeModeInventoryScreenMixin extends EffectRenderingIn
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void fixTabIssue(Player pPlayer, FeatureFlagSet pEnabledFeatures, boolean pDisplayOperatorCreativeTab, CallbackInfo ci) {
-        InventoryPageIO inventoryPageIO = ((InventoryPageIO) pPlayer.inventoryMenu);
+    private void fixTabIssue(LocalPlayer player, FeatureFlagSet enabledFeatures, boolean displayOperatorCreativeTab, CallbackInfo ci) {
+        InventoryPageIO inventoryPageIO = ((InventoryPageIO) player.inventoryMenu);
         this.originalTab = inventoryPageIO.getPageIndex();
         inventoryPageIO.setPage(0);
     }

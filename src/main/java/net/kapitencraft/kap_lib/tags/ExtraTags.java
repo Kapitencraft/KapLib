@@ -17,7 +17,7 @@ public class ExtraTags {
         TagKey<DamageType> PARTICLE_WEAPON = forgeKey("particle_weapon");
 
         private static TagKey<DamageType> forgeKey(String subName) {
-            return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("forge", subName));
+            return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("c", subName));
         }
     }
 
@@ -36,7 +36,7 @@ public class ExtraTags {
         TagKey<Item> HITS_ENDERMAN = modKey("hits_enderman");
 
         private static TagKey<Item> forgeKey(String path) {
-            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", path));
+            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));
         }
         private static TagKey<Item> modKey(String path) {
             return TagKey.create(Registries.ITEM, KapLibMod.res(path));
@@ -50,7 +50,7 @@ public class ExtraTags {
         TagKey<EntityType<?>> ENDER_MOBS = forgeKey("ender_mobs");
 
         private static TagKey<EntityType<?>> forgeKey(String path) {
-            return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("forge", path));
+            return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("c", path));
         }
     }
 

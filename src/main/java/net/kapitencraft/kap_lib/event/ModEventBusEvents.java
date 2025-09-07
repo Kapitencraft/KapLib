@@ -38,11 +38,6 @@ public class ModEventBusEvents {
         ExtraRegistries.registerAll(event::register);
     }
 
-    @SubscribeEvent
-    public static void onModifyRegistries(ModifyRegistriesEvent event) {
-        event.getRegistry(Registries.ENCHANTMENT).addCallback(new ExtraRegistryCallbacks.EnchantmentCallback());
-    }
-
 
     @SubscribeEvent
     public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {

@@ -4,10 +4,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.fml.common.asm.enumextension.EnumProxy;
 
+@SuppressWarnings("unused")
 public class ExtraRarityProxies {
-    private static final EnumProxy<Rarity> LEGENDARY_PROXY = new EnumProxy<>(Rarity.class, -1, "kap_lib:legendary", ChatFormatting.GOLD);
-    private static final EnumProxy<Rarity> MYTHIC_PROXY = new EnumProxy<>(Rarity.class, -1, "kap_lib:mythic", ChatFormatting.DARK_PURPLE);
-    private static final EnumProxy<Rarity> DIVINE_PROXY = new EnumProxy<>(Rarity.class, -1, "kap_lib:divine", ChatFormatting.AQUA);
+    public static final EnumProxy<Rarity> LEGENDARY_PROXY = new EnumProxy<>(Rarity.class, -1, "kap_lib:legendary", ChatFormatting.GOLD);
+    public static final EnumProxy<Rarity> MYTHIC_PROXY = new EnumProxy<>(Rarity.class, -1, "kap_lib:mythic", ChatFormatting.DARK_PURPLE);
+    public static final EnumProxy<Rarity> DIVINE_PROXY = new EnumProxy<>(Rarity.class, -1, "kap_lib:divine", ChatFormatting.AQUA);
 
 
 }

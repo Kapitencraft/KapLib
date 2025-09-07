@@ -32,6 +32,28 @@ import java.util.Objects;
 
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends AbstractContainerScreen<InventoryMenu> {
+    @Unique
+    private static final ResourceLocation[] UNSELECTED_TOP_TABS = new ResourceLocation[]{
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_unselected_1"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_unselected_2"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_unselected_3"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_unselected_4"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_unselected_5"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_unselected_6"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_unselected_7")
+    };
+    @Unique
+    private static final ResourceLocation[] SELECTED_TOP_TABS = new ResourceLocation[]{
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_1"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_2"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_3"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_4"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_5"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_6"),
+            ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_7")
+    };
+
+    //TODO fix unable to pickup
 
     @Shadow protected abstract boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY);
 
@@ -53,7 +75,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         super(pMenu, pPlayerInventory, pTitle);
     }
 
-    @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/InventoryScreen;setInitialFocus(Lnet/minecraft/client/gui/components/events/GuiEventListener;)V", shift = At.Shift.AFTER))
+    @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/InventoryScreen;addWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", shift = At.Shift.AFTER))
     private void initPages(CallbackInfo ci) {
         InventoryPageReader reader = (InventoryPageReader) this.menu;
         InventoryPage[] pages = reader.getPages();
@@ -150,6 +172,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         }
     }
 
+    //TODO add ctrl + tab page swap
     @Inject(method = "renderLabels", at = @At("HEAD"), cancellable = true)
     private void cancelIfOtherPage(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, CallbackInfo ci) {
         if (((InventoryPageReader) this.menu).getPageIndex() != 0) ci.cancel();
@@ -157,18 +180,15 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     @Unique
     private void renderPageButton(GuiGraphics pGuiGraphics, InventoryPage page, boolean selected, int positionIndex)    {
-        int j = positionIndex == 0 ? 0 : 26;
-        int k = 0;
         int l = this.leftPos + positionIndex * 28;
         int i1 = this.topPos - 28;
-        if (selected) {
-            k += 32;
-        }
+
+        ResourceLocation[] aresourcelocation = selected ? SELECTED_TOP_TABS : UNSELECTED_TOP_TABS;
 
         RenderSystem.enableBlend(); //Forge: Make sure blend is enabled else tabs show a white border.
         pGuiGraphics.pose().pushPose();
         if (selected) pGuiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
-        pGuiGraphics.blit(page.tabLocation(), l, i1, j, k, 26, 32);
+        pGuiGraphics.blitSprite(aresourcelocation[positionIndex], l, i1, 26, 32);
         l += 5;
         i1 += 9;
         if (!selected) pGuiGraphics.pose().translate(0.0F, 0.0F, 100.0F);

@@ -5,7 +5,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.88'
 }
 
-version = "v${mod_version}-mc${mc_version}-NFML${neo_version}"
+version = "v${mod_version}-mc${mc_version}"
 group = mod_group_id
 
 base {
@@ -152,12 +152,13 @@ tasks.named('processResources', ProcessResources).configure {
     var metaProperties = [
             minecraft_version   : mc_version, minecraft_version_range: minecraft_version_range,
             neo_version         : neo_version, neo_version_range: neo_version_range,
+            loader_version_range: loader_version_range,
             mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
             mod_authors         : mod_authors, mod_description: mod_description,
     ]
     inputs.properties metaProperties
 
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
         expand metaProperties + [project: project]
     }
 

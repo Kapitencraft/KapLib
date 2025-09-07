@@ -14,9 +14,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
@@ -25,7 +23,6 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,38 +32,16 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class SpawnPool {
-   public static final Codec<SpawnPool> CODEC = RecordCodecBuilder.create(
-           p_344669_ -> p_344669_.group(
-                           SpawnPoolEntries.CODEC.listOf().fieldOf("entries").forGetter(p_297995_ -> p_297995_.entries),
-                           LootItemCondition.DIRECT_CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(p_297992_ -> p_297992_.conditions),
-                           SpawnEntityFunctions.ROOT_CODEC.listOf().optionalFieldOf("functions", List.of()).forGetter(p_297994_ -> p_297994_.functions),
-                           NumberProviders.CODEC.fieldOf("rolls").forGetter(p_297993_ -> p_297993_.rolls),
-                           NumberProviders.CODEC.fieldOf("bonus_rolls").orElse(ConstantValue.exactly(0.0F)).forGetter(p_297997_ -> p_297997_.bonusRolls),
-                           Codec.STRING.optionalFieldOf("name").forGetter(pool -> java.util.Optional.ofNullable(pool.name).filter(name -> !name.startsWith("custom#")))
-                   )
-                   .apply(p_344669_, SpawnPool::new)
+   public static final Codec<SpawnPool> CODEC = RecordCodecBuilder.create(inst ->
+           inst.group(
+                   SpawnPoolEntries.CODEC.listOf().fieldOf("entries").forGetter(p_297995_ -> p_297995_.entries),
+                   LootItemCondition.DIRECT_CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(p_297992_ -> p_297992_.conditions),
+                   SpawnEntityFunctions.ROOT_CODEC.listOf().optionalFieldOf("functions", List.of()).forGetter(p_297994_ -> p_297994_.functions),
+                   NumberProviders.CODEC.fieldOf("rolls").forGetter(p_297993_ -> p_297993_.rolls),
+                   NumberProviders.CODEC.fieldOf("bonus_rolls").orElse(ConstantValue.exactly(0.0F)).forGetter(p_297997_ -> p_297997_.bonusRolls),
+                   Codec.STRING.optionalFieldOf("name").forGetter(pool -> java.util.Optional.ofNullable(pool.name).filter(name -> !name.startsWith("custom#")))
+           ).apply(inst, SpawnPool::new)
    );
-
-   public static Codec<List<SpawnPool>> lootPoolsCodec(BiConsumer<SpawnPool, String> nameSetter) {
-      var decoder = ConditionalOps.createConditionalCodec(SpawnPool.CODEC).listOf()
-              .map(pools -> {
-                 if (pools.size() == 1) {
-                    if (pools.get(0).isPresent() && pools.get(0).get().getName() == null) {
-                       nameSetter.accept(pools.get(0).get(), "main");
-                    }
-                 } else {
-                    for (int i = 0; i < pools.size(); ++i) {
-                       if (pools.get(i).isPresent() && pools.get(i).get().getName() == null) {
-                          nameSetter.accept(pools.get(i).get(), "pool" + i);
-                       }
-                    }
-                 }
-
-                 return pools.stream().filter(Optional::isPresent).map(Optional::get).toList();
-              });
-      return Codec.of(SpawnPool.CODEC.listOf(), decoder);
-   }
-
 
    final List<SpawnPoolEntryContainer> entries;
    final List<LootItemCondition> conditions;

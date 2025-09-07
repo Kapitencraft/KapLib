@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
@@ -54,15 +55,15 @@ public class ClientboundAddEntityPacketMixin {
     }
 
     @Inject(method = "write", at = @At("TAIL"))
-    private void addExtraByteToNW(FriendlyByteBuf pBuffer, CallbackInfo ci) {
-        pBuffer.writeByte(xRot2);
-        pBuffer.writeByte(yRot2);
+    private void addExtraByteToNW(RegistryFriendlyByteBuf buffer, CallbackInfo ci) {
+        buffer.writeByte(xRot2);
+        buffer.writeByte(yRot2);
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("TAIL"))
-    private void readExtraByteFromNW(FriendlyByteBuf pBuffer, CallbackInfo ci) {
-        this.xRot2 = pBuffer.readByte();
-        this.yRot2 = pBuffer.readByte();
+    @Inject(method = "<init>(Lnet/minecraft/network/RegistryFriendlyByteBuf;)V", at = @At("TAIL"))
+    private void readExtraByteFromNW(RegistryFriendlyByteBuf buffer, CallbackInfo ci) {
+        this.xRot2 = buffer.readByte();
+        this.yRot2 = buffer.readByte();
     }
 
     /**

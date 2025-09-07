@@ -67,6 +67,7 @@ public class Events {
     /**
      * event classes that should not be cancelled
      */
+    //TODO re-add
     private static final List<Class<? extends LivingEvent>> dontCancel = List.of(
             ItemTooltipEvent.class,
             RenderPlayerEvent.Pre.class,
@@ -79,11 +80,6 @@ public class Events {
             MovementInputUpdateEvent.class,
             LivingBreatheEvent.class
     );
-
-    @SubscribeEvent
-    public static void ensureReqsMet(LivingEvent event) { //cancel any PlayerEvent that don't meet the item requirements
-        if (event instanceof ICancellableEvent iCE && !dontCancel.contains(event.getClass()) && !RequirementManager.meetsItemRequirementsFromEvent(event, EquipmentSlot.MAINHAND) && iCE.isCanceled()) iCE.setCanceled(true);
-    }
 
     @SubscribeEvent
     public static void addRequirementListener(AddReloadListenerEvent event) {
@@ -171,7 +167,7 @@ public class Events {
     }
 
     @SubscribeEvent
-    public static void serverTick(EntityTickEvent event) {
+    public static void tickArrows(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof AbstractArrow arrow) {
             CompoundTag arrowTag = arrow.getPersistentData();
             EnchantmentBowEffect.loadFromTag(null, arrowTag, EnchantmentBowEffect.ExePhase.TICK, 0, arrow);
@@ -196,7 +192,7 @@ public class Events {
     public static final String DOUBLE_JUMP_ID = "currentDoubleJump";
 
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent event) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         CompoundTag tag = player.getPersistentData();
         if (!player.onGround()) {
@@ -216,7 +212,7 @@ public class Events {
 
 
     @SubscribeEvent
-    public static void entityTick(EntityTickEvent event) {
+    public static void entityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof LivingEntity living) || living.isDeadOrDying()) return;
         Cooldowns.get(living).tick();
@@ -232,7 +228,7 @@ public class Events {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onBlockBreak(BlockDropsEvent event) {
+    public static void onBlockBreak(BlockDropsEvent event) {
         if (event.getBreaker() instanceof Player player) {
             double scale = AttributeHelper.getExperienceScale(player);
             event.setDroppedExperience((int) (event.getDroppedExperience() * scale));
@@ -240,7 +236,7 @@ public class Events {
     }
 
     @SubscribeEvent
-    public void onLivingExperienceDrop(LivingExperienceDropEvent event) {
+    public static void onLivingExperienceDrop(LivingExperienceDropEvent event) {
         Player player = event.getAttackingPlayer();
         if (player != null) {
             event.setDroppedExperience((int) (event.getDroppedExperience() * AttributeHelper.getExperienceScale(player)));

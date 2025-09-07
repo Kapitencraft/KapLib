@@ -19,6 +19,6 @@ public record SyncBonusesPacket(BonusManager.Data data) implements CustomPacketP
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return null;
+        return TYPE;
     }
 }

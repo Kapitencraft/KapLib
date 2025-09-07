@@ -71,7 +71,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@EventBusSubscriber
 public class BonusManager extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -119,7 +118,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     public static void createFromData(Data data) {
-        instance = new BonusManager();
+        updateInstance();
         instance.itemBonuses.putAll(data.itemBonuses);
         instance.sets.putAll(data.sets);
     }
@@ -150,7 +149,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
 
     @SubscribeEvent
-    public void onLivingTick(EntityTickEvent event) {
+    public void onLivingTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof LivingEntity l && !l.level().isClientSide()) //ONLY SERVERSIDE
             getLookup(l).ifPresent(BonusLookup::tick); //only tick when necessary
     }
@@ -161,12 +160,12 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     private final Map<ResourceLocation, BonusElement> bonusData = new HashMap<>();
     private final DoubleMap<Item, ResourceLocation, BonusElement> itemBonuses = DoubleMap.create();
     private final Map<LivingEntity, BonusLookup> lookupMap = new HashMap<>();
-    public final StreamCodec<? super RegistryFriendlyByteBuf, ? extends AbstractBonusElement> streamCodec = ResourceLocation.STREAM_CODEC.map(location -> {
+    public final StreamCodec<? super RegistryFriendlyByteBuf, AbstractBonusElement> streamCodec = ResourceLocation.STREAM_CODEC.map(location -> {
         if (location.getPath().startsWith("set/")) {
             return getSet(location.withPath(s -> s.substring(4)));
         }
         return getItemBonus(location);
-    }, BonusElement::getId);
+    }, AbstractBonusElement::getId);
 
     public BonusElement getSet(ResourceLocation location) {
         return Objects.requireNonNull(sets.get(location), "unknown set bonus: '" + location + "'");
@@ -207,11 +206,10 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     public Codec<AbstractBonusElement> getElementCodec() {
         return ResourceLocation.CODEC.comapFlatMap(location -> {
             if (location.getPath().startsWith("set/"))
-                return BonusManager.instance
-                        .tryGetSet(location.withPath(s -> s.substring(4)))
+                return this.tryGetSet(location.withPath(s -> s.substring(4)))
                         .map(DataResult::success)
                         .orElseGet(() -> DataResult.error(() -> "unknown set bonus: '" + location + "'"));
-            return BonusManager.instance.tryGetItemBonus(location)
+            return this.tryGetItemBonus(location)
                     .map(DataResult::success)
                     .orElseGet(() -> DataResult.error(() -> "unknown item bonus: '" + location + "'"));
         }, AbstractBonusElement::getId);
@@ -324,7 +322,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
         private static class SetData {
 
-            //TODO convert to binary
             private long mask = 0;
 
             public void removeEquipment(EquipmentSlot slot) {
@@ -519,9 +516,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             Vec2i count = getSetBonusCount(living, setBonusElement);
             TextColor color = !enabled || count.x == 0 ?
                     TextColor.fromLegacyFormat(ChatFormatting.RED) :
-                    new Color(ChatFormatting.GREEN)
+                    Color.fromFormatting(ChatFormatting.GREEN)
                             .mix(
-                                    new Color(ChatFormatting.RED),
+                                    Color.fromFormatting(ChatFormatting.RED),
                                     count.x / (float) count.y
                             ).toTextColor();
             join1.append(" (")

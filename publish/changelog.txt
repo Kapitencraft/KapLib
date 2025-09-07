@@ -23,3 +23,9 @@ removed ExtraCodecs.DATA_SOURCE in favour of DataSource.CODEC
 modified WearableSlot's #is method to take a Holder<WearableSlot> instead of Supplier<WearableSlot>
 moved ExtraCodecs.BONUS -> Bonus.CODEC
 removed IDatagenElement as it wasn't useful anymore
+moved BaseAttributeUUIDs from ./item to ./util/attribute
+renamed BaseAttributeUUIDs to BaseAttributeLocations
+removed ARROW_COUNT attribute
+removed DATA_SOURCE_TYPES registry as it wasn't used anymore
+renamed CountEnchantment to EnchantmentCountEffect
+renamed publish_config.json$fml_version -> loader_version

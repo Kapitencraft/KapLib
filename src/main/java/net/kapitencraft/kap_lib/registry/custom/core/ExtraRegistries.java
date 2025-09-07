@@ -11,6 +11,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentCountEffect;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.io.serialization.RegistrySerializer;
@@ -36,15 +37,21 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface ExtraRegistries {
+
+    @ApiStatus.Internal
+    List<Registry<?>> registries = new ArrayList<>();
+
     Registry<OverlayProperties> OVERLAY_PROPERTIES = reg(Keys.OVERLAY_PROPERTIES);
     Registry<GlyphEffect> GLYPH_EFFECTS = reg(Keys.GLYPH_EFFECTS);
     Registry<RegistrySerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
-    Registry<RegistrySerializer<? extends Bonus<?>>> BONUS_SERIALIZER = reg(Keys.BONUS_SERIALIZERS);
-    Registry<Codec<? extends AttributeModifier>> ATTRIBUTE_MODIFIER_TYPES = reg(Keys.ATTRIBUTE_MODIFIER_TYPES);
-    Registry<ComponentContents.Type<?>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
-    Registry<Codec<? extends DataSource>> DATA_SOURCE_TYPES = reg(Keys.DATA_SOURCE_TYPES);
+    Registry<RegistrySerializer<? extends Bonus<?>>> BONUS_SERIALIZER = syncReg(Keys.BONUS_SERIALIZERS);
 
+    //TODO re-add. invoke may be too early
+    Registry<ComponentContents.Type<?>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
+
+    //region enchantment
     Registry<MapCodec<? extends EnchantmentBowEffect>> ENCHANTMENT_BOW_EFFECT_TYPE = reg(Keys.ENCHANTMENT_BOW_EFFECTS);
+    Registry<MapCodec<? extends EnchantmentCountEffect>> ENCHANTMENT_COUNT_EFFECT_TYPE = reg(Keys.ENCHANTMENT_COUNT_EFFECTS);
 
     Registry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = reg(Keys.MODIFIER_TYPES);
     Registry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = reg(Keys.SPAWNER_TYPES);
@@ -62,11 +69,14 @@ public interface ExtraRegistries {
 
     Registry<Cooldown> COOLDOWNS = reg(Keys.COOLDOWNS);
 
-    @ApiStatus.Internal
-    List<Registry<?>> registries = new ArrayList<>();
-
     private static <T> Registry<T> reg(ResourceKey<Registry<T>> key) {
         Registry<T> registry = new RegistryBuilder<>(key).create();
+        registries.add(registry);
+        return registry;
+    }
+
+    private static <T> Registry<T> syncReg(ResourceKey<Registry<T>> key) {
+        Registry<T> registry = new RegistryBuilder<>(key).sync(true).create();
         registries.add(registry);
         return registry;
     }
@@ -87,12 +97,9 @@ public interface ExtraRegistries {
         ResourceKey<Registry<RegistrySerializer<? extends Bonus<?>>>> BONUS_SERIALIZERS = createRegistry("bonus_serializers");
         ResourceKey<Registry<Codec<? extends AttributeModifier>>> ATTRIBUTE_MODIFIER_TYPES = vanillaRegistry("attribute_modifier_types");
         ResourceKey<Registry<ComponentContents.Type<?>>> COMPONENT_CONTENTS_TYPES = vanillaRegistry("component_contents_types");
-        /**
-         * used to create codec. very unlikely that anyone finds an actual use for this
-         */
-        ResourceKey<Registry<MapCodec<? extends DataSource>>> DATA_SOURCE_TYPES = vanillaRegistry("data_source_types");
 
         ResourceKey<Registry<MapCodec<? extends EnchantmentBowEffect>>> ENCHANTMENT_BOW_EFFECTS = createRegistry("enchantment_bow_effects");
+        ResourceKey<Registry<MapCodec<? extends EnchantmentCountEffect>>> ENCHANTMENT_COUNT_EFFECTS = createRegistry("enchantment_count_effects");
 
         //PARTICLE ANIMATION
         ResourceKey<Registry<AnimationElement.Type<?>>> MODIFIER_TYPES = createRegistry("particle_animation/element_types");

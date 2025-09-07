@@ -4,44 +4,37 @@ import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Range;
 
-public class Color {
-    public static final Codec<Color> CODEC = Codec.INT.xmap(Color::new, Color::pack);
-    public static final StreamCodec<ByteBuf, Color> STREAM_CODEC = ByteBufCodecs.INT.map(Color::new, Color::pack);
+public record Color(float r, float g, float b, float a) {
+    public static final Color RED = Color.fromARGBPacked(0xFFFF0000);
+    public static final Color GREEN = Color.fromARGBPacked(0xFF00FF00);
+    public static final Color BLUE = Color.fromARGBPacked(0xFF0000FF);
+    public static final Color BLACK_NO_ALPHA = Color.fromARGBPacked(0);
 
-    public final float r, g, b, a;
+    public static final Codec<Color> CODEC = Codec.INT.xmap(Color::fromARGBPacked, Color::pack);
+    public static final StreamCodec<ByteBuf, Color> STREAM_CODEC = StreamCodec.of((buffer, value) -> value.write(buffer), Color::read);
 
     /**
      * color from r, g, b and a values
      */
-    public Color(float r, float g, float b, float a) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
+    public Color {
     }
 
-    /**
-     * color from vanilla ChatFormatting
-     */
     @SuppressWarnings("DataFlowIssue")
-    public Color(ChatFormatting color) {
-        this(color.getColor());
+    public static Color fromFormatting(ChatFormatting formatting) {
+        return fromARGBPacked(formatting.getColor());
     }
 
-    /**
-     * color from packed 32-bit integer. format ARGB
-     */
-    public Color(int packed) {
-        this.a = (packed >> 24 & 255) / 255f;
-        this.r = (packed >> 16 & 255) / 255f;
-        this.g = (packed >> 8 & 255) / 255f;
-        this.b = (packed & 255) / 255f;
+    public static Color fromARGBPacked(int packed) {
+        return new Color(
+                (packed >> 16 & 255) / 255f,
+                (packed >> 8 & 255) / 255f,
+                (packed & 255) / 255f,
+                (packed >> 24 & 255) / 255f
+        );
     }
 
     /**
@@ -67,7 +60,7 @@ public class Color {
      * packs this color into 32-bit ARGB integer
      */
     public int pack() {
-        return MathHelper.ARGBtoInt((int) (this.r * 255), (int) (this.g * 255), (int) (this.b * 255), (int) (this.a * 255));
+        return MathHelper.ARGBtoInt((int) (this.a * 255), (int) (this.r * 255), (int) (this.g * 255), (int) (this.b * 255));
     }
 
 
@@ -75,12 +68,12 @@ public class Color {
         return other.mul(1 - percentage).add(this.mul(percentage));
     }
 
-    public void write(FriendlyByteBuf pBuffer) {
+    public void write(ByteBuf pBuffer) {
         pBuffer.writeInt(this.pack());
     }
 
-    public static Color read(FriendlyByteBuf buf) {
-        return new Color(buf.readInt());
+    public static Color read(ByteBuf buf) {
+        return Color.fromARGBPacked(buf.readInt());
     }
 
     public TextColor toTextColor() {

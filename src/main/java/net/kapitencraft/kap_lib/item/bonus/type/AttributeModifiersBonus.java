@@ -29,11 +29,12 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.Attr;
 
 import java.util.function.UnaryOperator;
 
 public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, EquipmentDisplayExtension {
-    private static final Codec<Multimap<Holder<Attribute>, AttributeModifier>> ENTRIES_CODEC = Codec.unboundedMap(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), ExtraCodecs.ATTRIBUTE_MODIFIER.listOf()).xmap(CollectionHelper::fromListMap, CollectionHelper::fromMultimap);
+    private static final Codec<Multimap<Holder<Attribute>, AttributeModifier>> ENTRIES_CODEC = Codec.unboundedMap(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), AttributeModifier.CODEC.listOf()).xmap(CollectionHelper::fromListMap, CollectionHelper::fromMultimap);
     private static final MapCodec<AttributeModifiersBonus> CODEC = RecordCodecBuilder.mapCodec(attributeModifiersBonusInstance -> attributeModifiersBonusInstance.group(
             ENTRIES_CODEC.fieldOf("entries").forGetter(AttributeModifiersBonus::getModifiers),
             Type.CODEC.optionalFieldOf("bracket_type", Type.NONE).forGetter(AttributeModifiersBonus::getType),
@@ -43,7 +44,8 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus>, 
     public static final StreamCodec<RegistryFriendlyByteBuf, AttributeModifiersBonus> STREAM_CODEC = StreamCodec.composite(
             ExtraStreamCodecs.multimap(ByteBufCodecs.holderRegistry(Registries.ATTRIBUTE), AttributeModifier.STREAM_CODEC), AttributeModifiersBonus::getModifiers,
             Type.STREAM_CODEC, AttributeModifiersBonus::getType,
-            Style
+            Style.Serializer.TRUSTED_STREAM_CODEC, AttributeModifiersBonus::getStyle,
+            AttributeModifiersBonus::new
     );
 
     public static final RegistrySerializer<AttributeModifiersBonus> SERIALIZER = new RegistrySerializer<>(

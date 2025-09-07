@@ -24,6 +24,6 @@ public record ActivateShakePacket(float intensity, float strength, float frequen
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return null;
+        return TYPE;
     }
 }

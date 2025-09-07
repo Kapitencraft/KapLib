@@ -7,14 +7,14 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.function.Supplier;
 
 public class DataPackSerializer<T> extends JsonSerializer<T> {
-    private final StreamCodec<RegistryFriendlyByteBuf, T> streamCodec;
+    private final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec;
 
     public DataPackSerializer(Codec<T> codec, Supplier<T> defaulted, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
         super(codec, defaulted);
         this.streamCodec = streamCodec;
     }
 
-    public DataPackSerializer(Codec<T> codec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
+    public DataPackSerializer(Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
         super(codec);
         this.streamCodec = streamCodec;
     }
@@ -23,7 +23,7 @@ public class DataPackSerializer<T> extends JsonSerializer<T> {
         return new DataPackSerializer<>(Codec.unit(sup), sup, StreamCodec.unit(sup.get()));
     }
 
-    public StreamCodec<RegistryFriendlyByteBuf, T> getStreamCodec() {
+    public StreamCodec<? super RegistryFriendlyByteBuf, T> getStreamCodec() {
         return streamCodec;
     }
 }

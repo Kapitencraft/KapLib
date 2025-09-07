@@ -21,7 +21,7 @@ public class ManaHandler {
 
     @SuppressWarnings("all")
     @SubscribeEvent
-    public static void manaChange(PlayerTickEvent event) {
+    public static void manaChange(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         AttributeInstance maxManaInstance = player.getAttribute(ExtraAttributes.MAX_MANA);
         if (!isMagical(player)) {

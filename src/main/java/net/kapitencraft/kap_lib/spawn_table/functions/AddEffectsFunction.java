@@ -27,8 +27,6 @@ public class AddEffectsFunction extends SpawnEntityConditionalFunction {
             MobEffectInstance.CODEC.listOf().fieldOf("effects").forGetter(f -> f.effects)
     ).and(commonFields(i).t1()).apply(i, AddEffectsFunction::new));
 
-    public static final JsonSerializer<List<MobEffectInstance>> EFFECT_SERIALIZER = new JsonSerializer<>(ExtraCodecs.EFFECT.listOf(), List::of);
-
     private final List<MobEffectInstance> effects;
 
     protected AddEffectsFunction(List<MobEffectInstance> effects, List<LootItemCondition> pPredicates) {
