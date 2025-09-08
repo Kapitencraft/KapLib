@@ -1,16 +1,19 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
 import net.kapitencraft.kap_lib.inventory.wrapper.RecipeBookButtonWrapper;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPage;
 import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderers;
 import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderer;
 import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageIO;
 import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageReader;
+import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageWriter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
@@ -18,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -52,8 +56,6 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
             ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_6"),
             ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_7")
     };
-
-    //TODO fix unable to pickup
 
     @Shadow protected abstract boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY);
 
@@ -163,7 +165,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
             if (page.isVisible(this.minecraft.player)) {
                 visible[index] = i;
                 renderPageButton(pGuiGraphics, page, selected == i, index++);
-            };
+            }
         }
         if (selected != 0) {
             pGuiGraphics.blit(renderer.pageBackgroundLocation(), this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
@@ -172,7 +174,6 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         }
     }
 
-    //TODO add ctrl + tab page swap
     @Inject(method = "renderLabels", at = @At("HEAD"), cancellable = true)
     private void cancelIfOtherPage(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, CallbackInfo ci) {
         if (((InventoryPageReader) this.menu).getPageIndex() != 0) ci.cancel();
@@ -196,5 +197,13 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         pGuiGraphics.renderItem(itemstack, l, i1);
         pGuiGraphics.renderItemDecorations(this.font, itemstack, l, i1);
         pGuiGraphics.pose().popPose();
+    }
+
+    @Inject(method = "keyPressed", at = @At("HEAD"))
+    private void addPageSwap(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+        if (keyCode == GLFW.GLFW_KEY_TAB && Screen.hasControlDown()) {
+            ((InventoryPageIO) this.menu).cycle();
+            this.renderer = this.renderers[((InventoryPageReader) this.menu).getPageIndex()];
+        }
     }
 }

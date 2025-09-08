@@ -107,7 +107,7 @@ public class PlayerHeadAllocator extends FontSet {
     }
 
     private char addPlayer(UUID uuid) {
-        GameProfile profile = new GameProfile(uuid, null);
+        GameProfile profile = Minecraft.getInstance().level.getPlayerByUUID(uuid).getGameProfile();
         if (index >= maxIndex) {
             this.reallocate();
         }
@@ -234,7 +234,7 @@ public class PlayerHeadAllocator extends FontSet {
         int y = index / 10 * 72;
         float atlasWidth = this.atlas.getWidth();
         float atlasHeight = this.atlas.getHeight();
-        glyphs[index] = new BakedGlyph(renderTypes, x / atlasWidth, (x + 72) / atlasWidth, y / atlasHeight, (y + 72) / atlasHeight, 0, 8, 2.5f, 11);
+        glyphs[index] = new BakedGlyph(renderTypes, x / atlasWidth, (x + 72) / atlasWidth, y / atlasHeight, (y + 72) / atlasHeight, 0, 8, -1, 7.5f);
     }
 
     public void init() {

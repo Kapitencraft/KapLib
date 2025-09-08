@@ -46,9 +46,6 @@ public interface ExtraRegistries {
     Registry<RegistrySerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
     Registry<RegistrySerializer<? extends Bonus<?>>> BONUS_SERIALIZER = syncReg(Keys.BONUS_SERIALIZERS);
 
-    //TODO re-add. invoke may be too early
-    Registry<ComponentContents.Type<?>> COMPONENT_CONTENT_TYPES = reg(Keys.COMPONENT_CONTENTS_TYPES);
-
     //region enchantment
     Registry<MapCodec<? extends EnchantmentBowEffect>> ENCHANTMENT_BOW_EFFECT_TYPE = reg(Keys.ENCHANTMENT_BOW_EFFECTS);
     Registry<MapCodec<? extends EnchantmentCountEffect>> ENCHANTMENT_COUNT_EFFECT_TYPE = reg(Keys.ENCHANTMENT_COUNT_EFFECTS);

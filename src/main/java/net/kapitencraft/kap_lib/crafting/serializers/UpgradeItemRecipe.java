@@ -51,7 +51,8 @@ public class UpgradeItemRecipe extends CustomRecipe {
     @Override
     public ItemStack assemble(CraftingInput pContainer, HolderLookup.Provider pRegistryAccess) {
         ItemStack source = pContainer.getItem(4);
-        ItemStack result = this.result.copy(); //TODO data components
+        ItemStack result = this.result.copy();
+        result.applyComponents(source.getComponentsPatch());
         return result;
     }
 

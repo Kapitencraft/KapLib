@@ -72,4 +72,9 @@ public abstract class InventoryMenuMixin extends AbstractContainerMenu implement
     public void setPage(int page) {
         this.openPage = page;
     }
+
+    @Override
+    public void cycle() {
+        if (++openPage >= pages.length) openPage = 0;
+    }
 }

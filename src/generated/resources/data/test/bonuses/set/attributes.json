@@ -1,0 +1,23 @@
+{
+  "type": "kap_lib:attribute_modifiers",
+  "bonus": {
+    "type": "kap_lib:attribute_modifiers",
+    "entries": {
+      "minecraft:generic.luck": [
+        {
+          "amount": 20.0,
+          "id": "kap_lib:test",
+          "operation": "add_value"
+        }
+      ]
+    }
+  },
+  "equipment_slots": [
+    "chest",
+    "feet",
+    "legs",
+    "mainhand",
+    "head"
+  ],
+  "wearable_slots": []
+}
