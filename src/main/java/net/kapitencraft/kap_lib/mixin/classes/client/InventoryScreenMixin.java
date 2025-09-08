@@ -100,7 +100,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         int relativeX = (int) pMouseX - this.leftPos;
         if (relativeX > 0 && relativeX < this.imageWidth) {
             if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
-                cir.setReturnValue(this.renderer.onMouseClicked(relativeX, relativeY, pButton));
+                if (this.renderer.onMouseClicked(relativeX, relativeY, pButton)) cir.setReturnValue(true);
             } else if (relativeY >= -32 && relativeY <= 0) {
                 InventoryPageIO pageIo = (InventoryPageIO) this.menu;
                 int index = relativeX / 28;

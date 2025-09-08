@@ -215,7 +215,7 @@ public class Events {
     public static void entityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof LivingEntity living) || living.isDeadOrDying()) return;
-        Cooldowns.get(living).tick();
+        if (living instanceof Player) Cooldowns.get(living).tick();
         if (living instanceof Mob mob) {
             if (mob.getTarget() != null && mob.getTarget().isInvisible()) {
                 mob.setTarget(null);
