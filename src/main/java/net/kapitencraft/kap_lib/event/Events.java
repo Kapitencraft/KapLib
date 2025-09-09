@@ -230,7 +230,7 @@ public class Events {
     @SubscribeEvent
     public static void entityTick(LivingEvent.LivingTickEvent event) {
         LivingEntity living = event.getEntity();
-        if (living.isDeadOrDying()) return;
+        if (living.isDeadOrDying() || living.isRemoved()) return;
         Cooldowns.get(living).tick();
         BonusHelper.tickEnchantments(living);
         CompoundTag tag = living.getPersistentData();
