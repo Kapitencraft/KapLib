@@ -43,7 +43,7 @@ public class SpawnTableProvider implements DataProvider {
    private final CompletableFuture<HolderLookup.Provider> registries;
 
    public SpawnTableProvider(PackOutput pOutput, Set<ResourceKey<SpawnTable>> pRequiredTables, List<SpawnTableProvider.SubProviderEntry> pSubProviders, CompletableFuture<HolderLookup.Provider> registries) {
-      this.pathProvider = pOutput.createPathProvider(PackOutput.Target.DATA_PACK, "spawn_tables");
+      this.pathProvider = pOutput.createPathProvider(PackOutput.Target.DATA_PACK, "kap_lib/spawn_tables");
       this.subProviders = pSubProviders;
       this.requiredTables = pRequiredTables;
       this.registries = registries;

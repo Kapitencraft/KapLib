@@ -8,18 +8,18 @@
         "duration": 20,
         "id": "minecraft:haste",
         "neoforge:cures": [
-          "milk",
-          "protected_by_totem"
+          "protected_by_totem",
+          "milk"
         ],
         "show_icon": true
       }
     ]
   },
   "equipment_slots": [
-    "chest",
+    "head",
     "feet",
-    "legs",
-    "head"
+    "chest",
+    "legs"
   ],
   "wearable_slots": [
     "kap_lib:belt"

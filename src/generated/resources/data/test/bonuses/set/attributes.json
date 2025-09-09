@@ -13,11 +13,11 @@
     }
   },
   "equipment_slots": [
-    "chest",
+    "head",
     "feet",
-    "legs",
     "mainhand",
-    "head"
+    "chest",
+    "legs"
   ],
   "wearable_slots": []
 }

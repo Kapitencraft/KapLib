@@ -50,13 +50,13 @@ public interface ExtraRegistries {
     Registry<MapCodec<? extends EnchantmentBowEffect>> ENCHANTMENT_BOW_EFFECT_TYPE = reg(Keys.ENCHANTMENT_BOW_EFFECTS);
     Registry<MapCodec<? extends EnchantmentCountEffect>> ENCHANTMENT_COUNT_EFFECT_TYPE = reg(Keys.ENCHANTMENT_COUNT_EFFECTS);
 
-    Registry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = reg(Keys.MODIFIER_TYPES);
-    Registry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = reg(Keys.SPAWNER_TYPES);
-    Registry<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = reg(Keys.FINALIZER_TYPES);
-    Registry<TerminationTrigger<?>> TERMINATION_TRIGGERS = reg(Keys.TERMINATOR_TYPES);
-    Registry<ActivationTrigger<?>> ACTIVATION_TRIGGERS = reg(Keys.ACTIVATION_TRIGGERS);
+    Registry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = syncReg(Keys.MODIFIER_TYPES);
+    Registry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = syncReg(Keys.SPAWNER_TYPES);
+    Registry<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = syncReg(Keys.FINALIZER_TYPES);
+    Registry<TerminationTrigger<?>> TERMINATION_TRIGGERS = syncReg(Keys.TERMINATOR_TYPES);
+    Registry<ActivationTrigger<?>> ACTIVATION_TRIGGERS = syncReg(Keys.ACTIVATION_TRIGGERS);
 
-    Registry<Modifier.Type<?>> CAMERA_MODIFIERS = reg(Keys.CAMERA_MODIFIERS);
+    Registry<Modifier.Type<?>> CAMERA_MODIFIERS = syncReg(Keys.CAMERA_MODIFIERS);
 
     Registry<SpawnEntityFunctionType<?>> SPAWN_FUNCTION_TYPES = reg(Keys.FUNCTION_TYPES);
     Registry<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPES = reg(Keys.POOL_ENTRY_TYPES);
@@ -64,7 +64,7 @@ public interface ExtraRegistries {
     Registry<WearableSlot> WEARABLE_SLOTS = reg(Keys.WEARABLE_SLOTS);
     Registry<InventoryPageType<?>> INVENTORY_PAGES = reg(Keys.INVENTORY_PAGES);
 
-    Registry<Cooldown> COOLDOWNS = reg(Keys.COOLDOWNS);
+    Registry<Cooldown> COOLDOWNS = syncReg(Keys.COOLDOWNS);
 
     private static <T> Registry<T> reg(ResourceKey<Registry<T>> key) {
         Registry<T> registry = new RegistryBuilder<>(key).create();
@@ -111,7 +111,7 @@ public interface ExtraRegistries {
         //SPAWN TABLE
         ResourceKey<Registry<SpawnEntityFunctionType<?>>> FUNCTION_TYPES = createRegistry("spawn_table/function_types");
         ResourceKey<Registry<SpawnPoolEntryType>> POOL_ENTRY_TYPES = createRegistry("spawn_table/pool_entry_types");
-        ResourceKey<Registry<SpawnTable>> SPAWN_TABLES = createRegistry("spawn_table");
+        ResourceKey<Registry<SpawnTable>> SPAWN_TABLES = createRegistry("spawn_tables");
 
         ResourceKey<Registry<WearableSlot>> WEARABLE_SLOTS = createRegistry("wearable_slots");
 

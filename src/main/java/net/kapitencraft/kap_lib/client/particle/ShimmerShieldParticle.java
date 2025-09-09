@@ -79,6 +79,12 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
         return this.target == null ? super.getBoundingBox() : this.target.getBoundingBox().inflate(this.target.getBbWidth() * 0.4, this.target.getBbHeight() * 0.4, this.target.getBbWidth() * 0.4);
     }
 
+    @Override
+    public AABB getRenderBoundingBox(float partialTicks) {
+        return getBoundingBox();
+    }
+
+    //TODO fix no particle showing
     private class ShieldElement {
         private int age;
         private final int lifeTime;
@@ -125,7 +131,7 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
             float f7 = getU1();
             float f4 = getV0();
             float f5 = getV1();
-            int j = getLightColor(pPartialTicks);
+            int j = 15728880;
             vertex(pBuffer, avector3f[0], f7, f5, color, j);
             vertex(pBuffer, avector3f[1], f7, f4, color, j);
             vertex(pBuffer, avector3f[2], f6, f4, color, j);

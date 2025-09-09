@@ -5,8 +5,6 @@ import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadContents;
 import net.kapitencraft.kap_lib.event.custom.RegisterComponentTypesEvent;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.network.chat.contents.PlainTextContents;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.util.StringRepresentable;
 import net.neoforged.fml.ModLoader;
 import org.spongepowered.asm.mixin.Mixin;
