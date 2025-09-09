@@ -1,1 +1,2 @@
 fixed a bug where the inventory 2x2 crafting wouldn't consume ingredients
+fixed a bug where the game would crash when entities get removed
