@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.event;
 import net.kapitencraft.kap_lib.client.ExtraComponents;
 import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
@@ -29,11 +30,16 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
@@ -50,9 +56,11 @@ import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
@@ -228,10 +236,35 @@ public class Events {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onBlockBreak(BlockDropsEvent event) {
+    public static void onBlockDrops(BlockDropsEvent event) {
         if (event.getBreaker() instanceof Player player) {
             double scale = AttributeHelper.getExperienceScale(player);
             event.setDroppedExperience((int) (event.getDroppedExperience() * scale));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBlockBreak(BlockEvent.BreakEvent event) {
+        Player player = event.getPlayer();
+        if (player.level() instanceof ServerLevel level) {
+            ItemStack tool = player.getItemBySlot(EquipmentSlot.MAINHAND);
+            if (!tool.isEmpty()) {
+                MutableBoolean mutableBoolean = new MutableBoolean(false);
+                BlockEntity blockEntity = level.getBlockEntity(event.getPos());
+                BlockState state = event.getState();
+                LootParams.Builder builder = new LootParams.Builder(level)
+                        .withParameter(LootContextParams.ATTACKING_ENTITY, player)
+                        .withParameter(LootContextParams.BLOCK_STATE, state)
+                        .withParameter(LootContextParams.TOOL, tool);
+                if (blockEntity != null) builder.withParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+                LootParams params = builder.create(EnchantmentBlockBreakEffect.PARAM_SET);
+                LootContext context = new LootContext.Builder(params).create(Optional.empty());
+                EnchantmentHelper.runIterationOnItem(tool, (holder, i) -> {
+                    for (ConditionalEffect<EnchantmentBlockBreakEffect> effect : holder.value().getEffects(ExtraEnchantmentEffectComponents.BLOCK_BREAK.get())) {
+                        if (effect.matches(context)) mutableBoolean.setValue(effect.effect().onBreak(state, event.getPos(), level, i) || mutableBoolean.booleanValue());
+                    }
+                });
+            }
         }
     }
 
@@ -242,5 +275,4 @@ public class Events {
             event.setDroppedExperience((int) (event.getDroppedExperience() * AttributeHelper.getExperienceScale(player)));
         }
     }
-
 }

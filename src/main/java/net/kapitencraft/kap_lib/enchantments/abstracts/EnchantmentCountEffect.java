@@ -1,10 +1,8 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
-import com.ibm.icu.util.IslamicCalendar;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.io.serialization.NbtSerializer;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.core.Holder;
@@ -25,7 +23,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 public interface EnchantmentCountEffect {
-    Codec<EnchantmentCountEffect> CODEC = ExtraRegistries.ENCHANTMENT_COUNT_EFFECT_TYPE.byNameCodec().dispatch(EnchantmentCountEffect::codec, Function.identity());
+    Codec<EnchantmentCountEffect> CODEC = ExtraRegistries.ENCHANTMENT_COUNT_EFFECTS.byNameCodec().dispatch(EnchantmentCountEffect::codec, Function.identity());
 
     Codec<Map<UUID, Integer>> DATA_CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC, Codec.INT);
     NbtSerializer<Map<UUID, Integer>> SERIALIZER = new NbtSerializer<>(DATA_CODEC, HashMap::new);

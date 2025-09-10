@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public interface EnchantmentBowEffect {
-    Codec<EnchantmentBowEffect> CODEC = ExtraRegistries.ENCHANTMENT_BOW_EFFECT_TYPE.byNameCodec().dispatch(EnchantmentBowEffect::codec, Function.identity());
+    Codec<EnchantmentBowEffect> CODEC = ExtraRegistries.ENCHANTMENT_BOW_EFFECTS.byNameCodec().dispatch(EnchantmentBowEffect::codec, Function.identity());
 
     @ApiStatus.Internal
     Multimap<ResourceLocation, Execution> executionMap = HashMultimap.create();

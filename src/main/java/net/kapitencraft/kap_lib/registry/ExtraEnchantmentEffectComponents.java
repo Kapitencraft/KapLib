@@ -1,10 +1,12 @@
 package net.kapitencraft.kap_lib.registry;
 
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentCountEffect;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.TargetedConditionalEffect;
 import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -30,4 +32,6 @@ public interface ExtraEnchantmentEffectComponents {
             builder.persistent(EnchantmentBowEffect.CODEC.listOf()));
     DeferredHolder<DataComponentType<?>, DataComponentType<EnchantmentCountEffect>> COUNT = register("count", builder ->
             builder.persistent(EnchantmentCountEffect.CODEC));
+    DeferredHolder<DataComponentType<?>, DataComponentType<List<ConditionalEffect<EnchantmentBlockBreakEffect>>>> BLOCK_BREAK = register("block_break", listBuilder ->
+            listBuilder.persistent(ConditionalEffect.codec(EnchantmentBlockBreakEffect.CODEC, EnchantmentBlockBreakEffect.PARAM_SET).listOf()));
 }

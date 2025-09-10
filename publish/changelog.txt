@@ -1,0 +1,1 @@
+cleanup code: removed unnecessary registries

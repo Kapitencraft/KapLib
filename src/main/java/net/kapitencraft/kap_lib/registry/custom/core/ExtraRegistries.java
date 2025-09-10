@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.registry.custom.core;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.cam.modifiers.Modifier;
@@ -10,6 +9,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.co
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
+import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentCountEffect;
 import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
@@ -23,11 +23,8 @@ import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.entries.SpawnPoolEntryType;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.ComponentContents;
-import net.minecraft.network.chat.contents.DataSource;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -47,8 +44,9 @@ public interface ExtraRegistries {
     Registry<RegistrySerializer<? extends Bonus<?>>> BONUS_SERIALIZER = syncReg(Keys.BONUS_SERIALIZERS);
 
     //region enchantment
-    Registry<MapCodec<? extends EnchantmentBowEffect>> ENCHANTMENT_BOW_EFFECT_TYPE = reg(Keys.ENCHANTMENT_BOW_EFFECTS);
-    Registry<MapCodec<? extends EnchantmentCountEffect>> ENCHANTMENT_COUNT_EFFECT_TYPE = reg(Keys.ENCHANTMENT_COUNT_EFFECTS);
+    Registry<MapCodec<? extends EnchantmentBowEffect>> ENCHANTMENT_BOW_EFFECTS = reg(Keys.ENCHANTMENT_BOW_EFFECTS);
+    Registry<MapCodec<? extends EnchantmentCountEffect>> ENCHANTMENT_COUNT_EFFECTS = reg(Keys.ENCHANTMENT_COUNT_EFFECTS);
+    Registry<MapCodec<? extends EnchantmentBlockBreakEffect>> ENCHANTMENT_BLOCK_BREAK_EFFECTS = reg(Keys.ENCHANTMENT_BLOCK_BREAK_EFFECTS);
 
     Registry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = syncReg(Keys.MODIFIER_TYPES);
     Registry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = syncReg(Keys.SPAWNER_TYPES);
@@ -92,11 +90,10 @@ public interface ExtraRegistries {
         ResourceKey<Registry<GlyphEffect>> GLYPH_EFFECTS = createRegistry("glyph_effects");
         ResourceKey<Registry<RegistrySerializer<? extends ReqCondition<?>>>> REQ_CONDITIONS = createRegistry("requirement_conditions");
         ResourceKey<Registry<RegistrySerializer<? extends Bonus<?>>>> BONUS_SERIALIZERS = createRegistry("bonus_serializers");
-        ResourceKey<Registry<Codec<? extends AttributeModifier>>> ATTRIBUTE_MODIFIER_TYPES = vanillaRegistry("attribute_modifier_types");
-        ResourceKey<Registry<ComponentContents.Type<?>>> COMPONENT_CONTENTS_TYPES = vanillaRegistry("component_contents_types");
 
         ResourceKey<Registry<MapCodec<? extends EnchantmentBowEffect>>> ENCHANTMENT_BOW_EFFECTS = createRegistry("enchantment_bow_effects");
         ResourceKey<Registry<MapCodec<? extends EnchantmentCountEffect>>> ENCHANTMENT_COUNT_EFFECTS = createRegistry("enchantment_count_effects");
+        ResourceKey<Registry<MapCodec<? extends EnchantmentBlockBreakEffect>>> ENCHANTMENT_BLOCK_BREAK_EFFECTS = createRegistry("enchantment_block_break_effects");
 
         //PARTICLE ANIMATION
         ResourceKey<Registry<AnimationElement.Type<?>>> MODIFIER_TYPES = createRegistry("particle_animation/element_types");

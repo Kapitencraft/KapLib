@@ -55,7 +55,6 @@ public class KapLibMod {
 
     public KapLibMod(IEventBus modEventBus, ModContainer container) {
 
-        ExtraComponentContents.REGISTRY.register(modEventBus);
         ExtraAttributes.REGISTRY.register(modEventBus);
         ExtraLootModifiers.REGISTRY.register(modEventBus);
         ExtraLootItemConditions.REGISTRY.register(modEventBus);
@@ -83,7 +82,6 @@ public class KapLibMod {
 
         Overlays.REGISTRY.register(modEventBus);
 
-        VanillaComponentContentTypes.REGISTRY.register(modEventBus);
         VanillaInventoryPages.REGISTRY.register(modEventBus);
 
         if (GameTestHooks.isGametestEnabled()) {
