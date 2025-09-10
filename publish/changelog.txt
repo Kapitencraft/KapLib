@@ -1,2 +1,1 @@
-fixed a bug where the inventory 2x2 crafting wouldn't consume ingredients
-fixed a bug where the game would crash when entities get removed
+fixed a crash when closing the game with player head caching enabled and no texture cached

@@ -257,7 +257,7 @@ public class PlayerHeadAllocator extends FontSet {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void shutDown() {
-        if (ClientModConfig.cachePlayerHeads()) {
+        if (ClientModConfig.cachePlayerHeads() && index > 0) {
             File root = new File(KapLibMod.ROOT, "player_heads");
             File image = new File(root, "image.png");
             root.mkdirs();
