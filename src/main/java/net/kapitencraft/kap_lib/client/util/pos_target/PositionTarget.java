@@ -1,8 +1,6 @@
 package net.kapitencraft.kap_lib.client.util.pos_target;
 
 import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
@@ -16,7 +14,8 @@ import java.util.function.Supplier;
  * provides positions for spawning / moving particles
  */
 public interface PositionTarget extends Supplier<Vec3> {
-    StreamCodec<RegistryFriendlyByteBuf, PositionTarget> STREAM_CODEC = StreamCodec.of(PositionTarget.Types::toNw, PositionTarget::fromNw);
+    //TODO fix rotation issue
+    StreamCodec<? super RegistryFriendlyByteBuf, PositionTarget> STREAM_CODEC = StreamCodec.of(PositionTarget.Types::toNw, PositionTarget::fromNw);
 
     static PositionTarget fromNw(RegistryFriendlyByteBuf buf) {
         Types t = Types.values()[buf.readInt()];
@@ -72,10 +71,6 @@ public interface PositionTarget extends Supplier<Vec3> {
             Types types = val.getType();
             buf.writeInt(types.ordinal());
             ((Type<T>) types.type).codec().encode(buf, val);
-        }
-
-        public static Types create(String name, Supplier<Type<? extends PositionTarget>> typeSupplier) {
-            throw new IllegalAccessError("enum not extended!");
         }
     }
 

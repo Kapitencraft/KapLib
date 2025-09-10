@@ -21,7 +21,7 @@ public record RelativePositionTarget(PositionTarget target, Vec3 offset) impleme
     public static class Type implements PositionTarget.Type<RelativePositionTarget> {
         private static final StreamCodec<? super RegistryFriendlyByteBuf, RelativePositionTarget> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, RelativePositionTarget::target,
-                ExtraStreamCodecs.VEC_3, RelativePositionTarget::get,
+                ExtraStreamCodecs.VEC_3, RelativePositionTarget::offset,
                 RelativePositionTarget::new
         );
 

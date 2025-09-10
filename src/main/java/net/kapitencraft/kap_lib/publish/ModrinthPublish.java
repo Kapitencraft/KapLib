@@ -23,7 +23,7 @@ public class ModrinthPublish {
         String modName = config.modName();
         String modVersion = config.modVersion();
         String mcVersion = config.mcVersion();
-        String fmlVersion = config.loaderVersion();
+        String loaderVersion = config.loaderVersion();
         try {
             URL url = new URL(API_URL);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
@@ -35,7 +35,7 @@ public class ModrinthPublish {
             connection.setRequestProperty("User-Agent", String.format(config.author() + "/%s/%s (%s)", modName, modVersion, config.email()));
             connection.setRequestProperty("Authorization", AutoPublisher.getAuth(true));
 
-            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, fmlVersion);
+            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, loaderVersion);
 
             File mainFile = new File(fileBase + ".jar");
 
@@ -44,7 +44,7 @@ public class ModrinthPublish {
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
 
                 // Add text part
-                addData(writer, boundary, modName, modVersion, mcVersion, fmlVersion, config.projectId(), config.extraFiles(), config.dependencies());
+                addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.projectId(), config.extraFiles(), config.dependencies());
 
                 // Add file part
                 addFilePart(writer, outputStream, boundary, "primary", mainFile);

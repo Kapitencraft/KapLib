@@ -250,7 +250,7 @@ public class MultiLineTextBox extends ScrollableWidget {
         }
 
         String lastLineRemaining = this.getFromEndSection(endLineIndex);
-        if (insert2d.size() > 1) this.updateLine(startLineIndex.y, this.getFromStartSection(startLineIndex) + insert2d.get(0));
+        if (insert2d.size() > 1) this.updateLine(startLineIndex.y, this.getFromStartSection(startLineIndex) + insert2d.getFirst());
         int lineIndex = startLineIndex.y;
         for (int i = 1; i < insert2d.size(); i++) {
             if (lineIndex < endLineIndex.y) {
@@ -264,7 +264,7 @@ public class MultiLineTextBox extends ScrollableWidget {
         for (int i = removeLineFirstIndex; i <= endLineIndex.y; i++) {
             this.removeLine(removeLineFirstIndex);
         }
-        this.updateLine(lineIndex, (insert2d.size() == 1 ? this.getFromStartSection(startLineIndex) : "") + insert2d.get(insert2d.size()-1) + lastLineRemaining);
+        this.updateLine(lineIndex, (insert2d.size() == 1 ? this.getFromStartSection(startLineIndex) : "") + insert2d.getLast() + lastLineRemaining);
     }
 
     private void notifyCreationAndChange(int index, boolean updateText) {
@@ -692,7 +692,6 @@ public class MultiLineTextBox extends ScrollableWidget {
                         }
                         yield true;
                     }
-                    default -> false;
                     case 261 -> {
                         //delete one
                         if (this.isEditable) {
@@ -746,6 +745,7 @@ public class MultiLineTextBox extends ScrollableWidget {
                         this.moveCursorToEnd();
                         yield true;
                     }
+                    default -> false;
                 };
             }
         }

@@ -13,12 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GroupSpawner implements Spawner {
-    private final List<Spawner> spawners;
-
-    public GroupSpawner(List<Spawner> spawners) {
-        this.spawners = spawners;
-    }
+public record GroupSpawner(List<Spawner> spawners) implements Spawner {
 
     public static Builder builder() {
         return new Builder();
@@ -46,10 +41,10 @@ public class GroupSpawner implements Spawner {
         public Spawner build() {
             return new GroupSpawner(spawners);
         }
-        }
+    }
 
     public static class Type implements VisibleSpawner.Type<GroupSpawner> {
-        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> STREAM_CODEC = Spawner.CODEC.apply(ByteBufCodecs.list()).map(GroupSpawner::new, s -> s.spawners);
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> STREAM_CODEC = Spawner.CODEC.apply(ByteBufCodecs.list()).map(GroupSpawner::new, GroupSpawner::spawners);
 
         @Override
         public StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> codec() {

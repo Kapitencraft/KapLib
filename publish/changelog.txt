@@ -29,3 +29,4 @@ removed ARROW_COUNT attribute
 removed DATA_SOURCE_TYPES registry as it wasn't used anymore
 renamed CountEnchantment to EnchantmentCountEffect
 renamed publish_config.json$fml_version -> loader_version
+added TextureProvider. creates textures

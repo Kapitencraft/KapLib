@@ -86,6 +86,6 @@ public class LineSpawner extends VisibleSpawner {
 
     @Override
     public String toString() {
-        return "LineSpawner from " + start + " to " + end + ", spacing = " + spacing;
+        return "LineSpawner from " + start + " to " + end + ", spacing = " + spacing + ", particle = " + particle;
     }
 }
