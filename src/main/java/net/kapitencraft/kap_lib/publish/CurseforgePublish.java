@@ -35,7 +35,7 @@ public class CurseforgePublish {
             connection.setRequestProperty("User-Agent", String.format(config.author() + "/%s/%s (%s)", modName, modVersion, config.email()));
             connection.setRequestProperty("Authorization", AutoPublisher.getAuth(true));
 
-            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, fmlVersion);
+            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
 
             File mainFile = new File(fileBase + ".jar");
 

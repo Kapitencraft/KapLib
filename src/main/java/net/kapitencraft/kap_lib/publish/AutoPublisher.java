@@ -126,8 +126,8 @@ public class AutoPublisher {
         return changelog;
     }
 
-    static String formatVersion(String modVersion, String mcVersion, String fmlVersion) {
-        return String.format("v%s-mc%s-NFML%s", modVersion, mcVersion, fmlVersion);
+    static String formatVersion(String modVersion, String mcVersion) {
+        return String.format("v%s-mc%s", modVersion, mcVersion);
     }
 
     static String[] authString;

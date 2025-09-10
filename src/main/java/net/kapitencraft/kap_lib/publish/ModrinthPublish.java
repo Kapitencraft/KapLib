@@ -35,7 +35,7 @@ public class ModrinthPublish {
             connection.setRequestProperty("User-Agent", String.format(config.author() + "/%s/%s (%s)", modName, modVersion, config.email()));
             connection.setRequestProperty("Authorization", AutoPublisher.getAuth(true));
 
-            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, loaderVersion);
+            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
 
             File mainFile = new File(fileBase + ".jar");
 
@@ -94,7 +94,7 @@ public class ModrinthPublish {
         writer.append("--").append(boundary).append("\r\n");
         writer.append("Content-Disposition: form-data; name=\"data\"\r\n");
         writer.append("Content-Type: application/json; charset=UTF-8\r\n\r\n");
-        writer.append(addVersionData(modName, modVersion, mcVersion, forgeVersion, projectId, dependencies, extraFiles)).append("\r\n");
+        writer.append(addVersionData(modName, modVersion, mcVersion, projectId, dependencies, extraFiles)).append("\r\n");
         writer.flush();
     }
 
@@ -112,11 +112,11 @@ public class ModrinthPublish {
         writer.flush();
     }
 
-    private static String addVersionData(String modName, String modVersion, String mcVersion, String forgeVersion, String projectId, JsonObject[] dependencies, String[] extraFiles) throws IOException {
+    private static String addVersionData(String modName, String modVersion, String mcVersion, String projectId, JsonObject[] dependencies, String[] extraFiles) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
         data.put("name", String.format("%s v%s", modName, modVersion));
-        data.put("version_number", AutoPublisher.formatVersion(modVersion, mcVersion, forgeVersion));
+        data.put("version_number", AutoPublisher.formatVersion(modVersion, mcVersion));
         data.put("loaders", new String[] {"neoforge"});
         data.put("game_versions", new String[]{mcVersion});
         data.put("version_type", "release");
