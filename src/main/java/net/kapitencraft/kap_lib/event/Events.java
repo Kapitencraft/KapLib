@@ -32,6 +32,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.EnchantedItemInUse;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -136,10 +137,18 @@ public class Events {
                     arrowTag.putBoolean("HitsEnderMan", true);
                 }
                 EnchantedItemInUse itemInUse = new EnchantedItemInUse(bow, living.getUsedItemHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND, living);
+
                 EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) -> {
-                        enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW_SPAWN.value()).forEach(enchantmentEntityEffect ->
-                                enchantmentEntityEffect.apply(serverLevel, level, itemInUse, arrow, arrow.position()));
-                        enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value()).forEach(effect -> effect.write(living.getPersistentData(), level, bow, living, arrow));
+                    LootContext context = Enchantment.entityContext(serverLevel, level, arrow, arrow.position());
+                    enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW_SPAWN.value()).forEach(enchantmentEntityEffect -> {
+                            if (enchantmentEntityEffect.matches(context)) {
+                                enchantmentEntityEffect.effect().apply(serverLevel, level, itemInUse, arrow, arrow.position());
+                            }
+                        });
+                        enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value()).forEach(effect -> {
+                            if (effect.matches(context))
+                                effect.effect().write(living.getPersistentData(), level, bow, living, arrow);
+                        });
                 });
             }
         }

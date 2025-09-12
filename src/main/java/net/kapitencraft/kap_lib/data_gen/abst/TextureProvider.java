@@ -10,6 +10,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -316,6 +317,7 @@ public abstract class TextureProvider implements DataProvider {
         default void validate(ExistingFileHelper helper) {}
     }
 
+    //region shade
     protected record RedShade() implements Converter {
         public static RedShade create() {
             return new RedShade();
@@ -348,6 +350,7 @@ public abstract class TextureProvider implements DataProvider {
             return in.mappedCopy(i -> i & 0xFF0000FF);
         }
     }
+    //endregion
 
     protected record Transfer(ResourceLocation patternSource, ResourceLocation mask) implements Converter {
         /**
@@ -406,6 +409,33 @@ public abstract class TextureProvider implements DataProvider {
         }
     }
 
+    protected record FlipX() implements Converter {
+
+        @Override
+        public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
+            int width = in.getWidth();
+            int height = in.getHeight();
+            NativeImage image = new NativeImage(width, height, false);
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    image.setPixelRGBA(x, y, image.getPixelRGBA(width - x - 1, y));
+                }
+            }
+            return image;
+        }
+    }
+
+    protected record FlipY() implements Converter {
+
+        @Override
+        public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
+            NativeImage image = in.mappedCopy(i -> i);
+            image.flipY();
+            return image;
+        }
+    }
+
+    //region register
     /**
      * @param in the texture that is used as the base
      * @param out the output location
@@ -466,4 +496,5 @@ public abstract class TextureProvider implements DataProvider {
         this.register(paletteSource, name.withPrefix("models/armor/").withSuffix("_layer_2"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("models/armor/diamond_layer_2")));
     }
+    //endregion
 }

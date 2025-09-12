@@ -8,7 +8,9 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -70,6 +72,15 @@ public class EnchantmentHelperExtras {
     }
 
     public static void getEnchantmentLevelAndDo(RegistryAccess access, ItemStack stack, ResourceKey<Enchantment> key, Consumer<Integer> enchConsumer) {
-        getEnchantmentLevelAndDo(stack, access.registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(key), enchConsumer);
+        getEnchantmentLevelAndDo(stack, access.holderOrThrow(key), enchConsumer);
+    }
+
+    public static void getEnchantmentLevelAndDo(LivingEntity entity, Holder<Enchantment> enchantmentHolder, Consumer<Integer> enchConsumer) {
+        int level = EnchantmentHelper.getEnchantmentLevel(enchantmentHolder, entity);
+        if (level > 0) enchConsumer.accept(level);
+    }
+
+    public static void getEnchantmentLevelAndDo(RegistryAccess access, LivingEntity living, ResourceKey<Enchantment> key, Consumer<Integer> enchConsumer) {
+        getEnchantmentLevelAndDo(living, access.holderOrThrow(key), enchConsumer);
     }
 }
