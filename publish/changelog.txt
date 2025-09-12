@@ -1,1 +1,10 @@
 cleanup code: removed unnecessary registries
+renamed EnchantmentHelper into EnchantmentHelperExtras to avoid confusion with vanilla EnchantmentHelper class
+fixed ExtraEnchantmentEffectComponents#COUNT not being usable due to wrong type
+renamed ExtraEnchantmentEffectComponents#BOW_TICK -> BOW
+fixed EnchantmentBowEffect#write not used
+added EnchantmentHelperExtras#bow for simpler bow definition
+moved MiscHelper#repairPlayerItems to EnchantmentHelperExtras#repairPlayerItems
+moved MiscHelper#getEnchantmentLevelAndDo to EnchantmentHelperExtras#...
+added EnchantmentHelperExtras#getEnchantmentLevelAndDo overload taking a RegistryAccess and ResourceKey instead of holder
+fixed DamageIndicatorParticle not showing correctly

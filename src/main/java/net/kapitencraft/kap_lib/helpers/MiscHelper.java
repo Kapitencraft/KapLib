@@ -118,42 +118,12 @@ public class MiscHelper {
     }
 
     /**
-     * method to repair items similar to the mending enchantment
-     * @param player player to repair items on
-     * @param value the base amount of repair capacity
-     * @param ench the enchantment component this calculation is based on
-     * @return the amount of capacity that hasn't been used
-     */
-    public static int repairPlayerItems(@NotNull Player player, int value, @NotNull DataComponentType<?> ench) {
-        Optional<EnchantedItemInUse> entry = EnchantmentHelper.getRandomItemWith(ench, player, ItemStack::isDamaged);
-        if (entry.isPresent()) {
-            ItemStack itemstack = entry.get().itemStack();
-            int i = Math.min((int) (value * itemstack.getXpRepairRatio()), itemstack.getDamageValue());
-            itemstack.setDamageValue(itemstack.getDamageValue() - i);
-            int j = value - i / 2;
-            return j > 0 ? repairPlayerItems(player, j, ench) : 0;
-        }
-        return value;
-    }
-
-    /**
      * checks whether the given item is contained inside the given tag
      */
     public static boolean is(Item item, TagKey<Item> tagKey) {
         return item.builtInRegistryHolder().is(tagKey);
     }
 
-    /**
-     * method to get the enchantment level of a stack and execute the consumer when above 0
-     * @param stack the stack to check the enchantment level of
-     * @param enchantment the enchantment to check
-     * @param enchConsumer the method to be executed when level > 0
-     */
-    public static void getEnchantmentLevelAndDo(ItemStack stack, Holder<Enchantment> enchantment, Consumer<Integer> enchConsumer) {
-        if (stack.getEnchantmentLevel(enchantment) > 0) {
-            enchConsumer.accept(stack.getEnchantmentLevel(enchantment));
-        }
-    }
 
     /**
      * method to get the Rarity of an {@link ItemStack}

@@ -28,10 +28,10 @@ public interface ExtraEnchantmentEffectComponents {
             builder.persistent(TargetedConditionalEffect.codec(EnchantmentEntityEffect.CODEC, LootContextParamSets.ENCHANTED_ENTITY).listOf()));
     DeferredHolder<DataComponentType<?>, DataComponentType<List<EnchantmentEntityEffect>>> BOW_SPAWN = register("projectile_spawn", builder ->
             builder.persistent(EnchantmentEntityEffect.CODEC.listOf()));
-    DeferredHolder<DataComponentType<?>, DataComponentType<List<EnchantmentBowEffect>>> BOW_TICK = register("bow_tick", builder ->
+    DeferredHolder<DataComponentType<?>, DataComponentType<List<EnchantmentBowEffect>>> BOW = register("bow_tick", builder ->
             builder.persistent(EnchantmentBowEffect.CODEC.listOf()));
-    DeferredHolder<DataComponentType<?>, DataComponentType<EnchantmentCountEffect>> COUNT = register("count", builder ->
-            builder.persistent(EnchantmentCountEffect.CODEC));
+    DeferredHolder<DataComponentType<?>, DataComponentType<List<TargetedConditionalEffect<EnchantmentCountEffect>>>> COUNT = register("count", builder ->
+            builder.persistent(TargetedConditionalEffect.codec(EnchantmentCountEffect.CODEC, LootContextParamSets.ENCHANTED_DAMAGE).listOf()));
     DeferredHolder<DataComponentType<?>, DataComponentType<List<ConditionalEffect<EnchantmentBlockBreakEffect>>>> BLOCK_BREAK = register("block_break", listBuilder ->
             listBuilder.persistent(ConditionalEffect.codec(EnchantmentBlockBreakEffect.CODEC, EnchantmentBlockBreakEffect.PARAM_SET).listOf()));
 }

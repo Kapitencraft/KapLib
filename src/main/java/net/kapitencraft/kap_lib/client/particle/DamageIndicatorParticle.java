@@ -60,7 +60,6 @@ public class DamageIndicatorParticle extends Particle {
     private float visualDX = 0;
     private float prevVisualDX = 0;
 
-
     @Override
     public void render(@NotNull VertexConsumer consumer, @NotNull Camera camera, float partialTicks) {
         Vec3 camPos = camera.getPosition();
@@ -76,37 +75,33 @@ public class DamageIndicatorParticle extends Particle {
 
         double inc = Mth.clamp(distanceFromCam / 32f, 0, 5f);
 
+        float defScale = 0.006f;
+        float scale = (float) (defScale * distanceFromCam);
+
         poseStack.translate(0, (1 + inc / 4f) * Mth.lerp(partialTicks, this.prevVisualDY, this.visualDY), 0);
+        poseStack.mulPose(camera.rotation());
+        poseStack.translate((1 + inc) * Mth.lerp(partialTicks, this.prevVisualDX, this.visualDX), 0, 0);
+        poseStack.scale(scale, -scale, -scale);
+
 
         float fadeout = Mth.lerp(partialTicks, this.prevFadeout, this.fadeout);
 
-        float defScale = 0.006f;
-        float scale = (float) (defScale * distanceFromCam);
-        poseStack.mulPose(camera.rotation());
-
-        poseStack.translate((1 + inc) * Mth.lerp(partialTicks, this.prevVisualDX, this.visualDX), 0, 0);
-
-        poseStack.scale(-scale, -scale, scale);
         poseStack.translate(0, (4d * (1 - fadeout)), 0);
         poseStack.scale(fadeout, fadeout, fadeout);
-        poseStack.translate(0, -distanceFromCam / 8d, 0);
-
-
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(770, 771, 1, 0);
+        poseStack.translate(0, -distanceFromCam / 10d, 0);
 
         float x1 = 0.5f - font.width(text) / 2f;
 
         MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(770, 771, 1, 0);
 
         int light = LightTexture.FULL_BRIGHT;
-        font.drawInBatch(text, x1,
-                0, color, false,
+        font.drawInBatch(text, x1, 0, color, false,
                 poseStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, light);
-        poseStack.translate(1, 1, +0.03);
-        font.drawInBatch(text, x1,
-                0, darkColor, false,
+        poseStack.translate(1, 1, 0.03);
+        font.drawInBatch(text, x1, 0, darkColor, false,
                 poseStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, light);
 
         buffer.endBatch();
@@ -137,8 +132,8 @@ public class DamageIndicatorParticle extends Particle {
             this.visualDX += this.xd;
 
             //spawn numbers in a sort of ellipse centered on his torso
-            if (Math.sqrt(Math.pow(this.visualDX * 1.5, 2) + Math.pow(this.visualDY - 1, 2)) < 1.9 - 1) {
-                this.yd = this.yd / 2;
+            if (Math.sqrt(Mth.square(this.visualDX * 1.5) + Mth.square(this.visualDY - 1)) < .9) {
+                this.yd /= 2;
             } else {
                 this.yd = 0;
                 this.xd = 0;

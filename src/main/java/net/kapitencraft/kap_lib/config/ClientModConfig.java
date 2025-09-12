@@ -5,7 +5,6 @@ import net.kapitencraft.kap_lib.client.chroma.ChromaType;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements.Element;
 import net.minecraft.ChatFormatting;
 import net.neoforged.neoforge.common.ModConfigSpec;
-import net.neoforged.neoforge.common.NeoForgeConfig;
 
 import java.util.Arrays;
 
@@ -45,7 +44,7 @@ public class ClientModConfig {
         BUILDER.pop().comment("configuration for enchantment display").push("enchantment");
         SHOW_ENCHANTMENT_OBTAIN_DISPLAY = BUILDER.comment("whether to show the enchantments obtain display", "e.g. if it's a treasure enchantment or can't be traded with villagers", "only shows on books")
                         .define("obtain_display", true);
-        SHOW_ENCHANTMENT_APPLICABLES = BUILDER.comment("whether to show the items a given enchantment can be applied to", "only shows on books")
+        SHOW_ENCHANTMENT_APPLICABLE = BUILDER.comment("whether to show the items a given enchantment can be applied to", "only shows on books")
                         .define("show_applicable", true);
 
         BUILDER.pop();
@@ -81,7 +80,7 @@ public class ClientModConfig {
     private static final ModConfigSpec.BooleanValue SHOW_LIFE_STEAL_PARTICLE;
 
     private static final ModConfigSpec.BooleanValue SHOW_ENCHANTMENT_OBTAIN_DISPLAY;
-    private static final ModConfigSpec.BooleanValue SHOW_ENCHANTMENT_APPLICABLES;
+    private static final ModConfigSpec.BooleanValue SHOW_ENCHANTMENT_APPLICABLE;
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -133,6 +132,6 @@ public class ClientModConfig {
     }
 
     public static boolean showApplyDisplay() {
-        return SHOW_ENCHANTMENT_APPLICABLES.get();
+        return SHOW_ENCHANTMENT_APPLICABLE.get();
     }
 }

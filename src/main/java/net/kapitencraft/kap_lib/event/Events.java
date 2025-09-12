@@ -136,9 +136,11 @@ public class Events {
                     arrowTag.putBoolean("HitsEnderMan", true);
                 }
                 EnchantedItemInUse itemInUse = new EnchantedItemInUse(bow, living.getUsedItemHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND, living);
-                EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) ->
+                EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) -> {
                         enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW_SPAWN.value()).forEach(enchantmentEntityEffect ->
-                                enchantmentEntityEffect.apply(serverLevel, level, itemInUse, arrow, arrow.position())));
+                                enchantmentEntityEffect.apply(serverLevel, level, itemInUse, arrow, arrow.position()));
+                        enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value()).forEach(effect -> effect.write(living.getPersistentData(), level, bow, living, arrow));
+                });
             }
         }
         if (event.getEntity() instanceof Player player) {
@@ -257,9 +259,10 @@ public class Events {
                         .withParameter(LootContextParams.BLOCK_STATE, state)
                         .withParameter(LootContextParams.TOOL, tool);
                 if (blockEntity != null) builder.withParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
-                LootParams params = builder.create(EnchantmentBlockBreakEffect.PARAM_SET);
-                LootContext context = new LootContext.Builder(params).create(Optional.empty());
                 EnchantmentHelper.runIterationOnItem(tool, (holder, i) -> {
+                    builder.withParameter(LootContextParams.ENCHANTMENT_LEVEL, i);
+                    LootParams params = builder.create(EnchantmentBlockBreakEffect.PARAM_SET);
+                    LootContext context = new LootContext.Builder(params).create(Optional.empty());
                     for (ConditionalEffect<EnchantmentBlockBreakEffect> effect : holder.value().getEffects(ExtraEnchantmentEffectComponents.BLOCK_BREAK.get())) {
                         if (effect.matches(context)) mutableBoolean.setValue(effect.effect().onBreak(state, event.getPos(), level, i) || mutableBoolean.booleanValue());
                     }

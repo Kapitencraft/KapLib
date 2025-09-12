@@ -40,6 +40,8 @@ import net.minecraft.world.item.enchantment.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.effects.EnchantmentEntityEffect;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -124,15 +126,23 @@ public class DamageEvents {
             event.setNewDamage(EnchantmentBowEffect.loadFromTag(attacked, tag, EnchantmentBowEffect.ExePhase.HIT, event.getNewDamage(), arrow));
         }
 
-        DamageSource source = event.getSource();
-        @Nullable LivingEntity attacker = MiscHelper.getAttacker(source);
-        if (attacker == null) { return; }
-        MiscHelper.DamageType type = MiscHelper.getDamageType(source);
-        ItemStack stack = attacker.getMainHandItem();
-        EnchantmentHelper.runIterationOnEquipment(attacker, (enchantment, level, item) -> {
-            EnchantmentCountEffect effect = enchantment.value().effects().get(ExtraEnchantmentEffectComponents.COUNT.get());
-            if (effect != null) event.setNewDamage(effect.tryExecute(enchantment, level, item, attacker, attacked, event.getNewDamage(), source));
-        });
+        if (attacked.level() instanceof ServerLevel serverLevel) {
+            DamageSource source = event.getSource();
+            @Nullable LivingEntity attacker = MiscHelper.getAttacker(source);
+            if (attacker == null) {
+                return;
+            }
+            ItemStack stack = attacker.getMainHandItem();
+
+            EnchantmentHelper.runIterationOnItem(stack, EquipmentSlot.MAINHAND, attacker, (enchantment, level, item) -> {
+                LootContext context = Enchantment.damageContext(serverLevel, level, attacked, source);
+                List<TargetedConditionalEffect<EnchantmentCountEffect>> effect = enchantment.value().getEffects(ExtraEnchantmentEffectComponents.COUNT.get());
+                for (TargetedConditionalEffect<EnchantmentCountEffect> conditionalEffect : effect) {
+                    if (conditionalEffect.matches(context))
+                        conditionalEffect.effect().tryExecute(enchantment, level, item, attacker, attacked, event.getNewDamage(), source);
+                }
+            });
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

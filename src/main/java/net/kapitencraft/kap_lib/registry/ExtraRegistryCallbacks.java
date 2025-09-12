@@ -14,7 +14,7 @@ public interface ExtraRegistryCallbacks {
 
         @Override
         public void onAdd(Registry<Enchantment> registry, int id, ResourceKey<Enchantment> key, Enchantment value) {
-            value.getEffects(ExtraEnchantmentEffectComponents.BOW_TICK.get()).forEach(effect -> {
+            value.getEffects(ExtraEnchantmentEffectComponents.BOW.get()).forEach(effect -> {
                 EnchantmentBowEffect.executionMap.put(key.location(), effect::execute);
             });
         }

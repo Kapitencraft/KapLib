@@ -49,7 +49,7 @@ public class EnchantmentDescriptionManager {
                 .append(CommonComponents.SPACE)
                 .append(Component.translatable("enchantment.level." + level))
                 .withStyle(MiscHelper.nonNullOr(EnchantmentColorManager.getStyle(holder, level), Style.EMPTY));
-        if (true || fromBook(Items.DIAMOND_AXE)) {
+        if (true || fromBook(Items.DIAMOND_AXE)) { //TODO check book
             if (ClientModConfig.showObtainDisplay()) {
                 component.append(CommonComponents.SPACE);
                 component.append(
