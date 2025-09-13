@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(modid = KapLibMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = KapLibMod.MOD_ID)
 public class AttributeAdder {
     @SubscribeEvent
     public static void modifyAttributes(EntityAttributeModificationEvent event) {

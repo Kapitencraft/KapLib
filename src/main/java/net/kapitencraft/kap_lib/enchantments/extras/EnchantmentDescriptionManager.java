@@ -45,24 +45,31 @@ public class EnchantmentDescriptionManager {
         Enchantment ench = holder.value();
         MutableComponent component = Component.empty();
 
-        component.append(ench.description())
-                .append(CommonComponents.SPACE)
-                .append(Component.translatable("enchantment.level." + level))
-                .withStyle(MiscHelper.nonNullOr(EnchantmentColorManager.getStyle(holder, level), Style.EMPTY));
+        component.append(ench.description());
+        if (level != 1 || ench.getMaxLevel() > 1)
+            component.append(CommonComponents.SPACE)
+                .append(Component.translatable("enchantment.level." + level));
+        component.withStyle(MiscHelper.nonNullOr(EnchantmentColorManager.getStyle(holder, level), Style.EMPTY.withColor(ChatFormatting.GRAY)));
         if (true || fromBook(Items.DIAMOND_AXE)) { //TODO check book
             if (ClientModConfig.showObtainDisplay()) {
-                component.append(CommonComponents.SPACE);
-                component.append(
-                        Component.literal(addObtainDisplay(holder))
-                                .withStyle(INFO_STYLE.withFont(INFO_FONT_LOCATION))
-                );
+                String display = addObtainDisplay(holder);
+                if (!display.isEmpty()) {
+                    component.append(CommonComponents.SPACE);
+                    component.append(
+                            Component.literal(display)
+                                    .withStyle(INFO_STYLE.withFont(INFO_FONT_LOCATION))
+                    );
+                }
             }
             if (ClientModConfig.showApplyDisplay()) {
-                component.append(CommonComponents.SPACE);
-                component.append(
-                        Component.literal(getApplicable(ench))
-                                .withStyle(INFO_STYLE.withFont(APPLICABLE_FONT_LOCATION))
-                );
+                String applicable = getApplicable(ench);
+                if (!applicable.isEmpty()) {
+                    component.append(CommonComponents.SPACE);
+                    component.append(
+                            Component.literal(applicable)
+                                    .withStyle(INFO_STYLE.withFont(APPLICABLE_FONT_LOCATION))
+                    );
+                }
             }
         }
         tooltips.accept(component);
@@ -119,18 +126,19 @@ public class EnchantmentDescriptionManager {
         addItem(Items.DIAMOND_CHESTPLATE);
         addItem(Items.DIAMOND_HELMET);
         addItem(Items.DIAMOND_PICKAXE);
+        addItem(Items.DIAMOND_SWORD);
         addItem(Items.DIAMOND_AXE);
         addItem(Items.DIAMOND_HOE);
         addItem(Items.BOW);
         addItem(Items.CROSSBOW, ResourceLocation.withDefaultNamespace("item/crossbow_standby"));
         addItem(Items.ELYTRA);
         addItem(Items.SHEARS);
+        addItem(Items.MACE);
         addItem(Items.TRIDENT);
         addItem(Items.FISHING_ROD);
 
         NeoForge.EVENT_BUS.post(new RegisterEnchantmentApplicableCharsEvent(EnchantmentDescriptionManager::addItem, EnchantmentDescriptionManager::addItem));
     }
-
 
     private static String getApplicable(Enchantment enchantment) {
         if (applicableMap.isEmpty()) initApplication(); //lazy init
@@ -147,6 +155,5 @@ public class EnchantmentDescriptionManager {
         applicableCache.put(enchantment, value);
         return value;
     }
-
     //endregion
 }

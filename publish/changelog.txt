@@ -1,3 +1,7 @@
-added EnchantmentHelperExtras#getEnchantmentLevelAndDo with Living overload
-fixed ExtraEnchantmentEffectComponents#BOW and #BOW_SPAWN not usable
-added FlipX and FlipY texture converters for TextureProvider
+fixed Enchantment Applicable display being offset down
+fixed test bonuses being applied
+fixed count enchantments not able to modify damage dealt
+fixed arrow movement not being displayed correctly
+fixed Wisdom not having a translation
+added mace and sword enchantment application category
+moved to neo 21.1.208

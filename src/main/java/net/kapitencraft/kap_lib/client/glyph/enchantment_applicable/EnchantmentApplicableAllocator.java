@@ -94,7 +94,7 @@ public class EnchantmentApplicableAllocator extends FontSet {
     }
 
     private void addGlyph(int index, TextureAtlasSprite sprite) {
-        glyphs[index] = new BakedGlyph(renderTypes, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1(), 0, 8, 2.5f, 11);
+        glyphs[index] = new BakedGlyph(renderTypes, sprite.getU0(), sprite.getU1(), sprite.getV0(), sprite.getV1(), 0, 8, 0, 8.5f);
     }
 
     public void init() {

@@ -59,11 +59,6 @@ public class SpawnTable {
       this.compositeFunction = SpawnEntityFunctions.compose(pFunctions);
    }
 
-   //TODO fix AT bug
-   //private LootContext.VisitedEntry<?> createContextVisitedEntry() {
-   //   return new LootContext.VisitedEntry<>(DATA_TYPE, this);
-   //}
-
    public void getRandomEntities(LootParams pParams, long pSeed, Consumer<Entity> pOutput) {
       this.getRandomEntities((new SpawnContext.Builder(pParams)).withOptionalRandomSeed(pSeed).create(this.randomSequence)).forEach(pOutput);
    }

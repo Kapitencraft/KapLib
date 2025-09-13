@@ -80,7 +80,7 @@ public class EnchantmentHelperExtras {
         if (level > 0) enchConsumer.accept(level);
     }
 
-    public static void getEnchantmentLevelAndDo(RegistryAccess access, LivingEntity living, ResourceKey<Enchantment> key, Consumer<Integer> enchConsumer) {
-        getEnchantmentLevelAndDo(living, access.holderOrThrow(key), enchConsumer);
+    public static void getEnchantmentLevelAndDo(LivingEntity living, ResourceKey<Enchantment> key, Consumer<Integer> enchConsumer) {
+        getEnchantmentLevelAndDo(living, living.registryAccess().holderOrThrow(key), enchConsumer);
     }
 }

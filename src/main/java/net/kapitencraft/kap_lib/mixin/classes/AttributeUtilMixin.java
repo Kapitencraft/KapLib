@@ -5,4 +5,5 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(AttributeUtil.class)
 public class AttributeUtilMixin {
+    //TODO re-add extensions
 }

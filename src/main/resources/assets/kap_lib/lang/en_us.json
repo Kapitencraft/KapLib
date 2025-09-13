@@ -26,6 +26,7 @@
   "attribute.name.generic.mining_speed": "Mining Speed",
   "attribute.name.generic.strength": "§gStrength",
   "attribute.name.generic.vitality": "§4Vitality",
+  "attribute.name.generic.wisdom": "Wisdom",
 
   "cec.enable_level": "Level Predicate",
   "cec.max_level": "max",
@@ -111,6 +112,7 @@
   "generic.ranged_damage": "Ranged Damage",
   "generic.strength": "§gStrength",
   "generic.vitality": "§4Vitality",
+  "generic.wisdom": "Wisdom",
 
   "gui.alignment": "Alignment",
   "gui.alignment.x": "Width Alignment",

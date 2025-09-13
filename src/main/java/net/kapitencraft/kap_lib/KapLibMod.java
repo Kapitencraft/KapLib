@@ -23,6 +23,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.gametest.GameTestHooks;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforgespi.language.IModInfo;
@@ -94,6 +95,8 @@ public class KapLibMod {
 
         NeoForge.EVENT_BUS.addListener(CommandHelper::registerClient);
         NeoForge.EVENT_BUS.addListener(CommandHelper::registerServer);
+
+        NeoForgeMod.enableMergedAttributeTooltips();
 
         ArtifactVersion modVersion = ModList.get().getModContainerById(KapLibMod.MOD_ID).map(ModContainer::getModInfo).map(IModInfo::getVersion).orElse(null);
 

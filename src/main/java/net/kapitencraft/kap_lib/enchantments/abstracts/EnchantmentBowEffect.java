@@ -7,37 +7,50 @@ import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.ConditionalEffect;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 public interface EnchantmentBowEffect {
     Codec<EnchantmentBowEffect> CODEC = ExtraRegistries.ENCHANTMENT_BOW_EFFECTS.byNameCodec().dispatch(EnchantmentBowEffect::codec, Function.identity());
 
     @ApiStatus.Internal
-    Multimap<ResourceLocation, Execution> executionMap = HashMultimap.create();
+    Multimap<ResourceLocation, ConditionalEffect<EnchantmentBowEffect>> executionMap = HashMultimap.create();
+    LootContextParamSet LOOT_PARAM_SET = LootContextParamSet.builder().required(LootContextParams.THIS_ENTITY)
+            .required(LootContextParams.ENCHANTMENT_LEVEL)
+            .optional(LootContextParams.ATTACKING_ENTITY).build();
 
     static int getLevel(CompoundTag tag) {
         return tag.getInt("Level");
     }
 
-    interface Execution {
-        float execute(int enchantLevel, LivingEntity target, CompoundTag tag, ExePhase type, float oldDamage, AbstractArrow arrow);
-    }
-
     @ApiStatus.Internal
     static float loadFromTag(LivingEntity target, CompoundTag tag, ExePhase type, float oldDamage, AbstractArrow arrow) {
-        for (ResourceLocation location : executionMap.keySet()) {
-            String string = location.toString();
-            if (tag.contains(string, 10)) {
-                CompoundTag elementTag = tag.getCompound(string);
-                int level = getLevel(elementTag);
-                for (Execution execution : executionMap.get(location)) {
-                    oldDamage = execution.execute(level, target, elementTag, type, oldDamage, arrow);
+        if (arrow.level() instanceof ServerLevel serverLevel) {
+            LootParams.Builder builder = new LootParams.Builder(serverLevel);
+            builder.withParameter(LootContextParams.THIS_ENTITY, arrow)
+                    .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, target);
+            for (ResourceLocation location : executionMap.keySet()) {
+                String string = location.toString();
+                if (tag.contains(string, 10)) {
+                    CompoundTag elementTag = tag.getCompound(string);
+                    int level = getLevel(elementTag);
+                    builder.withParameter(LootContextParams.ENCHANTMENT_LEVEL, level);
+                    for (ConditionalEffect<EnchantmentBowEffect> execution : executionMap.get(location)) {
+                        if (execution.matches(new LootContext.Builder(builder.create(EnchantmentBowEffect.LOOT_PARAM_SET)).create(Optional.empty())))
+                            oldDamage = execution.effect().execute(level, target, elementTag, type, oldDamage, arrow);
+                    }
                 }
             }
         }

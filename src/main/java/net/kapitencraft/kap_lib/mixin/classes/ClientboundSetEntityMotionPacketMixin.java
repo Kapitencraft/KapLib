@@ -24,8 +24,8 @@ public class ClientboundSetEntityMotionPacketMixin implements ScaledClientMotion
     private float deltaScale;
 
     @Inject(method = "<init>(ILnet/minecraft/world/phys/Vec3;)V", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void calculateScale(int pId, Vec3 pDeltaMovement, CallbackInfo ci, double d0, double d1, double d2) {
-        this.deltaScale = MathHelper.getOversizeScale(pDeltaMovement, new Vec3(d0, d1, d2));
+    private void calculateScale(int pId, Vec3 pDeltaMovement, CallbackInfo ci, double d0, double d1, double d2, double d3) {
+        this.deltaScale = MathHelper.getOversizeScale(pDeltaMovement, new Vec3(d1, d2, d3));
         this.xa = (int) (pDeltaMovement.x * deltaScale * 8000);
         this.ya = (int) (pDeltaMovement.y * deltaScale * 8000);
         this.za = (int) (pDeltaMovement.z * deltaScale * 8000);

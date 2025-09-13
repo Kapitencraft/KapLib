@@ -52,6 +52,7 @@ import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.apache.commons.lang3.mutable.MutableFloat;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
@@ -137,9 +138,10 @@ public class DamageEvents {
             EnchantmentHelper.runIterationOnItem(stack, EquipmentSlot.MAINHAND, attacker, (enchantment, level, item) -> {
                 LootContext context = Enchantment.damageContext(serverLevel, level, attacked, source);
                 List<TargetedConditionalEffect<EnchantmentCountEffect>> effect = enchantment.value().getEffects(ExtraEnchantmentEffectComponents.COUNT.get());
+                MutableFloat damage = new MutableFloat(event.getNewDamage());
                 for (TargetedConditionalEffect<EnchantmentCountEffect> conditionalEffect : effect) {
                     if (conditionalEffect.matches(context))
-                        conditionalEffect.effect().tryExecute(enchantment, level, item, attacker, attacked, event.getNewDamage(), source);
+                        damage.setValue(conditionalEffect.effect().tryExecute(enchantment, level, item, attacker, attacked, damage.floatValue(), source));
                 }
             });
         }

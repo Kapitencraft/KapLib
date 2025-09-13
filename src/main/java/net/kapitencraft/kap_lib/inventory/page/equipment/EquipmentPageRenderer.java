@@ -20,7 +20,6 @@ public class EquipmentPageRenderer implements InventoryPageRenderer {
     @SuppressWarnings("DataFlowIssue")
     @Override
     public void render(GuiGraphics graphics, Minecraft minecraft, int mouseX, int mouseY, float mouseXOld, float mouseYOld, int leftPos, int topPos) {
-        //TODO fix position
         InventoryScreen.renderEntityInInventoryFollowsMouse(
                 graphics,
                 leftPos + 63, topPos + 8,

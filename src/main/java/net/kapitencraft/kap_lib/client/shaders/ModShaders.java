@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Objects;
 
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class ModShaders {
 
     @Nullable

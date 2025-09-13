@@ -45,5 +45,4 @@ public abstract class ItemStackMixin implements MixinSelfProvider<ItemStack> {
     private void addHitEndermanDisplay(Item.TooltipContext tooltipContext, Player player, TooltipFlag tooltipFlag, CallbackInfoReturnable<List<Component>> cir, List<Component> list, MutableComponent mutablecomponent, Consumer<Component> consumer) {
         if (is(ExtraTags.Items.HITS_ENDERMAN)) list.add(Component.translatable("tooltip.can_hit_enderman"));
     }
-    //TODO re-add extensions
 }

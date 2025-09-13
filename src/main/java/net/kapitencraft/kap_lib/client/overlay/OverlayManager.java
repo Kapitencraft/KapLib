@@ -38,7 +38,7 @@ import java.util.function.Function;
 /**
  * controls the location, and renders all registered overlays
  */
-@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class OverlayManager {
     /**
      * the Codec for saving

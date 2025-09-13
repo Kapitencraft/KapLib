@@ -21,7 +21,7 @@ import net.neoforged.neoforge.registries.ModifyRegistriesEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.jetbrains.annotations.ApiStatus;
 
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 @ApiStatus.Internal
 public class ModEventBusEvents {
 

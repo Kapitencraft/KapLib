@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.cooldown;
 
+import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
@@ -13,11 +14,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Cooldown {
+    public static final Codec<Cooldown> CODEC = ExtraRegistries.COOLDOWNS.byNameCodec();
     public static final StreamCodec<RegistryFriendlyByteBuf, Cooldown> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.COOLDOWNS);
 
     private final int defaultTime;

@@ -84,7 +84,6 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
         return getBoundingBox();
     }
 
-    //TODO fix no particle showing
     private class ShieldElement {
         private int age;
         private final int lifeTime;
