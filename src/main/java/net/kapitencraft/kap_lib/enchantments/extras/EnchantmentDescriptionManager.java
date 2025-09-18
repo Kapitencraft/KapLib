@@ -45,7 +45,6 @@ public class EnchantmentDescriptionManager {
     private static final ResourceLocation INFO_FONT_LOCATION = KapLibMod.res("enchantment_info"),
             APPLICABLE_FONT_LOCATION = KapLibMod.res("enchantment_applicable");
 
-
     public static void addAllTooltips(ItemStack stack, List<Component> tooltips, ListTag pStoredEnchantments, Player player) {
         if (pStoredEnchantments.isEmpty()) return;
         if (!Screen.hasShiftDown()) tooltips.add(Component.translatable("ench_desc.shift").withStyle(ChatFormatting.DARK_GRAY));
