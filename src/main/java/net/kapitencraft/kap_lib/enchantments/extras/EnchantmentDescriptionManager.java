@@ -11,6 +11,7 @@ import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
@@ -19,13 +20,10 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EnchantmentTags;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.*;
@@ -73,7 +71,7 @@ public class EnchantmentDescriptionManager {
             }
         }
         tooltips.accept(component);
-        //if (Screen.hasShiftDown()) EnchantmentDescriptionManager.addTooltipForEnchant(tooltips, ench, player, level);
+        if (Screen.hasShiftDown()) EnchantmentDescriptionManager.addTooltipForEnchant(tooltips, holder, level);
         //ClientHelper.addReqContent(tooltips, RegistryReqType.ENCHANTMENT, ench, player);
     }
 
@@ -90,8 +88,8 @@ public class EnchantmentDescriptionManager {
         return s;
     }
 
-    public static void addTooltipForEnchant(List<Component> list, Holder<Enchantment> enchantment, Player player, int level) {
-        list.addAll(getDescription(enchantment, level));
+    public static void addTooltipForEnchant(Consumer<Component> list, Holder<Enchantment> enchantment, int level) {
+        getDescription(enchantment, level).forEach(list);
     }
 
     public static List<Component> getDescription(Holder<Enchantment> ench, int level) {
