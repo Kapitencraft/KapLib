@@ -1,1 +1,2 @@
-fixed a crash where enchantment application display would load too late, causing glyphs to be missing
+fixed EnchantmentBowEffect not writing data to correct entity
+fixed EnchantmentCountEffect not modifying damage correctly

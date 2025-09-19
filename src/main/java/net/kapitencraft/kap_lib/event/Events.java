@@ -148,7 +148,7 @@ public class Events {
                         });
                         enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value()).forEach(effect -> {
                             if (effect.matches(context))
-                                effect.effect().write(living.getPersistentData(), level, bow, living, arrow);
+                                effect.effect().write(arrow.getPersistentData(), level, bow, living, arrow);
                         });
                 });
             }

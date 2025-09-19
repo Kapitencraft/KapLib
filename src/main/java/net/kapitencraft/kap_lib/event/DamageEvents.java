@@ -143,6 +143,7 @@ public class DamageEvents {
                     if (conditionalEffect.matches(context))
                         damage.setValue(conditionalEffect.effect().tryExecute(enchantment, level, item, attacker, attacked, damage.floatValue(), source));
                 }
+                event.setNewDamage(damage.floatValue());
             });
         }
     }
