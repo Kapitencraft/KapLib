@@ -19,6 +19,7 @@ import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -146,10 +147,15 @@ public class Events {
                                 enchantmentEntityEffect.effect().apply(serverLevel, level, itemInUse, arrow, arrow.position());
                             }
                         });
-                        enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value()).forEach(effect -> {
-                            if (effect.matches(context))
-                                effect.effect().write(arrow.getPersistentData(), level, bow, living, arrow);
-                        });
+                    ListTag list = arrow.getPersistentData().getList(enchantment.getKey().location().toString(), Tag.TAG_COMPOUND);
+                    List<ConditionalEffect<EnchantmentBowEffect>> effects = enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value());
+                    for (int i = 0; i < effects.size(); i++) {
+                        CompoundTag tag = new CompoundTag();
+                        ConditionalEffect<EnchantmentBowEffect> effect = effects.get(i);
+                        if (effect.matches(context))
+                            effect.effect().write(tag, level, bow, living, arrow);
+                        list.add(i, tag);
+                    }
                 });
             }
         }

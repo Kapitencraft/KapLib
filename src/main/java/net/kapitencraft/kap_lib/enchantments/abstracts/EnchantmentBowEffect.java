@@ -67,9 +67,8 @@ public interface EnchantmentBowEffect {
     /**
      * use to add extra tags which are needed in {@link EnchantmentBowEffect#execute(int, LivingEntity, CompoundTag, ExePhase, MutableFloat, AbstractArrow) execute}, to the bow
      * the enchantment level is written automatically
-     * @return the populated data
      */
-    CompoundTag write(CompoundTag tag, int level, ItemStack bow, LivingEntity owner, AbstractArrow arrow);
+    void write(CompoundTag tag, int level, ItemStack bow, LivingEntity owner, AbstractArrow arrow);
 
     /**
      * @param level the enchantment level applied

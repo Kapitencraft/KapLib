@@ -1,1 +1,1 @@
-changed EnchantmentBowEffect returning a float and merged it with damage parameter with MutableFloat
+fixed EnchantmentBowEffect not writing
