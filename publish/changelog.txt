@@ -1,2 +1,1 @@
-fixed EnchantmentBowEffect not writing data to correct entity
-fixed EnchantmentCountEffect not modifying damage correctly
+changed EnchantmentBowEffect returning a float and merged it with damage parameter with MutableFloat
