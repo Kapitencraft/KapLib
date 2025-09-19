@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
+import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManager;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
 import net.kapitencraft.kap_lib.io.network.S2C.SyncBonusesPacket;
@@ -170,6 +171,9 @@ public class Events {
             if (player instanceof ServerPlayer sP) {
                 Wearables.send(sP);
                 Cooldowns.send(sP);
+            } else {
+                //player is clientside. handle at login
+                EnchantmentDescriptionManager.initApplication();
             }
         }
     }

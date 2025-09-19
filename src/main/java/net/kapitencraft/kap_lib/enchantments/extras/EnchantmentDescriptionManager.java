@@ -139,7 +139,6 @@ public class EnchantmentDescriptionManager {
     }
 
     private static String getApplicable(Enchantment enchantment) {
-        if (applicableMap.isEmpty()) initApplication(); //lazy init
         if (applicableCache.containsKey(enchantment)) return applicableCache.get(enchantment);
 
         StringBuilder s = new StringBuilder();
