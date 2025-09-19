@@ -14,8 +14,8 @@ import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.StringSegment;
 import net.kapitencraft.kap_lib.stream.Consumers;
 import net.minecraft.nbt.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import org.checkerframework.checker.units.qual.K;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -275,11 +275,18 @@ public class IOHelper {
         return listTag;
     }
 
-    public static CompoundTag getOrCreateTag(CompoundTag tag, String name) {
+    public static CompoundTag getOrCreateCompound(CompoundTag tag, String name) {
         if (tag.contains(name, 10)) return tag.getCompound(name);
         CompoundTag data = new CompoundTag();
         tag.put(name, data);
         return data;
+    }
+
+    public static ListTag getOrCreateList(CompoundTag tag, String name, int listType) {
+        if (tag.contains(name, Tag.TAG_LIST)) return tag.getList(name, listType);
+        ListTag listTag = new ListTag();
+        tag.put(name, listTag);
+        return listTag;
     }
 
     @FunctionalInterface

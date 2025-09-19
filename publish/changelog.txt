@@ -1,1 +1,3 @@
-fixed EnchantmentBowEffect not writing
+renamed IOHelper#getOrCreateTag -> #getOrCreateCompound
+added IOHelper#getOrCreateList
+fixed EnchantmentBowEffect not writing to tag

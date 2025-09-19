@@ -38,7 +38,7 @@ public interface EnchantmentCountEffect {
     int getCountAmount(int level);
 
     default float execute(Holder<Enchantment> holder, int level, EnchantedItemInUse item, LivingEntity attacker, LivingEntity attacked, float damageAmount, DamageSource source, float attackStrenghtScale) {
-        CompoundTag attackerTag = IOHelper.getOrCreateTag(attacker.getPersistentData(), "CountEnchantment");
+        CompoundTag attackerTag = IOHelper.getOrCreateCompound(attacker.getPersistentData(), "CountEnchantment");
         String mapName = this.mapName(holder);
         HashMap<UUID, Integer> map = new HashMap<>(SERIALIZER.parse(attackerTag.contains(mapName, 10) ? attackerTag.get(mapName) : new CompoundTag()));
         map.putIfAbsent(attacked.getUUID(), 1);

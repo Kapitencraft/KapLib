@@ -147,7 +147,7 @@ public class Events {
                                 enchantmentEntityEffect.effect().apply(serverLevel, level, itemInUse, arrow, arrow.position());
                             }
                         });
-                    ListTag list = arrow.getPersistentData().getList(enchantment.getKey().location().toString(), Tag.TAG_COMPOUND);
+                    ListTag list = IOHelper.getOrCreateList(arrow.getPersistentData(), enchantment.getKey().location().toString(), Tag.TAG_COMPOUND);
                     List<ConditionalEffect<EnchantmentBowEffect>> effects = enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value());
                     for (int i = 0; i < effects.size(); i++) {
                         CompoundTag tag = new CompoundTag();
