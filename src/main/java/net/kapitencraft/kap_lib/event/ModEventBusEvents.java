@@ -9,7 +9,10 @@ import net.kapitencraft.kap_lib.registry.ExtraRegistryCallbacks;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.util.UpdateChecker;
+import net.kapitencraft.kap_lib.util.attribute.TimedModifiers;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -43,13 +46,6 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onDataPackRegistryNewRegistry(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(ExtraRegistries.Keys.SPAWN_TABLES, SpawnTable.DIRECT_CODEC);
-    }
-
-
-    @SubscribeEvent
-    public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerEntity(Cooldowns.CAPABILITY, EntityType.PLAYER, (object, context) -> new Cooldowns(object));
-        event.registerEntity(Wearables.CAPABILITY, EntityType.PLAYER, (object, context) -> new Wearables(object));
     }
 
     @SubscribeEvent

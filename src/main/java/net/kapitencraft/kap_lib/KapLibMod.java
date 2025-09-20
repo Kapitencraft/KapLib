@@ -83,6 +83,8 @@ public class KapLibMod {
 
         Overlays.REGISTRY.register(modEventBus);
 
+        ModAttachmentTypes.REGISTRY.register(modEventBus);
+
         VanillaInventoryPages.REGISTRY.register(modEventBus);
 
         if (GameTestHooks.isGametestEnabled()) {

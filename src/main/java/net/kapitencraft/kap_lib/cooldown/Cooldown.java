@@ -30,7 +30,7 @@ public class Cooldown {
     }
 
     public void applyCooldown(LivingEntity living, boolean reduceWithTime) {
-        Cooldowns.get(living).applyCooldown(this, reduceWithTime);
+        Cooldowns.get(living).applyCooldown(living, this, reduceWithTime);
     }
 
     public int getCooldownTime(LivingEntity living, boolean reduceWithTime) {

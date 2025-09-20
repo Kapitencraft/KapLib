@@ -9,6 +9,7 @@ import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.registry.vanilla.VanillaInventoryPages;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -28,7 +29,8 @@ public class EquipmentPage extends InventoryPage {
 
     public EquipmentPage(Player player, SlotAdder adder) {
         super(VanillaInventoryPages.EQUIPMENT.get());
-        Wearables wearable = Objects.requireNonNull(player.getCapability(Wearables.CAPABILITY), "unable to obtain player wearables!");
+        Container wearable = Wearables.get(player);
+
         for (int i = 0; i < Wearables.SLOTS.length; i++) {
             WearableSlot slot = Wearables.SLOTS[i];
             adder.addSlot(new Slot(wearable, i, slot.getXPos(), slot.getYPos()) {

@@ -1,6 +1,9 @@
 package net.kapitencraft.kap_lib.util;
 
+import com.mojang.serialization.Codec;
+
 public class IntegerReference extends Reference<Integer> {
+    public static final Codec<IntegerReference> CODEC = Codec.INT.xmap(IntegerReference::create, IntegerReference::getIntValue);
 
     public void increase() {
         this.setValue(this.getIntValue() + 1);

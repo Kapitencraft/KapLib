@@ -1,13 +1,16 @@
 package net.kapitencraft.kap_lib.cooldown;
 
 
+import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.CooldownStartedPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncCooldownsToPlayerPacket;
+import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
 import net.kapitencraft.kap_lib.util.IntegerReference;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.capabilities.EntityCapability;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -21,28 +24,28 @@ import java.util.*;
  */
 @ApiStatus.Internal
 public class Cooldowns {
-    public static final EntityCapability<Cooldowns, Void> CAPABILITY = EntityCapability.createVoid(KapLibMod.res("cooldowns"), Cooldowns.class);
-
-    private final LivingEntity entity;
+    public static final Codec<Cooldowns> CODEC = Codec.unboundedMap(Cooldown.CODEC, IntegerReference.CODEC).xmap(Cooldowns::new, c -> c.active);
 
     private final Map<Cooldown, IntegerReference> active = new HashMap<>();
 
-    public Cooldowns(LivingEntity entity) {
-        this.entity = entity;
+    private Cooldowns(Map<Cooldown, IntegerReference> active) {
+        this.active.putAll(active);
     }
+
+    public Cooldowns() {}
 
     public boolean isActive(Cooldown cooldown) {
         return active.containsKey(cooldown);
     }
 
-    public void tick() {
+    public void tick(LivingEntity entity) {
         List<Cooldown> toRemove = new ArrayList<>();
         active.forEach((cooldown, integerReference) -> {
             integerReference.decrease();
             if (integerReference.getIntValue() <= 0) toRemove.add(cooldown);
         });
         toRemove.forEach(c -> {
-            c.onDone(this.entity);
+            c.onDone(entity);
             active.remove(c);
         });
     }
@@ -52,11 +55,11 @@ public class Cooldowns {
      * @param cooldown the cooldown to apply
      * @param reduceWithTime whether {@link net.kapitencraft.kap_lib.registry.ExtraAttributes#COOLDOWN_REDUCTION} should be accounted
      */
-    public void applyCooldown(Cooldown cooldown, boolean reduceWithTime) {
-        int time = cooldown.getCooldownTime(this.entity, reduceWithTime);
+    public void applyCooldown(LivingEntity entity, Cooldown cooldown, boolean reduceWithTime) {
+        int time = cooldown.getCooldownTime(entity, reduceWithTime);
         if (time > 0) {
             this.active.put(cooldown, IntegerReference.create(time));
-            PacketDistributor.sendToAllPlayers(new CooldownStartedPacket(cooldown, time, this.entity.getId()));
+            PacketDistributor.sendToAllPlayers(new CooldownStartedPacket(cooldown, time, entity.getId()));
         }
     }
 
@@ -76,7 +79,7 @@ public class Cooldowns {
     }
 
     public static Cooldowns get(LivingEntity living) {
-        return Objects.requireNonNull(living.getCapability(Cooldowns.CAPABILITY), "unable to get capability");
+        return Objects.requireNonNull(living.getData(ModAttachmentTypes.COOLDOWNS), "unable to get cooldowns");
     }
 
 

@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.registry;
 
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.item.loot_table.conditions.CooldownInactiveCondition;
 import net.kapitencraft.kap_lib.item.loot_table.conditions.LootTableTypeCondition;
 import net.kapitencraft.kap_lib.item.loot_table.conditions.TagKeyCondition;
 import net.minecraft.core.Holder;
@@ -13,4 +14,5 @@ public interface ExtraLootItemConditions {
 
     Holder<LootItemConditionType> TAG_KEY = REGISTRY.register("tag_key", ()-> new LootItemConditionType(TagKeyCondition.CODEC));
     Holder<LootItemConditionType> TYPE = REGISTRY.register("table_type", ()-> new LootItemConditionType(LootTableTypeCondition.CODEC));
+    Holder<LootItemConditionType> COOLDOWN_INACTIVE = REGISTRY.register("cooldown_inactive", () -> new LootItemConditionType(CooldownInactiveCondition.CODEC));
 }

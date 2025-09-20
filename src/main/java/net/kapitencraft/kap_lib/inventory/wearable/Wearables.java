@@ -1,17 +1,18 @@
 package net.kapitencraft.kap_lib.inventory.wearable;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.inventory.page.equipment.EquipmentPage;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncWearablesToPlayerPacket;
+import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.capabilities.EntityCapability;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,8 +20,6 @@ import java.util.*;
 
 @MethodsReturnNonnullByDefault
 public class Wearables implements Container {
-
-    public static final EntityCapability<Wearables, Void> CAPABILITY = EntityCapability.createVoid(KapLibMod.res("wearable"), Wearables.class);
 
     public static final WearableSlot[] SLOTS = createSlots();
 
@@ -34,15 +33,26 @@ public class Wearables implements Container {
     }
 
     private final NonNullList<ItemStack> content;
-    private final LivingEntity entity;
+    private LivingEntity owner;
 
-    public Wearables(LivingEntity entity) {
-        this.entity = entity;
+    public static final Codec<Wearables> CODEC = NonNullList.codecOf(ItemStack.CODEC).xmap(Wearables::new, w -> w.content);
+
+    public Wearables() {
         this.content = NonNullList.withSize(getContainerSize(), ItemStack.EMPTY);
     }
 
+    private Wearables(NonNullList<ItemStack> list) {
+        this.content = list;
+    }
+
+    public void setOwner(LivingEntity owner) {
+        this.owner = owner;
+    }
+
     public static Wearables get(@NotNull LivingEntity living) {
-        return Objects.requireNonNull(living.getCapability(CAPABILITY), "capability not found!");
+        Wearables data = Objects.requireNonNull(living.getData(ModAttachmentTypes.WEARABLES.get()), "capability not found!");
+        data.setOwner(living);
+        return data;
     }
 
     public static void send(ServerPlayer sP) {
@@ -50,12 +60,10 @@ public class Wearables implements Container {
         PacketDistributor.sendToPlayer(sP, new SyncWearablesToPlayerPacket(sP.getId(), wearables.content));
     }
 
-    @Override
     public int getContainerSize() {
         return SLOTS.length;
     }
 
-    @Override
     public boolean isEmpty() {
         for (ItemStack stack : this.content) {
             if (!stack.isEmpty()) return false;
@@ -63,7 +71,6 @@ public class Wearables implements Container {
         return true;
     }
 
-    @Override
     public ItemStack getItem(int pSlot) {
         return this.content.get(pSlot);
     }
@@ -72,7 +79,6 @@ public class Wearables implements Container {
         return getItem(slot.getSlotIndex());
     }
 
-    @Override
     public ItemStack removeItem(int pSlot, int pAmount) {
         if (pAmount > 0) {
             if (this.content.get(pSlot) != ItemStack.EMPTY) {
@@ -84,7 +90,6 @@ public class Wearables implements Container {
         return ItemStack.EMPTY;
     }
 
-    @Override
     public ItemStack removeItemNoUpdate(int pSlot) {
         ItemStack stack = this.content.get(pSlot);
         this.content.set(pSlot, ItemStack.EMPTY);
@@ -93,7 +98,7 @@ public class Wearables implements Container {
 
     @Override
     public void setItem(int pSlot, @NotNull ItemStack pStack) {
-        EquipmentPage.equip(this.entity, SLOTS[pSlot], pStack, this.content.get(pSlot));
+        EquipmentPage.equip(owner, SLOTS[pSlot], pStack, this.content.get(pSlot));
         this.content.set(pSlot, pStack);
     }
 
@@ -104,10 +109,9 @@ public class Wearables implements Container {
 
     @Override
     public boolean stillValid(@NotNull Player pPlayer) {
-        return pPlayer == this.entity;
+        return pPlayer == owner;
     }
 
-    @Override
     public void clearContent() {
 
     }

@@ -33,6 +33,7 @@ public interface IWearable {
         ItemStack itemstack = pPlayer.getItemInHand(pHand);
         WearableSlot slot = Objects.requireNonNull(pItem instanceof IWearable wearable ? wearable.getSlot() : null, "item not wearable: " + BuiltInRegistries.ITEM.getKey(pItem));
         Wearables wearables = Wearables.get(pPlayer);
+        wearables.setOwner(pPlayer);
         ItemStack original = wearables.get(slot);
         if (!EnchantmentHelper.has(original, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) && !ItemStack.matches(itemstack, original)) {
             if (!pLevel.isClientSide()) {

@@ -17,6 +17,7 @@ import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTri
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
+import net.kapitencraft.kap_lib.util.attribute.TimedModifiers;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -237,6 +238,7 @@ public class Events {
         } else if (tag.getInt(DOUBLE_JUMP_ID) > 0) {
             tag.putInt(DOUBLE_JUMP_ID, 0);
         }
+
     }
 
 
@@ -244,7 +246,10 @@ public class Events {
     public static void entityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof LivingEntity living) || living.isDeadOrDying()) return;
-        if (living instanceof Player) Cooldowns.get(living).tick();
+        if (living instanceof Player) {
+            Cooldowns.get(living).tick(living);
+            TimedModifiers.get(living).tick(living);
+        }
         if (living instanceof Mob mob) {
             if (mob.getTarget() != null && mob.getTarget().isInvisible()) {
                 mob.setTarget(null);

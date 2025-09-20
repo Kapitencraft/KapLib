@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.client.ExtraComponents;
 import net.kapitencraft.kap_lib.client.particle.animation.AnimationUtils;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimation;
@@ -21,6 +22,7 @@ import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
+import net.kapitencraft.kap_lib.util.attribute.TimedModifierUtils;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
@@ -34,6 +36,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -73,8 +77,17 @@ public class ServerTestCommand {
                         .executes(ServerTestCommand::testPlayerHeadGlyph)
                 ).then(Commands.literal("tooltip")
                         .executes(ServerTestCommand::testLargeTooltip)
+                ).then(Commands.literal("timed_modifier")
+                        .executes(ServerTestCommand::testTimedModifier)
                 )
         );
+    }
+
+    private static int testTimedModifier(CommandContext<CommandSourceStack> context) {
+        return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
+            TimedModifierUtils.add(player, KapLibMod.res("test"), 400, Attributes.MAX_HEALTH, 4, AttributeModifier.Operation.ADD_VALUE);
+            return 1;
+        });
     }
 
     private static int testLargeTooltip(CommandContext<CommandSourceStack> context) {

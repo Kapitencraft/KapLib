@@ -4,10 +4,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.registry.ExtraLootItemConditions;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import org.jetbrains.annotations.NotNull;
 
-public class LootTableTypeCondition extends BaseCondition {
+public class LootTableTypeCondition implements LootItemCondition {
     private static final LootTableTypeCondition EMPTY = new LootTableTypeCondition(null);
     public static final MapCodec<LootTableTypeCondition> CODEC = RecordCodecBuilder.mapCodec(lootTableTypeConditionInstance ->
             lootTableTypeConditionInstance.group(
