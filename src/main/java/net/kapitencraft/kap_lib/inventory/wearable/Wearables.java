@@ -35,7 +35,7 @@ public class Wearables implements Container {
     private final NonNullList<ItemStack> content;
     private LivingEntity owner;
 
-    public static final Codec<Wearables> CODEC = NonNullList.codecOf(ItemStack.CODEC).xmap(Wearables::new, w -> w.content);
+    public static final Codec<Wearables> CODEC = NonNullList.codecOf(ItemStack.OPTIONAL_CODEC).xmap(Wearables::new, w -> w.content);
 
     public Wearables() {
         this.content = NonNullList.withSize(getContainerSize(), ItemStack.EMPTY);
