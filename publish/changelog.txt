@@ -1,1 +1,3 @@
-fixed a network crash where a joining player would disconnect others due to missing player skin information
+fixed crash when arrow weapon item is null
+fixed overlay configuration screen being blurred
+fixed a typo in the overlay command success info

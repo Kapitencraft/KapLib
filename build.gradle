@@ -62,7 +62,7 @@ neoForge {
 
         kaupenClient {
             client()
-            programArguments.addAll '--uuid', '665ad10f-5548-4985-986b-b642732ddce0'
+            programArguments.addAll '--username', 'Kaupenjoe', '--uuid', '665ad10f-5548-4985-986b-b642732ddce0'
         }
 
         server {

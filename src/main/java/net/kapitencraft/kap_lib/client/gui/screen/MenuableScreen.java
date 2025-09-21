@@ -74,6 +74,10 @@ public class MenuableScreen extends Screen {
         return false;
     }
 
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    }
+
     private GuiEventListener makeMenu(IMenuBuilder builder, double pMouseX, double pMouseY) {
         Menu menu = builder.createMenu(Mth.floor(pMouseX), Mth.floor(pMouseY), this);
         if (menu != null) {

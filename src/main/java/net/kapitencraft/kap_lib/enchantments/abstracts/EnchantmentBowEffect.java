@@ -37,6 +37,7 @@ public interface EnchantmentBowEffect {
             .required(LootContextParams.ENCHANTMENT_LEVEL)
             .optional(LootContextParams.ATTACKING_ENTITY).build();
 
+    @SuppressWarnings("ConstantValue")
     @ApiStatus.Internal
     static float loadFromTag(LivingEntity target, CompoundTag tag, ExePhase type, float oldDamage, AbstractArrow arrow) {
         if (arrow.level() instanceof ServerLevel serverLevel) {
@@ -44,7 +45,7 @@ public interface EnchantmentBowEffect {
             builder.withParameter(LootContextParams.THIS_ENTITY, arrow)
                     .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, target);
             ItemStack weaponItem = arrow.getWeaponItem();
-            if (!weaponItem.isEmpty()) {
+            if (weaponItem != null && !weaponItem.isEmpty()) {
                 MutableFloat damage = new MutableFloat(oldDamage);
 
                 EnchantmentHelper.runIterationOnItem(weaponItem, (holder, enchLevel) -> {
