@@ -1,1 +1,1 @@
-fixed a crash where setting any axis motion of an entity will lock it in place
+fixed a bug where the game would crash on shutdown on dedicated servers

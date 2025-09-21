@@ -213,12 +213,6 @@ public class Events {
         }
     }
 
-    @SubscribeEvent
-    public static void onGameShuttingDown(GameShuttingDownEvent event) {
-        PlayerHeadAllocator.getInstance().shutDown();
-    }
-
-
     public static final String DOUBLE_JUMP_ID = "currentDoubleJump";
 
     @SubscribeEvent

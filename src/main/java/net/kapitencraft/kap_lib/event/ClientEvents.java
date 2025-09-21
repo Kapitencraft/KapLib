@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.event;
 
 import com.google.common.collect.Multimap;
+import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.inventory.wearable.IWearable;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
@@ -20,6 +21,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.AddAttributeTooltipsEvent;
 import net.neoforged.neoforge.common.util.AttributeUtil;
+import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -44,6 +46,11 @@ public class ClientEvents {
                 AttributeUtil.applyTextFor(stack, event::addTooltipLines, modifiers, event.getContext());
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onGameShuttingDown(GameShuttingDownEvent event) {
+        PlayerHeadAllocator.getInstance().shutDown();
     }
 
     @Unique
