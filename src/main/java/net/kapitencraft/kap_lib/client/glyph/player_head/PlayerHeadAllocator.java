@@ -33,8 +33,14 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.gametest.GameTestHooks;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -49,6 +55,7 @@ import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
 public class PlayerHeadAllocator extends FontSet {
+    private static final ResourceLocation UNKNOWN = KapLibMod.res("textures/font/unknown_player.png");
     private static final Logger LOGGER = LogUtils.getLogger();
     private static PlayerHeadAllocator instance;
 
@@ -67,6 +74,7 @@ public class PlayerHeadAllocator extends FontSet {
     };
     private final SkinManager skinManager;
     private final TextureManager textureManager;
+    private NativeImage unknown;
     private NativeImage atlas;
     private DynamicTexture atlasTexture;
     private final Map<UUID, Character> lookup;
@@ -75,7 +83,18 @@ public class PlayerHeadAllocator extends FontSet {
     private int maxIndex = 24;
     private final GlyphRenderTypes renderTypes = GlyphRenderTypes.createForColorTexture(FONT);
     private BakedGlyph[] glyphs;
-    private final List<UUID> pending = new ArrayList<>();
+
+    //region pending
+
+    private record PendingEntry(UUID uuid, int id) {}
+    private final List<PendingEntry> pending = new ArrayList<>();
+
+    private void checkPending(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            pending.stream().filter(e -> e.uuid == player.getUUID()).forEach(pendingEntry -> this.register(player.getGameProfile(), pendingEntry.id));
+        }
+    }
+    //endregion
 
     public PlayerHeadAllocator(SkinManager skinManager, TextureManager manager) {
         super(manager, FONT);
@@ -84,6 +103,7 @@ public class PlayerHeadAllocator extends FontSet {
         this.lookup = new HashMap<>();
         this.textLookup = new HashMap<>();
         this.load();
+        NeoForge.EVENT_BUS.addListener(this::checkPending);
         instance = this;
     }
 
@@ -109,19 +129,38 @@ public class PlayerHeadAllocator extends FontSet {
     }
 
     private char addPlayer(UUID uuid) {
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level.getPlayerByUUID(uuid) != null) {
-        }
-        GameProfile profile = new GameProfile(uuid, "<PlaceHolder>");
         if (index >= maxIndex) {
             this.reallocate();
         }
         int index = this.index++;
-        skinManager.getOrLoad(profile).thenAccept(s-> {
-            Minecraft.getInstance().tell(() -> this.addSkin(s.texture(), index));
-        });
+
+        Minecraft.getInstance().tell(() -> this.addDummySkin(index));
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null && level.getPlayerByUUID(uuid) != null) {
+            GameProfile profile = level.getPlayerByUUID(uuid).getGameProfile();
+            register(profile, index);
+        } else pending.add(new PendingEntry(uuid, index));
 
         return (char) index;
+    }
+
+    public void register(GameProfile profile, int id) {
+        skinManager.getOrLoad(profile).thenAccept(s->
+                Minecraft.getInstance().tell(() -> this.addSkin(s.texture(), id)));
+    }
+
+    private void addDummySkin(int index) {
+        this.addGlyph(index);
+        this.addPlayerHeadToAtlas(index, this.gatherDummy());
+    }
+
+    private NativeImage gatherDummy() {
+        if (this.unknown != null) return this.unknown;
+        NativeImage nativeimage = new NativeImage(72, 72, false);
+        textureManager.getTexture(UNKNOWN).bind();
+        nativeimage.downloadTexture(0, false);
+        this.unknown = nativeimage;
+        return nativeimage;
     }
 
     private void reallocate() {
@@ -186,11 +225,17 @@ public class PlayerHeadAllocator extends FontSet {
 
             NativeImage image = makeTransparentScreenshot(renderTarget);
 
-            int x = (index % 10) * 72;
-            int y = index / 10 * 72;
-            image.copyRect(this.atlas, 0, 0, x, y, 72, 72, false, false);
-            this.addGlyph(index);
+            addPlayerHeadToAtlas(index, image);
+            this.atlasTexture.upload(); //update GPU texture
+        });
+    }
 
+    private void addPlayerHeadToAtlas(int index, NativeImage image) {
+        int x = (index % 10) * 72;
+        int y = index / 10 * 72;
+        image.copyRect(this.atlas, 0, 0, x, y, 72, 72, false, false);
+
+        if (GameTestHooks.isGametestEnabled()) {
             try {
                 File file = new File("debug_result.png");
                 if (!file.exists()) file.createNewFile();
@@ -201,10 +246,8 @@ public class PlayerHeadAllocator extends FontSet {
             } catch (Exception e) {
                 KapLibMod.LOGGER.warn("error saving result: {}", e.getMessage());
             }
-
-            image.close();
-            this.atlasTexture.upload(); //update GPU texture
-        });
+        }
+        image.close();
     }
 
     /**

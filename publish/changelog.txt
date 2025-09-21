@@ -1,0 +1,1 @@
+fixed a network crash where a joining player would disconnect others due to missing player skin information
