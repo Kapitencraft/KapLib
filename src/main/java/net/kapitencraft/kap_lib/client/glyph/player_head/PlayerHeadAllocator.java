@@ -19,6 +19,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
+import net.kapitencraft.kap_lib.registry.TestCooldowns;
+import net.kapitencraft.kap_lib.registry.TestItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.font.FontSet;
@@ -35,6 +37,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.gametest.ForgeGameTestHooks;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -49,6 +53,7 @@ import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
 public class PlayerHeadAllocator extends FontSet {
+    private static final ResourceLocation UNKNOWN = KapLibMod.res("textures/font/unknown_player.png");
     private static final Logger LOGGER = LogUtils.getLogger();
     private static PlayerHeadAllocator instance;
 
@@ -67,6 +72,7 @@ public class PlayerHeadAllocator extends FontSet {
     };
     private final SkinManager skinManager;
     private final TextureManager textureManager;
+    private NativeImage unknown;
     private NativeImage atlas;
     private DynamicTexture atlasTexture;
     private final Map<UUID, Character> lookup;
@@ -113,6 +119,7 @@ public class PlayerHeadAllocator extends FontSet {
             this.reallocate();
         }
         int index = this.index++;
+        Minecraft.getInstance().tell(() -> this.addDummySkin(index));
         skinManager.registerSkins(profile, (type, resourceLocation, minecraftProfileTexture) -> {
             if (type == MinecraftProfileTexture.Type.SKIN) {
                 Minecraft.getInstance().tell(() -> this.addSkin(resourceLocation, index));
@@ -120,6 +127,21 @@ public class PlayerHeadAllocator extends FontSet {
         }, true);
 
         return (char) index;
+    }
+
+    private void addDummySkin(int index) {
+        this.addGlyph(index);
+
+        this.addPlayerHeadToAtlas(index, this.gatherDummy());
+    }
+
+    private NativeImage gatherDummy() {
+        if (this.unknown != null) return this.unknown;
+        NativeImage nativeimage = new NativeImage(72, 72, false);
+        textureManager.getTexture(UNKNOWN).bind();
+        nativeimage.downloadTexture(0, false);
+        this.unknown = nativeimage;
+        return nativeimage;
     }
 
     private void reallocate() {
@@ -138,58 +160,68 @@ public class PlayerHeadAllocator extends FontSet {
         this.maxIndex = newGlyphs.length - 1;
     }
 
+    /**
+     * @param resourceLocation the location of the skin
+     * @param index the index of the char to add to
+     * @implNote should not be used outside this Library
+     */
+    @ApiStatus.Internal
     private synchronized void addSkin(ResourceLocation resourceLocation, int index) {
-        Minecraft.getInstance().execute(() -> {
-            RenderTarget renderTarget = new TextureTarget(72, 72, true, false);
-            BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        RenderTarget renderTarget = new TextureTarget(72, 72, true, false);
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
 
-            //necessary
-            Matrix4f matrix = new Matrix4f();
-            matrix.setOrtho(0.0F, 72, 72, 0.0F, -1.0F, 1.0F);
-            RenderSystem.setProjectionMatrix(matrix, VertexSorting.ORTHOGRAPHIC_Z);
-            RenderSystem.applyModelViewMatrix();
+        //necessary
+        Matrix4f matrix = new Matrix4f();
+        matrix.setOrtho(0.0F, 72, 72, 0.0F, -1.0F, 1.0F);
+        RenderSystem.setProjectionMatrix(matrix, VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.applyModelViewMatrix();
 
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            renderTarget.bindWrite(true);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        renderTarget.bindWrite(true);
 
-            RenderSystem.clearColor(0, 1, 1, 0);
-            RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, true);
+        RenderSystem.clearColor(0, 1, 1, 0);
+        RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, true);
 
-            float headStart = 8f / 64f;
-            float headEnd = 16f / 64f;
+        float headStart = 8f / 64f;
+        float headEnd = 16f / 64f;
 
-            bufferBuilder.vertex(4, 4, 0).uv(headStart, headStart).endVertex(); //TL
-            bufferBuilder.vertex(4, 68, 0).uv(headStart, headEnd).endVertex(); //BL
-            bufferBuilder.vertex(68, 68, 0).uv(headEnd, headEnd).endVertex(); //BR
-            bufferBuilder.vertex(68, 4, 0).uv(headEnd, headStart).endVertex(); //TR
+        bufferBuilder.vertex(4, 4, 0).uv(headStart, headStart).endVertex(); //TL
+        bufferBuilder.vertex(4, 68, 0).uv(headStart, headEnd).endVertex(); //BL
+        bufferBuilder.vertex(68, 68, 0).uv(headEnd, headEnd).endVertex(); //BR
+        bufferBuilder.vertex(68, 4, 0).uv(headEnd, headStart).endVertex(); //TR
 
-            float hatUStart = 40f / 64f;
-            float hatVStart = 8f / 64f;
-            float hatUEnd = 48f / 64f;
-            float hatVEnd = 16f / 64f;
+        float hatUStart = 40f / 64f;
+        float hatVStart = 8f / 64f;
+        float hatUEnd = 48f / 64f;
+        float hatVEnd = 16f / 64f;
 
-            bufferBuilder.vertex(0, 0, 0).uv(hatUStart, hatVStart).endVertex(); //TL
-            bufferBuilder.vertex(0, 72, 0).uv(hatUStart, hatVEnd).endVertex(); //BL
-            bufferBuilder.vertex(72, 72, 0).uv(hatUEnd, hatVEnd).endVertex(); //BR
-            bufferBuilder.vertex(72, 0, 0).uv(hatUEnd, hatVStart).endVertex(); //TR
+        bufferBuilder.vertex(0, 0, 0).uv(hatUStart, hatVStart).endVertex(); //TL
+        bufferBuilder.vertex(0, 72, 0).uv(hatUStart, hatVEnd).endVertex(); //BL
+        bufferBuilder.vertex(72, 72, 0).uv(hatUEnd, hatVEnd).endVertex(); //BR
+        bufferBuilder.vertex(72, 0, 0).uv(hatUEnd, hatVStart).endVertex(); //TR
 
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, resourceLocation);
-            Tesselator.getInstance().end();
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, resourceLocation);
+        Tesselator.getInstance().end();
 
-            renderTarget.unbindWrite();
-            RenderSystem.disableBlend();
+        renderTarget.unbindWrite();
+        RenderSystem.disableBlend();
 
-            NativeImage image = makeTransparentScreenshot(renderTarget);
+        NativeImage image = makeTransparentScreenshot(renderTarget);
 
-            int x = (index % 10) * 72;
-            int y = index / 10 * 72;
-            image.copyRect(this.atlas, 0, 0, x, y, 72, 72, false, false);
-            this.addGlyph(index);
+        addPlayerHeadToAtlas(index, image);
+        this.atlasTexture.upload(); //update GPU texture
+    }
 
+    private void addPlayerHeadToAtlas(int index, NativeImage image) {
+        int x = (index % 10) * 72;
+        int y = index / 10 * 72;
+        image.copyRect(this.atlas, 0, 0, x, y, 72, 72, false, false);
+
+        if (ForgeGameTestHooks.isGametestEnabled()) {
             try {
                 File file = new File("debug_result.png");
                 if (!file.exists()) file.createNewFile();
@@ -200,10 +232,8 @@ public class PlayerHeadAllocator extends FontSet {
             } catch (Exception e) {
                 KapLibMod.LOGGER.warn("error saving result: {}", e.getMessage());
             }
-
-            image.close();
-            this.atlasTexture.upload(); //update GPU texture
-        });
+        }
+        image.close();
     }
 
     /**
