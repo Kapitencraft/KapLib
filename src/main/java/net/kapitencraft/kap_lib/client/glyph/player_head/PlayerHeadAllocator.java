@@ -23,6 +23,7 @@ import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.GlyphRenderTypes;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -74,6 +75,7 @@ public class PlayerHeadAllocator extends FontSet {
     private int maxIndex = 24;
     private final GlyphRenderTypes renderTypes = GlyphRenderTypes.createForColorTexture(FONT);
     private BakedGlyph[] glyphs;
+    private final List<UUID> pending = new ArrayList<>();
 
     public PlayerHeadAllocator(SkinManager skinManager, TextureManager manager) {
         super(manager, FONT);
@@ -107,7 +109,10 @@ public class PlayerHeadAllocator extends FontSet {
     }
 
     private char addPlayer(UUID uuid) {
-        GameProfile profile = Minecraft.getInstance().level.getPlayerByUUID(uuid).getGameProfile();
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level.getPlayerByUUID(uuid) != null) {
+        }
+        GameProfile profile = new GameProfile(uuid, "<PlaceHolder>");
         if (index >= maxIndex) {
             this.reallocate();
         }
@@ -253,7 +258,7 @@ public class PlayerHeadAllocator extends FontSet {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void shutDown() {
-        if (ClientModConfig.cachePlayerHeads()) {
+        if (ClientModConfig.cachePlayerHeads() && this.index > 0) {
             File root = new File(KapLibMod.ROOT, "player_heads");
             File image = new File(root, "image.png");
             root.mkdirs();

@@ -1,1 +1,0 @@
-fixed a bug where the game would crash on shutdown on dedicated servers
