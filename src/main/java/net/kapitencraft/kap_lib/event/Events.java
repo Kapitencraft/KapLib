@@ -232,6 +232,7 @@ public class Events {
                     player.noJumpDelay = 10; player.fallDistance = 0;
                     Vec3 targetLoc = player.getLookAngle().multiply(1, 0, 1).scale(0.75).add(0, 1, 0);
                     player.setDeltaMovement(targetLoc.x, targetLoc.y > 0 ? targetLoc.y : -targetLoc.y, targetLoc.z);
+                    player.hurtMarked = true;
                     IOHelper.increaseIntegerTagValue(player.getPersistentData(), DOUBLE_JUMP_ID, 1);
                 }
             }

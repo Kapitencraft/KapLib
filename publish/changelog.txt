@@ -1,1 +1,1 @@
-fixed wearables not loading correctly due to air not being permitted
+fixed a crash where setting any axis motion of an entity will lock it in place
