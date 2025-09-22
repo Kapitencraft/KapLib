@@ -228,7 +228,7 @@ public class PlayerHeadAllocator extends FontSet {
 
             addPlayerHeadToAtlas(index, image);
             image.close(); //close the screenshot file as it is no longer needed
-            this.atlasTexture.upload(); //update GPU texture
+            Minecraft.getInstance().tell(() -> this.atlasTexture.upload());
         });
     }
 

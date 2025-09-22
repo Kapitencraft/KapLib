@@ -18,6 +18,7 @@ import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.kapitencraft.kap_lib.util.attribute.TimedModifiers;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -46,6 +47,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -174,16 +176,26 @@ public class Events {
             if (tag.contains("Health", Tag.TAG_FLOAT)) {
                 player.setHealth(tag.getFloat("Health"));
             }
-
-            if (player instanceof ServerPlayer sP) {
-                Wearables.send(sP);
-                Cooldowns.send(sP);
-            } else {
-                //player is clientside. handle at login
-                EnchantmentDescriptionManager.initApplication();
-            }
         }
     }
+
+    @SubscribeEvent
+    public static void onClientPlayerNetworkLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
+        EnchantmentDescriptionManager.initApplication();
+    }
+
+    @SubscribeEvent
+    public static void onClientPlayerNetworkLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        EnchantmentDescriptionManager.reset();
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        ServerPlayer sP = (ServerPlayer) event.getEntity();
+        Wearables.send(sP);
+        Cooldowns.send(sP);
+    }
+
 
     @SubscribeEvent
     public static void leaveLevelEvent(EntityLeaveLevelEvent event) {

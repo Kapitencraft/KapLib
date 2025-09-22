@@ -152,5 +152,10 @@ public class EnchantmentDescriptionManager {
         applicableCache.put(enchantment, value);
         return value;
     }
+
+    public static void reset() {
+        applicableMap.clear();
+        applicableCache.clear();
+    }
     //endregion
 }

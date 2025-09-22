@@ -14,7 +14,6 @@ import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = KapLibMod.MOD_ID)
 public class AttributeAdder {
@@ -40,7 +39,7 @@ public class AttributeAdder {
                 ExtraAttributes.MANA_REGEN,
                 ExtraAttributes.MANA,
                 ExtraAttributes.DODGE,
-                ExtraAttributes.LIVE_STEAL,
+                ExtraAttributes.LIFE_STEAL,
                 ExtraAttributes.DRAW_SPEED,
                 ExtraAttributes.PROJECTILE_SPEED,
                 ExtraAttributes.ARMOR_SHREDDER,

@@ -110,7 +110,7 @@ public interface ExtraAttributes {
     /**
      * amount of health regenerated when attacking
      */
-    Holder<Attribute> LIVE_STEAL = register("live_steal", 0, 0, 10, BaseAttributeLocations.LIVE_STEAL);
+    Holder<Attribute> LIFE_STEAL = register("life_steal", 0, 0, 10, BaseAttributeLocations.LIVE_STEAL);
     /**
      * amount of armor ignored by attacks
      */
