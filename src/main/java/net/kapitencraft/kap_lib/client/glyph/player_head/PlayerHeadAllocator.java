@@ -36,10 +36,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.gametest.GameTestHooks;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -100,6 +98,7 @@ public class PlayerHeadAllocator extends FontSet {
         super(manager, FONT);
         this.skinManager = skinManager;
         this.textureManager = manager;
+        this.gatherDummy();
         this.lookup = new HashMap<>();
         this.textLookup = new HashMap<>();
         this.load();
@@ -133,6 +132,7 @@ public class PlayerHeadAllocator extends FontSet {
             this.reallocate();
         }
         int index = this.index++;
+        LOGGER.debug("attempting to add {} at index {}", uuid, index);
 
         Minecraft.getInstance().tell(() -> this.addDummySkin(index));
         ClientLevel level = Minecraft.getInstance().level;
@@ -151,16 +151,16 @@ public class PlayerHeadAllocator extends FontSet {
 
     private void addDummySkin(int index) {
         this.addGlyph(index);
-        this.addPlayerHeadToAtlas(index, this.gatherDummy());
+        this.addPlayerHeadToAtlas(index, this.unknown);
     }
 
-    private NativeImage gatherDummy() {
-        if (this.unknown != null) return this.unknown;
-        NativeImage nativeimage = new NativeImage(72, 72, false);
-        textureManager.getTexture(UNKNOWN).bind();
-        nativeimage.downloadTexture(0, false);
-        this.unknown = nativeimage;
-        return nativeimage;
+    private void gatherDummy() {
+        Minecraft.getInstance().tell(() -> {
+            NativeImage nativeimage = new NativeImage(72, 72, false);
+            textureManager.getTexture(UNKNOWN).bind();
+            nativeimage.downloadTexture(0, false);
+            this.unknown = nativeimage;
+        });
     }
 
     private void reallocate() {
@@ -173,10 +173,11 @@ public class PlayerHeadAllocator extends FontSet {
         this.atlasTexture = new DynamicTexture(atlas);
         this.textureManager.register(FONT, atlasTexture);
         BakedGlyph[] oldGlyphs = this.glyphs;
-        BakedGlyph[] newGlyphs = new BakedGlyph[oldGlyphs.length * 2];
-        System.arraycopy(oldGlyphs, 0, newGlyphs, 0, oldGlyphs.length);
-        this.glyphs = newGlyphs;
-        this.maxIndex = newGlyphs.length - 1;
+        this.glyphs = new BakedGlyph[oldGlyphs.length * 2];
+        this.maxIndex = oldGlyphs.length;
+        for (int i = 0; i < this.maxIndex; i++) {
+            addGlyph(i);
+        }
     }
 
     private synchronized void addSkin(ResourceLocation resourceLocation, int index) {
@@ -226,28 +227,16 @@ public class PlayerHeadAllocator extends FontSet {
             NativeImage image = makeTransparentScreenshot(renderTarget);
 
             addPlayerHeadToAtlas(index, image);
+            image.close(); //close the screenshot file as it is no longer needed
             this.atlasTexture.upload(); //update GPU texture
         });
     }
 
     private void addPlayerHeadToAtlas(int index, NativeImage image) {
         int x = (index % 10) * 72;
-        int y = index / 10 * 72;
-        image.copyRect(this.atlas, 0, 0, x, y, 72, 72, false, false);
-
-        if (GameTestHooks.isGametestEnabled()) {
-            try {
-                File file = new File("debug_result.png");
-                if (!file.exists()) file.createNewFile();
-                image.writeToFile(file);
-                File atlas = new File("atlas.png");
-                if (!atlas.exists()) atlas.createNewFile();
-                this.atlas.writeToFile(atlas);
-            } catch (Exception e) {
-                KapLibMod.LOGGER.warn("error saving result: {}", e.getMessage());
-            }
-        }
-        image.close();
+        image.copyRect(this.atlas, 0, 0, x, 0, 72, 72, false, false);
+        //do not close the image as it might be `this.unknown`
+        LOGGER.debug("applying index {}", index);
     }
 
     /**
@@ -279,15 +268,13 @@ public class PlayerHeadAllocator extends FontSet {
 
     private void addGlyph(int index) {
         int x = (index % 10) * 72;
-        int y = index / 10 * 72;
         float atlasWidth = this.atlas.getWidth();
-        float atlasHeight = this.atlas.getHeight();
-        glyphs[index] = new BakedGlyph(renderTypes, x / atlasWidth, (x + 72) / atlasWidth, y / atlasHeight, (y + 72) / atlasHeight, 0, 8, -1, 7.5f);
+        glyphs[index] = new BakedGlyph(renderTypes, x / atlasWidth, (x + 72) / atlasWidth, 0, 1, 0, 8, -1, 7.5f);
     }
 
     public void init() {
         this.glyphs = new BakedGlyph[25];
-        this.atlas = new NativeImage(360, 360, false);
+        this.atlas = new NativeImage(1800, 72, false);
         this.atlasTexture = new DynamicTexture(atlas);
         this.textureManager.register(FONT, this.atlasTexture);
         this.atlasTexture.upload();
@@ -341,28 +328,28 @@ public class PlayerHeadAllocator extends FontSet {
 
     public void load() {
         File root = new File(KapLibMod.ROOT, "player_heads");
-        if (!root.exists()) {
-            this.init();
-            return;
-        }
-        File imageFile = new File(root, "image.png");
-        try {
-            NativeImage image = NativeImage.read(Files.readAllBytes(imageFile.toPath()));
-            if (image.getWidth() % 360 != 0 || image.getHeight() % 360 != 0) {
-                LOGGER.warn("unexpected image dimensions: [{}, {}]", image.getWidth(), image.getHeight());
-                return;
-            }
-            this.atlas = image;
-            this.atlasTexture = new DynamicTexture(this.atlas);
-            this.textureManager.register(FONT, atlasTexture);
-            this.atlasTexture.upload();
+        if (root.exists()) {
+            File imageFile = new File(root, "image.png");
+            try {
+                NativeImage image = NativeImage.read(Files.readAllBytes(imageFile.toPath()));
+                if (image.getWidth() % 1800 == 0 && image.getHeight() == 72) {
+                    this.atlas = image;
+                    this.atlasTexture = new DynamicTexture(this.atlas);
+                    this.textureManager.register(FONT, atlasTexture);
+                    this.atlasTexture.upload();
 
-            File data = new File(root, "data.json");
-            DataResult<CacheData> result = CacheData.CODEC.parse(JsonOps.INSTANCE, Streams.parse(new JsonReader(new FileReader(data))));
-            result.resultOrPartial(w -> LOGGER.warn("error loading player heads: {}", w)).ifPresent(this::copyFrom);
-        } catch (IOException e) {
-            LOGGER.warn("unable to load player heads: {}", e.getMessage());
+                    File data = new File(root, "data.json");
+                    DataResult<CacheData> result = CacheData.CODEC.parse(JsonOps.INSTANCE, Streams.parse(new JsonReader(new FileReader(data))));
+                    result.resultOrPartial(w -> LOGGER.warn("error loading player heads: {}", w)).ifPresent(this::copyFrom);
+                    return;
+                } else {
+                    LOGGER.warn("unexpected image dimensions: [{}, {}]", image.getWidth(), image.getHeight());
+                }
+            } catch (IOException e) {
+                LOGGER.warn("unable to load player heads: {}", e.getMessage());
+            }
         }
+        this.init();
     }
 
     private void copyFrom(CacheData cacheData) {
