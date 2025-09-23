@@ -515,9 +515,9 @@ public interface MathHelper {
 
     static float getOversizeScale(Vec3 original, Vec3 clamped) {
         if (clamped.equals(original)) return 1;
-        float x = original.x == 0 ? 0 : (float) (clamped.x / original.x);
-        float y = original.y == 0 ? 0 : (float) (clamped.y / original.y);
-        float z = original.z == 0 ? 0 : (float) (clamped.z / original.z);
+        float x = original.x == 0 ? 0 : (float) (original.x / clamped.x);
+        float y = original.y == 0 ? 0 : (float) (original.y / clamped.y);
+        float z = original.z == 0 ? 0 : (float) (original.z / clamped.z);
         return pickLargest(x, y, z);
     }
 

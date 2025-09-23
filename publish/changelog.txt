@@ -1,3 +1,0 @@
-fixed a typo in attributes
-fixed an issue where relogging would cause enchantment description to be applied multiple times
-fixed an issue where other players would not get their head attached correctly on multiplayer

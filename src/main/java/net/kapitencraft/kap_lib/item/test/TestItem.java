@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,15 +48,20 @@ public class TestItem extends WearableItem implements ExtendedItem {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
-
-        if (TestCooldowns.TEST.value().isActive(pPlayer)) {
-            pPlayer.sendSystemMessage(Component.literal("not work"));
-        } else {
-            if (!pLevel.isClientSide()) TestCooldowns.TEST.value().applyCooldown(pPlayer, false);
-            pPlayer.sendSystemMessage(Component.literal("started"));
-            return InteractionResultHolder.success(pPlayer.getItemInHand(pUsedHand));
+        if (!pLevel.isClientSide) {
+            Vec3 angle = pPlayer.getLookAngle();
+            pPlayer.setDeltaMovement(angle.scale(5));
+            pPlayer.hurtMarked = true;
         }
-        return super.use(pLevel, pPlayer, pUsedHand);
+
+        //if (TestCooldowns.TEST.value().isActive(pPlayer)) {
+        //    pPlayer.sendSystemMessage(Component.literal("not work"));
+        //} else {
+        //    if (!pLevel.isClientSide()) TestCooldowns.TEST.value().applyCooldown(pPlayer, false);
+        //    pPlayer.sendSystemMessage(Component.literal("started"));
+        //    return InteractionResultHolder.success(pPlayer.getItemInHand(pUsedHand));
+        //}
+        return InteractionResultHolder.sidedSuccess(pPlayer.getItemInHand(pUsedHand), pLevel.isClientSide);
     }
 
     @Override

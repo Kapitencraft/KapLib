@@ -37,8 +37,8 @@
     "LivingEntityMixin",
     "PlayerMixin",
     "ProjectileMixin",
-    "StringUtilMixin",
     "StringDecomposerMixin",
+    "StringUtilMixin",
     "StyleMixin",
     "client.ItemEnchantmentsMixin"
   ],
