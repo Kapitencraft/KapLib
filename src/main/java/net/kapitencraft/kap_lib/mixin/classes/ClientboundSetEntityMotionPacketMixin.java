@@ -33,32 +33,20 @@ public class ClientboundSetEntityMotionPacketMixin implements ScaledClientMotion
         return constant / deltaScale;
     }
 
-
     @Inject(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At("TAIL"))
     private void readScaleFromNW(FriendlyByteBuf pBuffer, CallbackInfo ci) {
         this.deltaScale = pBuffer.readFloat();
-        this.xa |= (pBuffer.readShort() & 0xFFFF) << 16;
-        this.ya |= (pBuffer.readShort() & 0xFFFF) << 16;
-        this.za |= (pBuffer.readShort() & 0xFFFF) << 16;
+        this.xa = pBuffer.readInt();
+        this.ya = pBuffer.readInt();
+        this.za = pBuffer.readInt();
     }
 
     @Inject(method = "write", at = @At("TAIL"))
     private void addScaleToNW(FriendlyByteBuf pBuffer, CallbackInfo ci) {
         pBuffer.writeFloat(deltaScale);
-        pBuffer.writeShort(this.xa >> 16);
-        pBuffer.writeShort(this.ya >> 16);
-        pBuffer.writeShort(this.za >> 16);
-    }
-
-    @Redirect(method = "write", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/FriendlyByteBuf;writeShort(I)Lnet/minecraft/network/FriendlyByteBuf;"))
-    private FriendlyByteBuf clampValue(FriendlyByteBuf instance, int value) {
-        return instance.writeShort(value & 0xFFFF);
-        //TODO ensure the entire int instead of only the short
-    }
-
-    @ModifyVariable(method = "<init>(Lnet/minecraft/network/FriendlyByteBuf;)V", at = @At(value = "STORE", ordinal = 0), name = {"xa", "ya", "za"})
-    private int readClampValue(int id) {
-        return id & 0xFFFF;
+        pBuffer.writeInt(this.xa);
+        pBuffer.writeInt(this.ya);
+        pBuffer.writeInt(this.za);
     }
 
     @Override
