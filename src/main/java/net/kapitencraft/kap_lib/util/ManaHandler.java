@@ -4,6 +4,7 @@ import net.kapitencraft.kap_lib.data_gen.ModDamageTypes;
 import net.kapitencraft.kap_lib.helpers.AttributeHelper;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -42,18 +43,9 @@ public class ManaHandler {
     public static boolean consumeMana(LivingEntity living, double manaToConsume) {
         if (!hasMana(living, manaToConsume)) return false;
         double mana = getMana(living);
-        double overflow = getOverflow(living);
-        if (overflow > manaToConsume) {
-            overflow -= manaToConsume;
-            manaToConsume = 0;
-        } else {
-            manaToConsume -= overflow;
-            overflow = 0;
-        }
         if (manaToConsume > 0) {
             mana -= manaToConsume;
         }
-        setOverflow(living, overflow);
         setMana(living, mana);
         return true;
     }
@@ -61,24 +53,15 @@ public class ManaHandler {
     public static boolean hasMana(LivingEntity living, double manaToConsume) {
         if (manaToConsume <= 0) return true;
         if (!isMagical(living)) return false;
-        double mana = getMana(living);
-        double overflow = getOverflow(living);
-        return mana + overflow >= manaToConsume;
-    }
-
-    public static double getOverflow(LivingEntity living) {
-        return isMagical(living) ? living.getPersistentData().getDouble(OVERFLOW_MANA_ID) : 0;
+        return getMana(living) >= manaToConsume;
     }
 
     public static double getMana(LivingEntity living) {
-        return AttributeHelper.getSaveAttributeValue(ExtraAttributes.MANA, living);
+        return living.getData(ModAttachmentTypes.MANA);
     }
 
     public static void setMana(LivingEntity living, double mana) {
-        AttributeInstance instance = living.getAttribute(ExtraAttributes.MANA);
-        if (instance != null) {
-            instance.setBaseValue(Math.min(mana, living.getAttributeValue(ExtraAttributes.MAX_MANA)));
-        }
+        living.setData(ModAttachmentTypes.MANA, mana);
     }
 
     public static boolean growMana(LivingEntity living, double mana) {
@@ -87,17 +70,6 @@ public class ManaHandler {
     }
 
     public static boolean isMagical(LivingEntity living) {
-        return living.getAttribute(ExtraAttributes.MANA) != null || living.getAttribute(ExtraAttributes.MAX_MANA) != null;
-    }
-
-    public static void setOverflow(LivingEntity living, double overflow) {
-        if (overflow >= AttributeHelper.getSaveAttributeValue(ExtraAttributes.MAX_MANA, living)) {
-            living.hurt(living.damageSources().source(ModDamageTypes.MANA_OVERFLOW_SELF), Float.MAX_VALUE);
-            List<LivingEntity> livings = MathHelper.getLivingAround(living, 5);
-            for (LivingEntity living1 : livings) {
-                living1.hurt(living.damageSources().source(ModDamageTypes.MANA_OVERFLOW, living), (float) (Float.MAX_VALUE * (0.01 * Math.max(5 - living1.distanceTo(living), 0))));
-            }
-        }
-        living.getPersistentData().putDouble(OVERFLOW_MANA_ID, overflow);
+        return living.getAttributes().hasAttribute(ExtraAttributes.MAX_MANA);
     }
 }

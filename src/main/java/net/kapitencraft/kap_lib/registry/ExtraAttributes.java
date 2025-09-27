@@ -123,7 +123,6 @@ public interface ExtraAttributes {
 
     //Mana
     Holder<Attribute> MAX_MANA = register0Max("max_mana", 100, null);
-    Holder<Attribute> MANA = register0Max("mana", 100, null); //TODO convert to something less... weird
     Holder<Attribute> MANA_COST = registerNegative("mana_cost", 0, 0, 100000, BaseAttributeLocations.MANA_COST);
     Holder<Attribute> MANA_REGEN = register0Max("mana_regen", 0, null);
 }

@@ -37,7 +37,6 @@ public class AttributeAdder {
                 ExtraAttributes.FEROCITY,
                 ExtraAttributes.MAX_MANA,
                 ExtraAttributes.MANA_REGEN,
-                ExtraAttributes.MANA,
                 ExtraAttributes.DODGE,
                 ExtraAttributes.LIFE_STEAL,
                 ExtraAttributes.DRAW_SPEED,
