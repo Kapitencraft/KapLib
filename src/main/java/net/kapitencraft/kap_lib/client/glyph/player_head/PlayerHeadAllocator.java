@@ -213,13 +213,12 @@ public class PlayerHeadAllocator extends FontSet {
         NativeImage image = makeTransparentScreenshot(renderTarget);
 
         addPlayerHeadToAtlas(index, image);
-        this.atlasTexture.upload(); //update GPU texture
+        Minecraft.getInstance().tell(() -> this.atlasTexture.upload()); //update GPU texture
     }
 
     private void addPlayerHeadToAtlas(int index, NativeImage image) {
-        int x = (index % 10) * 72;
-        int y = index / 10 * 72;
-        image.copyRect(this.atlas, 0, 0, x, y, 72, 72, false, false);
+        int x = index * 72;
+        image.copyRect(this.atlas, 0, 0, x, 0, 72, 72, false, false);
 
         if (ForgeGameTestHooks.isGametestEnabled()) {
             try {
@@ -264,16 +263,14 @@ public class PlayerHeadAllocator extends FontSet {
     }
 
     private void addGlyph(int index) {
-        int x = (index % 10) * 72;
-        int y = index / 10 * 72;
+        int x = index * 72;
         float atlasWidth = this.atlas.getWidth();
-        float atlasHeight = this.atlas.getHeight();
-        glyphs[index] = new BakedGlyph(renderTypes, x / atlasWidth, (x + 72) / atlasWidth, y / atlasHeight, (y + 72) / atlasHeight, 0, 8, 2.5f, 11);
+        glyphs[index] = new BakedGlyph(renderTypes, x / atlasWidth, (x + 72) / atlasWidth, 0, 1, 0, 8, 2.5f, 11);
     }
 
     public void init() {
         this.glyphs = new BakedGlyph[25];
-        this.atlas = new NativeImage(360, 360, false);
+        this.atlas = new NativeImage(1800, 72, false);
         this.atlasTexture = new DynamicTexture(atlas);
         this.textureManager.register(FONT, this.atlasTexture);
         this.atlasTexture.upload();
@@ -334,8 +331,9 @@ public class PlayerHeadAllocator extends FontSet {
         File imageFile = new File(root, "image.png");
         try {
             NativeImage image = NativeImage.read(Files.readAllBytes(imageFile.toPath()));
-            if (image.getWidth() % 360 != 0 || image.getHeight() % 360 != 0) {
+            if (image.getWidth() % 1800 != 0 || image.getHeight() % 72 != 0) {
                 LOGGER.warn("unexpected image dimensions: [{}, {}]", image.getWidth(), image.getHeight());
+                init(); //reset to default texture
                 return;
             }
             this.atlas = image;
@@ -348,6 +346,7 @@ public class PlayerHeadAllocator extends FontSet {
             result.get().ifLeft(this::copyFrom).ifRight(cacheDataPartialResult -> LOGGER.warn("error loading player heads: {}", cacheDataPartialResult.message()));
         } catch (IOException e) {
             LOGGER.warn("unable to load player heads: {}", e.getMessage());
+            init();
         }
     }
 

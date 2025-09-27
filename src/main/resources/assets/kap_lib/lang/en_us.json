@@ -6,9 +6,7 @@
   "alignment.y.middle": "Middle",
   "alignment.y.bottom": "Bottom",
 
-  "attribute.name.generic.ability_damage": "§cAbility Damage",
   "attribute.name.generic.armor_shredder": "Armor Shredding",
-  "attribute.name.generic.projectile_speed": "Projectile Speed",
   "attribute.name.generic.arrow_count": "Arrow Count",
   "attribute.name.generic.bonus_attack_speed": "Bonus Attack Speed",
   "attribute.name.generic.crit_damage": "§1Crit Damage",
@@ -19,11 +17,13 @@
   "attribute.name.generic.fishing_speed": "Fishing Speed",
   "attribute.name.generic.intelligence": "§5Intelligence",
   "attribute.name.generic.life_steal": "Life Steal",
+  "attribute.name.generic.magic_damage": "§cMagic Damage",
   "attribute.name.generic.mana": "Mana",
   "attribute.name.generic.mana_cost": "Mana Cost",
   "attribute.name.generic.mana_regen": "§9Mana Regeneration",
   "attribute.name.generic.max_mana": "§3Max Mana",
   "attribute.name.generic.mining_speed": "Mining Speed",
+  "attribute.name.generic.projectile_speed": "Projectile Speed",
   "attribute.name.generic.strength": "§gStrength",
   "attribute.name.generic.vitality": "§4Vitality",
 
@@ -88,7 +88,6 @@
 
   "ench_desc.shift": "press [Shift] for enchantment descriptions",
 
-  "generic.ability_damage": "§cAbility Damage",
   "generic.armor_shredder": "Armor Shredding",
   "generic.arrow_count": "Arrow Count",
   "generic.bonus_attack_speed": "Bonus Attack Speed",
@@ -102,6 +101,7 @@
   "generic.intelligence": "§5Intelligence",
   "generic.life_steal": "Life Steal",
   "generic.live_steal": "Live Steal",
+  "generic.magic_damage": "§cMagic Damage",
   "generic.mana": "Mana",
   "generic.mana_cost": "Mana Cost",
   "generic.mana_regen": "§9Mana Regeneration",

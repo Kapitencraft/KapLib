@@ -1,1 +1,2 @@
 fixed a crash when closing the game with player head caching enabled and no texture cached
+fixed not being able to pickup and insert items into inventories from different inventory pages

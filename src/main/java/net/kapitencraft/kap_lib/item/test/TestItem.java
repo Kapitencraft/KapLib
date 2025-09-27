@@ -46,6 +46,10 @@ public class TestItem extends WearableItem implements ExtendedItem {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
+        if (!pLevel.isClientSide) {
+            pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(20));
+            pPlayer.hurtMarked = true;
+        }
 
         if (TestCooldowns.TEST.get().isActive(pPlayer)) {
             pPlayer.sendSystemMessage(Component.literal("not work"));
