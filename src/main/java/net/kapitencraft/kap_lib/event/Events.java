@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.client.ExtraComponents;
-import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
@@ -13,12 +12,12 @@ import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ExtraEnchantmentEffectComponents;
+import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.kapitencraft.kap_lib.util.attribute.TimedModifiers;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -51,7 +50,6 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
-import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
@@ -163,16 +161,12 @@ public class Events {
             }
         }
         if (event.getEntity() instanceof Player player) {
-            AttributeInstance manaInst = player.getAttribute(ExtraAttributes.MANA);
             CompoundTag tag = player.getPersistentData();
-            if (manaInst == null) throw new IllegalStateException();
-            else {
-                double mana; //upload lost mana
-                if (tag.contains("Mana", Tag.TAG_DOUBLE)) {
-                    mana = tag.getDouble("Mana");
-                } else mana = 100;
-                manaInst.setBaseValue(mana);
-            }
+            double mana; //upload lost mana
+            if (tag.contains("Mana", Tag.TAG_DOUBLE)) {
+                mana = tag.getDouble("Mana");
+            } else mana = 100;
+            player.setData(ModAttachmentTypes.MANA, mana);
             if (tag.contains("Health", Tag.TAG_FLOAT)) {
                 player.setHealth(tag.getFloat("Health"));
             }
@@ -201,7 +195,7 @@ public class Events {
     public static void leaveLevelEvent(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player) {
             //save mana to reset back to when re-joining
-            player.getPersistentData().putDouble("Mana", player.getAttributeValue(ExtraAttributes.MANA));
+            player.getPersistentData().putDouble("Mana", player.getData(ModAttachmentTypes.MANA));
         }
         if (event.getEntity().level().isClientSide()) {
             TerminatorTriggers.ENTITY_REMOVED.get().trigger(event.getEntity().getId());

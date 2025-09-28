@@ -302,12 +302,15 @@ public class PlayerHeadAllocator extends FontSet {
                 IOHelper.saveFile(data, CacheData.CODEC, createCacheData());
             } catch (IOException e) {
                 LOGGER.warn("unable to save player head data: {}", e.getMessage());
+            } catch (Exception e) {
+                LOGGER.warn("unexpected error saving player head data: {}", e.getMessage());
             }
         }
     }
 
     private CacheData createCacheData() {
-        UUID[] data = new UUID[this.index]; //index will be 1 larger than the actual size of the lookup
+        if (this.index != this.lookup.size()) LOGGER.warn("position index ({}) should match lookup size ({})", index, lookup.size());
+        UUID[] data = new UUID[this.lookup.size()]; //index will be 1 larger than the actual size of the lookup
         for (Map.Entry<UUID, Character> entry : this.lookup.entrySet()) {
             data[entry.getValue()] = entry.getKey();
         }

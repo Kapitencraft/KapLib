@@ -2,14 +2,9 @@ package net.kapitencraft.kap_lib.client.particle.animation.elements;
 
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
 import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleConfig;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 
