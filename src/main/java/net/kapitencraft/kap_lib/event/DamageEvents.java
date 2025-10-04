@@ -79,7 +79,7 @@ public class DamageEvents {
                 event.setAmount(0);
             }
         }
-        MiscHelper.createDamageIndicator(attacked, event.getAmount(), dodge ? "dodge" : source.getMsgId());
+        MiscHelper.createDamageIndicator(attacked, event.getAmount(), dodge ? "dodge" : source.getMsgId(), false); //TODO get from context
         DamageCounter.increaseDamage(event.getAmount());
     }
 
@@ -111,7 +111,7 @@ public class DamageEvents {
                     attacked.hurt(FerociousDamageSource.create(attacker, (ferocity - 100), ferocityDamage), ferocityDamage);
                 });
             }
-            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -143,8 +143,8 @@ public class DamageEvents {
         @Nullable LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
         if (attacker == null) return;
         if (MiscHelper.getDamageType(event.getSource()) == MiscHelper.DamageType.MELEE && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH.get())) {
-            double Strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH.get(), attacker);
-            MathHelper.mul(event::getAmount, event::setAmount, (float) (1 + Strength / 100));
+            double strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH.get(), attacker);
+            MathHelper.mul(event::getAmount, event::setAmount, (float) (1 + strength / 100));
         }
         double doubleJump = AttributeHelper.getSaveAttributeValue(ExtraAttributes.DOUBLE_JUMP.get(), attacker);
         if (doubleJump > 0 && event.getSource().is(DamageTypes.FALL)) {
@@ -173,7 +173,7 @@ public class DamageEvents {
                         .terminatedWhen(TimedTerminator.ticks(20))
                         .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacked))
                         .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacker))
-                        .sendToAllPlayers(sL);
+                        .sendToAllPlayers(sL, player -> player.distanceToSqr(attacked) < 32*32);
             }
             attacker.heal(Math.min((float) liveSteal, event.getAmount()));
         }

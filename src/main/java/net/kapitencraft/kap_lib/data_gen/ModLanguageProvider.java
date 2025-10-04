@@ -25,7 +25,6 @@ public class ModLanguageProvider extends EnglishLanguageProvider {
         addAttribute(ExtraAttributes.DRAW_SPEED, ChatFormatting.GOLD);
         addAttribute(ExtraAttributes.FEROCITY, ChatFormatting.WHITE);
         addAttribute(ExtraAttributes.FISHING_SPEED, ChatFormatting.AQUA);
-        addAttribute(ExtraAttributes.INTELLIGENCE, ChatFormatting.DARK_PURPLE);
         addAttribute(ExtraAttributes.LIVE_STEAL, ChatFormatting.DARK_RED);
         addAttribute(ExtraAttributes.MANA, null);
         addAttribute(ExtraAttributes.MANA_COST, null);

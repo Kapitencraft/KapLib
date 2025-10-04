@@ -23,7 +23,6 @@ public class ModrinthPublish {
         String modName = config.modName();
         String modVersion = config.modVersion();
         String mcVersion = config.mcVersion();
-        String fmlVersion = config.fmlVersion();
         try {
             URL url = new URL(API_URL);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
@@ -35,7 +34,7 @@ public class ModrinthPublish {
             connection.setRequestProperty("User-Agent", String.format(config.author() + "/%s/%s (%s)", modName, modVersion, config.email()));
             connection.setRequestProperty("Authorization", AutoPublisher.getAuth(true));
 
-            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, fmlVersion);
+            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
 
             File mainFile = new File(fileBase + ".jar");
 
@@ -44,7 +43,7 @@ public class ModrinthPublish {
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
 
                 // Add text part
-                addData(writer, boundary, modName, modVersion, mcVersion, fmlVersion, config.projectId(), config.extraFiles(), config.dependencies());
+                addData(writer, boundary, modName, modVersion, mcVersion, config.projectId(), config.extraFiles(), config.dependencies());
 
                 // Add file part
                 addFilePart(writer, outputStream, boundary, "primary", mainFile);
@@ -90,11 +89,11 @@ public class ModrinthPublish {
     }
 
     // Helper method to add a text field
-    private static void addData(PrintWriter writer, String boundary, String modName, String modVersion, String mcVersion, String forgeVersion, String projectId, String[] extraFiles, JsonObject[] dependencies) throws IOException {
+    private static void addData(PrintWriter writer, String boundary, String modName, String modVersion, String mcVersion, String projectId, String[] extraFiles, JsonObject[] dependencies) throws IOException {
         writer.append("--").append(boundary).append("\r\n");
         writer.append("Content-Disposition: form-data; name=\"data\"\r\n");
         writer.append("Content-Type: application/json; charset=UTF-8\r\n\r\n");
-        writer.append(addVersionData(modName, modVersion, mcVersion, forgeVersion, projectId, dependencies, extraFiles)).append("\r\n");
+        writer.append(addVersionData(modName, modVersion, mcVersion, projectId, dependencies, extraFiles)).append("\r\n");
         writer.flush();
     }
 
@@ -112,11 +111,11 @@ public class ModrinthPublish {
         writer.flush();
     }
 
-    private static String addVersionData(String modName, String modVersion, String mcVersion, String forgeVersion, String projectId, JsonObject[] dependencies, String[] extraFiles) throws IOException {
+    private static String addVersionData(String modName, String modVersion, String mcVersion, String projectId, JsonObject[] dependencies, String[] extraFiles) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
         data.put("name", String.format("%s v%s", modName, modVersion));
-        data.put("version_number", AutoPublisher.formatVersion(modVersion, mcVersion, forgeVersion));
+        data.put("version_number", AutoPublisher.formatVersion(modVersion, mcVersion));
         data.put("loaders", new String[] {"forge"});
         data.put("game_versions", new String[]{mcVersion});
         data.put("version_type", "release");

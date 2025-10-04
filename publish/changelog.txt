@@ -1,2 +1,5 @@
 fixed a crash when closing the game with player head caching enabled and no texture cached
-fixed not being able to pickup and insert items into inventories from different inventory pages
+fixed not being able to pick up and insert items into inventories from different inventory pages
+removed Intelligence Attribute in favour of mana, max_mana and mana_regen
+added conditional world packet distribution
+life steal particles will now only show when closer than 32 blocks

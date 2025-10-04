@@ -122,7 +122,7 @@ public class Events {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void healingDisplay(LivingHealEvent event) {
-        if (event.getAmount() > 0) MiscHelper.createDamageIndicator(event.getEntity(), event.getAmount(), "heal");
+        if (event.getAmount() > 0) MiscHelper.createDamageIndicator(event.getEntity(), event.getAmount(), "heal", false);
     }
 
     @SubscribeEvent

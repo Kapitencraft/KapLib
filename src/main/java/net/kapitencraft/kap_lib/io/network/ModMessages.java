@@ -13,6 +13,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class ModMessages {
@@ -35,6 +36,10 @@ public class ModMessages {
 
     public static <MSG> void sendToAllConnectedPlayers(Function<ServerPlayer, MSG> provider, ServerLevel serverLevel) {
         serverLevel.getPlayers(serverPlayer -> true).forEach(serverPlayer -> ModMessages.sendToClientPlayer(provider.apply(serverPlayer), serverPlayer));
+    }
+
+    public static <MSG> void sendToAllConnectedPlayers(Predicate<ServerPlayer> filter, Function<ServerPlayer, MSG> provider, ServerLevel level) {
+        level.getPlayers(filter).forEach(player -> ModMessages.sendToClientPlayer(provider.apply(player), player));
     }
 
 

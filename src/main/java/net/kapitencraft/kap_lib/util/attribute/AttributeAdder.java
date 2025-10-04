@@ -35,7 +35,6 @@ public class AttributeAdder {
                 ExtraAttributes.MINING_SPEED,
                 ExtraAttributes.MAGIC_DAMAGE,
                 ExtraAttributes.MANA_COST,
-                ExtraAttributes.INTELLIGENCE,
                 ExtraAttributes.FEROCITY,
                 ExtraAttributes.MAX_MANA,
                 ExtraAttributes.MANA_REGEN,

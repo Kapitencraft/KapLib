@@ -414,10 +414,12 @@ public class MiscHelper {
         return sup.get();
     }
 
-    public static void createDamageIndicator(LivingEntity entity, float amount, String type) {
+    public static void createDamageIndicator(LivingEntity entity, float amount, String type, boolean critical) {
         if (entity.level() instanceof ServerLevel serverLevel) {
             float rangeOffset = entity.getBbHeight() / 2;
-            ParticleHelper.sendParticles(serverLevel, new DamageIndicatorParticleOptions(TextHelper.damageIndicatorCoder(type), amount, rangeOffset), false, entity.getX(), entity.getY(), entity.getZ(), 1, 0, 0, 0, 0);
+            ParticleHelper.sendParticles(serverLevel,
+                    new DamageIndicatorParticleOptions(TextHelper.damageIndicatorCoder(type), amount, rangeOffset, critical),
+                    false, entity.getX(), entity.getY(), entity.getZ(), 1, 0, 0, 0, 0);
         }
     }
 
@@ -432,7 +434,7 @@ public class MiscHelper {
         return MathHelper.clampLength(delta, 0.5);
     }
 
-    public static final char HEART = '\u2661';
+    public static final char HEART = '♡';
 
     public static ArmorStand createHealthIndicator(LivingEntity target) {
         ArmorStand marker = createMarker(target.position().add(0, 0.5, 0), target.level(), true);

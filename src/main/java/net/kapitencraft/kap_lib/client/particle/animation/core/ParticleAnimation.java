@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * static data container for animations. use {@link ParticleAnimator} for dynamic information such as tick count
@@ -202,7 +203,13 @@ public class ParticleAnimation {
          * @param level the level
          */
         public void sendToAllPlayers(ServerLevel level) {
-            ModMessages.sendToAllConnectedPlayers(sp -> new SendParticleAnimationPacket(this.build()), level);
+            ParticleAnimation animation = this.build();
+            ModMessages.sendToAllConnectedPlayers(sp -> new SendParticleAnimationPacket(animation), level);
+        }
+
+        public void sendToAllPlayers(ServerLevel level, Predicate<ServerPlayer> filter) {
+            ParticleAnimation animation = this.build();
+            ModMessages.sendToAllConnectedPlayers(filter, sp -> new SendParticleAnimationPacket(animation), level);
         }
 
         /**

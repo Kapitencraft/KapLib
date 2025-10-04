@@ -31,10 +31,13 @@ import org.jetbrains.annotations.Nullable;
 public class DamageIndicatorParticle extends Particle {
     public static final double MAX_MOVEMENT = 0.35;
 
-    protected DamageIndicatorParticle(ClientLevel level, double x, double y, double z, double amount, double damageType, float rangeOffset) {
+    protected DamageIndicatorParticle(ClientLevel level, double x, double y, double z, double amount, double damageType, float rangeOffset, boolean critical) {
         super(level, x, y, z);
 
-        this.text = amount == Float.MAX_VALUE ? "INFINITE" : KapLibMod.doubleFormat(amount);
+        String text = amount == Float.MAX_VALUE ? "INFINITE" :
+                KapLibMod.doubleFormat(amount);
+        if (critical) text = CRIT_CHAR + " " + text + " " + CRIT_CHAR;
+        this.text = text;
         this.color = TextHelper.damageIndicatorColorFromDouble(damageType).getColor();
         this.setColor(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color));
         this.darkColor = FastColor.ARGB32.color(255, (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25));
@@ -44,7 +47,7 @@ public class DamageIndicatorParticle extends Particle {
         this.xd = Mth.nextDouble(KapLibMod.RANDOM_SOURCE, -MAX_MOVEMENT, MAX_MOVEMENT) * rangeOffset;
     }
 
-    private static final char CRIT_CHAR = ' '; //TODO add stars around damage if critical
+    private static final char CRIT_CHAR = '\u2605';
 
     private float fadeout = -1;
     private float prevFadeout = -1;
@@ -156,7 +159,7 @@ public class DamageIndicatorParticle extends Particle {
         @Override
         public DamageIndicatorParticle createParticle(@NotNull DamageIndicatorParticleOptions particleType, @NotNull ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             if (!ClientModConfig.isIndicatorEnabled()) return null;
-            return new DamageIndicatorParticle(level, x, y, z, particleType.getDamage(), particleType.getDamageType(), particleType.getRangeOffset());
+            return new DamageIndicatorParticle(level, x, y, z, particleType.getDamage(), particleType.getDamageType(), particleType.getRangeOffset(), particleType.isCritical());
         }
     }
 }

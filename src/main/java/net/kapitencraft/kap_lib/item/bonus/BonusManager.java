@@ -282,7 +282,6 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
         private static class SetData {
 
-            //TODO convert to binary
             private long mask = 0;
 
             public void removeEquipment(EquipmentSlot slot) {

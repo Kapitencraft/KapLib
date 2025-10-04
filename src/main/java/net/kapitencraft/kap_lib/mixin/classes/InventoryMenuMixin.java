@@ -54,7 +54,6 @@ public abstract class InventoryMenuMixin extends AbstractContainerMenu implement
 
     @Redirect(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/InventoryMenu;addSlot(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;"))
     private Slot wrapSlots(InventoryMenu instance, Slot slot) {
-        //TODO fix 2x2 inventory crafting not consuming ingredients
         if (slot.container instanceof Inventory && slot.getSlotIndex() < 36) return this.addSlot(new InventorySlotWrapper(this, slot));
         else return this.addSlot(new SlotWrapper(this, 0, slot));
     }

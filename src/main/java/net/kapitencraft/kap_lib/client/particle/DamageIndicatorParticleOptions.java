@@ -22,17 +22,21 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
                     Codec.FLOAT.fieldOf("damage")
                             .forGetter(DamageIndicatorParticleOptions::getDamage),
                     Codec.FLOAT.fieldOf("rangeOffset")
-                            .forGetter(DamageIndicatorParticleOptions::getRangeOffset)
+                            .forGetter(DamageIndicatorParticleOptions::getRangeOffset),
+                    Codec.BOOL.fieldOf("critical")
+                            .forGetter(DamageIndicatorParticleOptions::isCritical)
             ).apply(optionsInstance, DamageIndicatorParticleOptions::new));
     private final int damageType;
     private final float damage;
     private final float rangeOffset;
+    private final boolean isCritical;
 
-    public DamageIndicatorParticleOptions(int damageType, float damage, float rangeOffset) {
+    public DamageIndicatorParticleOptions(int damageType, float damage, float rangeOffset, boolean isCritical) {
         super(true, new Deserializer());
         this.damageType = damageType;
         this.damage = damage;
         this.rangeOffset = rangeOffset;
+        this.isCritical = isCritical;
     }
 
     public int getDamageType() {
@@ -57,6 +61,7 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
         buf.writeInt(damageType);
         buf.writeFloat(damage);
         buf.writeFloat(rangeOffset);
+        buf.writeBoolean(isCritical);
     }
 
     @Override
@@ -69,6 +74,10 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
         return CODEC;
     }
 
+    public boolean isCritical() {
+        return isCritical;
+    }
+
     public static class Deserializer implements ParticleOptions.Deserializer<DamageIndicatorParticleOptions> {
 
         @Override
@@ -78,7 +87,9 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
             float damage = reader.readFloat();
             reader.expect(' ');
             float rangeOffset = reader.readFloat();
-            return new DamageIndicatorParticleOptions(damageType, damage, rangeOffset);
+            reader.expect(' ');
+            boolean critical = reader.readBoolean();
+            return new DamageIndicatorParticleOptions(damageType, damage, rangeOffset, critical);
         }
 
         @Override
@@ -86,7 +97,8 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
             int damageType = buf.readInt();
             float damage = buf.readFloat();
             float rangeOffset = buf.readFloat();
-            return new DamageIndicatorParticleOptions(damageType, damage,  rangeOffset);
+            boolean critical = buf.readBoolean();
+            return new DamageIndicatorParticleOptions(damageType, damage,  rangeOffset, critical);
         }
     }
 }

@@ -11,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import org.apache.logging.log4j.core.appender.rolling.action.IfAll;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.UUID;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public interface ExtraParticleTypes {
     DeferredRegister<ParticleType<?>> REGISTRY = KapLibMod.registry(ForgeRegistries.PARTICLE_TYPES);
 
-    RegistryObject<DamageIndicatorParticleOptions> DAMAGE_INDICATOR = REGISTRY.register("damage_indicator", () -> new DamageIndicatorParticleOptions(TextHelper.damageIndicatorCoder("heal"), 1, 1));
+    RegistryObject<DamageIndicatorParticleOptions> DAMAGE_INDICATOR = REGISTRY.register("damage_indicator", () -> new DamageIndicatorParticleOptions(TextHelper.damageIndicatorCoder("heal"), 1, 1, false));
     RegistryObject<ShimmerShieldParticleOptions> SHIMMER_SHIELD = REGISTRY.register("shimmer_shield", ()-> new ShimmerShieldParticleOptions(0, 0, 0, 0, 0, 0, Color.fromARGBPacked(0), Color.fromARGBPacked(0), 0, UUID.randomUUID()));
     RegistryObject<LightningParticleOptions> LIGHTNING = REGISTRY.register("lightning", () -> new LightningParticleOptions(Vec3.ZERO, Vec3.ZERO, 2, 100, 0, 0));
 }

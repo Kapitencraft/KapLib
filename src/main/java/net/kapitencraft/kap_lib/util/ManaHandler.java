@@ -19,24 +19,13 @@ public class ManaHandler {
 
     public static final String OVERFLOW_MANA_ID = "overflowMana";
 
-    @SuppressWarnings("all")
     @SubscribeEvent
     public static void manaChange(TickEvent.PlayerTickEvent event) {
         Player player = event.player;
-        AttributeInstance maxManaInstance = player.getAttribute(ExtraAttributes.MAX_MANA.get());
         if (!isMagical(player)) {
             throw new IllegalStateException("detected Player unable to use mana, expecting broken mod-state!");
         }
-        double maxMana = maxManaInstance.getValue();
-        double intel = player.getAttributeValue(ExtraAttributes.INTELLIGENCE.get());
-        double curManaRegen = player.getAttributeValue(ExtraAttributes.MANA_REGEN.get());
-        double manaRegen = maxMana / 500 * (1 + curManaRegen / 100);
-        CompoundTag tag = player.getPersistentData();
-        tag.putDouble("manaRegen", manaRegen);
-        growMana(player, manaRegen);
-        maxMana = 100 + intel;
-
-        maxManaInstance.setBaseValue(maxMana);
+        growMana(player, player.getAttributeValue(ExtraAttributes.MANA_REGEN.get()));
     }
 
     public static boolean consumeMana(LivingEntity living, double manaToConsume) {

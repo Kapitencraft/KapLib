@@ -23,7 +23,7 @@ public class CurseforgePublish {
         String modName = config.modName();
         String modVersion = config.modVersion();
         String mcVersion = config.mcVersion();
-        String fmlVersion = config.fmlVersion();
+        String fmlVersion = config.loaderVersion();
         try {
             URL url = new URL(API_URL + modId + "/upload-file");
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
@@ -35,7 +35,7 @@ public class CurseforgePublish {
             connection.setRequestProperty("User-Agent", String.format(config.author() + "/%s/%s (%s)", modName, modVersion, config.email()));
             connection.setRequestProperty("Authorization", AutoPublisher.getAuth(true));
 
-            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion, fmlVersion);
+            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
 
             File mainFile = new File(fileBase + ".jar");
 

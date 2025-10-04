@@ -6,17 +6,14 @@ import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
-import net.kapitencraft.kap_lib.KapLibMod;
 import org.slf4j.Logger;
 
-import javax.json.Json;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.logging.LogManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,11 +28,11 @@ public class AutoPublisher {
     static final File CATEGORIES = new File("publish/categories.json");
 
     record Config(String email, String author,
-                          String modId, String modName,
-                          String modVersion, String mcVersion,
-                          String fmlVersion, String projectId,
-                          String[] extraFiles,
-                          JsonObject[] dependencies
+                  String modId, String modName,
+                  String modVersion, String mcVersion,
+                  String loaderVersion, String projectId,
+                  String[] extraFiles,
+                  JsonObject[] dependencies
     ) {
 
     }
@@ -50,7 +47,7 @@ public class AutoPublisher {
                 object.getAsJsonPrimitive("mod_name").getAsString(),
                 object.getAsJsonPrimitive("mod_version").getAsString(),
                 object.getAsJsonPrimitive("mc_version").getAsString(),
-                object.getAsJsonPrimitive("fml_version").getAsString(),
+                object.getAsJsonPrimitive("loader_version").getAsString(),
                 object.getAsJsonPrimitive("project_id").getAsString(),
                 optionalList("extra_files", object).stream().map(JsonElement::getAsString).toArray(String[]::new),
                 optionalList("dependencies", object).stream().map(JsonElement::getAsJsonObject).toArray(JsonObject[]::new)
@@ -74,9 +71,9 @@ public class AutoPublisher {
         String modName = config.modName;
         String modVersion = config.modVersion;
         String mcVersion = config.mcVersion;
-        String fmlVersion = config.fmlVersion;
+        String fmlVersion = config.loaderVersion;
         LOGGER.info("Auto Publish activated with args:");
-        LOGGER.info("modId=\"{}\", modName=\"{}\", modVersion={}, mcVersion={}, fmlVersion={}", modId, modName, modVersion, mcVersion, fmlVersion);
+        LOGGER.info("modId=\"{}\", modName=\"{}\", modVersion={}, mcVersion={}, loaderVersion={}", modId, modName, modVersion, mcVersion, fmlVersion);
 
         try {
             if (DATA_CACHE.exists()) {
@@ -131,8 +128,8 @@ public class AutoPublisher {
         return changelog;
     }
 
-    static String formatVersion(String modVersion, String mcVersion, String fmlVersion) {
-        return String.format("v%s-mc%s-FML%s", modVersion, mcVersion, fmlVersion);
+    static String formatVersion(String modVersion, String mcVersion) {
+        return String.format("v%s-mc%s", modVersion, mcVersion);
     }
 
     static String[] authString;
