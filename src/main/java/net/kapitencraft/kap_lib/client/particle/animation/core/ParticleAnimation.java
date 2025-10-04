@@ -10,7 +10,6 @@ import net.kapitencraft.kap_lib.client.particle.animation.terminators.EntityRemo
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.core.TerminationTriggerInstance;
 import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
-import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.SendParticleAnimationPacket;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.client.particle.animation.finalizers.ParticleFinalizer;
@@ -18,13 +17,11 @@ import net.minecraft.CrashReport;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;

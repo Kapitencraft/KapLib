@@ -28,16 +28,9 @@ public class ManaHandler {
         if (!isMagical(player)) {
             throw new IllegalStateException("detected Player unable to use mana, expecting broken mod-state!");
         }
-        double maxMana = maxManaInstance.getValue();
-        double intel = player.getAttributeValue(ExtraAttributes.INTELLIGENCE);
-        double curManaRegen = player.getAttributeValue(ExtraAttributes.MANA_REGEN);
-        double manaRegen = maxMana / 500 * (1 + curManaRegen / 100);
+        double manaRegen = player.getAttributeValue(ExtraAttributes.MANA_REGEN);
         CompoundTag tag = player.getPersistentData();
-        tag.putDouble("manaRegen", manaRegen);
         growMana(player, manaRegen);
-        maxMana = 100 + intel;
-
-        maxManaInstance.setBaseValue(maxMana);
     }
 
     public static boolean consumeMana(LivingEntity living, double manaToConsume) {

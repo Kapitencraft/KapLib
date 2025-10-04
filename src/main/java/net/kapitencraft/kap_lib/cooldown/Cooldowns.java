@@ -2,17 +2,12 @@ package net.kapitencraft.kap_lib.cooldown;
 
 
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.CooldownStartedPacket;
 import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncCooldownsToPlayerPacket;
 import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
 import net.kapitencraft.kap_lib.util.IntegerReference;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.neoforged.neoforge.capabilities.EntityCapability;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 

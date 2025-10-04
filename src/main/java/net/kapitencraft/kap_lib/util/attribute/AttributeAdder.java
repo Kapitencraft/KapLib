@@ -33,7 +33,6 @@ public class AttributeAdder {
                 ExtraAttributes.PRISTINE,
                 ExtraAttributes.ABILITY_DAMAGE,
                 ExtraAttributes.MANA_COST,
-                ExtraAttributes.INTELLIGENCE,
                 ExtraAttributes.FEROCITY,
                 ExtraAttributes.MAX_MANA,
                 ExtraAttributes.MANA_REGEN,

@@ -78,10 +78,6 @@ public interface ExtraAttributes {
      */
     Holder<Attribute> FEROCITY = register("ferocity", 0, 0, 500, BaseAttributeLocations.FEROCITY);
     /**
-     * increase maximum mana
-     */
-    Holder<Attribute> INTELLIGENCE = register0Max("intelligence", 0, BaseAttributeLocations.INTELLIGENCE);
-    /**
      * increases damage dealt by abilities
      */
     Holder<Attribute> ABILITY_DAMAGE = register0Max("ability_damage", 0, BaseAttributeLocations.ABILITY_DAMAGE);
@@ -124,5 +120,5 @@ public interface ExtraAttributes {
     //Mana
     Holder<Attribute> MAX_MANA = register0Max("max_mana", 100, null);
     Holder<Attribute> MANA_COST = registerNegative("mana_cost", 0, 0, 100000, BaseAttributeLocations.MANA_COST);
-    Holder<Attribute> MANA_REGEN = register0Max("mana_regen", 0, null);
+    Holder<Attribute> MANA_REGEN = register0Max("mana_regen", 1, null);
 }

@@ -7,7 +7,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;

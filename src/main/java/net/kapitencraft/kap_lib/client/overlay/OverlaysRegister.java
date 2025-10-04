@@ -37,9 +37,8 @@ public class OverlaysRegister {
                 player -> Component.translatable(
                         "overlay.mana.display",
                         MathHelper.shortRound(ManaHandler.getMana(player)),
-                        MathHelper.shortRound(player.getPersistentData().getDouble(MiscHelper.OVERFLOW_MANA_ID)),
                         player.getAttributeValue(ExtraAttributes.MAX_MANA),
-                        MathHelper.defRound(player.getPersistentData().getDouble("manaRegen") * 20)
+                        MathHelper.defRound(player.getAttributeValue(ExtraAttributes.MANA_REGEN) * 20)
                 ).withStyle(ChatFormatting.BLUE)
         ));
     }
