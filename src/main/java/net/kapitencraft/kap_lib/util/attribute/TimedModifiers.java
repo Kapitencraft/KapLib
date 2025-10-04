@@ -37,6 +37,7 @@ public class TimedModifiers {
         });
         AttributeMap attributes = living.getAttributes();
         toRemove.forEach(entry -> Objects.requireNonNull(attributes.getInstance(entry.holder), "missing attribute " + entry.holder.getKey() + " on entity").removeModifier(entry.location));
+        modifiers.removeAll(toRemove);
     }
 
     public void add(int duration, Holder<Attribute> attribute, ResourceLocation location) {
