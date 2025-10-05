@@ -164,13 +164,11 @@ public class Events {
             AttributeInstance manaInst = player.getAttribute(ExtraAttributes.MANA.get());
             CompoundTag tag = player.getPersistentData();
             if (manaInst == null) throw new IllegalStateException();
-            else {
-                double mana; //upload lost mana
-                if (tag.contains("Mana", Tag.TAG_DOUBLE)) {
-                    mana = tag.getDouble("Mana");
-                } else mana = 100;
-                manaInst.setBaseValue(mana);
-            }
+            //double mana; //upload lost mana TODO update mana
+            //if (tag.contains("Mana", Tag.TAG_DOUBLE)) {
+            //    mana = tag.getDouble("Mana");
+            //} else mana = 100;
+            //manaInst.setBaseValue(mana);
             if (tag.contains("Health", Tag.TAG_FLOAT)) {
                 player.setHealth(tag.getFloat("Health"));
             }

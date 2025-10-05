@@ -420,14 +420,34 @@ public abstract class TextureProvider implements DataProvider {
     }
 
     protected void registerTools(ResourceLocation paletteSource, ResourceLocation name) {
+        registerHoe(paletteSource, name);
+        registerSword(paletteSource, name);
+        registerPickaxe(paletteSource, name);
+        registerShovel(paletteSource, name);
+        registerAxe(paletteSource, name);
+    }
+
+    protected void registerHoe(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/").withSuffix("_hoe"))
                 .then(Transfer.createWithMask(new ResourceLocation("item/golden_hoe"), KapLibMod.res("item/mask/hoe")));
+    }
+
+    protected void registerSword(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/").withSuffix("_sword"))
                 .then(Transfer.createWithMask(new ResourceLocation("item/golden_sword"), KapLibMod.res("item/mask/sword")));
+    }
+
+    protected void registerPickaxe(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/").withSuffix("_pickaxe"))
                 .then(Transfer.createWithMask(new ResourceLocation("item/golden_pickaxe"), KapLibMod.res("item/mask/pickaxe")));
+    }
+
+    protected void registerShovel(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/").withSuffix("_shovel"))
                 .then(Transfer.createWithMask(new ResourceLocation("item/golden_shovel"), KapLibMod.res("item/mask/shovel")));
+    }
+
+    protected void registerAxe(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/").withSuffix("_axe"))
                 .then(Transfer.createWithMask(new ResourceLocation("item/golden_axe"), KapLibMod.res("item/mask/axe")));
     }

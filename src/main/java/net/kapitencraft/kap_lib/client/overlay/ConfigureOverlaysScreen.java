@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * change GUI locations screen
  */
-public class ConfigureOverlaysScreen extends MenuableScreen {
+public class ConfigureOverlaysScreen extends MenuableScreen<ConfigureOverlaysScreen> {
     private final OverlayManager controller = LibClient.overlays;
     private final List<ResizeBox> boxes = new ArrayList<>();
     private ResizeBox active;

@@ -8,11 +8,11 @@ import net.kapitencraft.kap_lib.client.widget.menu.Menu;
  * <br>should also only be used inside {@link net.kapitencraft.kap_lib.client.gui.screen.MenuableScreen MenuableScreens}
  */
 @FunctionalInterface
-public interface IMenuBuilder {
+public interface IMenuBuilder<S extends MenuableScreen<S>> {
     /**
      * @param x mouse x
      * @param y mouse y
      * @return the created menu
      */
-    Menu createMenu(int x, int y, MenuableScreen screen);
+    Menu createMenu(int x, int y, S screen);
 }

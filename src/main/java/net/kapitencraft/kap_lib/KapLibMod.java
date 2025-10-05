@@ -4,7 +4,6 @@ import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
-import net.kapitencraft.kap_lib.enchantments.extras.TestEnchantment;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
 import net.kapitencraft.kap_lib.registry.custom.*;
@@ -43,6 +42,7 @@ public class KapLibMod {
     public static final String MOD_ID = "kap_lib";
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final Marker MARKER = Markers.getMarker("KapLib");
+    private static boolean enableManaOverlay;
 
     public static ResourceLocation res(String path) {
         return new ResourceLocation(MOD_ID, path);
@@ -122,5 +122,13 @@ public class KapLibMod {
 
     public static <T> DeferredRegister<T> registry(ResourceKey<Registry<T>> key) {
         return DeferredRegister.create(key, MOD_ID);
+    }
+
+    public static void enableManaOverlay() {
+        KapLibMod.enableManaOverlay = true;
+    }
+
+    public static boolean isEnableManaOverlay() {
+        return enableManaOverlay;
     }
 }

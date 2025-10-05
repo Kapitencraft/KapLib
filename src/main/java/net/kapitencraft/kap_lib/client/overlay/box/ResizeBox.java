@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.client.overlay.box;
 
 import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.client.gui.screen.MenuableScreen;
+import net.kapitencraft.kap_lib.client.overlay.ConfigureOverlaysScreen;
 import net.kapitencraft.kap_lib.client.overlay.OverlayManager;
 import net.kapitencraft.kap_lib.client.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.client.overlay.holder.Overlay;
@@ -27,7 +28,7 @@ import java.util.Optional;
 /**
  * box used to resize other things (like a RenderHolder)
  */
-public class ResizeBox extends InteractiveBox implements IMenuBuilder {
+public class ResizeBox extends InteractiveBox implements IMenuBuilder<ConfigureOverlaysScreen> {
     private final List<AccessBox> boxes = new ArrayList<>();
     private final @NotNull Overlay dedicatedHolder;
     private static final int BOX_COLOR = 0xFFFFFFFF;
@@ -147,7 +148,7 @@ public class ResizeBox extends InteractiveBox implements IMenuBuilder {
     }
 
     @Override
-    public Menu createMenu(int x, int y, MenuableScreen screen) {
+    public Menu createMenu(int x, int y, ConfigureOverlaysScreen screen) {
         DropDownMenu menu = new DropDownMenu(x, y, this);
         OverlayProperties properties = this.dedicatedHolder.getProperties();
         menu.addElement(EnumElement.builder(OverlayProperties.Alignment.class)
@@ -175,7 +176,7 @@ public class ResizeBox extends InteractiveBox implements IMenuBuilder {
                     properties.hide();
                     menu.hide(screen);
                     screen.closeMenu();
-                    
+                    screen.removeOverlay(this.dedicatedHolder);
                 })
         );
         return menu;

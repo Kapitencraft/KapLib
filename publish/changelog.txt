@@ -1,0 +1,5 @@
+added TabGroup and ArmorTabGroup simplifying creative mode tab registration
+added TabGroup parameter to AbstractArmorItem#createRegistry
+added PlayerChangeManaEvent fired when the mana of a player is changed
+added mana overlay can now be enabled with KapLibMod#enableManaOverlay()
+added IMenuBuilder type parameter to resemble the type of screen to be used

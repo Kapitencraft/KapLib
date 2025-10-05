@@ -201,7 +201,11 @@ public class OverlayManager {
         locations.forEach(location -> {
             Overlay holder = controller.map.get(location);
             holder.getProperties().copy(location.get());
-            controller.visible.add(holder);
+            if (location.get().isVisible()) {
+                controller.visible.add(holder);
+            } else {
+                controller.invisible.add(holder);
+            }
         });
         controller.invisible.clear();
     }

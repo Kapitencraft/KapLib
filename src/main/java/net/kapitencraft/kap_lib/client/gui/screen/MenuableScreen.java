@@ -16,18 +16,18 @@ import java.util.List;
 /**
  * screen with ability to show menus (like {@link net.kapitencraft.kap_lib.client.widget.menu.drop_down.DropDownMenu DropDownMenus})
  */
-public class MenuableScreen extends Screen {
+public class MenuableScreen<S extends MenuableScreen<S>> extends Screen {
 
     /**
      * the current active rendered Menu
      */
     private Menu active;
-    private IMenuBuilder defaultMenuBuilder;
+    private IMenuBuilder<S> defaultMenuBuilder;
     protected MenuableScreen(Component pTitle) {
         super(pTitle);
     }
 
-    protected void setDefaultMenuBuilder(IMenuBuilder defaultMenuBuilder) {
+    protected void setDefaultMenuBuilder(IMenuBuilder<S> defaultMenuBuilder) {
         this.defaultMenuBuilder = defaultMenuBuilder;
     }
 
@@ -74,8 +74,8 @@ public class MenuableScreen extends Screen {
         return false;
     }
 
-    private GuiEventListener makeMenu(IMenuBuilder builder, double pMouseX, double pMouseY) {
-        Menu menu = builder.createMenu(Mth.floor(pMouseX), Mth.floor(pMouseY), this);
+    private GuiEventListener makeMenu(IMenuBuilder<S> builder, double pMouseX, double pMouseY) {
+        Menu menu = builder.createMenu(Mth.floor(pMouseX), Mth.floor(pMouseY), (S) this);
         if (menu != null) {
             this.active = menu;
             this.active.show();

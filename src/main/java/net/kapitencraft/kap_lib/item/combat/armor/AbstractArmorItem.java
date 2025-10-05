@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.kapitencraft.kap_lib.client.armor.ArmorModel;
 import net.kapitencraft.kap_lib.client.armor.provider.ArmorModelProvider;
+import net.kapitencraft.kap_lib.item.creative_tab.TabGroup;
 import net.minecraft.Util;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
@@ -17,6 +18,7 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -125,10 +127,12 @@ public abstract class AbstractArmorItem extends ArmorItem {
      * @param creator a lambda function to create an instance of the armor, mostly a method reference to the constructor
      * @return a Map mapping the ArmorType to the RegObj for the slot
      */
-    public static <T extends AbstractArmorItem> Map<Type, RegistryObject<T>> createRegistry(DeferredRegister<Item> registry, String baseName, Function<Type, T> creator) {
+    public static <T extends AbstractArmorItem> Map<Type, RegistryObject<T>> createRegistry(DeferredRegister<Item> registry, String baseName, Function<Type, T> creator, @Nullable TabGroup group) {
         return Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
             for (Type type : Type.values()) {
-                map.put(type, registry.register(baseName + "_" + type.getName(), () -> creator.apply(type)));
+                RegistryObject<T> object = registry.register(baseName + "_" + type.getName(), () -> creator.apply(type));
+                if (group != null) group.add(object);
+                map.put(type, object);
             }
         });
     }
