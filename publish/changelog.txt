@@ -1,6 +1,0 @@
-mana is now handled via a data attachment instead of an attribute
-fixed a possible crash where the player head allocator's index and lookup would mismatch
-renamed ModMessages -> KapLibMessages
-mana regeneration is now directly related to the mana regeneration attribute
-removed intelligence attribute.
-fixed a bug where timed modifiers would always be instantly removed
