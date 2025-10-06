@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.config;
 
-import net.kapitencraft.kap_lib.client.chroma.ChromaOrigin;
-import net.kapitencraft.kap_lib.client.chroma.ChromaType;
+import net.kapitencraft.kap_lib.client.shaders.chroma.ChromaOrigin;
+import net.kapitencraft.kap_lib.client.shaders.chroma.ChromaType;
 import net.kapitencraft.kap_lib.client.widget.menu.drop_down.elements.Element;
 import net.minecraft.ChatFormatting;
 import net.minecraftforge.common.ForgeConfigSpec;

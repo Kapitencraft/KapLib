@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
+import net.kapitencraft.kap_lib.event.custom.client.RegisterChunkBufferLayersEvent;
 import net.kapitencraft.kap_lib.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.registry.*;
 import net.kapitencraft.kap_lib.registry.custom.*;

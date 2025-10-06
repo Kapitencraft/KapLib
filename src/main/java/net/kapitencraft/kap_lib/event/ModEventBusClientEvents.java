@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.client.particle.DamageIndicatorParticle;
 import net.kapitencraft.kap_lib.client.particle.LightningParticle;
 import net.kapitencraft.kap_lib.client.particle.ShimmerShieldParticle;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
+import net.kapitencraft.kap_lib.event.custom.client.RegisterChunkBufferLayersEvent;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterUniformsEvent;
 import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderers;
 import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
@@ -18,6 +19,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -53,6 +55,7 @@ public class ModEventBusClientEvents {
         });
         BaseAttributeUUIDs.init();
         ModifierDisplayManager.init();
+        ModLoader.get().postEvent(new RegisterChunkBufferLayersEvent());
     }
 
     @SubscribeEvent

@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.chroma;
+package net.kapitencraft.kap_lib.client.shaders.chroma;
 
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;

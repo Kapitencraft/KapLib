@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.chroma;
+package net.kapitencraft.kap_lib.client.shaders.chroma;
 
 public interface IShaderConfig {
 
