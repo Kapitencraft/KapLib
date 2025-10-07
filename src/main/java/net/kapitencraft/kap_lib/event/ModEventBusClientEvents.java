@@ -55,7 +55,6 @@ public class ModEventBusClientEvents {
         });
         BaseAttributeUUIDs.init();
         ModifierDisplayManager.init();
-        ModLoader.get().postEvent(new RegisterChunkBufferLayersEvent());
     }
 
     @SubscribeEvent

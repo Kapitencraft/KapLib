@@ -20,6 +20,7 @@ public class RenderTypeMixin {
         objects.add(e3);
         objects.add(e4);
         objects.add(e5);
+        BlockRenderTypes.register();
         objects.addAll(BlockRenderTypes.RENDER_TYPES);
         return ImmutableList.copyOf(objects);
     }

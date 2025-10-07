@@ -1,3 +1,1 @@
-fixed UpdateChecker checking for wrong version pattern
-added 2d and 3d glsl noise files
-added RegisterChunkBufferLayersEvent allowing you to register RenderTypes dedicated to render blocks.
+fixed being unable to register custom block render types due to invoke order
