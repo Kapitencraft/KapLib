@@ -1,1 +1,4 @@
-fixed being unable to register custom block render types due to invoke order
+added 3d chroma pos glsl function
+added fract() overloads for vec2 and vec3 in glsl
+added ChunkPosition shader-uniform support
+added max-overloads for 3 dimensions and vectors

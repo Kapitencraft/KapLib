@@ -35,3 +35,29 @@ float chromaPos(float chromaType, vec2 stage, float spacing) {
     l *= DEFAULT_COLOR_WIDTH * spacing;
     return l;
 }
+
+float chromaPos(float chromaType, vec3 stage, float spacing) {
+    int type = int(chromaType);
+    float l;
+    if (type == 0) {
+        l = length(stage);
+    } else if (type == 1) {
+        l = (stage.x + stage.y + stage.z);
+    } else {
+        l = max(max(stage.x, stage.y), stage.z);
+    }
+    l *= DEFAULT_COLOR_WIDTH * spacing;
+    return l;
+}
+
+float max(float a, float b, float c) {
+    return max(max(a, b), c);
+}
+
+float max(vec2 pos) {
+    return max(pos.x, pos.y);
+}
+
+float max(vec3 pos) {
+    return max(pos.x, pos.y, pos.z);
+}
