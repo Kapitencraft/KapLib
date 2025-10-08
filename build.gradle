@@ -174,22 +174,70 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
-java {
-    withSourcesJar()
+ext.moduleFilters = [
+        util: [
+                includes: [
+                        'net/kapitencraft/kap_lib/helpers/**',
+                        'net/kapitencraft/kap_lib/util/Reference.class',
+                        'net/kapitencraft/kap_lib/util/Vec2i.class',
+                        'net/kapitencraft/kap_lib/util/Color.class',
+                        'net/kapitencraft/kap_lib/util/ExtraRarities.class',
+                        'net/kapitencraft/kap_lib/util/DoubleModifierCollector.class',
+                        'net/kapitencraft/kap_lib/util/IntegerModifierCollector.class',
+                        'net/kapitencraft/kap_lib/util/range/simple/**',
+                        'net/kapitencraft/kap_lib/collection/**',
+                        'net/kapitencraft/kap_lib/io/serialization/**',
+                        'net/kapitencraft/kap_lib/stream/**',
+                        'net/kapitencraft/kap_lib/util/string_converter/**'
+                ]
+        ],
+        publish: [
+                includes: [
+                        'net/kapitencraft/kap_lib/publish/**',
+                        'net/kapitencraft/kap_lib/io/network/ModrinthUtils.class'
+                ]
+        ],
+        enchantments: [
+                includes: [
+                        'net/kapitencraft/kap_lib/enchantments/abstracts/**',
+                        'net/kapitencraft/kap_lib/enchantments/ExtraEnchantmentCategories.class'
+                ]//NOTE abstracts require full jar at runtime
+        ],
+        items: [
+                includes: [
+                        'net/kapitencraft/kap_lib/client/armor/**',
+                        'net/kapitencraft/kap_lib/item/combat/**',
+                        'net/kapitencraft/kap_lib/item/creative_tab/**',
+                        'net/kapitencraft/kap_lib/item/tools/**',
+                        'net/kapitencraft/kap_lib/item/Compacting.class',
+                        'net/kapitencraft/kap_lib/item/ExtendedItem.class'
+                ]//NOTE totem, sword, extended item and tab groups require full jar at runtime
+        ]
+]
+
+moduleFilters.each { moduleName, filters ->
+    tasks.register("${moduleName}Jar", Jar) {
+        from sourceSets.main.output
+        filters.includes.each { include it }
+
+        archiveClassifier = moduleName
+    }
+
+    tasks.register("${moduleName}SourcesJar", Jar) {
+        from sourceSets.main.allSource
+        filters.includes.each { include it }
+
+        archiveClassifier = "${moduleName}-sources"
+    }
 }
 
-// Example configuration to allow publishing using the maven-publish plugin
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
-    }
+tasks.named('build').configure {
+    dependsOn {moduleFilters.keySet().stream().map { "${it}Jar"}.toList()}
+    dependsOn {moduleFilters.keySet().stream().map { "${it}SourcesJar"}.toList()}
+}
+
+java {
+    withSourcesJar()
 }
 
 tasks.withType(JavaCompile).configureEach {
