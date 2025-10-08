@@ -45,6 +45,7 @@ public abstract class LevelRendererMixin {
         Uniform chunkPosition = shaderinstance.getUniform("ChunkPosition");
         if (chunkPosition != null) {
             chunkPosition.set(pos.getX(), pos.getY(), pos.getZ());
+            chunkPosition.upload();
         }
     }
 }
