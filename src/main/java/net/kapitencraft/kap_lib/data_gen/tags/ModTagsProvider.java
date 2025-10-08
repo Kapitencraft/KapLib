@@ -1,9 +1,7 @@
 package net.kapitencraft.kap_lib.data_gen.tags;
 
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.data_gen.ModDamageTypes;
-import net.kapitencraft.kap_lib.registry.TestItems;
-import net.kapitencraft.kap_lib.registry.custom.WearableSlots;
+import net.kapitencraft.kap_lib.data_gen.ExtraDamageTypes;
 import net.kapitencraft.kap_lib.tags.ExtraTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -13,7 +11,6 @@ import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -57,13 +54,13 @@ public class ModTagsProvider {
         protected void addTags(HolderLookup.@NotNull Provider pProvider) {
             this.tag(ExtraTags.DamageTypes.MAGIC).add(
                     DamageTypes.MAGIC, DamageTypes.INDIRECT_MAGIC, DamageTypes.DRAGON_BREATH,
-                    DamageTypes.SONIC_BOOM, ModDamageTypes.MANA_OVERFLOW, ModDamageTypes.MANA_OVERFLOW_SELF
+                    DamageTypes.SONIC_BOOM, ExtraDamageTypes.MANA_OVERFLOW, ExtraDamageTypes.MANA_OVERFLOW_SELF
             );
 
-            this.tag(DamageTypeTags.BYPASSES_ENCHANTMENTS).add(ModDamageTypes.MANA_OVERFLOW, ModDamageTypes.MANA_OVERFLOW_SELF);
-            this.tag(DamageTypeTags.BYPASSES_EFFECTS).add(ModDamageTypes.MANA_OVERFLOW, ModDamageTypes.MANA_OVERFLOW_SELF);
-            this.tag(DamageTypeTags.BYPASSES_ARMOR).add(ModDamageTypes.MANA_OVERFLOW, ModDamageTypes.MANA_OVERFLOW_SELF);
-            this.tag(DamageTypeTags.BYPASSES_SHIELD).add(ModDamageTypes.MANA_OVERFLOW, ModDamageTypes.MANA_OVERFLOW_SELF);
+            this.tag(DamageTypeTags.BYPASSES_ENCHANTMENTS).add(ExtraDamageTypes.MANA_OVERFLOW, ExtraDamageTypes.MANA_OVERFLOW_SELF);
+            this.tag(DamageTypeTags.BYPASSES_EFFECTS).add(ExtraDamageTypes.MANA_OVERFLOW, ExtraDamageTypes.MANA_OVERFLOW_SELF);
+            this.tag(DamageTypeTags.BYPASSES_ARMOR).add(ExtraDamageTypes.MANA_OVERFLOW, ExtraDamageTypes.MANA_OVERFLOW_SELF);
+            this.tag(DamageTypeTags.BYPASSES_SHIELD).add(ExtraDamageTypes.MANA_OVERFLOW, ExtraDamageTypes.MANA_OVERFLOW_SELF);
         }
     }
 

@@ -19,7 +19,7 @@ import net.kapitencraft.kap_lib.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
-import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.helpers.JsonHelper;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.UpdateBonusDataPacket;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;

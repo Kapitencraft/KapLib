@@ -30,6 +30,7 @@ public class ExtraTags {
         private static TagKey<Item> forgeKey(String path) {
             return TagKey.create(Registries.ITEM, new ResourceLocation("forge", path));
         }
+
         private static TagKey<Item> modKey(String path) {
             return TagKey.create(Registries.ITEM, KapLibMod.res(path));
         }

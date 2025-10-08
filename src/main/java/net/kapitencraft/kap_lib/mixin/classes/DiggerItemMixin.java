@@ -2,8 +2,7 @@ package net.kapitencraft.kap_lib.mixin.classes;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
+import net.kapitencraft.kap_lib.util.attribute.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;

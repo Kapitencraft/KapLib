@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.test;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
+import net.kapitencraft.kap_lib.util.attribute.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.combat.LibSwordItem;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;

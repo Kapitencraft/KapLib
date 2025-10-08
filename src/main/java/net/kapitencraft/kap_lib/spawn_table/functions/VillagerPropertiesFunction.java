@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.helpers.JsonHelper;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;

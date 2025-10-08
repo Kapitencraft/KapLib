@@ -4,19 +4,16 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.mojang.logging.LogUtils;
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.event.custom.RegisterRequirementTypesEvent;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
-import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.helpers.JsonHelper;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
-import net.kapitencraft.kap_lib.requirements.type.BonusRequirementType;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.ChainedJsonException;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -29,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.*;
-import java.util.logging.LogManager;
 
 public class RequirementManager extends SimpleJsonResourceReloadListener {
     public static final  Logger LOGGER = LogUtils.getLogger();

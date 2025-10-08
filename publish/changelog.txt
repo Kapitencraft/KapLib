@@ -1,1 +1,4 @@
-fixed ChunkPosition uniform not being uploaded
+moved JsonHelper from io/ to helpers/
+moved ExtraEnchantmentCategories from enchantments/abstracts to enchantments
+moved BaseAttributeUUIDs from item/ to util/attribute/
+added util, publish, enchantments and items modules

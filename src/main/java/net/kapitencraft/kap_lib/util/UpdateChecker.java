@@ -9,7 +9,7 @@ import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.event.custom.RegisterUpdateCheckersEvent;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
-import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.helpers.JsonHelper;
 import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.GsonHelper;

@@ -23,6 +23,12 @@ import java.util.Optional;
 public class Compacting {
     private static final Map<Item, Result> resultCache = new HashMap<>();
 
+    /**
+     * attempts to get a compacted item of the given item. see {@link Result for more info}
+     * @param in the item to compact
+     * @param level the level to get the recipes from
+     * @return the result of the operation
+     */
     public static Result tryCompact(Item in, ServerLevel level) {
         if (resultCache.containsKey(in)) return resultCache.get(in);
         RecipeManager manager = level.getRecipeManager();
@@ -43,6 +49,9 @@ public class Compacting {
         return result;
     }
 
+    /**
+     * result container for compacting processes
+     */
     public static class Result {
         public static final Result EMPTY = new Result(null, null);
 
@@ -53,27 +62,45 @@ public class Compacting {
             this.large = large;
         }
 
+        /**
+         * @return whether a compacted item could be found or not
+         */
         public boolean successful() {
             return small != null || large != null;
         }
 
+        /**
+         * @return whether the compacted recipe is 2x2 (if present)
+         */
         public boolean isSmall() {
             return successful() && small != null;
         }
 
+        /**
+         * @return the amount of items required to compact the item
+         */
         public int getCountReq() {
             return small != null ? 4 : large != null ? 9 : -1;
         }
 
+        /**
+         * @return the resulting item, if any
+         */
         public @Nullable ItemStack result() {
             return small != null ? small : large;
         }
 
+        /**
+         * @return gets the 2x2 result, or null if none could be found
+         */
         @Nullable
         public ItemStack getSmall() {
             return small;
         }
 
+        /**
+         * @return gets the 3x3 result, or null if none could be found
+         */
         @Nullable
         public ItemStack getLarge() {
             return large;

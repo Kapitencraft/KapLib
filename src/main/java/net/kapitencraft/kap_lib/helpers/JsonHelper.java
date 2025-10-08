@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.io;
+package net.kapitencraft.kap_lib.helpers;
 
 import com.google.gson.*;
 import net.kapitencraft.kap_lib.io.serialization.ExtraJsonSerializers;

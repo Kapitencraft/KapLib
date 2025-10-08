@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.enchantments.abstracts;
 
+import net.kapitencraft.kap_lib.enchantments.ExtraEnchantmentCategories;
 import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.minecraft.world.item.enchantment.Enchantment;
 

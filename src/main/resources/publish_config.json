@@ -3,7 +3,11 @@
   "author_email": "kapitencraft@gmail.com",
   "project_id": "IrKTRsiH",
   "extra_files": [
-    "sources"
+    "sources",
+    "util", "util-sources",
+    "publish", "publish-sources",
+    "enchantments", "enchantments-sources",
+    "items", "items-sources"
   ],
   "mod_id": "${mod_id}",
   "mod_name": "${mod_name}",

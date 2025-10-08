@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.item;
+package net.kapitencraft.kap_lib.util.attribute;
 
 import net.kapitencraft.kap_lib.event.custom.GatherBaseAttributeUUIDsEvent;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;

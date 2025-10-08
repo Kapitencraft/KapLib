@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModRegistriesProvider extends DatapackBuiltinEntriesProvider {
     private static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
-            .add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap);
+            .add(Registries.DAMAGE_TYPE, ExtraDamageTypes::bootstrap);
 
     public ModRegistriesProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries, BUILDER, Set.of(KapLibMod.MOD_ID));

@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.enchantments.abstracts;
+package net.kapitencraft.kap_lib.enchantments;
 
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;

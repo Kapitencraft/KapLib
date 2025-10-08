@@ -1,9 +1,7 @@
 package net.kapitencraft.kap_lib.util;
 
-import net.kapitencraft.kap_lib.data_gen.ModDamageTypes;
 import net.kapitencraft.kap_lib.event.custom.PlayerChangeManaEvent;
 import net.kapitencraft.kap_lib.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -13,8 +11,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.List;
 
 @Mod.EventBusSubscriber()
 public class ManaHandler {

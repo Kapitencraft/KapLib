@@ -7,7 +7,7 @@ import net.kapitencraft.kap_lib.Markers;
 import net.kapitencraft.kap_lib.collection.BiCollectors;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
-import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.helpers.JsonHelper;
 import net.kapitencraft.kap_lib.io.serialization.JsonSerializer;
 import net.kapitencraft.kap_lib.registry.ExtraCodecs;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;

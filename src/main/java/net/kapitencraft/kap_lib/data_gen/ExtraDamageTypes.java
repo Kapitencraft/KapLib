@@ -6,7 +6,7 @@ import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
 
-public interface ModDamageTypes {
+public interface ExtraDamageTypes {
     ResourceKey<DamageType> FEROCITY = register("ferocity");
     ResourceKey<DamageType> MANA_OVERFLOW = register("mana_overflow");
     ResourceKey<DamageType> MANA_OVERFLOW_SELF = register("mana_overflow_self");

@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.helpers.JsonHelper;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;

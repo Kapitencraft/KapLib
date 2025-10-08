@@ -74,12 +74,10 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class MiscHelper {
-    public static final String OVERFLOW_MANA_ID = "overflowMana";
     //EAST = new Rotation("x+", 90, 1);
     //WEST = new Rotation("x-",270, 3);
     //SOUTH = new Rotation("z+", 180, 2);
     //NORTH = new Rotation("z-", 360, 4);
-
 
     /**
      * @param stack the {@link ItemStack} to get the slot from

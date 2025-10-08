@@ -6,7 +6,7 @@ import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManage
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.inventory.wearable.IWearable;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
-import net.kapitencraft.kap_lib.item.BaseAttributeUUIDs;
+import net.kapitencraft.kap_lib.util.attribute.BaseAttributeUUIDs;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.item.modifier_display.DisplayExtension;
@@ -19,7 +19,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.TagVisitor;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

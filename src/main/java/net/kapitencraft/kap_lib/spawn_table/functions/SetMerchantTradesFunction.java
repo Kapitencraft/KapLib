@@ -5,22 +5,19 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
-import net.kapitencraft.kap_lib.io.JsonHelper;
+import net.kapitencraft.kap_lib.helpers.JsonHelper;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.npc.AbstractVillager;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.stream.Collectors;
 
