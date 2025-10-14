@@ -1,0 +1,19 @@
+{
+  "type": "kap_lib:simple_mob_effect",
+  "bonus": {
+    "type": "kap_lib:simple_mob_effect",
+    "effects": [
+      {
+        "amplifier": 10,
+        "duration": 5,
+        "id": "minecraft:strength",
+        "neoforge:cures": [
+          "milk",
+          "protected_by_totem"
+        ],
+        "show_icon": true
+      }
+    ]
+  },
+  "item": "minecraft:netherite_sword"
+}

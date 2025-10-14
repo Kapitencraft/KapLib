@@ -1,0 +1,27 @@
+{
+  "type": "kap_lib:simple_mob_effect",
+  "bonus": {
+    "type": "kap_lib:simple_mob_effect",
+    "effects": [
+      {
+        "amplifier": 1,
+        "duration": 20,
+        "id": "minecraft:haste",
+        "neoforge:cures": [
+          "milk",
+          "protected_by_totem"
+        ],
+        "show_icon": true
+      }
+    ]
+  },
+  "equipment_slots": [
+    "head",
+    "legs",
+    "feet",
+    "chest"
+  ],
+  "wearable_slots": [
+    "kap_lib:belt"
+  ]
+}
