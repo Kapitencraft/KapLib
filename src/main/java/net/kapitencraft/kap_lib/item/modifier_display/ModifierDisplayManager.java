@@ -4,6 +4,7 @@ import net.kapitencraft.kap_lib.event.ModEventFactory;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterItemModifiersDisplayExtensionsEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import oshi.util.platform.unix.solaris.KstatUtil;
 
 import java.util.ArrayList;
@@ -13,8 +14,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class ModifierDisplayManager {
-    private static final List<Function<ItemStack, EquipmentDisplayExtension>> equipmentProviders = new ArrayList<>();
-    private static final List<Function<ItemStack, WearableDisplayExtension>> wearableProviders = new ArrayList<>();
+    private static final List<Function<ItemStack, @Nullable EquipmentDisplayExtension>> equipmentProviders = new ArrayList<>();
+    private static final List<Function<ItemStack, @Nullable WearableDisplayExtension>> wearableProviders = new ArrayList<>();
 
     public static void init() {
         var event = new RegisterItemModifiersDisplayExtensionsEvent(equipmentProviders, wearableProviders);

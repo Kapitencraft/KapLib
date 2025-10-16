@@ -31,7 +31,7 @@ public class AttributeAdder {
         addToPlayer(event,
                 ExtraAttributes.MINING_FORTUNE,
                 ExtraAttributes.PRISTINE,
-                ExtraAttributes.ABILITY_DAMAGE,
+                ExtraAttributes.MAGIC_DAMAGE,
                 ExtraAttributes.MANA_COST,
                 ExtraAttributes.FEROCITY,
                 ExtraAttributes.MAX_MANA,

@@ -80,7 +80,7 @@ public interface ExtraAttributes {
     /**
      * increases damage dealt by abilities
      */
-    Holder<Attribute> ABILITY_DAMAGE = register0Max("ability_damage", 0, BaseAttributeLocations.ABILITY_DAMAGE);
+    Holder<Attribute> MAGIC_DAMAGE = register0Max("magic_damage", 0, BaseAttributeLocations.MAGIC_DAMAGE);
     /**
      * increases the damage arrows and other projectiles deal
      */

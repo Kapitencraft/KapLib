@@ -15,8 +15,7 @@ public class BaseAttributeLocations {
     public static final ResourceLocation CRIT_DAMAGE = KapLibMod.res("base_crit_damage");
     public static final ResourceLocation CRIT_CHANCE = KapLibMod.res("base_crit_chance");
     public static final ResourceLocation FEROCITY = KapLibMod.res("base_ferocity");
-    public static final ResourceLocation INTELLIGENCE = KapLibMod.res("base_intelligence");
-    public static final ResourceLocation ABILITY_DAMAGE = KapLibMod.res("base_ability_damage");
+    public static final ResourceLocation MAGIC_DAMAGE = KapLibMod.res("base_ability_damage");
     public static final ResourceLocation RANGED_DAMAGE = KapLibMod.res("base_ranged_damage");
     public static final ResourceLocation DRAW_SPEED = KapLibMod.res("base_draw_speed");
     public static final ResourceLocation PROJECTILE_SPEED = KapLibMod.res("base_projectile_speed");

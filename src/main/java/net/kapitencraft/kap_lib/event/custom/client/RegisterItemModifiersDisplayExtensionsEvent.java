@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.event.IModBusEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
@@ -23,19 +24,19 @@ import java.util.function.Function;
  */
 //TODO add registering categories
 public class RegisterItemModifiersDisplayExtensionsEvent extends Event implements IModBusEvent {
-    private final List<Function<ItemStack, EquipmentDisplayExtension>> equipmentExtensionProviders;
-    private final List<Function<ItemStack, WearableDisplayExtension>> wearableExtensionProviders;
+    private final List<Function<ItemStack, @Nullable EquipmentDisplayExtension>> equipmentExtensionProviders;
+    private final List<Function<ItemStack, @Nullable WearableDisplayExtension>> wearableExtensionProviders;
 
     public RegisterItemModifiersDisplayExtensionsEvent(List<Function<ItemStack, EquipmentDisplayExtension>> equipmentExtensionProviders, List<Function<ItemStack, WearableDisplayExtension>> wearableExtensionProviders) {
         this.equipmentExtensionProviders = equipmentExtensionProviders;
         this.wearableExtensionProviders = wearableExtensionProviders;
     }
 
-    public void registerEquipment(Function<ItemStack, EquipmentDisplayExtension> provider) {
+    public void registerEquipment(Function<ItemStack, @Nullable EquipmentDisplayExtension> provider) {
         equipmentExtensionProviders.add(provider);
     }
 
-    public void registerWearable(Function<ItemStack, WearableDisplayExtension> provider) {
+    public void registerWearable(Function<ItemStack, @Nullable WearableDisplayExtension> provider) {
         wearableExtensionProviders.add(provider);
     }
 }

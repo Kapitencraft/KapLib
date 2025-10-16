@@ -16,6 +16,7 @@
     "client.GameRendererMixin",
     "client.InventoryScreenMixin",
     "client.ItemStackMixin",
+    "client.LevelRendererMixin",
     "client.ParticleEngineMixin",
     "client.RecipeBookComponentMixin",
     "client.ShaderInstanceMixin",

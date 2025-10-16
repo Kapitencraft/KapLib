@@ -1,8 +1,6 @@
 package net.kapitencraft.kap_lib.util;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.Rarity;
-import net.neoforged.fml.common.asm.enumextension.EnumProxy;
 
 /**
  * more rarities

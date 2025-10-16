@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.item.combat.armor;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.kapitencraft.kap_lib.client.armor.provider.ArmorModelProvider;
+import net.kapitencraft.kap_lib.item.creative_tab.TabGroup;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -65,8 +67,8 @@ public abstract class AbstractArmorItem extends ArmorItem {
      * creates a custom texture for your armor in
      * <br>{@code <nameSpace>:textures/models/armor/custom/<id>.png}
      */
-    public static String makeCustomTextureLocation(String nameSpace, String id) {
-        return ResourceLocation.fromNamespaceAndPath(nameSpace, "textures/models/armor/custom/" + id + ".png").toString();
+    public static ResourceLocation makeCustomTextureLocation(String nameSpace, String id) {
+        return ResourceLocation.fromNamespaceAndPath(nameSpace, "textures/models/armor/custom/" + id + ".png");
     }
 
     //endregion
@@ -77,10 +79,12 @@ public abstract class AbstractArmorItem extends ArmorItem {
      * @param creator a lambda function to create an instance of the armor, mostly a method reference to the constructor
      * @return a Map mapping the ArmorType to the RegObj for the slot
      */
-    public static <T extends AbstractArmorItem> Map<Type, DeferredItem<T>> createRegistry(DeferredRegister.Items registry, String baseName, Function<Type, T> creator) {
+    public static <T extends AbstractArmorItem> Map<Type, DeferredItem<T>> createRegistry(DeferredRegister.Items registry, String baseName, Function<Type, T> creator, @Nullable TabGroup group) {
         return Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
             for (Type type : Type.values()) {
-                map.put(type, registry.register(baseName + "_" + type.getName(), () -> creator.apply(type)));
+                DeferredItem<T> object = registry.register(baseName + "_" + type.getName(), () -> creator.apply(type));
+                if (group != null) group.add(object);
+                map.put(type, object);
             }
         });
     }

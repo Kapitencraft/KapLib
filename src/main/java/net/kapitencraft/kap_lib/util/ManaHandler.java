@@ -1,11 +1,10 @@
 package net.kapitencraft.kap_lib.util;
 
-import net.kapitencraft.kap_lib.data_gen.ModDamageTypes;
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.helpers.MathHelper;
+import net.kapitencraft.kap_lib.advancement.ExtraCriterionTriggers;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
@@ -13,12 +12,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-import java.util.List;
-
 @EventBusSubscriber()
 public class ManaHandler {
-
-    public static final String OVERFLOW_MANA_ID = "overflowMana";
 
     @SuppressWarnings("all")
     @SubscribeEvent
@@ -38,6 +33,9 @@ public class ManaHandler {
         double mana = getMana(living);
         if (manaToConsume > 0) {
             mana -= manaToConsume;
+            if (living instanceof ServerPlayer serverPlayer) {
+                ExtraCriterionTriggers.MANA_CONSUMED.get().trigger(serverPlayer, manaToConsume);
+            }
         }
         setMana(living, mana);
         return true;
