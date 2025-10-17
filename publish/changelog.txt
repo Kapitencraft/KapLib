@@ -1,6 +1,2 @@
-added RegistrySerializer#unit
-renamed ExtraAttributes#ABILITY_DAMAGE -> MAGIC_DAMAGE
-renamed BaseAttributeLocations#ABILITY_DAMAGE -> MAGIC_DAMAGE
-added TabGroup as last parameter in AbstractArmorItem#createRegistry
-fixed AbstractArmorItem#makeCustomTextureLocation returning a string instead of a RL
-added ManaConsumed advancement trigger
+fixed chunk layer rendertypes not being registered
+fixed custom Rarities not being included by enchantment rarity increase

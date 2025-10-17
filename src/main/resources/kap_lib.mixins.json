@@ -19,6 +19,7 @@
     "client.LevelRendererMixin",
     "client.ParticleEngineMixin",
     "client.RecipeBookComponentMixin",
+    "client.RenderTypeMixin",
     "client.ShaderInstanceMixin",
     "client.StringRenderOutputMixin"
   ],
@@ -35,6 +36,7 @@
     "FishingHookMixin",
     "FishingRodMixin",
     "InventoryMenuMixin",
+    "ItemStackMixin",
     "LivingEntityMixin",
     "PlayerMixin",
     "ProjectileMixin",
