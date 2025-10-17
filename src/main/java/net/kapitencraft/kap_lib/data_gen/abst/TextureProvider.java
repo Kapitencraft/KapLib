@@ -9,6 +9,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.util.FastColor;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +24,7 @@ import java.util.function.IntUnaryOperator;
 /**
  * idea and code by Startraveler. abridged and adapted
  */
+@SuppressWarnings("UnusedReturnValue")
 public abstract class TextureProvider implements DataProvider {
     private static final ExistingFileHelper.ResourceType TEXTURE = new ExistingFileHelper.ResourceType(PackType.CLIENT_RESOURCES, ".png", "textures");
 
@@ -283,7 +285,7 @@ public abstract class TextureProvider implements DataProvider {
 
     @Override
     public @NotNull String getName() {
-        return "ImagePaletteMapper";
+        return "Texture Provider";
     }
 
     protected record Pipeline(ResourceLocation in, ResourceLocation output, Converter[] passes) {
@@ -435,6 +437,17 @@ public abstract class TextureProvider implements DataProvider {
         }
     }
 
+    protected record Pale() implements Converter {
+
+        @Override
+        public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
+            return in.mappedCopy(i -> {
+                double brightness = TextureProvider.brightness(Color.fromARGBPacked(i));
+                return new Color((float) brightness, (float) brightness, (float) brightness, FastColor.ARGB32.alpha(i) / 255f).pack();
+            });
+        }
+    }
+
     //region register
     /**
      * @param in the texture that is used as the base
@@ -447,6 +460,31 @@ public abstract class TextureProvider implements DataProvider {
         return builder;
     }
 
+    protected Pipeline.Builder registerHoe(ResourceLocation paletteSource, ResourceLocation name) {
+        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_hoe"))
+                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_hoe"), KapLibMod.res("item/mask/hoe")));
+    }
+
+    protected Pipeline.Builder registerSword(ResourceLocation paletteSource, ResourceLocation name) {
+        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_sword"))
+                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_sword"), KapLibMod.res("item/mask/sword")));
+    }
+
+    protected Pipeline.Builder registerPickaxe(ResourceLocation paletteSource, ResourceLocation name) {
+        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_pickaxe"))
+                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_pickaxe"), KapLibMod.res("item/mask/pickaxe")));
+    }
+
+    protected Pipeline.Builder registerShovel(ResourceLocation paletteSource, ResourceLocation name) {
+        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_shovel"))
+                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_shovel"), KapLibMod.res("item/mask/shovel")));
+    }
+
+    protected Pipeline.Builder registerAxe(ResourceLocation paletteSource, ResourceLocation name) {
+        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_axe"))
+                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_axe"), KapLibMod.res("item/mask/axe")));
+    }
+
     protected void registerOre(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/raw_"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("item/raw_gold")));
@@ -455,16 +493,11 @@ public abstract class TextureProvider implements DataProvider {
     }
 
     protected void registerTools(ResourceLocation paletteSource, ResourceLocation name) {
-        this.register(paletteSource, name.withPrefix("item/").withSuffix("_hoe"))
-                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_hoe"), KapLibMod.res("item/mask/hoe")));
-        this.register(paletteSource, name.withPrefix("item/").withSuffix("_sword"))
-                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_sword"), KapLibMod.res("item/mask/sword")));
-        this.register(paletteSource, name.withPrefix("item/").withSuffix("_pickaxe"))
-                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_pickaxe"), KapLibMod.res("item/mask/pickaxe")));
-        this.register(paletteSource, name.withPrefix("item/").withSuffix("_shovel"))
-                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_shovel"), KapLibMod.res("item/mask/shovel")));
-        this.register(paletteSource, name.withPrefix("item/").withSuffix("_axe"))
-                .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_axe"), KapLibMod.res("item/mask/axe")));
+        this.registerHoe(paletteSource, name);
+        this.registerSword(paletteSource, name);
+        this.registerPickaxe(paletteSource, name);
+        this.registerShovel(paletteSource, name);
+        this.registerAxe(paletteSource, name);
     }
 
     protected void registerNetheriteArmor(ResourceLocation paletteSource, ResourceLocation name) {
