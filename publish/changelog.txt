@@ -1,2 +1,2 @@
-fixed chunk layer rendertypes not being registered
-fixed custom Rarities not being included by enchantment rarity increase
+added 2d and 3d perlin noise glsl shader files
+added chroma.glsl forking extras.glsl
