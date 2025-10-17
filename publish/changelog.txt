@@ -1,2 +1,1 @@
-added 2d and 3d perlin noise glsl shader files
-added chroma.glsl forking extras.glsl
+fixed rendertype_chroma not taking access to chroma, causing a crash
