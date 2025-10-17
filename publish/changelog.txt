@@ -1,1 +1,1 @@
-fixed a crash where ArmorRecipeBuilder and UpgradeRecipeBuilder would not work correctly due to passing in null
+fixed extra criterion triggers not being registered

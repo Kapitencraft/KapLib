@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib;
 
 import com.mojang.logging.LogUtils;
+import net.kapitencraft.kap_lib.advancement.ExtraCriterionTriggers;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
@@ -64,6 +65,7 @@ public class KapLibMod {
         ExtraRecipeTypes.REGISTRY.register(modEventBus);
         ExtraMobEffects.REGISTRY.register(modEventBus);
         ExtraEnchantmentEffectComponents.REGISTRY.register(modEventBus);
+        ExtraCriterionTriggers.REGISTRY.register(modEventBus);
 
         RequirementTypes.REGISTRY.register(modEventBus);
         BonusTypes.REGISTRY.register(modEventBus);
