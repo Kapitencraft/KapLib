@@ -82,6 +82,7 @@ public abstract class AbstractArmorItem extends ArmorItem {
     public static <T extends AbstractArmorItem> Map<Type, DeferredItem<T>> createRegistry(DeferredRegister.Items registry, String baseName, Function<Type, T> creator, @Nullable TabGroup group) {
         return Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
             for (Type type : Type.values()) {
+                if (type == Type.BODY) continue; //ignore body
                 DeferredItem<T> object = registry.register(baseName + "_" + type.getName(), () -> creator.apply(type));
                 if (group != null) group.add(object);
                 map.put(type, object);

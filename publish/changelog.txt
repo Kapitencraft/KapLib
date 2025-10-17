@@ -1,1 +1,1 @@
-added mask textures to use in the TextureProvider
+fixed AbstractArmorItem#createRegistry creating body armor
