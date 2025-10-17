@@ -145,8 +145,8 @@ public class ArmorRecipe extends CustomRecipe {
         private static final MapCodec<ArmorRecipe> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 Ingredient.CODEC.fieldOf("material").forGetter(r -> r.material),
                 Codec.either(Codec.STRING, ResourceLocation.CODEC.listOf()).flatXmap(Serializer::decodeResults, Serializer::encodeResults).fieldOf("results").forGetter(r -> r.entries),
-                Codec.STRING.optionalFieldOf("group").forGetter(r -> Optional.ofNullable(r.group))
-        ).apply(i, ArmorRecipe::fromCodec));
+                Codec.STRING.optionalFieldOf("group", "").forGetter(ArmorRecipe::getGroup)
+        ).apply(i, ArmorRecipe::new));
         private static final StreamCodec<RegistryFriendlyByteBuf, ArmorRecipe> STREAM_CODEC = StreamCodec.of(Serializer::toNetwork, Serializer::fromNetwork);
 
         private static DataResult<? extends Either<String, List<ResourceLocation>>> encodeResults(Map<ArmorType, ItemStack> map) {
@@ -221,11 +221,7 @@ public class ArmorRecipe extends CustomRecipe {
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, ArmorRecipe> streamCodec() {
-            return null;
+            return STREAM_CODEC;
         }
-    }
-
-    private static ArmorRecipe fromCodec(Ingredient ingredient, Map<ArmorType, ItemStack> map, Optional<String> s) {
-        return new ArmorRecipe(ingredient, map, s.orElse(null));
     }
 }

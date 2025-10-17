@@ -28,8 +28,7 @@ public class UpgradeRecipeBuilder implements RecipeBuilder {
     private final int count;
     private Ingredient source, material;
     private final Advancement.Builder advancement = Advancement.Builder.advancement();
-    @Nullable
-    private String group;
+    private String group = "";
 
     public UpgradeRecipeBuilder(RecipeCategory pCategory, UpgradeItemRecipe.CraftType type, ItemLike pResult, int pCount) {
         this.category = pCategory;

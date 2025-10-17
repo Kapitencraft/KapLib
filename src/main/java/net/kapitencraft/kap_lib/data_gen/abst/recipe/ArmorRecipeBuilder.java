@@ -31,7 +31,7 @@ import java.util.Optional;
 public class ArmorRecipeBuilder implements RecipeBuilder {
     private final Map<ArmorItem.Type, ? extends DeferredItem<? extends Item>> items;
     private final Advancement.Builder advancement = Advancement.Builder.advancement();
-    private String group;
+    private String group = "";
     private Ingredient material;
 
     private ArmorRecipeBuilder(Map<ArmorItem.Type, ? extends DeferredItem<? extends Item>> items) {

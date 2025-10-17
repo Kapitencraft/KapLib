@@ -1,1 +1,1 @@
-fixed AbstractArmorItem#createRegistry creating body armor
+fixed a crash where ArmorRecipeBuilder and UpgradeRecipeBuilder would not work correctly due to passing in null
