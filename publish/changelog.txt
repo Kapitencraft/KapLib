@@ -1,1 +1,0 @@
-fixed rendertype_chroma not taking access to chroma, causing a crash

@@ -1,6 +1,7 @@
 #version 150
 
 #moj_import <fog.glsl>
+#moj_import <kap_lib:chroma.glsl>
 #moj_import <kap_lib:extras.glsl>
 
 const float GAME_TIME_SCALE = 200.0;
