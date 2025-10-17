@@ -215,6 +215,12 @@ ext.moduleFilters = [
                         'net/kapitencraft/kap_lib/item/Compacting.class',
                         'net/kapitencraft/kap_lib/item/ExtendedItem.class'
                 ]//NOTE totem, sword, extended item and tab groups require full jar at runtime
+        ],
+        datagen: [
+                includes: [
+                        'net/kapitencraft/kap_lib/data_gen/abst/EnglishLanguageProvider',
+                        'net/kapitencraft/kap_lib/data_gen/abst/TextureProvider'
+                ]
         ]
 ]
 
