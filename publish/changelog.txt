@@ -1,1 +1,3 @@
-fixed extra criterion triggers not being registered
+fixed RegistrySerializer#unit not working due to StreamCodec#unit requiring identity equality
+fixed ManaOverlay not being formatted correctly
+fixed Mana regeneration bypassing max mana

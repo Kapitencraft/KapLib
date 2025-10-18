@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
@@ -25,9 +26,14 @@ public class ManaHandler {
         }
         double manaRegen = player.getAttributeValue(ExtraAttributes.MANA_REGEN);
         CompoundTag tag = player.getPersistentData();
-        growMana(player, manaRegen);
+        setMana(player, Math.min(getMana(player) + manaRegen, player.getAttributeValue(ExtraAttributes.MAX_MANA)));
     }
 
+    /**
+     * @param living the entity to try and consume the mana of
+     * @param manaToConsume the amount of mana to consume
+     * @return whether the consumption was successful
+     */
     public static boolean consumeMana(LivingEntity living, double manaToConsume) {
         if (!hasMana(living, manaToConsume)) return false;
         double mana = getMana(living);
@@ -53,11 +59,6 @@ public class ManaHandler {
 
     public static void setMana(LivingEntity living, double mana) {
         living.setData(ModAttachmentTypes.MANA, mana);
-    }
-
-    public static boolean growMana(LivingEntity living, double mana) {
-        setMana(living, getMana(living) + mana);
-        return isMagical(living);
     }
 
     public static boolean isMagical(LivingEntity living) {

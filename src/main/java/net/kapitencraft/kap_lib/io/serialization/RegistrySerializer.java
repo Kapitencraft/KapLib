@@ -14,7 +14,12 @@ import java.util.function.Supplier;
  */
 public record RegistrySerializer<L>(MapCodec<L> codec, StreamCodec<RegistryFriendlyByteBuf, L> streamCodec) {
 
-    public static <L> RegistrySerializer<L> unit(Supplier<L> value) {
-        return new RegistrySerializer<>(MapCodec.unit(value), StreamCodec.unit(value.get()));
+    /**
+     * @param value the value to use in the serializer
+     * @param <L> the value type
+     * @return a registry serializer with the given value of the given type
+     */
+    public static <L> RegistrySerializer<L> unit(L value) {
+        return new RegistrySerializer<>(MapCodec.unit(value), StreamCodec.unit(value));
     }
 }
