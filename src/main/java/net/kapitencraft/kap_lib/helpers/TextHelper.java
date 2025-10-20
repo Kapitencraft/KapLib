@@ -2,9 +2,9 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.util.Reference;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -39,6 +40,7 @@ import java.util.function.UnaryOperator;
 
 public class TextHelper {
     public static final Component EMPTY = Component.literal("");
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void sendTitle(Player player, Component title) {
         if (player instanceof ServerPlayer serverPlayer) {
@@ -47,21 +49,21 @@ public class TextHelper {
     }
 
     public static Component chain(List<? extends Component> toChain, boolean or) {
-        if (toChain.size() == 1) return toChain.get(0);
+        if (toChain.size() == 1) return toChain.getFirst();
         List<Component> copy = new ArrayList<>(toChain);
         MutableComponent component = Component.empty();
-        component.append(copy.get(0));
-        copy.remove(0);
+        component.append(copy.getFirst());
+        copy.removeFirst();
         while (copy.size() > 1) {
-            component.append(", ").append(copy.get(0));
-            copy.remove(0);
+            component.append(", ").append(copy.getFirst());
+            copy.removeFirst();
         }
         if (or) {
             component.append(Component.translatable("component_chain.or"));
         } else {
             component.append(Component.translatable("component_chain.and"));
         }
-        component.append(copy.get(0));
+        component.append(copy.getFirst());
         return component;
     }
 
@@ -178,7 +180,7 @@ public class TextHelper {
     private static <T> void appendComponent(StringBuilder builder, Map.Entry<DataComponentType<?>, Optional<?>> entry, StringTagVisitor visitor) {
         Codec<T> codec = (Codec<T>) entry.getKey().codecOrThrow();
         DataResult<Tag> parse = codec.encodeStart(NbtOps.INSTANCE, ((T) entry.getValue().get()));
-        parse.resultOrPartial(s -> KapLibMod.LOGGER.warn("unable to parse component!")).ifPresent(tag -> {
+        parse.resultOrPartial(s -> LOGGER.warn("unable to parse component!")).ifPresent(tag -> {
             builder.append(BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(entry.getKey()));
             builder.append("=");
             builder.append(visitor.visit(tag));
@@ -325,7 +327,7 @@ public class TextHelper {
         for (T t : toMerge) {
             String s = provider.apply(t);
             builder.append(s);
-            if (t != toMerge.get(toMerge.size() - 1)) {
+            if (t != toMerge.getLast()) {
                 builder.append(", ");
             }
         }

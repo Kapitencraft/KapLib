@@ -31,6 +31,13 @@ public interface AttributeHelper {
     }
 
     /**
+     * gets the cooldown time for the given {@link LivingEntity} and the defaultTime
+     */
+    static int cooldown(LivingEntity living, int defaultTime) {
+        return (int) (defaultTime * (1 - living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION) / 100));
+    }
+
+    /**
      * method that replaces AttributeInstance#calculateValue using a custom base Value
      * @param baseValue the base value
      * @return the value of the instance using the base value

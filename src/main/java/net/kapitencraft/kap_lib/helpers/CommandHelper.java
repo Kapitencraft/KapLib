@@ -1,40 +1,16 @@
 package net.kapitencraft.kap_lib.helpers;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.kapitencraft.kap_lib.client.enchantment_color.ConfigureEnchantmentColorsCommand;
-import net.kapitencraft.kap_lib.client.overlay.OverlaysCommand;
-import net.kapitencraft.kap_lib.commands.ClientTestCommand;
-import net.kapitencraft.kap_lib.commands.ServerTestCommand;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
 public interface CommandHelper {
-    /**
-     * register library commands
-     */
-    @ApiStatus.Internal
-    static void registerClient(RegisterClientCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        OverlaysCommand.register(dispatcher);
-        ClientTestCommand.register(dispatcher);
-        ConfigureEnchantmentColorsCommand.register(dispatcher);
-    }
-
-    @ApiStatus.Internal
-    static void registerServer(RegisterCommandsEvent event) {
-        ServerTestCommand.register(event.getDispatcher());
-    }
-
     /**
      * send a success message to the given {@link CommandSourceStack} automatically coloring it green
      */

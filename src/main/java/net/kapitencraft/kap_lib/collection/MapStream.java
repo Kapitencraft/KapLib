@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.collection;
 
 import com.mojang.datafixers.util.Pair;
-import net.kapitencraft.kap_lib.stream.Consumers;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

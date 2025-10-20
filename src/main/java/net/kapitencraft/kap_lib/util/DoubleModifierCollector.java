@@ -1,7 +1,5 @@
 package net.kapitencraft.kap_lib.util;
 
-import net.minecraft.world.entity.animal.TropicalFish;
-
 import java.util.ArrayList;
 import java.util.List;
 

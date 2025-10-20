@@ -5,10 +5,10 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.io.JsonHelper;
 import net.kapitencraft.kap_lib.io.StringSegment;
@@ -17,6 +17,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.world.entity.Entity;
 import org.checkerframework.checker.units.qual.K;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -30,6 +31,7 @@ import java.util.stream.Stream;
 
 public class IOHelper {
     private static final String LENGTH_ID = "Length";
+    private static final Logger LOGGER = LogUtils.getLogger();
 
 
     /**
@@ -75,7 +77,7 @@ public class IOHelper {
 
             return orElse(codec.parse(JsonOps.INSTANCE, Streams.parse(createReader(file))), defaulted);
         } catch (IOException e) {
-            KapLibMod.LOGGER.warn("unable to load file: " + file.getPath());
+            LOGGER.warn("unable to load file: " + file.getPath());
         }
         return defaulted.get();
     }
@@ -104,7 +106,7 @@ public class IOHelper {
                 file.createNewFile();
             }
         } catch (IOException e) {
-            KapLibMod.LOGGER.warn("unable to create file '{}': {}", file.getName(),  e.getMessage());
+            LOGGER.warn("unable to create file '{}': {}", file.getName(),  e.getMessage());
         }
     }
 
@@ -128,7 +130,7 @@ public class IOHelper {
             writer.write(JsonHelper.GSON.toJson(orElse(codec.encodeStart(JsonOps.INSTANCE, in), JsonObject::new)));
             writer.close();
         } catch (Exception e) {
-            KapLibMod.LOGGER.warn("unable to save file: {}", e.getMessage());
+            LOGGER.warn("unable to save file: {}", e.getMessage());
         }
     }
 
@@ -212,7 +214,7 @@ public class IOHelper {
         try {
             return new TagParser(new StringReader(s)).readStruct();
         } catch (CommandSyntaxException e) {
-            KapLibMod.LOGGER.warn("unable to read Tag '{}': {}", s, e.getMessage());
+            LOGGER.warn("unable to read Tag '{}': {}", s, e.getMessage());
             return new CompoundTag();
         }
     }
@@ -235,7 +237,7 @@ public class IOHelper {
 
     public static UUID[] getUuidArray(CompoundTag arrayTag) {
         if (!arrayTag.contains(LENGTH_ID)) {
-            KapLibMod.LOGGER.warn("tried to load UUID Array from Tag but Tag isn`t Array Tag");
+            LOGGER.warn("tried to load UUID Array from Tag but Tag isn`t Array Tag");
         } else {
             int length = arrayTag.getInt(LENGTH_ID);
             UUID[] array = new UUID[length];

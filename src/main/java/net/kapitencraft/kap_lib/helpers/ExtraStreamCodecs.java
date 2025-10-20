@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.helpers;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Function10;
 import com.mojang.datafixers.util.Function7;
@@ -9,25 +8,16 @@ import com.mojang.datafixers.util.Function8;
 import com.mojang.datafixers.util.Function9;
 import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
-import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.checkerframework.checker.units.qual.C;
-import org.checkerframework.checker.units.qual.K;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 
 import java.util.*;
 import java.util.function.Function;

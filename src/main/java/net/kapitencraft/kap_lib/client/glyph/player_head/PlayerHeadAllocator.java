@@ -18,6 +18,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.helpers.IOHelper;
+import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.font.FontSet;
@@ -263,7 +264,7 @@ public class PlayerHeadAllocator extends FontSet {
 
     @Override
     public @NotNull BakedGlyph getRandomGlyph(GlyphInfo pGlyph) {
-        return glyphs[Mth.nextInt(KapLibMod.RANDOM_SOURCE, 0, this.index)];
+        return glyphs[Mth.nextInt(MathHelper.RANDOM_SOURCE, 0, this.index)];
     }
 
     private void addGlyph(int index) {

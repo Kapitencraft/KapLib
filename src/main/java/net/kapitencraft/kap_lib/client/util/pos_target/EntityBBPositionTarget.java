@@ -19,7 +19,7 @@ public class EntityBBPositionTarget implements PositionTarget {
 
     @Override
     public Vec3 get() {
-        return MathHelper.randomIn(KapLibMod.RANDOM_SOURCE, ClientHelper.getEntity(entity).getBoundingBox());
+        return MathHelper.randomIn(MathHelper.RANDOM_SOURCE, ClientHelper.getEntity(entity).getBoundingBox());
     }
 
     @Override

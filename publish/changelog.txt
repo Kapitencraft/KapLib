@@ -1,3 +1,4 @@
-fixed RegistrySerializer#unit not working due to StreamCodec#unit requiring identity equality
-fixed ManaOverlay not being formatted correctly
-fixed Mana regeneration bypassing max mana
+fixed ArmorRecipe not working due to namespace not being preserved
+moved MathHelper#cooldown to AttributeHelper#cooldown
+moved KapLibMod#RANDOM_SOURCE to MathHelper#RANDOM_SOURCE
+changed util module to not be needing the full jar at runtime. you <i>should</i> be able to use jar in jar to add the module

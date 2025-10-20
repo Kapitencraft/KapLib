@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
+import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.helpers.TextHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -41,7 +42,7 @@ public class DamageIndicatorParticle extends Particle {
         this.lifetime = ClientModConfig.getIndicatorLifetime();
 
         this.yd = rangeOffset;
-        this.xd = Mth.nextDouble(KapLibMod.RANDOM_SOURCE, -MAX_MOVEMENT, MAX_MOVEMENT) * rangeOffset;
+        this.xd = Mth.nextDouble(MathHelper.RANDOM_SOURCE, -MAX_MOVEMENT, MAX_MOVEMENT) * rangeOffset;
     }
 
     private static final char CRIT_CHAR = ' '; //TODO add stars around damage if critical

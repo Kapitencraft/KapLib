@@ -1,8 +1,6 @@
 package net.kapitencraft.kap_lib.helpers;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.util.Reference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,11 +25,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public interface MathHelper {
+    RandomSource RANDOM_SOURCE = RandomSource.create();
 
     double DAMAGE_CALCULATION_VALUE = 50;
 
@@ -309,7 +307,7 @@ public interface MathHelper {
      */
     @Nullable
     static <T> T pickRandom(@NotNull List<T> list) {
-        return pickRandom(list, KapLibMod.RANDOM_SOURCE);
+        return pickRandom(list, RANDOM_SOURCE);
     }
 
     /**
@@ -338,13 +336,6 @@ public interface MathHelper {
     }
 
     /**
-     * gets the cooldown time for the given {@link LivingEntity} and the defaultTime
-     */
-    static int cooldown(LivingEntity living, int defaultTime) {
-        return (int) (defaultTime * (1 - living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION) / 100));
-    }
-
-    /**
      * gets all entities inside the given AABB source of the given class inside the given level
      */
     static <T extends Entity> List<T> getEntitiesAround(Class<T> tClass, Level level, AABB source, double range) {
@@ -357,7 +348,7 @@ public interface MathHelper {
     static <T extends Entity> @Nullable T getClosestEntity(Class<T> tClass, Entity source, double range) {
         List<T> entities = getEntitiesAround(tClass, source, range).stream().filter(t -> t.is(source)).sorted(Comparator.comparingDouble(value -> value.distanceTo(source))).toList();
         if (entities.isEmpty()) return null;
-        return entities.get(0);
+        return entities.getFirst();
     }
 
     /**

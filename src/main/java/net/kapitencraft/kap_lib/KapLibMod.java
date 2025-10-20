@@ -1,7 +1,12 @@
 package net.kapitencraft.kap_lib;
 
+import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.advancement.ExtraCriterionTriggers;
+import net.kapitencraft.kap_lib.client.enchantment_color.ConfigureEnchantmentColorsCommand;
+import net.kapitencraft.kap_lib.client.overlay.OverlaysCommand;
+import net.kapitencraft.kap_lib.commands.ClientTestCommand;
+import net.kapitencraft.kap_lib.commands.ServerTestCommand;
 import net.kapitencraft.kap_lib.config.ClientModConfig;
 import net.kapitencraft.kap_lib.config.ServerModConfig;
 import net.kapitencraft.kap_lib.crafting.ExtraRecipeTypes;
@@ -12,6 +17,7 @@ import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.*;
 import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.registry.vanilla.*;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -23,8 +29,10 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.gametest.GameTestHooks;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforgespi.language.IModInfo;
@@ -53,7 +61,6 @@ public class KapLibMod {
      */
     @ApiStatus.Internal
     public static final File ROOT = new File("./kap_lib");
-    public static final RandomSource RANDOM_SOURCE = RandomSource.create();
 
     public KapLibMod(IEventBus modEventBus, ModContainer container) {
 
@@ -97,8 +104,8 @@ public class KapLibMod {
         container.registerConfig(ModConfig.Type.CLIENT, ClientModConfig.SPEC);
         container.registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
 
-        NeoForge.EVENT_BUS.addListener(CommandHelper::registerClient);
-        NeoForge.EVENT_BUS.addListener(CommandHelper::registerServer);
+        NeoForge.EVENT_BUS.addListener(KapLibMod::registerClient);
+        NeoForge.EVENT_BUS.addListener(KapLibMod::registerServer);
 
         NeoForgeMod.enableMergedAttributeTooltips();
 
@@ -117,4 +124,21 @@ public class KapLibMod {
     public static <T> DeferredRegister<T> registry(ResourceKey<Registry<T>> key) {
         return DeferredRegister.create(key, MOD_ID);
     }
+
+    /**
+     * register library commands
+     */
+    @ApiStatus.Internal
+    static void registerClient(RegisterClientCommandsEvent event) {
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+        OverlaysCommand.register(dispatcher);
+        ClientTestCommand.register(dispatcher);
+        ConfigureEnchantmentColorsCommand.register(dispatcher);
+    }
+
+    @ApiStatus.Internal
+    static void registerServer(RegisterCommandsEvent event) {
+        ServerTestCommand.register(event.getDispatcher());
+    }
+
 }

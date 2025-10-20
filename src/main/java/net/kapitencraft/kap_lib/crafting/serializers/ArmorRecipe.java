@@ -156,10 +156,11 @@ public class ArmorRecipe extends CustomRecipe {
                 ItemStack stack = entry.getValue();
                 if (!BuiltInRegistries.ITEM.containsValue(stack.getItem())) return DataResult.error(() -> "unable to find item '" + stack.getItem() + "' in the registry");
                 ResourceLocation location = BuiltInRegistries.ITEM.getKey(stack.getItem());
-                String val = location.getPath();
-                if (!val.endsWith("_" + entry.getKey().getSerializedName())) merged = null;
+                String val = location.toString(); //ensure namespace is preserved
+                String typeName = entry.getKey().getSerializedName();
+                if (!val.endsWith("_" + typeName)) merged = null;
                 else {
-                    String element = val.substring(0, val.length() - entry.getKey().getSerializedName().length() - 1);
+                    String element = val.substring(0, val.length() - typeName.length() - 1);
                     if (merged == null) {
                         merged = element;
                     } else if (!merged.equals(element)) merged = "";

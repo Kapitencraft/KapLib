@@ -28,6 +28,7 @@
     "AnvilMenuMixin",
     "AttributeMixin",
     "AttributesMixin",
+    "AttributeUtilMixin",
     "CarvedPumpkinMixin",
     "ClientboundAddEntityPacketMixin",
     "ClientboundSetEntityMotionPacketMixin",

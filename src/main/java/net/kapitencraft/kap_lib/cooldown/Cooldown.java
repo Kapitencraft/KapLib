@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.cooldown;
 
 import com.mojang.serialization.Codec;
+import net.kapitencraft.kap_lib.helpers.AttributeHelper;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
@@ -52,7 +53,7 @@ public class Cooldown {
 
     public Component createDisplay(LivingEntity living) {
         int cooldownTicks = getActiveCooldownTime(living);
-        int defaultTime = MathHelper.cooldown(living, this.defaultTime);
+        int defaultTime = AttributeHelper.cooldown(living, this.defaultTime);
         return Component.translatable("cooldown.display", (cooldownTicks > 0 ?
                 Component.translatable("cooldown.active").withStyle(ChatFormatting.RED).append(CommonComponents.SPACE).append(Component.literal("(" + MathHelper.shortRound(cooldownTicks / 20.) + "s)").withStyle(ChatFormatting.DARK_GRAY))
                 : Component.translatable("cooldown.inactive").withStyle(ChatFormatting.GREEN).append(Component.literal(", " + MathHelper.shortRound(defaultTime / 20.) + "s").withStyle(ChatFormatting.DARK_GRAY))

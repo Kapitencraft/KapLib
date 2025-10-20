@@ -4,6 +4,7 @@ import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.GlyphRenderTypes;
@@ -90,7 +91,7 @@ public class EnchantmentApplicableAllocator extends FontSet {
 
     @Override
     public @NotNull BakedGlyph getRandomGlyph(GlyphInfo pGlyph) {
-        return glyphs[Mth.nextInt(KapLibMod.RANDOM_SOURCE, 0, this.index)];
+        return glyphs[Mth.nextInt(MathHelper.RANDOM_SOURCE, 0, this.index)];
     }
 
     private void addGlyph(int index, TextureAtlasSprite sprite) {
