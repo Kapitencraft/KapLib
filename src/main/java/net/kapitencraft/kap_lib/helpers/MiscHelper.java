@@ -293,16 +293,6 @@ public class MiscHelper {
     }
 
     /**
-     * @param times amount of times the consumer will be called
-     * @param consumer usage of the integer with the index of the iteration
-     */
-    public static void repeat(int times, Consumer<Integer> consumer) {
-        for (int i = 0; i < times; i++) {
-            consumer.accept(i);
-        }
-    }
-
-    /**
      * @param components all components to merge to getter
      * @return the merged component
      */
@@ -438,18 +428,16 @@ public class MiscHelper {
         }
     }
 
-
-
     public static char[] append(char[] in, char toAppend) {
         char[] copy = new char[in.length + 1];
-        repeat(in.length, integer -> copy[integer] = in[integer]);
+        System.arraycopy(in, 0, copy, 0, in.length);
         copy[in.length] = toAppend;
         return copy;
     }
 
     @Contract("_, _, _ -> param1")
     public static List<ItemStack> shrinkDrops(@NotNull List<ItemStack> drops, Item item, final int amount) {
-        repeat(drops.size(), i -> {
+        for (int i = 0; i < drops.size(); i++) {
             int varAmount = amount;
             ItemStack stack = drops.get(i);
             if (stack.getItem() == item) {
@@ -462,7 +450,7 @@ public class MiscHelper {
                     }
                 }
             }
-        });
+        }
         return drops;
     }
 

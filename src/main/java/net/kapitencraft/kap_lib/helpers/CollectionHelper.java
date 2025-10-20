@@ -96,7 +96,7 @@ public interface CollectionHelper {
             if (id < ts.size() - 1) {
                 second = ts.get(id + 1);
             } else {
-                second = ts.get(0);
+                second = ts.getFirst();
             }
             return predicate.test(t, second);
         });
@@ -107,16 +107,15 @@ public interface CollectionHelper {
      * @see CollectionHelper#removeMapping2(List, BiPredicate)
      */
     static <T> void forEachMapping2(List<T> ts, BiConsumer<T, T> consumer) {
-        ts.forEach(t -> {
-            int id = ts.indexOf(t);
+        for (int i = 0; i < ts.size(); i++) {
             T second;
-            if (id < ts.size() - 1) {
-                second = ts.get(id + 1);
+            if (i < ts.size() - 1) {
+                second = ts.get(i + 1);
             } else {
-                second = ts.get(0);
+                second = ts.getFirst();
             }
-            consumer.accept(t, second);
-        });
+            consumer.accept(ts.get(i), second);
+        }
     }
 
     /**
@@ -127,7 +126,9 @@ public interface CollectionHelper {
      */
     static <T> List<T> create(int size, Supplier<T> sup) {
         List<T> list = new ArrayList<>();
-        MiscHelper.repeat(size, integer -> list.add(sup.get()));
+        for (int i = 0; i < size; i++) {
+            list.add(sup.get());
+        }
         return list;
     }
 

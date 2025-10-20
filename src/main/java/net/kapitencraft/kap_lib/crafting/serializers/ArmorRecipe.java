@@ -211,8 +211,9 @@ public class ArmorRecipe extends CustomRecipe {
                     .map(BuiltInRegistries.ITEM::getKey)
                     .map(ResourceLocation::toString)
                     .forEach(buf::writeUtf);
-            MiscHelper.repeat(4 - recipe.all.size(), integer -> buf.writeUtf(""));
-            buf.writeEnum(recipe.category());
+            for (int i = 0; i < 4 - recipe.all.size(); i++) {
+                buf.writeUtf("");
+            }
         }
 
         @Override

@@ -13,12 +13,9 @@ import net.kapitencraft.kap_lib.event.custom.RegisterRequirementTypesEvent;
 import net.kapitencraft.kap_lib.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.io.JsonHelper;
-import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
-import net.kapitencraft.kap_lib.requirements.type.RegistryHolderReqType;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -30,7 +27,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
-import org.antlr.v4.runtime.misc.MultiMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -106,7 +102,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
         this.types.add(RequirementType.ENCHANTMENT);
         this.types.add(RequirementType.BONUS);
         NeoForge.EVENT_BUS.post(new RegisterRequirementTypesEvent(this.types::add));
-        typesForNames = this.types.stream().collect(CollectorHelper.createMapForKeys(RequirementType::getName));
+        typesForNames = this.types.stream().collect(CollectorHelper.toMapForKeys(RequirementType::getName));
     }
 
     public record Data(HashMap<String, Element<?>> elements) {

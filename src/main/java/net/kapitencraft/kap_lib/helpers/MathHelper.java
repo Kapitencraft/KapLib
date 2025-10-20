@@ -42,7 +42,6 @@ public interface MathHelper {
         return (returnable << 8) + b;
     }
 
-
     static IntSet intSetRange(int min, int max) {
         int[] range = new int[max - min + 1];
         for (int i = min; i <= max; i++) {
@@ -255,10 +254,10 @@ public interface MathHelper {
         double horizontal = Mth.sqrt((diff.getX() * diff.getX()) + (diff.getZ() * diff.getZ()) + (diff.getY() * diff.getY()));
         int numPoints = (int) (size == LineSize.THIN ? horizontal * 20 : horizontal * 50);
         List<BlockPos> list = new ArrayList<>();
-        MiscHelper.repeat(numPoints, integer -> {
-            double t = integer / (numPoints - 1.);
+        for (int i = 0; i < numPoints; i++) {
+            double t = i / (numPoints - 1.);
             list.add(makeLinePos(t, a, diff));
-        });
+        }
         return list;
     }
 
@@ -273,10 +272,10 @@ public interface MathHelper {
         Vec3 diff = b.subtract(a);
         int numPoints = (int) (diff.length() / spacing);
         List<Vec3> list = new ArrayList<>();
-        MiscHelper.repeat(numPoints, integer -> {
-            double t = integer / (numPoints - 1.);
+        for (int i = 0; i < numPoints; i++) {
+            double t = i / (numPoints - 1.);
             list.add(a.add(diff.scale(t)));
-        });
+        }
         return list;
     }
 
@@ -389,7 +388,7 @@ public interface MathHelper {
         double incremental = Math.sin(halfSpan) * 0.1;
         List<Vec3> lineOfSight = lineOfSight(sourceRot, sourcePos, range, 0.1);
         List<T> toReturn = new ArrayList<>();
-        lineOfSight.stream().collect(CollectorHelper.createMapForKeys(lineOfSight::indexOf))
+        lineOfSight.stream().collect(CollectorHelper.toMapForKeys(lineOfSight::indexOf))
                 .forEach((integer, vec3) -> toReturn.addAll(getEntitiesAround(tClass, level, vec3, incremental * integer).stream().filter(entity -> !toReturn.contains(entity)).toList()));
         return toReturn;
     }

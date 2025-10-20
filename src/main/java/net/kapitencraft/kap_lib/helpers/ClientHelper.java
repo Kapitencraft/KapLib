@@ -171,7 +171,6 @@ public class ClientHelper {
         List<ReqCondition<?>> reqs = CollectionHelper.mutableList(RequirementManager.instance.getReqs(type, t));
         if (living != null) reqs.removeIf(itemRequirement -> itemRequirement.matches(living));
         if (!reqs.isEmpty()) {
-            MutableComponent reqList = Component.empty();
             reqs.stream().map(ReqCondition::display)
                     .filter(MutableComponent.class::isInstance)
                     .map(MutableComponent.class::cast)

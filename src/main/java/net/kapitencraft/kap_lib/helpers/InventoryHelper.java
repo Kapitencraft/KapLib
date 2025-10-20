@@ -35,7 +35,7 @@ public interface InventoryHelper {
     }
 
     static Map<EquipmentSlot, ItemStack> equipment(LivingEntity living) {
-        return Arrays.stream(EquipmentSlot.values()).collect(CollectorHelper.createMap(living::getItemBySlot));
+        return Arrays.stream(EquipmentSlot.values()).collect(CollectorHelper.toMap(living::getItemBySlot));
     }
 
     /**

@@ -40,7 +40,11 @@ public abstract class BlockEntityMenu<BE extends BlockEntity> extends AbstractCo
      * adds the Player Inventory to the slots
      */
     private void addPlayerInventory(Inventory playerInventory, int xOffset, int yOffSet) {
-        MiscHelper.repeat(3, i -> MiscHelper.repeat(9, l -> this.addSlot(new Slot(playerInventory, l + i * 9 + 9, xOffset + 8 + l * 18, yOffSet + 84 + i * 18))));
+        for (int i = 0; i < 3; i++) {
+            for (int l = 0; l < 9; l++) {
+                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, xOffset + 8 + l * 18, yOffSet + 84 + i * 18));
+            }
+        }
     }
 
     /**
@@ -49,7 +53,9 @@ public abstract class BlockEntityMenu<BE extends BlockEntity> extends AbstractCo
      * @param yOffSet
      */
     private void addPlayerHotbar(Inventory playerInventory, int xOffset, int yOffSet) {
-        MiscHelper.repeat(9, i -> this.addSlot(new Slot(playerInventory, i, xOffset + 8 + i * 18, yOffSet + 142)));
+        for (int i = 0; i < 9; i++) {
+            this.addSlot(new Slot(playerInventory, i, xOffset + 8 + i * 18, yOffSet + 142));
+        }
     }
 
 

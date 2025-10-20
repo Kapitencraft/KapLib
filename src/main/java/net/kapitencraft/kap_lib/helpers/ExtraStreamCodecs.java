@@ -24,6 +24,9 @@ import java.util.function.Function;
 
 public class ExtraStreamCodecs {
 
+    /**
+     * composite stream codec for 7 elements
+     */
     public static <B, C, T1, T2, T3, T4, T5, T6, T7> StreamCodec<B, C> composite(
             StreamCodec<? super B, T1> codec1, Function<C, T1> getter1,
             StreamCodec<? super B, T2> codec2, Function<C, T2> getter2,
@@ -60,6 +63,9 @@ public class ExtraStreamCodecs {
         };
     }
 
+    /**
+     * composite stream codec for 8 elements
+     */
     public static <B, C, T1, T2, T3, T4, T5, T6, T7, T8> StreamCodec<B, C> composite(
             StreamCodec<? super B, T1> codec1, Function<C, T1> getter1,
             StreamCodec<? super B, T2> codec2, Function<C, T2> getter2,
@@ -99,6 +105,9 @@ public class ExtraStreamCodecs {
         };
     }
 
+    /**
+     * composite stream codec for 9 elements
+     */
     public static <B, C, T1, T2, T3, T4, T5, T6, T7, T8, T9> StreamCodec<B, C> composite(
             StreamCodec<? super B, T1> codec1, Function<C, T1> getter1,
             StreamCodec<? super B, T2> codec2, Function<C, T2> getter2,
@@ -141,6 +150,9 @@ public class ExtraStreamCodecs {
         };
     }
 
+    /**
+     * composite stream codec for 10 elements
+     */
     public static <B, C, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> StreamCodec<B, C> composite(
             StreamCodec<? super B, T1> codec1, Function<C, T1> getter1,
             StreamCodec<? super B, T2> codec2, Function<C, T2> getter2,

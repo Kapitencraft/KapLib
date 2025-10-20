@@ -19,17 +19,25 @@ public interface CollectorHelper {
     /**
      * collect to a map with identity keys and {@code valueMapper} mapped values
      */
-    static <T, L> Collector<T, ?, Map<T, L>> createMap(Function<T, L> valueMapper) {
+    static <T, L> Collector<T, ?, Map<T, L>> toMap(Function<T, L> valueMapper) {
         return Collectors.toMap(Function.identity(), valueMapper);
     }
 
     /**
      * collect to a map with identity values and {@code keyMapper} mapped keys
      */
-    static <T, L> Collector<L, ?, Map<T, L>> createMapForKeys(Function<L, T> keyMapper) {
+    static <T, L> Collector<L, ?, Map<T, L>> toMapForKeys(Function<L, T> keyMapper) {
         return Collectors.toMap(keyMapper, Function.identity());
     }
 
+    /**
+     * @param keyMapper the left pair value extractor
+     * @param valueMapper the right pair value extractor
+     * @param <K> type of the left pair value
+     * @param <V> type of the right pair value
+     * @param <L> type of the stream's value, to be converted into a pair list
+     * @return a collector to create lists of pairs
+     */
     static <K, V, L> Collector<L, ?, List<Pair<K, V>>> toPairList(Function<L, K> keyMapper, Function<L, V> valueMapper) {
         return Collector.of(
                 ArrayList::new,
@@ -86,6 +94,9 @@ public interface CollectorHelper {
         return map;
     }
 
+    /**
+     * @return a collector to collect the JsonElements into a JsonArray
+     */
     static Collector<? super JsonElement, JsonArray, JsonArray> toJsonArray() {
         return Collector.of(JsonArray::new, JsonArray::add, (array, array2) -> {
             array.addAll(array2);
