@@ -212,7 +212,7 @@ public class ExtraStreamCodecs {
         return ResourceLocation.STREAM_CODEC.map(r -> TagKey.create(key, r), TagKey::location);
     }
 
-    static <B extends ByteBuf, V, K> StreamCodec.CodecOperation<B, V, Map<K, V>> map(StreamCodec<? super B, K> keyCodec) {
+    public static <B extends ByteBuf, V, K> StreamCodec.CodecOperation<B, V, Map<K, V>> map(StreamCodec<? super B, K> keyCodec) {
         return p_320272_ -> ByteBufCodecs.map(HashMap::new, keyCodec, p_320272_);
     }
 

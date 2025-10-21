@@ -1,3 +1,2 @@
-removed MiscHelper#repeat because wtf did it exist in the firstplace????
-renamed CollectorHelper#createMap -> #toMap and #createMapForKeys -> #toMapForKeys
-fixed KapLib not loading correctly when adding ArmorRecipes due to bytebuf mismatch
+added TextHelper#convertToLatin
+fixed ExtraStreamCodecs#map being package-private

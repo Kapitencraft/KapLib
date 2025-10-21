@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.helpers;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -381,5 +382,47 @@ public class TextHelper {
         double z = pReader.readDouble();
         pReader.expect(')');
         return new Vec3(x, y, z);
+    }
+
+    private static final List<Pair<Integer, String>> latins = List.of(
+            Pair.of(1, "I"),
+            Pair.of(5, "V"),
+            Pair.of(10, "X"),
+            Pair.of(50, "L"),
+            Pair.of(100, "C"),
+            Pair.of(500, "D"),
+            Pair.of(1000, "M")
+    );
+
+    private static final Map<Integer, String> latinCache = new HashMap<>();
+
+    /**
+     * converts the given number into the same number in latin format
+     */
+    public static String convertToLatin(int in) {
+        if (latinCache.containsKey(in)) return latinCache.get(in);
+        StringBuilder s = new StringBuilder();
+        while (in > 0) {
+            for (int i = latins.size()-1; i >= 0; i--) {
+                Pair<Integer, String> element = latins.get(i);
+                if (element.getFirst() <= in) {
+                    s.append(element.getSecond());
+                    in -= element.getFirst();
+                    break;
+                } else {
+                    for (int i1 = 0; i1 < i; i1+=2) {
+                        Pair<Integer, String> e1 = latins.get(i1);
+                        if (element.getFirst() - e1.getFirst() <= in) {
+                            s.append(e1.getSecond()).append(element.getSecond());
+                            in -= element.getFirst() - e1.getFirst();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        String latin = s.toString();
+        latinCache.put(in, latin);
+        return latin;
     }
 }
