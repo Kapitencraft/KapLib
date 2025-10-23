@@ -7,6 +7,7 @@ import com.mojang.math.Axis;
 import net.kapitencraft.kap_lib.client.armor.ArmorClientExtension;
 import net.kapitencraft.kap_lib.client.armor.provider.ArmorModelProvider;
 import net.kapitencraft.kap_lib.item.combat.armor.AbstractArmorItem;
+import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.conditions.abstracts.ReqCondition;
 import net.kapitencraft.kap_lib.requirements.type.RequirementType;
@@ -23,6 +24,7 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.particles.ParticleTypes;
@@ -281,4 +283,12 @@ public class ClientHelper {
                 "Client Level is null!"
         ).getEntity(id);
     }
+
+    public static final ClampedItemPropertyFunction BOW_PULL = (stack, level, living, p_174679_) -> {
+        if (living == null || living.getAttribute(ExtraAttributes.DRAW_SPEED) == null) {
+            return 0.0F;
+        } else {
+            return living.getUseItem() != stack ? 0.0F : (float)((stack.getUseDuration(living) - living.getUseItemRemainingTicks()) / 20.0F  * living.getAttributeValue(ExtraAttributes.DRAW_SPEED) / 100);
+        }
+    };
 }

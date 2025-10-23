@@ -37,6 +37,7 @@
     "FishingHookMixin",
     "FishingRodMixin",
     "InventoryMenuMixin",
+    "ItemsMixin",
     "ItemStackMixin",
     "LivingEntityMixin",
     "PlayerMixin",

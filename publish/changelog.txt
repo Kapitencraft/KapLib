@@ -1,2 +1,3 @@
-added TextHelper#convertToLatin
-fixed ExtraStreamCodecs#map being package-private
+fixed ExtraAttributes.FISHING_SPEED not being implemented
+fixed ExtraAttributes.RANGED_DAMAGE not being implemented
+added ClientHelper#BOW_PULL ItemProperty. use when registering bow items ItemProperties (see KapLibModClientEvents for an example)

@@ -34,7 +34,7 @@ public interface ExtraAttributes {
         return register(name, initValue, 0, Double.MAX_VALUE, baseLocation);
     }
 
-    //Defensive Stats
+    //region Defensive
     /**
      * chance to dodge attacks
      */
@@ -55,8 +55,9 @@ public interface ExtraAttributes {
      * health regeneration scale
      */
     Holder<Attribute> VITALITY = register0Max("vitality", 0, null);
+    //endregion
 
-    //Offensive Stats
+    //region Offensive
     /**
      * reduces iFrames of hit enemies
      */
@@ -93,13 +94,15 @@ public interface ExtraAttributes {
      * increases the traveling speed of projectiles
      */
     Holder<Attribute> PROJECTILE_SPEED = register("projectile_speed", 0, 0, 10000, BaseAttributeLocations.PROJECTILE_SPEED);
+    //endregion
 
-    //Mining
+    //region Mining
     Holder<Attribute> PRISTINE = register("pristine", 0, 0, 400, BaseAttributeLocations.PRISTINE);
     /**
      * increases the chance to get more drops from mining
      */
     Holder<Attribute> MINING_FORTUNE = register0Max("mining_fortune", 0, BaseAttributeLocations.MINING_FORTUNE);
+    //endregion
 
     //Misc
     Holder<Attribute> COOLDOWN_REDUCTION = registerNegative("cooldown_reduction", 0, 0, 100, BaseAttributeLocations.COOLDOWN_REDUCTION);

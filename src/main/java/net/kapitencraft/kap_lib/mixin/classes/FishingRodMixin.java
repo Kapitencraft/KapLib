@@ -4,6 +4,7 @@ import net.kapitencraft.kap_lib.entity.fishing.IFishingHook;
 import net.kapitencraft.kap_lib.entity.fishing.AbstractFishingHook;
 import net.kapitencraft.kap_lib.event.custom.ModifyFishingHookStatsEvent;
 import net.kapitencraft.kap_lib.item.tools.fishing.ModFishingRod;
+import net.kapitencraft.kap_lib.registry.ExtraAttributes;
 import net.kapitencraft.kap_lib.requirements.RequirementManager;
 import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
 import net.minecraft.world.InteractionHand;
@@ -38,7 +39,7 @@ public abstract class FishingRodMixin extends Item {
             return false;
         }
         FishingHook hook = (FishingHook) entity;
-        int lureSpeed = hook.lureSpeed;
+        int lureSpeed = hook.lureSpeed + (int) player.getAttributeValue(ExtraAttributes.FISHING_SPEED);
         int luckBonus = hook.luck;
         ModifyFishingHookStatsEvent event = new ModifyFishingHookStatsEvent(entity, player, lureSpeed, luckBonus, stack);
         NeoForge.EVENT_BUS.post(event);
