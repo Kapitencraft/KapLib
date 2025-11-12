@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenCustomHashMap;
 import net.kapitencraft.kap_lib.collection.DoubleMap;
 import net.kapitencraft.kap_lib.collection.MapStream;
 import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
@@ -152,7 +153,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
 
     protected class SetBuilder extends ItemBuilder {
         private final Map<EquipmentSlot, SetSlotBuilder> equipmentContent = new HashMap<>();
-        private final Map<WearableSlot, SetSlotBuilder> wearableContent = new HashMap<>();
+        private final Map<WearableSlot, SetSlotBuilder> wearableContent = new LinkedHashMap<>(); //ensure order is preserved
         private final String name;
 
         protected SetBuilder(String name) {

@@ -21,6 +21,7 @@
     "client.RecipeBookComponentMixin",
     "client.RenderTypeMixin",
     "client.ShaderInstanceMixin",
+    "client.SpriteLoaderMixin",
     "client.StringRenderOutputMixin"
   ],
   "mixins": [

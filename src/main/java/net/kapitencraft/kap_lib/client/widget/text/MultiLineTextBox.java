@@ -26,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -669,9 +670,11 @@ public class MultiLineTextBox extends ScrollableWidget {
                 return true;
             } else {
                 return switch (pKeyCode) {
-
                     case 256 -> {
-                        this.setFocused(false);
+                        if (this.hasSuggestions()) {
+                            this.suggestions = null;
+                        } else
+                            this.setFocused(false);
                         yield true;
                     }
                     case 257 -> {
@@ -866,7 +869,7 @@ public class MultiLineTextBox extends ScrollableWidget {
 
     private void renderSuggestions(GuiGraphics graphics, int renderStart, int y) {
         graphics.pose().translate(0, 0, 200);
-        if (this.suggestions != null && !this.suggestions.isEmpty()) {
+        if (this.hasSuggestions()) {
             graphics.fill(renderStart - 1, y, renderStart + suggestionsWidth, y + 2 + 10*suggestions.size(), 0xFF505050);
             for (int i = 0; i < suggestions.size(); i++) {
                 if (suggestionSelectIndex == i) graphics.fill(renderStart - 1, y + i * 10, renderStart + suggestionsWidth, y + 12 + i * 10, 0xFFC4CfC4);
@@ -1031,7 +1034,7 @@ public class MultiLineTextBox extends ScrollableWidget {
      * @param backgroundLocation the texture location
      */
     public void setTextureBackground(ResourceLocation backgroundLocation) {
-        this.background = WidgetBackground.texture(backgroundLocation, 16, 16);
+        this.background = WidgetBackground.texture(InventoryMenu.BLOCK_ATLAS, backgroundLocation, 16, 16);
     }
 
     /**
