@@ -39,19 +39,60 @@ public class TextureBackground extends CutoutBackground {
         RenderSystem.setShaderTexture(0, texture.atlasLocation());
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         Optional<BackgroundTileableSection> section = texture.contents().metadata().getSection(BackgroundTileableSection.SERIALIZER);
+        boolean render2x2 = section.isPresent() && section.get().type() == BackgroundTileableSection.TileType.TWO_BY_TWO;
 
-
-        for(int i1 = -1; i1 <= width / textureWidth; ++i1) {
-            for(int j1 = -1; j1 <= height / textureHeight; ++j1) {
-                int xStart = backgroundXStart + textureWidth * i1;
-                int yStart = backgroundYStart + textureHeight * j1;
-                builder.addVertex(matrix4f, xStart, yStart, 0).setUv(texture.getU0(), texture.getV0());
-                builder.addVertex(matrix4f, xStart, yStart + textureHeight, 0).setUv(texture.getU0(), texture.getV1());
-                builder.addVertex(matrix4f, xStart + textureWidth, yStart + textureHeight, 0).setUv(texture.getU1(), texture.getV1());
-                builder.addVertex(matrix4f, xStart + textureWidth, yStart, 0).setUv(texture.getU1(), texture.getV0());
+        if (render2x2) {
+            for (int i1 = -1; i1 <= width / textureWidth / 2; ++i1) {
+                for (int j1 = -1; j1 <= height / textureHeight / 2; ++j1) {
+                    int xStart = backgroundXStart + textureWidth * i1 * 2;
+                    int yStart = backgroundYStart + textureHeight * j1 * 2;
+                    render2x2Element0(builder, matrix4f, xStart, yStart);
+                }
             }
+        } else {
+            for (int i1 = -1; i1 <= width / textureWidth; ++i1) {
+                for (int j1 = -1; j1 <= height / textureHeight; ++j1) {
+                    int xStart = backgroundXStart + textureWidth * i1;
+                    int yStart = backgroundYStart + textureHeight * j1;
+
+                    builder.addVertex(matrix4f, xStart, yStart, 0).setUv(texture.getU0(), texture.getV0());
+                    builder.addVertex(matrix4f, xStart, yStart + textureHeight, 0).setUv(texture.getU0(), texture.getV1());
+                    builder.addVertex(matrix4f, xStart + textureWidth, yStart + textureHeight, 0).setUv(texture.getU1(), texture.getV1());
+                    builder.addVertex(matrix4f, xStart + textureWidth, yStart, 0).setUv(texture.getU1(), texture.getV0());
+                }
+            }
+
         }
+
+
         BufferUploader.drawWithShader(builder.buildOrThrow());
         pose.popPose();
+    }
+
+    private void render2x2Element0(BufferBuilder builder, Matrix4f matrix4f, int xStart, int yStart) {
+        int xMiddle = xStart + textureWidth;
+        int yMiddle = yStart + textureHeight;
+        int xEnd = xMiddle + textureWidth;
+        int yEnd = yMiddle + textureHeight;
+
+        builder.addVertex(matrix4f, xStart, yStart, 0).setUv(texture.getU0(), texture.getV0());
+        builder.addVertex(matrix4f, xStart, yMiddle, 0).setUv(texture.getU0(), texture.getV1());
+        builder.addVertex(matrix4f, xMiddle, yMiddle, 0).setUv(texture.getU1(), texture.getV1());
+        builder.addVertex(matrix4f, xMiddle, yStart, 0).setUv(texture.getU1(), texture.getV0());
+
+        builder.addVertex(matrix4f, xMiddle, yStart, 0).setUv(texture.getU0(), texture.getV1());
+        builder.addVertex(matrix4f, xMiddle, yMiddle, 0).setUv(texture.getU1(), texture.getV1());
+        builder.addVertex(matrix4f, xEnd, yMiddle, 0).setUv(texture.getU1(), texture.getV0());
+        builder.addVertex(matrix4f, xEnd, yStart, 0).setUv(texture.getU0(), texture.getV0());
+
+        builder.addVertex(matrix4f, xStart, yMiddle, 0).setUv(texture.getU1(), texture.getV0());
+        builder.addVertex(matrix4f, xStart, yEnd, 0).setUv(texture.getU0(), texture.getV0());
+        builder.addVertex(matrix4f, xMiddle, yEnd, 0).setUv(texture.getU0(), texture.getV1());
+        builder.addVertex(matrix4f, xMiddle, yMiddle, 0).setUv(texture.getU1(), texture.getV1());
+
+        builder.addVertex(matrix4f, xMiddle, yMiddle, 0).setUv(texture.getU1(), texture.getV1());
+        builder.addVertex(matrix4f, xMiddle, yEnd, 0).setUv(texture.getU1(), texture.getV0());
+        builder.addVertex(matrix4f, xEnd, yEnd, 0).setUv(texture.getU0(), texture.getV0());
+        builder.addVertex(matrix4f, xEnd, yMiddle, 0).setUv(texture.getU0(), texture.getV1());
     }
 }
