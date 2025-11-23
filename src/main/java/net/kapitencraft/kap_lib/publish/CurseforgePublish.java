@@ -79,7 +79,7 @@ public class CurseforgePublish {
             }
             int[] versions = new int[] {mcVersionId, loaderVersionId, loaderId};
             
-            URL url = new URL(API_URL + modId + "/upload-file");
+            URL url = new URL(API_URL + config.curseforgeId() + "/upload-file");
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             String boundary = "----Boundary" + UUID.randomUUID();
 
