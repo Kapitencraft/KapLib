@@ -117,6 +117,9 @@ public class CurseforgePublish {
             if (response != HttpsURLConnection.HTTP_OK) {
                 System.err.println("failed: " + response);
                 dataStream = connection.getErrorStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(dataStream));
+                reader.lines().forEach(System.out::println);
+                reader.close();
             } else {
                 dataStream = connection.getInputStream();
             }
