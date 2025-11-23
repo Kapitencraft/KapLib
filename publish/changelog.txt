@@ -1,1 +1,2 @@
 fixed BonusProvider set-bonus slot order being shuffled each time
+added Curseforge auto publish capabilities (hopefully :eyes:)

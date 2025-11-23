@@ -31,6 +31,7 @@ public class AutoPublisher {
                   String modId, String modName,
                   String modVersion, String mcVersion,
                   String loaderVersion, String projectId,
+
                   String[] extraFiles,
                   JsonObject[] dependencies
     ) {}
@@ -81,7 +82,7 @@ public class AutoPublisher {
                     return;
                 }
             }
-            if (ModrinthPublish.publish(config)) {
+            if (CurseforgePublish.publish(config) && ModrinthPublish.publish(config)) {
                 saveDataCache(modVersion);
                 clearChangelog();
             }
@@ -241,5 +242,11 @@ public class AutoPublisher {
                 }
             }
         }
+    }
+
+    private static final List<String> DEPENDENCY_TYPES = List.of("required", "optional", "incompatible", "embedded");
+
+    static boolean verifyDependencyType(Object type) {
+        return type instanceof String s && DEPENDENCY_TYPES.contains(s);
     }
 }

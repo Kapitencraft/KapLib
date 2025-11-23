@@ -134,7 +134,6 @@ public class ModrinthPublish {
         return AutoPublisher.GSON.toJson(data);
     }
 
-    @SuppressWarnings("unchecked")
     private static void addDependencies(JsonObject[] dependencies, Map<String, Object> data, String gameVersion) throws IOException {
         List<Map<String, Object>> dependencyData = new ArrayList<>();
 
@@ -143,7 +142,7 @@ public class ModrinthPublish {
             if (!dependency.containsKey("project_id")) AutoPublisher.LOGGER.error("Dependency missing project id!");
             else if (!dependency.containsKey("version_name")) AutoPublisher.LOGGER.error("Dependency missing file name!");
             else if (!dependency.containsKey("dependency_type")) AutoPublisher.LOGGER.error("Dependency missing dependency type");
-            else if (!verifyDependencyType(dependency.get("dependency_type"))) AutoPublisher.LOGGER.error("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
+            else if (!AutoPublisher.verifyDependencyType(dependency.get("dependency_type"))) AutoPublisher.LOGGER.error("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
             else {
                 dependencyData.add(dependency);
                 String name = (String) dependency.get("version_name");
@@ -156,12 +155,6 @@ public class ModrinthPublish {
         }
 
         data.put("dependencies", dependencyData);
-    }
-
-    private static final List<String> DEPENDENCY_TYPES = List.of("required", "optional", "incompatible", "embedded");
-
-    private static boolean verifyDependencyType(Object type) {
-        return type instanceof String s && DEPENDENCY_TYPES.contains(s);
     }
 
     private static String getFileSHA512(File file) {
