@@ -45,10 +45,11 @@ public class CurseforgePublish {
                 int versionResponse = versionConnection.getResponseCode();
                 InputStream dataStream;
                 if (versionResponse != HttpsURLConnection.HTTP_OK) {
-                    System.err.println("failed: " + versionResponse);
+                    AutoPublisher.LOGGER.error("failed: {}", versionResponse);
                     dataStream = versionConnection.getErrorStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(dataStream));
-                    reader.lines().forEach(System.out::println);
+                    AutoPublisher.LOGGER.warn(versionConnection.getURL().toString());
+                    reader.lines().forEach(AutoPublisher.LOGGER::warn);
                     reader.close();
                     return false;
                 } else {
@@ -65,15 +66,15 @@ public class CurseforgePublish {
                     loaderId = versionLookup.get("NeoForge");
                 }
                 if (mcVersionId == null) {
-                    System.err.println("unknown version id for version " + mcVersion);
+                    AutoPublisher.LOGGER.error("unknown version id for version {}", mcVersion);
                     return false;
                 }
                 if (loaderVersionId == null) {
-                    System.err.println("unknown loader version id for loader version " + loaderVersion);
+                    AutoPublisher.LOGGER.error("unknown loader version id for loader version {}", loaderVersion);
                     return false;
                 }
                 if (loaderId == null) {
-                    System.err.println("could not find get version id for NeoForge (uh oh)");
+                    AutoPublisher.LOGGER.error("could not find get version id for NeoForge (uh oh)");
                     return false;
                 }
             }
@@ -115,10 +116,10 @@ public class CurseforgePublish {
 
             InputStream dataStream;
             if (response != HttpsURLConnection.HTTP_OK) {
-                System.err.println("failed: " + response);
+                AutoPublisher.LOGGER.error("failed: {}", response);
                 dataStream = connection.getErrorStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(dataStream));
-                reader.lines().forEach(System.out::println);
+                reader.lines().forEach(AutoPublisher.LOGGER::warn);
                 reader.close();
                 return false;
             } else {
@@ -131,10 +132,10 @@ public class CurseforgePublish {
 
             reader.close();
 
-            System.out.println("successfully created new version with id '" + data.get("id") + "'");
+            AutoPublisher.LOGGER.info("successfully created new version with id '{}'", data.get("id"));
             return true;
         } catch (Exception e) {
-            System.err.println("Error accessing API:");
+            AutoPublisher.LOGGER.error("Error accessing API:");
             e.printStackTrace(System.err);
         }
         return false;

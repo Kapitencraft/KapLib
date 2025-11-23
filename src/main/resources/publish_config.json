@@ -1,7 +1,8 @@
 {
   "author": "Kapitencraft",
   "author_email": "kapitencraft@gmail.com",
-  "project_id": "IrKTRsiH",
+  "modrinth_id": "IrKTRsiH",
+  "curseforge_id": "kaplib",
   "extra_files": [
     "sources",
     "util", "util-sources",

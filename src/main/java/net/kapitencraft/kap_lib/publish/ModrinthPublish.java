@@ -44,7 +44,7 @@ public class ModrinthPublish {
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
 
                 // Add text part
-                addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.projectId(), config.extraFiles(), config.dependencies());
+                addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.modrinthId(), config.extraFiles(), config.dependencies());
 
                 // Add file part
                 addFilePart(writer, outputStream, boundary, "primary", mainFile);

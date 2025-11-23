@@ -30,8 +30,9 @@ public class AutoPublisher {
     record Config(String email, String author,
                   String modId, String modName,
                   String modVersion, String mcVersion,
-                  String loaderVersion, String projectId,
-
+                  String loaderVersion,
+                  String modrinthId,
+                  String curseforgeId,
                   String[] extraFiles,
                   JsonObject[] dependencies
     ) {}
@@ -47,10 +48,16 @@ public class AutoPublisher {
                 object.getAsJsonPrimitive("mod_version").getAsString(),
                 object.getAsJsonPrimitive("mc_version").getAsString(),
                 object.getAsJsonPrimitive("loader_version").getAsString(),
-                object.getAsJsonPrimitive("project_id").getAsString(),
+                optionalStringEntry(object, "modrinth_id"),
+                optionalStringEntry(object, "curseforge_id"),
                 optionalList("extra_files", object).stream().map(JsonElement::getAsString).toArray(String[]::new),
                 optionalList("dependencies", object).stream().map(JsonElement::getAsJsonObject).toArray(JsonObject[]::new)
         );
+    }
+
+    private static String optionalStringEntry(JsonObject object, String name) {
+        if (object.has(name)) return object.getAsJsonPrimitive(name).getAsString();
+        return null;
     }
 
     private static List<JsonElement> optionalList(String name, JsonObject object) {
@@ -62,7 +69,7 @@ public class AutoPublisher {
         try {
             config = loadConfig();
         } catch (FileNotFoundException e) {
-            System.out.println("Config not found.");
+            LOGGER.error("Config not found.");
             return;
         }
 
@@ -82,7 +89,7 @@ public class AutoPublisher {
                     return;
                 }
             }
-            if (CurseforgePublish.publish(config) && ModrinthPublish.publish(config)) {
+            if ((config.curseforgeId == null || CurseforgePublish.publish(config)) && (config.modrinthId == null || ModrinthPublish.publish(config))) {
                 saveDataCache(modVersion);
                 clearChangelog();
             }

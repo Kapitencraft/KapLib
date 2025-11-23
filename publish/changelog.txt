@@ -1,2 +1,5 @@
 fixed BonusProvider set-bonus slot order being shuffled each time
+renamed publish_config.json$project_id to $modrinth_id to better resemble its use case
+added publish_config.json$curseforge_id to enable curseforge API access
+
 added Curseforge auto publish capabilities (hopefully :eyes:)
