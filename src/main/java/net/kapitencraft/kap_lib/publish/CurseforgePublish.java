@@ -120,6 +120,7 @@ public class CurseforgePublish {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(dataStream));
                 reader.lines().forEach(System.out::println);
                 reader.close();
+                return false;
             } else {
                 dataStream = connection.getInputStream();
             }
@@ -130,13 +131,8 @@ public class CurseforgePublish {
 
             reader.close();
 
-            if (response == HttpsURLConnection.HTTP_OK) {
-                System.out.println("successfully created new version with id '" + data.get("id") + "'");
-                return true;
-            } else {
-                System.err.println("error: " + data.get("error"));
-                System.err.println("description: " + data.get("description"));
-            }
+            System.out.println("successfully created new version with id '" + data.get("id") + "'");
+            return true;
         } catch (Exception e) {
             System.err.println("Error accessing API:");
             e.printStackTrace(System.err);
