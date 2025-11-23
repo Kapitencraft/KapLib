@@ -48,7 +48,6 @@ public class CurseforgePublish {
                     AutoPublisher.LOGGER.error("failed: {}", versionResponse);
                     dataStream = versionConnection.getErrorStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(dataStream));
-                    AutoPublisher.LOGGER.warn(versionConnection.getURL().toString());
                     reader.lines().forEach(AutoPublisher.LOGGER::warn);
                     reader.close();
                     return false;
@@ -119,6 +118,7 @@ public class CurseforgePublish {
                 AutoPublisher.LOGGER.error("failed: {}", response);
                 dataStream = connection.getErrorStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(dataStream));
+                AutoPublisher.LOGGER.warn("target URL: {}", connection.getURL().toString());
                 reader.lines().forEach(AutoPublisher.LOGGER::warn);
                 reader.close();
                 return false;
