@@ -22,7 +22,7 @@ public class TestScreen extends Screen {
     @Override
     protected void init() {
         textBox = new MultiLineTextBox(this.font, 10, 10, width - 20, height - 20, textBox, Component.empty());
-        textBox.setTextureBackground(ResourceLocation.withDefaultNamespace("block/red_glazed_terracotta"));
+        textBox.setTextureBackground(ResourceLocation.withDefaultNamespace("block/orange_glazed_terracotta"));
         textBox.setLineRenderType(MultiLineTextBox.LineRenderType.EVERY);
         this.addRenderableWidget(textBox);
     }

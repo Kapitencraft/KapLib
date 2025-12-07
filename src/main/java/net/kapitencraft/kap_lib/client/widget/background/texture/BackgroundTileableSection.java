@@ -6,7 +6,7 @@ import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 public record BackgroundTileableSection(TileType type) {
-    private static final Codec<BackgroundTileableSection> CODEC = TileType.CODEC.xmap(BackgroundTileableSection::new, BackgroundTileableSection::type);
+    private static final Codec<BackgroundTileableSection> CODEC = TileType.CODEC.xmap(BackgroundTileableSection::new, BackgroundTileableSection::type).fieldOf("tile").codec();
 
     public static final MetadataSectionType<BackgroundTileableSection> SERIALIZER = MetadataSectionType.fromCodec("background", CODEC);
 
