@@ -29,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO fix scale being wrong
 public class ConfigureEnchantmentColorsScreen extends Screen {
     private static final int ELEMENT_HEIGHT = 70,
             WIDTH = 404,

@@ -47,6 +47,7 @@ public class ParticleAnimator {
 
     @ApiStatus.Internal
     public void addParticle(Particle particle) {
+        //LibClient.animations.addContained(particle);
         particles.add(new ParticleConfig(particle, animation));
     }
 

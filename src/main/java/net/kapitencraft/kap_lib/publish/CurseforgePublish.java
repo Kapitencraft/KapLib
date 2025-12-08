@@ -144,7 +144,6 @@ public class CurseforgePublish {
     private static void appendAuth(HttpsURLConnection connection, AutoPublisher.Config config, String modName, String modVersion) {
         connection.setRequestProperty("User-Agent", String.format(config.author() + "/%s/%s (%s)", modName, modVersion, config.email()));
         connection.setRequestProperty("X-Api-Token", AutoPublisher.getAuth(false));
-
     }
 
     private static void addData(PrintWriter writer, String boundary, String modName, String modVersion, String[] extraFiles, JsonObject[] dependencies, int[] versionData) throws IOException {

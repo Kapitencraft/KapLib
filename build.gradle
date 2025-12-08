@@ -177,6 +177,7 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
+//TODO complete modules with different explicit mods but still storing data to KapLib mod id
 ext.moduleFilters = [
         util: [
                 includes: [

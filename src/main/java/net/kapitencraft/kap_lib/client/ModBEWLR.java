@@ -34,21 +34,9 @@ public class ModBEWLR extends BlockEntityWithoutLevelRenderer {
         return instance;
     }
 
-    private Map<Item, Model> tridentModels;
-
-    private static Map<Item, Model> reloadTridentModels(EntityModelSet modelSet) {
-        return Util.make(Maps.newHashMap(), itemModelHashMap ->
-                ModLoader.postEvent(new RegisterTridentModelsEvent(itemModelHashMap, modelSet))
-        );
-    }
 
     public ModBEWLR(BlockEntityRenderDispatcher pBlockEntityRenderDispatcher, EntityModelSet pEntityModelSet) {
         super(pBlockEntityRenderDispatcher, pEntityModelSet);
-    }
-
-    @Override
-    public void onResourceManagerReload(ResourceManager pResourceManager) {
-        this.tridentModels = reloadTridentModels(this.entityModelSet);
     }
 
     @Override

@@ -38,7 +38,6 @@ public class EnchantmentDescriptionManager {
     private static final ResourceLocation INFO_FONT_LOCATION = KapLibMod.res("enchantment_info"),
             APPLICABLE_FONT_LOCATION = KapLibMod.res("enchantment_applicable");
 
-
     public static void addTooltip(Consumer<Component> tooltips, Holder<Enchantment> holder, int level) {
         Enchantment ench = holder.value();
         MutableComponent component = Component.empty();

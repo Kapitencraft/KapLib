@@ -8,7 +8,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
-//TODO re-add either
 public interface TerminatorTriggers {
 
     DeferredRegister<TerminationTrigger<?>> REGISTRY = KapLibMod.registry(ExtraRegistries.Keys.TERMINATOR_TYPES);

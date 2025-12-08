@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.client.particle.animation.core;
 
+import net.kapitencraft.kap_lib.client.LibClient;
 import net.kapitencraft.kap_lib.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.client.particle.animation.elements.AnimationElement;
 import net.minecraft.client.particle.Particle;
@@ -63,17 +64,13 @@ public class ParticleConfig {
      */
     @ApiStatus.Internal
     public void sync() {
-        target.x = x;
-        target.y = y;
-        target.z = z;
+        target.setPos(x, y, z);
         target.rCol = r;
         target.gCol = g;
         target.bCol = b;
         target.alpha = a;
         target.setLifetime(lifeTime);
-        target.xd = dx;
-        target.yd = dy;
-        target.zd = dz;
+        target.setParticleSpeed(dx, dy, dz);
         target.age = age;
     }
 
@@ -97,9 +94,10 @@ public class ParticleConfig {
         this.b = target.bCol;
         this.a = target.alpha;
 
-        this.x = target.x;
-        this.y = target.y;
-        this.z = target.z;
+        Vec3 pos = target.getPos();
+        this.x = pos.x;
+        this.y = pos.y;
+        this.z = pos.z;
 
         this.lifeTime = target.getLifetime();
 
@@ -177,6 +175,7 @@ public class ParticleConfig {
 
     public void invalidate() {
         this.animation.finalize(this);
+        LibClient.animations.removeContained(this.target);
         this.sync();
     }
 
@@ -184,7 +183,6 @@ public class ParticleConfig {
         return new Vec3(this.x, this.y, this.z);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T getProperty(String key) {
         return (T) properties.get(key);
     }

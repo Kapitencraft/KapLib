@@ -35,9 +35,7 @@ public class ParticleSpawnSink implements BiConsumer<ParticleOptions, Vec3> {
         Particle particle = engine.createParticle(particleConfig, 0, 0, 0, 0, 0, 0);
         if (particle != null) {
             particle.setPos(x, y, z);
-            particle.xd = 0;
-            particle.yd = 0;
-            particle.zd = 0;
+            particle.setParticleSpeed(0, 0, 0);
             animator.addParticle(particle);
         }
     }

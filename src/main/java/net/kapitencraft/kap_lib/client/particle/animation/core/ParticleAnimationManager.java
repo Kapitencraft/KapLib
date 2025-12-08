@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.activation_triggers.co
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
@@ -17,18 +18,19 @@ import java.util.*;
 /**
  * manager of all animations
  */
+//TODO store animations in JSON and load them via reference
 public final class ParticleAnimationManager {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
      * running animations
      */
-    List<ParticleAnimator> activeAnimations = new ArrayList<>();
+    private final List<ParticleAnimator> activeAnimations = new ArrayList<>();
     //Map<ParticleAnimator, TerminationTriggerInstance[][]> terminators = new HashMap<>();
     /**
      * animations waiting for their activation
      */
-    Map<ParticleAnimator, List<TriggerInstance>> onHold = new HashMap<>();
+    private final Map<ParticleAnimator, List<TriggerInstance>> onHold = new HashMap<>();
 
     /**
      * use {@link ParticleAnimation.Builder#register()}<br>

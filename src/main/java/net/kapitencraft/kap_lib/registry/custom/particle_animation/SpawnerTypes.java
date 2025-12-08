@@ -16,4 +16,5 @@ public interface SpawnerTypes {
     Supplier<EntityBBSpawner.Type> ENTITY_BB = REGISTRY.register("entity_bb", EntityBBSpawner.Type::new);
     Supplier<LineSpawner.Type> LINE = REGISTRY.register("line", LineSpawner.Type::new);
     Supplier<GroupSpawner.Type> GROUP = REGISTRY.register("group", GroupSpawner.Type::new);
+    Supplier<SingleSpawner.Type> SINGLE = REGISTRY.register("single", SingleSpawner.Type::new);
 }

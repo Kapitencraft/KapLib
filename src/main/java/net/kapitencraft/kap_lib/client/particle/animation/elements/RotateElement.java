@@ -6,10 +6,10 @@ import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.helpers.MathHelper;
 import net.kapitencraft.kap_lib.registry.custom.particle_animation.ElementTypes;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -21,7 +21,6 @@ public class RotateElement implements AnimationElement {
     private final int duration;
     private final Direction.Axis axis;
 
-    //TODO fix weird bug
     public RotateElement(PositionTarget pivot, float degreePerTick, int duration, Direction.Axis axis) {
         this.pivot = pivot;
         this.degreePerTick = degreePerTick;
@@ -43,11 +42,17 @@ public class RotateElement implements AnimationElement {
         return duration;
     }
 
+    //Disproven reasons:
+    //1. multiple configs for the same element
+    //2. decreasing distance by rotation
     @Override
     public void tick(ParticleConfig object, int tick, double percentage) {
+        Vec3 pv = pivot.get();
+        //System.out.println("rotate: " + object.hashCode() + ": pos: " + object.pos() + ", o-dist: " + object.pos().distanceTo(pv));
         object.setPos(
-                MathHelper.rotateAroundAxis(object.pos(), pivot.get(), degreePerTick, axis)
+                MathHelper.rotateAroundAxis(object.pos(), pv, degreePerTick, axis)
         );
+        //System.out.println("n-pos: " + object.pos() + ", n-dist: " + object.pos().distanceTo(pv));
     }
 
     public static class Builder implements AnimationElement.Builder {

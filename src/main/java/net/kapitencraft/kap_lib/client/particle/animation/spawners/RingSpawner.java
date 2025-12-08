@@ -12,6 +12,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -63,18 +64,19 @@ public class RingSpawner extends VisibleSpawner {
                 case Z -> cos;
                 }, z = axis == Direction.Axis.Z ? 0 : cos;
             Vec3 targetOffset = new Vec3(x, y, z);
+            //TODO check other rotations
             switch (axis) {
                 case X -> {
-                    targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, rot.x);
-                    targetOffset = MathHelper.rotateZAxis(targetOffset, Vec3.ZERO, rot.y);
+                    targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, rot.x * Mth.DEG_TO_RAD);
+                    targetOffset = MathHelper.rotateZAxis(targetOffset, Vec3.ZERO, rot.y * Mth.DEG_TO_RAD);
                 }
                 case Y -> {
-                    targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, rot.x);
-                    targetOffset = MathHelper.rotateZAxis(targetOffset, Vec3.ZERO, rot.y);
+                    targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, rot.x * Mth.DEG_TO_RAD);
+                    targetOffset = MathHelper.rotateZAxis(targetOffset, Vec3.ZERO, rot.y * Mth.DEG_TO_RAD);
                 }
                 case Z -> {
-                    targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, rot.x);
-                    targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, rot.y);
+                    targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, -rot.x * Mth.DEG_TO_RAD);
+                    targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, -rot.y * Mth.DEG_TO_RAD);
                 }
             }
             Vec3 targetPos = targetOffset.add(Vec3.ZERO.with(axis, curHeightChange)).add(target.get());

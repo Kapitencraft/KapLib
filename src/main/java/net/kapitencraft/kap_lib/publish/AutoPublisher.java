@@ -151,6 +151,7 @@ public class AutoPublisher {
         return authString[modrinth ? 0 : 1];
     }
 
+    //TODO add plain text and markdown support
     private static class Changelog {
         private static final List<Category> categories = gatherCategories();
 

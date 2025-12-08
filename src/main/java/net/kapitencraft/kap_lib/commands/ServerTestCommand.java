@@ -14,6 +14,7 @@ import net.kapitencraft.kap_lib.client.particle.animation.elements.KeepAliveElem
 import net.kapitencraft.kap_lib.client.particle.animation.elements.MoveAwayElement;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.LineSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.spawners.RingSpawner;
+import net.kapitencraft.kap_lib.client.particle.animation.spawners.SingleSpawner;
 import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.client.util.rot_target.RotationTarget;
@@ -70,7 +71,8 @@ public class ServerTestCommand {
                                 .executes(ServerTestCommand::testStar)
                         ).then(Commands.literal("line")
                                 .executes(ServerTestCommand::testLine)
-                        )
+                        ).then(Commands.literal("test")
+                        ).executes(ServerTestCommand::testAnimation)
                 ).then(Commands.literal("spawn_table")
                         .executes(ServerTestCommand::testSpawnTable)
                 ).then(Commands.literal("player_head")
@@ -163,6 +165,7 @@ public class ServerTestCommand {
             AnimationUtils.star(5, ParticleTypes.SOUL_FIRE_FLAME, ParticleTypes.FLAME, .25f, 5f, center)
                     .terminatedWhen(TimedTerminator.ticks(600))
                     .finalizes(RemoveParticleFinalizer.builder())
+                    //.then(KeepAliveElement.forDuration(200))
                     .then(RotateElement.builder()
                             .angle(1)
                             .axis(Direction.Axis.Y)
@@ -207,7 +210,6 @@ public class ServerTestCommand {
                     .sendToPlayer(player);
             return 1;
         });
-
     }
 
     private static int testArrow(CommandContext<CommandSourceStack> context) {
@@ -246,8 +248,7 @@ public class ServerTestCommand {
                             .rotPerTick(1)
                             .setTarget(PositionTarget.fixed(playerPos))
                             .setParticle(ParticleTypes.FLAME)
-                    )
-                    .terminatedWhen(TimedTerminator.ticks(600))
+                    ).terminatedWhen(TimedTerminator.ticks(600))
                     .then(MoveAwayElement.builder().speed(.01f).time(20).target(PositionTarget.fixed(playerPos)))
                     .sendToPlayer(player);
             return 1;
@@ -255,23 +256,20 @@ public class ServerTestCommand {
     }
 
     private static int testAnimation(CommandContext<CommandSourceStack> context) {
-        int index = IntegerArgumentType.getInteger(context, "testIndex");
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
-            Vec3 playerPos = player.position();
-            if (index == 0) {
-            } else if (index == 1) {
-                ParticleAnimation.builder()
-                        .spawnTime(ParticleAnimation.SpawnTime.absolute(1))
-                        .finalizes(SetLifeTimeFinalizer.builder().resetAge().lifeTime(20))
-                        .spawn(RingSpawner.entityWithBBSize(player, 1.7f, 1f)
-                                .setParticle(ParticleTypes.FLAME)
-                                .rotPerTick(5)
-                                .heightPerTick(.02f)
-                        )
-                        .terminatedWhen(TimedTerminator.ticks(600))
-                        .sendToPlayer(player);
-            } else if (index == 2) {
-            }
+            Vec3 playerPos = player.position().add(0, -2, 0);
+            ParticleAnimation.builder()
+                    .spawnTime(ParticleAnimation.SpawnTime.once())
+                    .finalizes(RemoveParticleFinalizer.builder())
+                    .spawn(SingleSpawner.at(ParticleTypes.FLAME, PositionTarget.fixed(playerPos.add(5, 0, 0))))
+                    .then(RotateElement.builder()
+                            .angle(1)
+                            .duration(360)
+                            .axis(Direction.Axis.Y)
+                            .pivot(PositionTarget.fixed(playerPos))
+                    )
+                    .terminatedWhen(TimedTerminator.seconds(20))
+                    .sendToPlayer(player);
             return 1;
         });
     }
