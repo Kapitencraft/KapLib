@@ -12,7 +12,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public interface LibClient {
 
-
     /**
      * overlay controller; controls the given Overlays for the screen
      */

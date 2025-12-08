@@ -175,7 +175,6 @@ public class ParticleConfig {
 
     public void invalidate() {
         this.animation.finalize(this);
-        LibClient.animations.removeContained(this.target);
         this.sync();
     }
 
