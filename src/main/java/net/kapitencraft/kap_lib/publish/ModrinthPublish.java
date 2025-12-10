@@ -19,9 +19,9 @@ public class ModrinthPublish {
     private static final String API_URL = "https://api.modrinth.com/v2/version";
 
     static boolean publish(AutoPublisher.Config config) {
-        String modId = config.modId();
-        String modName = config.modName();
-        String modVersion = config.modVersion();
+        String modId = config.modInfo().id();
+        String modName = config.modInfo().name();
+        String modVersion = config.modInfo().version();
         String mcVersion = config.mcVersion();
         String loaderVersion = config.loaderVersion();
         try {
@@ -32,7 +32,7 @@ public class ModrinthPublish {
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-            connection.setRequestProperty("User-Agent", String.format(config.author() + "/%s/%s (%s)", modName, modVersion, config.email()));
+            connection.setRequestProperty("User-Agent", String.format(config.authorInfo().name() + "/%s/%s (%s)", modName, modVersion, config.authorInfo().email()));
             connection.setRequestProperty("Authorization", AutoPublisher.getAuth(true));
 
             String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);

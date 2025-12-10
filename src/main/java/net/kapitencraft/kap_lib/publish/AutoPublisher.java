@@ -7,7 +7,6 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.helpers.GsonHelper;
-import net.neoforged.neoforge.event.level.NoteBlockEvent;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -31,7 +30,7 @@ public class AutoPublisher {
     private static final File CONFIG = new File("build/resources/main/publish_config.json");
     static final File AUTHENTICATION = new File("run/AuthCache.txt");
     private static final File DATA_CACHE = new File("run/PublishCache.txt");
-    static final File CHANGE_LOG = new File("publish/changelog.txt");
+    static final File CHANGELOG = new File("publish/changelog.txt");
     static final File CATEGORIES = new File("publish/categories.json");
 
     record Config(AuthorInfo authorInfo,
@@ -156,7 +155,7 @@ public class AutoPublisher {
     }
 
     private static void clearChangelog() throws IOException {
-        FileWriter writer = new FileWriter(CHANGE_LOG);
+        FileWriter writer = new FileWriter(CHANGELOG);
         writer.close();
     }
 
@@ -176,7 +175,7 @@ public class AutoPublisher {
 
     static String createChangelog() throws FileNotFoundException {
         if (changelog == null) {
-            BufferedReader reader = new BufferedReader(new FileReader(CHANGE_LOG));
+            BufferedReader reader = new BufferedReader(new FileReader(CHANGELOG));
             Changelog log = new Changelog();
             reader.lines().forEach(log::parse);
             changelog = log.toHtml();
