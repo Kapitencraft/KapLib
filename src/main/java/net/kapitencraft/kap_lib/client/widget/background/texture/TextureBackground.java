@@ -61,7 +61,6 @@ public class TextureBackground extends CutoutBackground {
                     builder.addVertex(matrix4f, xStart + textureWidth, yStart, 0).setUv(texture.getU1(), texture.getV0());
                 }
             }
-
         }
 
 

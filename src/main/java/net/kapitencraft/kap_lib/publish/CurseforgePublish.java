@@ -158,7 +158,7 @@ public class CurseforgePublish {
         Map<String, Object> data = new HashMap<>();
 
         data.put("changelog", AutoPublisher.createChangelog());
-        data.put("changelogType", "html");
+        data.put("changelogStyle", "html");
         data.put("displayName", String.format("%s v%s", modName, modVersion));
         data.put("gameVersions", versionData);
         data.put("releaseType", "release");

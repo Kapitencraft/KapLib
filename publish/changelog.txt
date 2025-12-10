@@ -1,6 +1,20 @@
 fixed BonusProvider set-bonus slot order being shuffled each time
-renamed publish_config.json$project_id to $modrinth_id to better resemble its use case
-added publish_config.json$curseforge_id to enable curseforge API access
+reworked publish_config.json:
+    modrinth_id: modrinth-project-id. at least it or curseforge_id must be present
+    curseforge_id: curseforge-project-slug. at least it or modrinth_id must be present
+    author: mandatory
+        name: readable name of the author(s) of the project. mandatory
+        email: an email to contact you if modrinth or curseforge have issues with your request. mandatory
+    mod: mandatory
+        id: the mod-id of the mod. mandatory
+        name: the name of the mod. mandatory
+        version: the version of the mod. mandatory
+    mc_version: the used minecraft version of the project
+    loader_version: the used loader version of the project (neo, forge or fabric version)
+    changelog: optional (see entries)
+        format: any of [html, md, plain]. format to use in the changelog. optional, will use html by default
+        style: any of [list, none]. style to use. will either list the changelog by categories or will print it as plain, formatted text. optional, will use list by default
+
 fixed RotateElement behaving weird due to position issues
 fixed CircleSpawner not spawning correctly due to RAD <-> DEG mismatch
 

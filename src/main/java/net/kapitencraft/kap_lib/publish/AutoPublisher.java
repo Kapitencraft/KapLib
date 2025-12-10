@@ -6,6 +6,8 @@ import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
+import net.kapitencraft.kap_lib.helpers.GsonHelper;
+import net.neoforged.neoforge.event.level.NoteBlockEvent;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -18,7 +20,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AutoPublisher {
-    static final Gson GSON = new GsonBuilder().create();
+    static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(Config.class, new Config.Deserializer())
+            .registerTypeAdapter(ModInfo.class, new ModInfo.Deserializer())
+            .registerTypeAdapter(AuthorInfo.class, new AuthorInfo.Deserializer())
+            .registerTypeAdapter(ChangelogInfo.class, new ChangelogInfo.Deserializer())
+            .create();
     static final Logger LOGGER = LogUtils.getLogger();
 
     private static final File CONFIG = new File("build/resources/main/publish_config.json");
@@ -27,41 +34,84 @@ public class AutoPublisher {
     static final File CHANGE_LOG = new File("publish/changelog.txt");
     static final File CATEGORIES = new File("publish/categories.json");
 
-    record Config(String email, String author,
-                  String modId, String modName,
-                  String modVersion, String mcVersion,
+    record Config(AuthorInfo authorInfo,
+                  ModInfo modInfo,
+                  String mcVersion,
                   String loaderVersion,
                   String modrinthId,
                   String curseforgeId,
                   String[] extraFiles,
-                  JsonObject[] dependencies
-    ) {}
+                  JsonObject[] dependencies,
+                  ChangelogInfo changelogInfo
+    ) {
+        private static class Deserializer implements JsonDeserializer<Config> {
+
+            @Override
+            public Config deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                if (!jsonElement.isJsonObject()) throw new JsonParseException("mod info must be object");
+                JsonObject object = jsonElement.getAsJsonObject();
+                AuthorInfo authorInfo = jsonDeserializationContext.deserialize(object.get("author"), AuthorInfo.class);
+                ModInfo modInfo = jsonDeserializationContext.deserialize(object.get("mod"), ModInfo.class);
+                String mcVersion = GsonHelper.getAsString(object, "mc_version");
+                String loaderVersion = GsonHelper.getAsString(object, "loader_version");
+                String modrinthId = GsonHelper.getOptionalAsString(object, "modrinth_id");
+                String curseforgeId = GsonHelper.getOptionalAsString(object, "curseforge_id");
+                ChangelogInfo changelogInfo = jsonDeserializationContext.deserialize(object.get("changelog"), ChangelogInfo.class);
+                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, changelogInfo);
+            }
+        }
+    }
+
+    record ModInfo(String id, String name, String version) {
+
+        private static class Deserializer implements JsonDeserializer<ModInfo> {
+
+            @Override
+            public ModInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                if (!jsonElement.isJsonObject()) throw new JsonParseException("mod info must be object");
+                JsonObject object = jsonElement.getAsJsonObject();
+                String id = GsonHelper.getAsString(object, "id");
+                String name = GsonHelper.getAsString(object, "name");
+                String version = GsonHelper.getAsString(object, "version");
+                return new ModInfo(id, name, version);
+            }
+        }
+    }
+
+    record AuthorInfo(String email, String name) {
+
+        private static class Deserializer implements JsonDeserializer<AuthorInfo> {
+
+            @Override
+            public AuthorInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                if (!jsonElement.isJsonObject()) throw new JsonParseException("author config must be object");
+                JsonObject object = jsonElement.getAsJsonObject();
+                String email = GsonHelper.getAsString(object, "email");
+                String name = GsonHelper.getAsString(object, "name");
+                return new AuthorInfo(email, name);
+            }
+        }
+    }
+
+    record ChangelogInfo(String format, String style) {
+
+        private static class Deserializer implements JsonDeserializer<ChangelogInfo> {
+
+            @Override
+            public ChangelogInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                if (!jsonElement.isJsonObject()) throw new JsonParseException("changelog config must be object");
+                JsonObject object = jsonElement.getAsJsonObject();
+                String format = GsonHelper.getAsString(object, "format");
+                String style = GsonHelper.getAsString(object, "style");
+                return new ChangelogInfo(format, style);
+            }
+        }
+
+    }
 
     private static Config loadConfig() throws FileNotFoundException {
         FileReader reader = new FileReader(CONFIG);
-        JsonObject object = GSON.fromJson(reader, JsonObject.class);
-        return new Config(
-                object.getAsJsonPrimitive("author_email").getAsString(),
-                object.getAsJsonPrimitive("author").getAsString(),
-                object.getAsJsonPrimitive("mod_id").getAsString(),
-                object.getAsJsonPrimitive("mod_name").getAsString(),
-                object.getAsJsonPrimitive("mod_version").getAsString(),
-                object.getAsJsonPrimitive("mc_version").getAsString(),
-                object.getAsJsonPrimitive("loader_version").getAsString(),
-                optionalStringEntry(object, "modrinth_id"),
-                optionalStringEntry(object, "curseforge_id"),
-                optionalList("extra_files", object).stream().map(JsonElement::getAsString).toArray(String[]::new),
-                optionalList("dependencies", object).stream().map(JsonElement::getAsJsonObject).toArray(JsonObject[]::new)
-        );
-    }
-
-    private static String optionalStringEntry(JsonObject object, String name) {
-        if (object.has(name)) return object.getAsJsonPrimitive(name).getAsString();
-        return null;
-    }
-
-    private static List<JsonElement> optionalList(String name, JsonObject object) {
-        return object.has(name) ? object.getAsJsonArray(name).asList() : List.of();
+        return GSON.fromJson(reader, Config.class);
     }
 
     public static void main(String[] args) {
@@ -73,9 +123,9 @@ public class AutoPublisher {
             return;
         }
 
-        String modId = config.modId;
-        String modName = config.modName;
-        String modVersion = config.modVersion;
+        String modId = config.modInfo.id;
+        String modName = config.modInfo.name;
+        String modVersion = config.modInfo.version;
         String mcVersion = config.mcVersion;
         String fmlVersion = config.loaderVersion;
         LOGGER.info("Auto Publish activated with args:");
@@ -208,24 +258,18 @@ public class AutoPublisher {
         public String toHtml() {
             StringBuilder builder = new StringBuilder();
             for (Category category : this.content.keySet()) {
-                addElements(builder, this.content.get(category), category.title);
+                addElementsHtml(builder, this.content.get(category), category.title);
             }
             return builder.toString();
         }
 
-        private static void addElements(StringBuilder dataSink, Collection<String> data, String name) {
+        private static void addElementsHtml(StringBuilder dataSink, Collection<String> data, String name) {
             if (data.isEmpty()) return; //skip not used headers
-            dataSink.append("<h2>");
-            dataSink.append(name);
-            dataSink.append("</h2>");
-            dataSink.append("<ol>\n");
+            dataSink.append(String.format("<h2>%s</h2><ol>\n", name));
             for (String addition : data) {
-                dataSink.append("\t<li>");
-                dataSink.append(addition);
-                dataSink.append("</li>\n");
+                dataSink.append(String.format("\t<li>%s</li>\n", addition));
             }
             dataSink.append("</ol>\n");
-
         }
 
         private record Category(Pattern pattern, String title) {
