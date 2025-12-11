@@ -24,6 +24,8 @@ public class AutoPublisher {
             .registerTypeAdapter(ModInfo.class, new ModInfo.Deserializer())
             .registerTypeAdapter(AuthorInfo.class, new AuthorInfo.Deserializer())
             .registerTypeAdapter(ChangelogInfo.class, new ChangelogInfo.Deserializer())
+            .registerTypeAdapter(DependencyInfo.class, new DependencyInfo.Deserializer())
+            .registerTypeAdapter(DependencyType.class, new DependencyType.Deserializer())
             .create();
     static final Logger LOGGER = LogUtils.getLogger();
 
@@ -39,8 +41,9 @@ public class AutoPublisher {
                   String loaderVersion,
                   String modrinthId,
                   String curseforgeId,
-                  String[] extraFiles,
-                  JsonObject[] dependencies,
+                  String[] modules,
+                  boolean withSources,
+                  DependencyInfo[] dependencies,
                   ChangelogInfo changelogInfo
     ) {
         private static class Deserializer implements JsonDeserializer<Config> {
@@ -55,8 +58,11 @@ public class AutoPublisher {
                 String loaderVersion = GsonHelper.getAsString(object, "loader_version");
                 String modrinthId = GsonHelper.getOptionalAsString(object, "modrinth_id");
                 String curseforgeId = GsonHelper.getOptionalAsString(object, "curseforge_id");
+                String[] modules = object.has("modules") ? jsonDeserializationContext.deserialize(object.get("modules"), String[].class) : new String[0];
+                boolean withSources = object.has("with_sources") && GsonHelper.getAsBoolean(object, "with_sources");
+                DependencyInfo[] infos = object.has("dependencies") ? jsonDeserializationContext.deserialize(object.get("dependencies"), DependencyInfo[].class) : new DependencyInfo[0];
                 ChangelogInfo changelogInfo = jsonDeserializationContext.deserialize(object.get("changelog"), ChangelogInfo.class);
-                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, changelogInfo);
+                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, modules, withSources, infos, changelogInfo);
             }
         }
     }
@@ -105,7 +111,54 @@ public class AutoPublisher {
                 return new ChangelogInfo(format, style);
             }
         }
+    }
 
+    record DependencyInfo(String modrinthId, String versionName, DependencyType type, int ordinal) {
+
+        JsonObject toModrinthDependency(String gameVersion) throws IOException {
+            JsonObject object = new JsonObject();
+            object.addProperty("version_id", ModrinthPublish.getDependencyVersionId(modrinthId, gameVersion, versionName, ordinal));
+            object.addProperty("project_id", modrinthId);
+            object.addProperty("dependency_type", type.modrinthId());
+            return object;
+        }
+
+        private static class Deserializer implements JsonDeserializer<DependencyInfo> {
+
+            @Override
+            public DependencyInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                if (!jsonElement.isJsonObject()) throw new JsonParseException("dependency info must be object");
+                JsonObject object = jsonElement.getAsJsonObject();
+                String modrinthId = GsonHelper.getAsString(object, "modrinth_id");
+                String versionName = GsonHelper.getAsString(object, "version_name");
+                DependencyType depType = jsonDeserializationContext.deserialize(object.get("type"), DependencyType.class);
+                int ordinal = GsonHelper.getAsInt(object, "ordinal");
+                return new DependencyInfo(modrinthId, versionName, depType, ordinal);
+            }
+        }
+    }
+
+    enum DependencyType {
+        REQUIRED,
+        OPTIONAL,
+        INCOMPATIBLE,
+        EMBEDDED;
+
+        public String modrinthId() {
+            return this.name().toLowerCase();
+        }
+
+        private static class Deserializer implements JsonDeserializer<DependencyType> {
+
+            @Override
+            public DependencyType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                if (!json.isJsonPrimitive() || !json.getAsJsonPrimitive().isString())
+                    throw new JsonParseException("dependency type must be string");
+                DependencyType dependencyType = DependencyType.valueOf(json.getAsJsonPrimitive().getAsString().toUpperCase());
+                if (dependencyType == null) throw new JsonParseException("unknown dependency type: " + json.getAsJsonPrimitive().getAsString());
+                return dependencyType;
+            }
+        }
     }
 
     private static Config loadConfig() throws FileNotFoundException {
@@ -123,6 +176,7 @@ public class AutoPublisher {
         }
 
         String modId = config.modInfo.id;
+        if (true) return;
         String modName = config.modInfo.name;
         String modVersion = config.modInfo.version;
         String mcVersion = config.mcVersion;

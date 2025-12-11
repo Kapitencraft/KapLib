@@ -11,9 +11,16 @@ reworked publish_config.json:
         version: the version of the mod. mandatory
     mc_version: the used minecraft version of the project
     loader_version: the used loader version of the project (neo, forge or fabric version)
+    with_sources: whether to include modules with `-sources` extension. boolean, optional, defaults to false
+    modules: optional, string list
+        each entry is the suffix of a file in the libs folder, nominating a file to be published alongside the main file
+    dependencies: optional, object list
+        modrinth_id: the modrinth id of this dependency
+        version_name: the used version of the dependency
+        type: the dependency type. one of [required, optional, incompatible, embedded]
     changelog: optional (see entries)
-        format: any of [html, md, plain]. format to use in the changelog. optional, will use html by default
-        style: any of [list, none]. style to use. will either list the changelog by categories or will print it as plain, formatted text. optional, will use list by default
+        format: one of [html, md, plain]. format to use in the changelog. optional, defaults to html
+        style: one of [list, none]. style to use. will either list the changelog by categories or will print it as plain, formatted text. optional, defaults to list
 
 fixed RotateElement behaving weird due to position issues
 fixed CircleSpawner not spawning correctly due to RAD <-> DEG mismatch

@@ -44,12 +44,12 @@ public class ModrinthPublish {
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
 
                 // Add text part
-                addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.modrinthId(), config.extraFiles(), config.dependencies());
+                addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.modrinthId(), fillModules(config.modules(), config.withSources()), config.dependencies());
 
                 // Add file part
                 addFilePart(writer, outputStream, boundary, "primary", mainFile);
 
-                for (String extraFile : config.extraFiles()) {
+                for (String extraFile : getExtraModules(config.modules(), config.withSources())) {
                     File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
                     addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
                 }
@@ -89,12 +89,35 @@ public class ModrinthPublish {
         return false;
     }
 
+    private static String[] fillModules(String[] modules, boolean b) {
+        List<String> strings = getExtraModules(modules, b);
+        strings.addFirst("primary");
+        if (b) strings.add("sources");
+        for (String module : modules) {
+            strings.add(module);
+            if (b)
+                strings.add(module + "-sources");
+        }
+        return strings.toArray(String[]::new);
+    }
+
+    private static List<String> getExtraModules(String[] modules, boolean b) {
+        List<String> s = new ArrayList<>();
+        if (b) s.add("sources");
+        for (String module : modules) {
+            s.add(module);
+            if (b)
+                s.add(module + "-sources");
+        }
+        return s;
+    }
+
     // Helper method to add a text field
-    private static void addData(PrintWriter writer, String boundary, String modName, String modVersion, String mcVersion, String forgeVersion, String projectId, String[] extraFiles, JsonObject[] dependencies) throws IOException {
+    private static void addData(PrintWriter writer, String boundary, String modName, String modVersion, String mcVersion, String loaderVersion, String projectId, String[] modules, AutoPublisher.DependencyInfo[] dependencies) throws IOException {
         writer.append("--").append(boundary).append("\r\n");
         writer.append("Content-Disposition: form-data; name=\"data\"\r\n");
         writer.append("Content-Type: application/json; charset=UTF-8\r\n\r\n");
-        writer.append(addVersionData(modName, modVersion, mcVersion, projectId, dependencies, extraFiles)).append("\r\n");
+        writer.append(addVersionData(modName, modVersion, mcVersion, projectId, dependencies, modules)).append("\r\n");
         writer.flush();
     }
 
@@ -112,7 +135,7 @@ public class ModrinthPublish {
         writer.flush();
     }
 
-    private static String addVersionData(String modName, String modVersion, String mcVersion, String projectId, JsonObject[] dependencies, String[] extraFiles) throws IOException {
+    private static String addVersionData(String modName, String modVersion, String mcVersion, String projectId, AutoPublisher.DependencyInfo[] dependencies, String[] modules) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
         data.put("name", String.format("%s v%s", modName, modVersion));
@@ -124,8 +147,9 @@ public class ModrinthPublish {
         data.put("featured", true);
         data.put("status", "listed");
         data.put("project_id", projectId);
-        String[] fileParts = new String[extraFiles.length + 1];
-        System.arraycopy(extraFiles, 0, fileParts, 1, extraFiles.length);
+
+        String[] fileParts = new String[modules.length + 1];
+        System.arraycopy(modules, 0, fileParts, 1, modules.length);
         fileParts[0] = "primary";
         data.put("file_parts", fileParts);
         data.put("primary_file", "primary");
@@ -134,24 +158,11 @@ public class ModrinthPublish {
         return AutoPublisher.GSON.toJson(data);
     }
 
-    private static void addDependencies(JsonObject[] dependencies, Map<String, Object> data, String gameVersion) throws IOException {
-        List<Map<String, Object>> dependencyData = new ArrayList<>();
+    private static void addDependencies(AutoPublisher.DependencyInfo[] dependencies, Map<String, Object> data, String gameVersion) throws IOException {
+        List<JsonObject> dependencyData = new ArrayList<>();
 
-        for (JsonObject object : dependencies) {
-            Map<String, Object> dependency = AutoPublisher.GSON.fromJson(object, Map.class);
-            if (!dependency.containsKey("project_id")) AutoPublisher.LOGGER.error("Dependency missing project id!");
-            else if (!dependency.containsKey("version_name")) AutoPublisher.LOGGER.error("Dependency missing file name!");
-            else if (!dependency.containsKey("dependency_type")) AutoPublisher.LOGGER.error("Dependency missing dependency type");
-            else if (!AutoPublisher.verifyDependencyType(dependency.get("dependency_type"))) AutoPublisher.LOGGER.error("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
-            else {
-                dependencyData.add(dependency);
-                String name = (String) dependency.get("version_name");
-                String projectId = (String) dependency.get("project_id");
-                int ordinal = dependency.containsKey("ordinal") ? (int) dependency.get("ordinal") : 0;
-                dependency.put("version_id", getDependencyVersionId(projectId, gameVersion, name, ordinal));
-                continue;
-            }
-            throw new IOException("Dependency Load Failed");
+        for (AutoPublisher.DependencyInfo object : dependencies) {
+            dependencyData.add(object.toModrinthDependency(gameVersion));
         }
 
         data.put("dependencies", dependencyData);
@@ -169,7 +180,7 @@ public class ModrinthPublish {
         }
     }
 
-    private static String getDependencyVersionId(String modId, String gameVersion, String name, int ordinal) throws IOException {
+    static String getDependencyVersionId(String modId, String gameVersion, String name, int ordinal) throws IOException {
         try {
             Stream<JsonObject> data = ModrinthUtils.readVersions(modId, gameVersion, "AutoPublisherDependency");
             if (data == null) throw new IllegalStateException("connecting to '" + modId + "' failed");

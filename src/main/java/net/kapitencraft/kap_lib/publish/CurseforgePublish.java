@@ -96,12 +96,12 @@ public class CurseforgePublish {
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
 
                 // Add text part
-                addData(writer, boundary, modName, modVersion, config.extraFiles(), config.dependencies(), versions);
+                addData(writer, boundary, modName, modVersion, config.modules(), config.dependencies(), versions);
 
                 // Add file part
                 addFilePart(writer, outputStream, boundary, mainFile);
 
-                for (String extraFile : config.extraFiles()) {
+                for (String extraFile : config.modules()) {
                     File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
                     //addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
                 }

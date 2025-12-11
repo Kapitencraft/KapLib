@@ -24,4 +24,16 @@ public class GsonHelper {
         if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) throw new JsonParseException("member '" + memberName + "' should be string");
         return element.getAsJsonPrimitive().getAsString();
     }
+
+    public static int getAsInt(JsonObject object, String memberName) {
+        JsonElement element = object.get(memberName);
+        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber()) throw new JsonParseException("member '" + memberName + "' should be string");
+        return element.getAsJsonPrimitive().getAsInt();
+    }
+
+    public static boolean getAsBoolean(JsonObject object, String memberName) {
+        JsonElement element = object.get(memberName);
+        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isBoolean()) throw new JsonParseException("member '" + memberName + "' should be string");
+        return element.getAsJsonPrimitive().getAsBoolean();
+    }
 }

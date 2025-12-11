@@ -1,18 +1,22 @@
 {
-  "author": "Kapitencraft",
-  "author_email": "kapitencraft@gmail.com",
   "modrinth_id": "IrKTRsiH",
   "curseforge_id": "kaplib",
-  "extra_files": [
-    "sources",
-    "util", "util-sources",
-    "publish", "publish-sources",
-    "enchantments", "enchantments-sources",
-    "items", "items-sources"
-  ],
-  "mod_id": "${mod_id}",
-  "mod_name": "${mod_name}",
-  "mod_version": "${mod_version}",
+  "author": {
+    "name": "Kapitencraft",
+    "email": "kapitencraft@gmail.com"
+  },
+  "mod": {
+    "id": "${mod_id}",
+    "name": "${mod_name}",
+    "version": "${mod_version}"
+  },
   "mc_version": "${minecraft_version}",
-  "loader_version": "${neo_version}"
+  "loader_version": "${neo_version}",
+  "with_sources": true,
+  "modules": [
+    "util",
+    "publish",
+    "enchantments",
+    "items"
+  ]
 }
