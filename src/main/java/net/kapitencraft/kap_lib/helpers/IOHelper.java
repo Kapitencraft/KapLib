@@ -40,7 +40,6 @@ public class IOHelper {
         return tag.contains(name, 3) && tag.getInt(name) > 0;
     }
 
-
     /**
      * @return if the tag is null or empty
      */

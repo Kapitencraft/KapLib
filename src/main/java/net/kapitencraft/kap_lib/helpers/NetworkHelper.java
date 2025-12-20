@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.helpers;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
@@ -9,11 +8,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.checkerframework.checker.units.qual.K;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.IntFunction;
@@ -55,7 +51,6 @@ public class NetworkHelper {
         return new Vec2(buf.readFloat(), buf.readFloat());
     }
 
-
     public static <T extends ParticleOptions> T readParticleOptions(FriendlyByteBuf buf) {
         ParticleType<T> type = (ParticleType<T>) buf.readById(BuiltInRegistries.PARTICLE_TYPE);
         return Objects.requireNonNull(type).getDeserializer().fromNetwork(type, buf);
@@ -64,13 +59,6 @@ public class NetworkHelper {
     public static void writeParticleOptions(FriendlyByteBuf buf, ParticleOptions toSpawn) {
         buf.writeId(BuiltInRegistries.PARTICLE_TYPE, toSpawn.getType());
         toSpawn.writeToNetwork(buf);
-    }
-
-
-    public static void writeVector3f(FriendlyByteBuf buf, Vector3f vec) {
-        buf.writeFloat(vec.x);
-        buf.writeFloat(vec.y);
-        buf.writeFloat(vec.z);
     }
 
     public static Entity entityFromNw(FriendlyByteBuf buf) {
