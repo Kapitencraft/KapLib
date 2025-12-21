@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.item.tools.fishing;
 
-import net.kapitencraft.kap_lib.entity.fishing.AbstractFishingHook;
+import net.kapitencraft.kap_lib.item.entity.fishing.AbstractFishingHook;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.level.Level;

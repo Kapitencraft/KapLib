@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.mixin.duck.ScaledClientMotionPacket;
+import net.kapitencraft.kap_lib.core.helpers.MathHelper;
+import net.kapitencraft.kap_lib.core.mixin.duck.ScaledClientMotionPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.world.phys.Vec3;

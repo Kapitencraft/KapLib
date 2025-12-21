@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "compatibilityLevel": "JAVA_21",
+  "package": "net.kapitencraft.kap_lib.requirement.mixin.classes",
+  "refmap": "kap_lib.mixin-refmap.json",
+  "client": [
+  ],
+  "mixins": [
+    "LivingEntityMixin",
+    "PlayerMixin",
+    "FishingRodMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

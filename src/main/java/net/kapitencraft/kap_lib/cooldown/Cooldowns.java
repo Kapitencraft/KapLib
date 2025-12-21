@@ -2,10 +2,10 @@ package net.kapitencraft.kap_lib.cooldown;
 
 
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.io.network.S2C.capability.CooldownStartedPacket;
-import net.kapitencraft.kap_lib.io.network.S2C.capability.SyncCooldownsToPlayerPacket;
-import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
-import net.kapitencraft.kap_lib.util.IntegerReference;
+import net.kapitencraft.kap_lib.cooldown.network.S2C.CooldownStartedPacket;
+import net.kapitencraft.kap_lib.cooldown.network.S2C.SyncCooldownsToPlayerPacket;
+import net.kapitencraft.kap_lib.cooldown.registry.CooldownAttachmentTypes;
+import net.kapitencraft.kap_lib.core.util.IntegerReference;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -47,8 +47,9 @@ public class Cooldowns {
 
     /**
      * apply a cooldown to the entity this capability instance is owned by. must only be called serverside
-     * @param cooldown the cooldown to apply
-     * @param reduceWithTime whether {@link net.kapitencraft.kap_lib.registry.ExtraAttributes#COOLDOWN_REDUCTION} should be accounted
+     *
+     * @param cooldown       the cooldown to apply
+     * @param reduceWithTime whether {@link net.kapitencraft.kap_lib.cooldown.registry.CooldownAttributes#COOLDOWN_REDUCTION Cooldown Reduction Attribute} should be accounted
      */
     public void applyCooldown(LivingEntity entity, Cooldown cooldown, boolean reduceWithTime) {
         int time = cooldown.getCooldownTime(entity, reduceWithTime);
@@ -74,9 +75,8 @@ public class Cooldowns {
     }
 
     public static Cooldowns get(LivingEntity living) {
-        return Objects.requireNonNull(living.getData(ModAttachmentTypes.COOLDOWNS), "unable to get cooldowns");
+        return Objects.requireNonNull(living.getData(CooldownAttachmentTypes.COOLDOWNS), "unable to get cooldowns");
     }
-
 
     public static void send(ServerPlayer sP) {
         Cooldowns cooldown = get(sP);

@@ -1,0 +1,18 @@
+package net.kapitencraft.kap_lib.shader.mixin.classes.client;
+
+import net.kapitencraft.kap_lib.core.mixin.duck.MixinSelfProvider;
+import net.kapitencraft.kap_lib.shader.ShaderHelper;
+import net.minecraft.client.renderer.ShaderInstance;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(ShaderInstance.class)
+public class ShaderInstanceMixin implements MixinSelfProvider<ShaderInstance> {
+
+    @Inject(method = "apply", at = @At("HEAD"))
+    private void applyUniforms(CallbackInfo ci) {
+        ShaderHelper.updateUniforms(self());
+    }
+}

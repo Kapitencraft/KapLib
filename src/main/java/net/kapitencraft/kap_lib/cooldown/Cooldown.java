@@ -1,10 +1,9 @@
 package net.kapitencraft.kap_lib.cooldown;
 
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.kapitencraft.kap_lib.cooldown.registry.CooldownAttributes;
+import net.kapitencraft.kap_lib.cooldown.registry.CooldownRegistries;
+import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.CommonComponents;
@@ -19,8 +18,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class Cooldown {
-    public static final Codec<Cooldown> CODEC = ExtraRegistries.COOLDOWNS.byNameCodec();
-    public static final StreamCodec<RegistryFriendlyByteBuf, Cooldown> STREAM_CODEC = ByteBufCodecs.registry(ExtraRegistries.Keys.COOLDOWNS);
+    public static final Codec<Cooldown> CODEC = CooldownRegistries.COOLDOWNS.byNameCodec();
+    public static final StreamCodec<RegistryFriendlyByteBuf, Cooldown> STREAM_CODEC = ByteBufCodecs.registry(CooldownRegistries.Keys.COOLDOWNS);
 
     private final int defaultTime;
     private final Consumer<LivingEntity> toDo;
@@ -35,7 +34,7 @@ public class Cooldown {
     }
 
     public int getCooldownTime(LivingEntity living, boolean reduceWithTime) {
-        double mul = reduceWithTime ? living.getAttributeValue(ExtraAttributes.COOLDOWN_REDUCTION) : 0;
+        double mul = reduceWithTime ? living.getAttributeValue(CooldownAttributes.COOLDOWN_REDUCTION) : 0;
         return (int) (defaultTime * (1 - mul / 100));
     }
 
@@ -53,7 +52,7 @@ public class Cooldown {
 
     public Component createDisplay(LivingEntity living) {
         int cooldownTicks = getActiveCooldownTime(living);
-        int defaultTime = AttributeHelper.cooldown(living, this.defaultTime);
+        int defaultTime = getCooldownTime(living, true);
         return Component.translatable("cooldown.display", (cooldownTicks > 0 ?
                 Component.translatable("cooldown.active").withStyle(ChatFormatting.RED).append(CommonComponents.SPACE).append(Component.literal("(" + MathHelper.shortRound(cooldownTicks / 20.) + "s)").withStyle(ChatFormatting.DARK_GRAY))
                 : Component.translatable("cooldown.inactive").withStyle(ChatFormatting.GREEN).append(Component.literal(", " + MathHelper.shortRound(defaultTime / 20.) + "s").withStyle(ChatFormatting.DARK_GRAY))

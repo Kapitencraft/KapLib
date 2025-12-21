@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnPoolEntry;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;

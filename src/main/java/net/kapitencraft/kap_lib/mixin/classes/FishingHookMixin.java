@@ -1,14 +1,15 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.entity.fishing.IFishingHook;
-import net.kapitencraft.kap_lib.entity.fishing.AbstractFishingHook;
-import net.kapitencraft.kap_lib.entity.item.NoFireItemEntity;
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.kapitencraft.kap_lib.item.entity.fishing.IFishingHook;
+import net.kapitencraft.kap_lib.item.entity.fishing.AbstractFishingHook;
+import net.kapitencraft.kap_lib.item.entity.item.NoFireItemEntity;
+import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -31,7 +32,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
@@ -71,20 +71,20 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
         return lootTableId();
     }
 
-    @Redirect(method = "retrieve", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", ordinal = 0))
-    public boolean add(Level instance, Entity entity) {
+    @WrapOperation(method = "retrieve", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", ordinal = 0))
+    public boolean add(Level instance, Entity entity, Operation<Boolean> original) {
         if (self() instanceof AbstractFishingHook) {
             ItemEntity item = (ItemEntity) entity;
-            return instance.addFreshEntity(NoFireItemEntity.copy(item));
+            return original.call(instance, NoFireItemEntity.copy(item));
         }
-        return instance.addFreshEntity(entity);
+        return original.call(instance, entity);
     }
 
-    @Redirect(method = "retrieve", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/Level;DDDI)Lnet/minecraft/world/entity/ExperienceOrb;"))
-    private ExperienceOrb modifyExperience(Level pLevel, double pX, double pY, double pZ, int pValue) {
+    @WrapOperation(method = "retrieve", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/Level;DDDI)Lnet/minecraft/world/entity/ExperienceOrb;"))
+    private ExperienceOrb modifyExperience(Level level, double x, double y, double z, int value, Operation<ExperienceOrb> original) {
         Player player = this.getPlayerOwner();
-        if (player != null) pValue = (int) (pValue * AttributeHelper.getExperienceScale(player));
-        return new ExperienceOrb(pLevel, pX, pY, pZ, pValue);
+        if (player != null) value = (int) (value * AttributeHelper.getExperienceScale(player));
+        return original.call(level, x, y, z, value);
     }
 
     @ModifyArg(method = {"tick", "getOpenWaterTypeForBlock"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FluidState;is(Lnet/minecraft/tags/TagKey;)Z"))
@@ -92,9 +92,9 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
         return getFluidType();
     }
 
-    @Redirect(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Lnet/minecraft/world/level/block/Block;)Z"))
-    public boolean changeMaterial(BlockState instance, Block block) {
-        return instance.is(getBlock());
+    @WrapOperation(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Lnet/minecraft/world/level/block/Block;)Z"))
+    public boolean changeMaterial(BlockState instance, Block block, Operation<Boolean> original) {
+        return original.call(instance, getBlock());
     }
 
     @Inject(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;nextInt(Lnet/minecraft/util/RandomSource;II)I", ordinal = 2), cancellable = true)
@@ -105,20 +105,24 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
         ci.cancel();
     }
 
-    @Redirect(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;nextInt(Lnet/minecraft/util/RandomSource;II)I", ordinal = 1))
-    public int getRandom(RandomSource source, int low, int high) {
-        return Mth.nextInt(source, Math.max(1, low - getHookSpeedModifier() * 5), Math.max(1, high - getHookSpeedModifier() * 15));
+    @WrapOperation(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;nextInt(Lnet/minecraft/util/RandomSource;II)I", ordinal = 1))
+    public int getRandom(RandomSource random, int minimum, int maximum, Operation<Integer> original) {
+        return original.call(random, Math.max(1, minimum - getHookSpeedModifier() * 5), Math.max(1, maximum - getHookSpeedModifier() * 15));
     }
 
-    @Redirect(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"))
-    public int sendParticles(ServerLevel level, ParticleOptions options, double d, double d1, double d2, int i1, double d3, double d4, double d5, double d6) {
-        if (options == ParticleTypes.SPLASH) {
-            options = this.getSplashParticle();
-        } else if (options == ParticleTypes.FISHING) {
-            options = this.getFishingParticle();
-        } else if (options == ParticleTypes.BUBBLE) {
-            options = this.getBubbleParticle();
+    @WrapOperation(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"))
+    public int sendParticles(ServerLevel instance, ParticleOptions type,
+                             double posX, double posY, double posZ, int particleCount,
+                             double xOffset, double yOffset, double zOffset, double speed,
+                             Operation<Integer> original
+    ) {
+        if (type == ParticleTypes.SPLASH) {
+            type = this.getSplashParticle();
+        } else if (type == ParticleTypes.FISHING) {
+            type = this.getFishingParticle();
+        } else if (type == ParticleTypes.BUBBLE) {
+            type = this.getBubbleParticle();
         }
-        return level.sendParticles(options, d, d1, d2, i1, d3, d4, d5, d6);
+        return original.call(instance, type, posX, posY, posZ, particleCount, xOffset, yOffset, zOffset, speed);
     }
 }

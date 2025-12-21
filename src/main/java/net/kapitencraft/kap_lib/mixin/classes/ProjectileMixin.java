@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
+import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;

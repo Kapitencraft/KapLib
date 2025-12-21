@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "compatibilityLevel": "JAVA_17",
+  "package": "net.kapitencraft.kap_lib.inventory_page.mixin.classes",
+  "refmap": "kap_lib.mixin-refmap.json",
+  "client": [
+    "client.CreativeModeInventoryScreenMixin",
+    "client.InventoryScreenMixin"
+  ],
+  "mixins": [
+    "InventoryMenuMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

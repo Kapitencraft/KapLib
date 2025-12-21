@@ -1,0 +1,29 @@
+package net.kapitencraft.kap_lib.spawn_table.registry.spawn_table;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.spawn_table.entries.*;
+import net.kapitencraft.kap_lib.spawn_table.registry.SpawnTableRegistries;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.function.Supplier;
+
+public interface SpawnPoolEntries {
+    Codec<SpawnPoolEntryContainer> CODEC = SpawnTableRegistries.SPAWN_POOL_ENTRY_TYPES.byNameCodec().dispatch(SpawnPoolEntryContainer::getType, SpawnPoolEntryType::codec);
+
+    DeferredRegister<SpawnPoolEntryType> REGISTRY = LibConstants.registry(SpawnTableRegistries.Keys.POOL_ENTRY_TYPES);
+
+    Supplier<SpawnPoolEntryType> ALTERNATIVES = register("alternatives", () -> AlternativesEntry.CODEC);
+    Supplier<SpawnPoolEntryType> GROUP = register("group", () -> EntryGroup.CODEC);
+    Supplier<SpawnPoolEntryType> SEQUENCE = register("sequence", () -> SequentialEntry.CODEC);
+    Supplier<SpawnPoolEntryType> DYNAMIC = register("dynamic", () -> DynamicSpawn.CODEC);
+    Supplier<SpawnPoolEntryType> EMPTY = register("empty", () -> EmptySpawnEntity.CODEC);
+    Supplier<SpawnPoolEntryType> ENTITY = register("entity", () -> SpawnEntity.CODEC);
+    Supplier<SpawnPoolEntryType> REFERENCE = register("reference", () -> NestedSpawnTable.CODEC);
+    Supplier<SpawnPoolEntryType> EFFECT_CLOUD = register("effect_cloud", () -> SpawnEffectCloud.CODEC);
+
+    static Supplier<SpawnPoolEntryType> register(String name, Supplier<MapCodec<? extends SpawnPoolEntryContainer>> serializer) {
+        return REGISTRY.register(name, () -> new SpawnPoolEntryType(serializer.get()));
+    }
+}

@@ -1,23 +1,17 @@
 package net.kapitencraft.kap_lib.spawn_table.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.io.serialization.ExtraJsonSerializers;
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.core.Markers;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;

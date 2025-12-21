@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.kapitencraft.kap_lib.client.widget.background.texture.BackgroundTileableSection;
+import net.kapitencraft.kap_lib.core.client.widget.background.texture.BackgroundTileableSection;
 import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;

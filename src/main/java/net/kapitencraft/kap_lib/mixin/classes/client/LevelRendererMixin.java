@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.mixin.classes.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.shaders.Uniform;
-import net.kapitencraft.kap_lib.client.shaders.BlockRenderTypes;
+import net.kapitencraft.kap_lib.shader.BlockRenderTypes;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.*;

@@ -1,14 +1,15 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.data_gen.abst.EnglishLanguageProvider;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
+import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.datagen.EnglishLanguageProvider;
+import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
+import net.kapitencraft.kap_lib.mana.ManaAttributes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.data.PackOutput;
 
 public class ModLanguageProvider extends EnglishLanguageProvider {
     public ModLanguageProvider(PackOutput output) {
-        super(output, KapLibMod.MOD_ID);
+        super(output, LibConstants.MOD_ID);
     }
 
     @Override
@@ -25,9 +26,9 @@ public class ModLanguageProvider extends EnglishLanguageProvider {
         addAttribute(ExtraAttributes.FEROCITY, ChatFormatting.WHITE);
         addAttribute(ExtraAttributes.FISHING_SPEED, ChatFormatting.AQUA);
         addAttribute(ExtraAttributes.LIFE_STEAL, ChatFormatting.DARK_RED);
-        addAttribute(ExtraAttributes.MANA_COST, null);
-        addAttribute(ExtraAttributes.MANA_REGEN, ChatFormatting.BLUE);
-        addAttribute(ExtraAttributes.MAX_MANA, ChatFormatting.DARK_AQUA);
+        addAttribute(ManaAttributes.MANA_COST, null);
+        addAttribute(ManaAttributes.MANA_REGEN, ChatFormatting.BLUE);
+        addAttribute(ManaAttributes.MAX_MANA, ChatFormatting.DARK_AQUA);
         addAttribute(ExtraAttributes.STRENGTH, ChatFormatting.DARK_RED);
     }
 }

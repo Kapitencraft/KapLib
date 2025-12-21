@@ -1,10 +1,13 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
-import net.kapitencraft.kap_lib.client.font.effect.EffectSettings;
-import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
-import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.registry.custom.GlyphEffects;
-import net.kapitencraft.kap_lib.mixin.duck.IChromatic;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.kapitencraft.kap_lib.component.font.effect.EffectSettings;
+import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
+import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
+import net.kapitencraft.kap_lib.shader.mixin.duck.IChromatic;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.renderer.RenderType;
@@ -14,7 +17,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Font.StringRenderOutput.class)
@@ -37,12 +39,12 @@ public abstract class StringRenderOutputMixin {
     @Shadow
     private float b;
 
-    @Redirect(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;renderType(Lnet/minecraft/client/gui/Font$DisplayMode;)Lnet/minecraft/client/renderer/RenderType;"))
-    public RenderType changeRender(BakedGlyph instance, Font.DisplayMode pDisplayMode, int pIndex, Style pStyle, int pId) {
-        if (EffectsStyle.of(pStyle).hasEffect(GlyphEffects.RAINBOW.get()) && !this.dropShadow) {
+    @WrapOperation(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;renderType(Lnet/minecraft/client/gui/Font$DisplayMode;)Lnet/minecraft/client/renderer/RenderType;"))
+    public RenderType changeRender(BakedGlyph instance, Font.DisplayMode displayMode, Operation<RenderType> original, @Local(argsOnly = true) Style style) {
+        if (EffectsStyle.of(style).hasEffect(GlyphEffects.RAINBOW.get()) && !this.dropShadow) {
             return ((IChromatic) instance).getChromaType();
         }
-        return instance.renderType(pDisplayMode);
+        return instance.renderType(displayMode);
     }
 
     @Inject(method = "accept", at = @At("HEAD"))

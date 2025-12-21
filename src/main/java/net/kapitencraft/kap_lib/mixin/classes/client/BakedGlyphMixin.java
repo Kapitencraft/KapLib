@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
-import net.kapitencraft.kap_lib.mixin.duck.IChromatic;
+import net.kapitencraft.kap_lib.shader.mixin.duck.IChromatic;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.renderer.RenderType;
 import org.spongepowered.asm.mixin.Mixin;

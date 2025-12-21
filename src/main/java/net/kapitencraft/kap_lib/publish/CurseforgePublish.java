@@ -5,7 +5,11 @@ import com.google.gson.stream.JsonReader;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -24,10 +28,10 @@ public class CurseforgePublish {
      * @return whether the publishing was successful or not
      */
     //TODO make working
-    static boolean publish(AutoPublisher.Config config) {
-        String modId = config.modId();
-        String modName = config.modName();
-        String modVersion = config.modVersion();
+    static boolean publish(AutoPublisher.Config config, HttpClient client) {
+        String modId = config.modInfo().id();
+        String modName = config.modInfo().name();
+        String modVersion = config.modInfo().version();
         String mcVersion = config.mcVersion();
         String loaderVersion = config.loaderVersion();
         Integer mcVersionId;
@@ -36,30 +40,23 @@ public class CurseforgePublish {
         try {
             {
                 //one element: {"id":14271,"gameVersionTypeID":3,"name":"60.0.20","slug":"60-0-20","apiVersion":null}
-                URL version = new URL(VERSION_API_URL);
-                HttpsURLConnection versionConnection = (HttpsURLConnection) version.openConnection();
-                appendAuth(versionConnection, config, modName, modVersion);
-                versionConnection.setRequestMethod("GET");
-                versionConnection.setDoOutput(true);
+                HttpRequest.Builder request = HttpRequest.newBuilder().uri(URI.create(VERSION_API_URL))
+                        .GET();
+                appendAuth(request, config, modName, modVersion);
 
-                int versionResponse = versionConnection.getResponseCode();
-                InputStream dataStream;
+                HttpResponse<String> response = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
+
+                int versionResponse = response.statusCode();
                 if (versionResponse != HttpsURLConnection.HTTP_OK) {
                     AutoPublisher.LOGGER.error("failed: {}", versionResponse);
-                    dataStream = versionConnection.getErrorStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(dataStream));
-                    reader.lines().forEach(AutoPublisher.LOGGER::warn);
-                    reader.close();
+                    AutoPublisher.LOGGER.warn(response.body());
                     return false;
                 } else {
-                    dataStream = versionConnection.getInputStream();
-                    JsonReader reader = new JsonReader(new InputStreamReader(dataStream));
-                    List<Map<String, Object>> list = AutoPublisher.GSON.fromJson(reader, List.class);
+                    List<Map<String, Object>> list = AutoPublisher.GSON.fromJson(response.body(), List.class);
                     Map<String, Integer> versionLookup = new HashMap<>();
                     for (Map<String, Object> map : list) {
                         versionLookup.put(((String) map.get("name")), ((Double) map.get("id")).intValue());
                     }
-                    reader.close();
                     mcVersionId = versionLookup.get(mcVersion);
                     loaderVersionId = versionLookup.get(loaderVersion);
                     loaderId = versionLookup.get("NeoForge");
@@ -78,59 +75,55 @@ public class CurseforgePublish {
                 }
             }
             int[] versions = new int[] {mcVersionId, loaderVersionId, loaderId};
-            
-            URL url = new URL(API_URL + config.curseforgeId() + "/upload-file");
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            String boundary = "----Boundary" + UUID.randomUUID();
-
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-            appendAuth(connection, config, modName, modVersion);
 
             String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
 
             File mainFile = new File(fileBase + ".jar");
 
-            try (OutputStream outputStream = connection.getOutputStream();
-                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
+            String boundary = "----Boundary" + UUID.randomUUID();
 
-                // Add text part
-                addData(writer, boundary, modName, modVersion, config.modules(), config.dependencies(), versions);
+            // Add text part
+            String requestData = getData(boundary, modName, modVersion, config.modules(), config.dependencies(), versions);
 
-                // Add file part
-                addFilePart(writer, outputStream, boundary, mainFile);
+            // Add file part
+            String fileHeader = getFileHeader(boundary, mainFile);
 
-                for (String extraFile : config.modules()) {
-                    File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
-                    //addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
-                }
-                // Write the final boundary directly to OutputStream
-                outputStream.write(("--" + boundary + "--\r\n").getBytes());
-                outputStream.flush();
+            byte[] fileData = Files.readAllBytes(mainFile.toPath());
+
+            String fileFooter = "\r\n--" + boundary + "--\r\n";
+
+            byte[] requestBody = AutoPublisher.concat(
+                    requestData.getBytes(),
+                    fileHeader.getBytes(),
+                    fileData,
+                    fileFooter.getBytes()
+            );
+
+            //TODO
+            for (String extraFile : config.modules()) {
+                File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
+                //addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
             }
 
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(API_URL + config.curseforgeId() + "/upload-file"));
+            appendAuth(builder, config, modName, modVersion);
+            builder.header("Accept", "application/json");
+            builder.header("Content-Type", "multipart/form-data; boundary=" + boundary);
+            HttpRequest request = builder.POST(HttpRequest.BodyPublishers.ofByteArray(requestBody)).build();
+
+            AutoPublisher.LOGGER.info("publishing curseforge...");
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             //response
-            int response = connection.getResponseCode();
+            int responseCode = response.statusCode();
 
-            InputStream dataStream;
-            if (response != HttpsURLConnection.HTTP_OK) {
-                AutoPublisher.LOGGER.error("failed: {}", response);
-                dataStream = connection.getErrorStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(dataStream));
-                AutoPublisher.LOGGER.warn("target URL: {}", connection.getURL().toString());
-                reader.lines().forEach(AutoPublisher.LOGGER::warn);
-                reader.close();
+            if (responseCode != HttpsURLConnection.HTTP_OK) {
+                AutoPublisher.LOGGER.error("failed: {}", responseCode);
+                AutoPublisher.LOGGER.warn(response.body());
                 return false;
-            } else {
-                dataStream = connection.getInputStream();
             }
 
-            JsonReader reader = new JsonReader(new InputStreamReader(dataStream));
-
-            Map<String, Object> data = AutoPublisher.GSON.fromJson(reader, Map.class);
-
-            reader.close();
+            Map<String, Object> data = AutoPublisher.GSON.fromJson(response.body(), Map.class);
 
             AutoPublisher.LOGGER.info("successfully created new version with id '{}'", data.get("id"));
             return true;
@@ -141,23 +134,25 @@ public class CurseforgePublish {
         return false;
     }
 
-    private static void appendAuth(HttpsURLConnection connection, AutoPublisher.Config config, String modName, String modVersion) {
-        connection.setRequestProperty("User-Agent", String.format(config.author() + "/%s/%s (%s)", modName, modVersion, config.email()));
-        connection.setRequestProperty("X-Api-Token", AutoPublisher.getAuth(false));
+    private static void appendAuth(HttpRequest.Builder request, AutoPublisher.Config config, String modName, String modVersion) {
+        request.header("User-Agent", String.format(config.authorInfo().name() + "/%s/%s (%s)", modName, modVersion, config.authorInfo().email()));
+        request.header("X-Api-Token", AutoPublisher.getAuth(false));
     }
 
-    private static void addData(PrintWriter writer, String boundary, String modName, String modVersion, String[] extraFiles, JsonObject[] dependencies, int[] versionData) throws IOException {
-        writer.append("--").append(boundary).append("\r\n");
-        writer.append("Content-Disposition: form-data; name=\"metadata\"\r\n");
-        writer.append("Content-Type: application/json; charset=UTF-8\r\n\r\n");
-        writer.append(addVersionData(modName, modVersion, dependencies, extraFiles, versionData)).append("\r\n");
-        writer.flush();
+    private static String getData(String boundary, String modName, String modVersion, String[] extraFiles, AutoPublisher.DependencyInfo[] dependencies, int[] versionData) throws IOException {
+        return """
+                --%s\r
+                Content-Disposition: form-data; name="metadata"\r
+                Content-Type: application/json\r
+                \r
+                %s\r
+                """.formatted(boundary, getVersionData(modName, modVersion, dependencies, extraFiles, versionData));
     }
 
-    private static String addVersionData(String modName, String modVersion, JsonObject[] dependencies, String[] extraFiles, int[] versionData) throws IOException {
+    private static String getVersionData(String modName, String modVersion, AutoPublisher.DependencyInfo[] dependencies, String[] extraFiles, int[] versionData) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
-        data.put("changelog", AutoPublisher.createChangelog());
+        data.put("changelog", AutoPublisher.getChangelog());
         data.put("changelogStyle", "html");
         data.put("displayName", String.format("%s v%s", modName, modVersion));
         data.put("gameVersions", versionData);
@@ -173,47 +168,23 @@ public class CurseforgePublish {
     }
 
     // Helper method to add a file field //TODO figure out how to upload modules
-    private static void addFilePart(PrintWriter writer, OutputStream outputStream, String boundary, File file) throws IOException {
-        writer.append("--").append(boundary).append("\r\n");
-        writer.append("Content-Disposition: form-data; name=\"file\"; filename=\"").append(file.getName()).append("\"\r\n");
-        writer.append("Content-Type: application/java-archive\r\n\r\n");
-        writer.flush();
-
-        Files.copy(file.toPath(), outputStream);
-        outputStream.flush();
-        writer.append("\r\n");
-        writer.flush();
+    private static String getFileHeader(String boundary, File file) {
+        return """
+                --%s\r
+                Content-Disposition: form-data; name="file"; filename="%s"\r
+                Content-Type:application/java-archive\r
+                \r
+                """.formatted(boundary, file.getName());
     }
 
-    private static final Map<String, String> DEPENDENCY_TYPE_CONVERTER = Map.of(
-            "embedded", "embeddedLibrary",
-            "incompatible", "incompatible",
-            "optional", "optionalDependency",
-            "required", "requiredDependency"
-    );
-
-    @SuppressWarnings("SuspiciousMethodCalls")
-    private static void addDependencies(JsonObject[] dependencies, Map<String, Object> data) throws IOException {
-        if (dependencies.length < 1) return; //no need to add all this information if there's no dependency to add
+    private static void addDependencies(AutoPublisher.DependencyInfo[] dependencies, Map<String, Object> data) throws IOException {
+        if (dependencies == null || dependencies.length < 1) return; //no need to add all this information if there's no dependency to add
         Map<String, Object> map = new HashMap<>();
-        List<Map<String, Object>> dependencyData = new ArrayList<>();
+        List<JsonObject> dependencyData = new ArrayList<>();
         map.put("projects", dependencyData);
 
-        for (JsonObject object : dependencies) {
-
-            Map<String, Object> dependency = AutoPublisher.GSON.fromJson(object, Map.class);
-            if (!dependency.containsKey("project_id")) AutoPublisher.LOGGER.error("Dependency missing project id!");
-            else if (!dependency.containsKey("version_name")) AutoPublisher.LOGGER.error("Dependency missing file name!");
-            else if (!dependency.containsKey("dependency_type")) AutoPublisher.LOGGER.error("Dependency missing dependency type");
-            else if (!AutoPublisher.verifyDependencyType(dependency.get("dependency_type"))) AutoPublisher.LOGGER.error("Unknown dependency type\nallowed: [required, optional, incompatible, embedded]");
-            else {
-                Map<String, Object> convertedDependency = new HashMap<>();
-                convertedDependency.put("slug", dependency.get("project_id"));
-                convertedDependency.put("type", DEPENDENCY_TYPE_CONVERTER.get(dependency.get("dependency_type")));
-                dependencyData.add(convertedDependency);
-                continue;
-            }
-            throw new IOException("Dependency Load Failed");
+        for (AutoPublisher.DependencyInfo info : dependencies) {
+            dependencyData.add(info.toCurseforgeDependency());
         }
 
         data.put("relations", map);

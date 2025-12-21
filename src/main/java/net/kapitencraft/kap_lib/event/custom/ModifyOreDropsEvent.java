@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.event.custom;
 
-import net.kapitencraft.kap_lib.util.IntegerModifierCollector;
+import net.kapitencraft.kap_lib.core.util.IntegerModifierCollector;
 import net.neoforged.bus.api.Event;
 
 /**

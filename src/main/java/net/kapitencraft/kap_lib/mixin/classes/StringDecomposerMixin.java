@@ -1,8 +1,8 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.registry.custom.GlyphEffects;
+import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
+import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;

@@ -14,9 +14,23 @@
   "loader_version": "${neo_version}",
   "with_sources": true,
   "modules": [
-    "util",
+    "attribute",
+    "bonus",
+    "component",
+    "cooldown",
+    "datagen",
+    "enchantment",
+    "inventory_page",
+    "item",
+    "loot",
+    "mana",
+    "mob_effect",
+    "overlay",
+    "particle",
     "publish",
-    "enchantments",
-    "items"
+    "recipe",
+    "requirement",
+    "shader",
+    "spawn_table"
   ]
 }

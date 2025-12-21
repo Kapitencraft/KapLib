@@ -1,0 +1,7 @@
+{
+  "asMod": true,
+  "at": true,
+  "assets": [
+    "kap_lib/particles/**"
+  ]
+}

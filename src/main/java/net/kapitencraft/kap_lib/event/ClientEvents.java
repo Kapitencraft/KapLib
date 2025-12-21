@@ -1,12 +1,11 @@
 package net.kapitencraft.kap_lib.event;
 
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
-import net.kapitencraft.kap_lib.helpers.CollectorHelper;
-import net.kapitencraft.kap_lib.inventory.wearable.IWearable;
-import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.registry.custom.particle_animation.ActivationTriggers;
+import net.kapitencraft.kap_lib.component.player_head.PlayerHeadAllocator;
+import net.kapitencraft.kap_lib.inventory_page.registry.custom.InventoryPageRegistries;
+import net.kapitencraft.kap_lib.inventory_page.wearable.IWearable;
+import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
+import net.kapitencraft.kap_lib.particle.registry.particle_animation.ActivationTriggers;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.CommonComponents;
@@ -39,7 +38,7 @@ public class ClientEvents {
     public static void onAddAttributeTooltips(AddAttributeTooltipsEvent event) {
         ItemStack stack = event.getStack();
         if (stack.getItem() instanceof IWearable wearable) {
-            for (Map.Entry<ResourceKey<WearableSlot>, WearableSlot> slotEntry : ExtraRegistries.WEARABLE_SLOTS.entrySet()) {
+            for (Map.Entry<ResourceKey<WearableSlot>, WearableSlot> slotEntry : InventoryPageRegistries.WEARABLE_SLOTS.entrySet()) {
                 Multimap<Holder<Attribute>, AttributeModifier> modifiers = wearable.getModifiers(slotEntry.getValue(), stack);
                 if (modifiers.isEmpty()) continue;
                 event.addTooltipLines(CommonComponents.EMPTY, Component.translatable("item.modifiers.wearable." + getWearableKey(slotEntry.getKey())).withStyle(ChatFormatting.GRAY));
@@ -58,5 +57,4 @@ public class ClientEvents {
         ResourceLocation location = key.location();
         return location.getNamespace() + "." + location.getPath();
     }
-
 }

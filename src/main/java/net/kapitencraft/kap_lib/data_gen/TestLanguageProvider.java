@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.data_gen.abst.EnglishLanguageProvider;
+import net.kapitencraft.kap_lib.datagen.EnglishLanguageProvider;
 import net.minecraft.data.PackOutput;
 
 public class TestLanguageProvider extends EnglishLanguageProvider {

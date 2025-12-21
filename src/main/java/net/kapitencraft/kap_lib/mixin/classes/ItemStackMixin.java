@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.mixin.duck.MixinSelfProvider;
+import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
+import net.kapitencraft.kap_lib.core.mixin.duck.MixinSelfProvider;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;

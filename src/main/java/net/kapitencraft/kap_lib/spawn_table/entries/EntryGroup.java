@@ -2,8 +2,7 @@ package net.kapitencraft.kap_lib.spawn_table.entries;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnPoolEntries;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;

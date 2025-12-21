@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.item.modifier_display;
 
 import io.netty.buffer.ByteBuf;
-import net.kapitencraft.kap_lib.helpers.ExtraStreamCodecs;
+import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;

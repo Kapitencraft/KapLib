@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
-import net.kapitencraft.kap_lib.mixin.duck.IChromatic;
+import net.kapitencraft.kap_lib.shader.mixin.duck.IChromatic;
 import net.minecraft.client.gui.font.FontTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;

@@ -1,0 +1,67 @@
+package net.kapitencraft.kap_lib.core.tags;
+
+import net.kapitencraft.kap_lib.core.LibConstants;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.block.Block;
+
+public class ExtraTags {
+
+    public interface DamageTypes {
+        TagKey<DamageType> MAGIC = forgeKey("magic");
+        TagKey<DamageType> PARTICLE_WEAPON = forgeKey("particle_weapon");
+
+        private static TagKey<DamageType> forgeKey(String subName) {
+            return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("c", subName));
+        }
+    }
+
+    public interface Enchantments {
+        TagKey<Enchantment> ULTIMATE = modKey("ultimate");
+
+        static TagKey<Enchantment> modKey(String path) {
+            return TagKey.create(Registries.ENCHANTMENT, LibConstants.res(path));
+        }
+    }
+
+    public interface Items {
+        /**
+         * add this tag to any bow or crossbow to make its arrows hit enderman
+         */
+        TagKey<Item> HITS_ENDERMAN = modKey("hits_enderman");
+
+        private static TagKey<Item> forgeKey(String path) {
+            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));
+        }
+        private static TagKey<Item> modKey(String path) {
+            return TagKey.create(Registries.ITEM, LibConstants.res(path));
+        }
+    }
+
+    public interface EntityTypes {
+        /**
+         * mobs of the end
+         */
+        TagKey<EntityType<?>> ENDER_MOBS = forgeKey("ender_mobs");
+
+        private static TagKey<EntityType<?>> forgeKey(String path) {
+            return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("c", path));
+        }
+    }
+
+    public interface Blocks {
+        /**
+         * list of vanilla golem heads.
+         */
+        TagKey<Block> VANILLA_GOLEM_HEADS = vanillaKey("golem_heads");
+
+        static TagKey<Block> vanillaKey(String path) {
+            return TagKey.create(Registries.BLOCK, ResourceLocation.withDefaultNamespace(path));
+        }
+    }
+}

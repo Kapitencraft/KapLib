@@ -1,11 +1,11 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.helpers.MathHelper;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
-import net.kapitencraft.kap_lib.registry.ExtraMobEffects;
-import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
+import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
+import net.kapitencraft.kap_lib.core.helpers.MathHelper;
+import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
+import net.kapitencraft.kap_lib.mob_effect.registry.ExtraMobEffects;
+import net.kapitencraft.kap_lib.requirement.RequirementManager;
+import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
 import net.minecraft.core.Holder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -13,12 +13,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.extensions.ILivingEntityExtension;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,8 +29,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class LivingEntityMixin extends Entity implements ILivingEntityExtension {
 
     @Shadow public abstract ItemStack getItemBySlot(EquipmentSlot pSlot);
-
-    @Shadow @Final private AttributeMap attributes;
 
     @Shadow public abstract boolean hasEffect(Holder<MobEffect> pEffect);
 
@@ -47,7 +43,6 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
             ci.cancel();
         }
     }
-
 
     /**
      * @reason armor-shredder attribute

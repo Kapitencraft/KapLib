@@ -6,9 +6,9 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
+import net.kapitencraft.kap_lib.spawn_table.registry.SpawnTableRegistries;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.FunctionUserBuilder;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.minecraft.core.Holder;
@@ -38,8 +38,8 @@ public class SpawnTable {
                    )
                    .apply(p_338123_, SpawnTable::new)
    );
-   public static final Codec<Holder<SpawnTable>> CODEC = RegistryFileCodec.create(ExtraRegistries.Keys.SPAWN_TABLES, DIRECT_CODEC);
-   public static final Codec<Either<ResourceKey<SpawnTable>, SpawnTable>> GATHER_CODEC = Codec.either(ResourceKey.codec(ExtraRegistries.Keys.SPAWN_TABLES), SpawnTable.DIRECT_CODEC);
+   public static final Codec<Holder<SpawnTable>> CODEC = RegistryFileCodec.create(SpawnTableRegistries.Keys.SPAWN_TABLES, DIRECT_CODEC);
+   public static final Codec<Either<ResourceKey<SpawnTable>, SpawnTable>> GATHER_CODEC = Codec.either(ResourceKey.codec(SpawnTableRegistries.Keys.SPAWN_TABLES), SpawnTable.DIRECT_CODEC);
 
    //public static final LootDataType<SpawnTable> DATA_TYPE = new LootDataType<>(PARSER, SpawnTableProvider::getSpawnTableSerializer, "spawn_tables", createValidator());
 

@@ -1,8 +1,10 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.client.font.effect.EffectsStyle;
-import net.kapitencraft.kap_lib.client.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.kapitencraft.kap_lib.component.registry.custom.ComponentRegistries;
+import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
+import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -14,7 +16,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -81,14 +82,14 @@ public abstract class StyleMixin implements EffectsStyle {
         return effects;
     }
 
-    @Redirect(method = "toString", at = @At(value = "INVOKE", target = "Ljava/lang/StringBuilder;append(Ljava/lang/String;)Ljava/lang/StringBuilder;"))
-    public StringBuilder toString(StringBuilder instance, String str) {
-        instance.append(str);
-        if (this.effects.length > 0) instance.append("{special: ").append(Arrays.stream(this.effects).map(ExtraRegistries.GLYPH_EFFECTS::getKey).filter(Objects::nonNull).map(ResourceLocation::toString).collect(Collectors.joining(", "))).append("}");
+    @WrapOperation(method = "toString", at = @At(value = "INVOKE", target = "Ljava/lang/StringBuilder;append(Ljava/lang/String;)Ljava/lang/StringBuilder;"))
+    public StringBuilder toString(StringBuilder instance, String str, Operation<StringBuilder> original) {
+        original.call(instance, str);
+        if (this.effects.length > 0) instance.append("{special: ").append(Arrays.stream(this.effects).map(ComponentRegistries.GLYPH_EFFECTS::getKey).filter(Objects::nonNull).map(ResourceLocation::toString).collect(Collectors.joining(", "))).append("}");
         return instance;
     }
 
-    @Redirect(method = {
+    @WrapOperation(method = {
             "withBold",
             "withClickEvent",
             "withFont",
@@ -101,8 +102,8 @@ public abstract class StyleMixin implements EffectsStyle {
             "withUnderlined",
             "applyTo"
     }, at = @At(value = "NEW", target = "(Lnet/minecraft/network/chat/TextColor;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/network/chat/ClickEvent;Lnet/minecraft/network/chat/HoverEvent;Ljava/lang/String;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/network/chat/Style;"))
-    private Style makeNewStyle(TextColor pColor, Boolean pBold, Boolean pItalic, Boolean pUnderlined, Boolean pStrikethrough, Boolean pObfuscated, ClickEvent pClickEvent, HoverEvent pHoverEvent, String pInsertion, ResourceLocation pFont) {
-        Style style = new Style(pColor, pBold, pItalic, pUnderlined, pStrikethrough, pObfuscated, pClickEvent, pHoverEvent, pInsertion, pFont);
+    private Style makeNewStyle(TextColor color, Boolean bold, Boolean italic, Boolean underlined, Boolean strikethrough, Boolean obfuscated, ClickEvent clickEvent, HoverEvent hoverEvent, String insertion, ResourceLocation font, Operation<Style> original) {
+        Style style = original.call(color, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent, insertion, font);
         EffectsStyle.of(style).setEffects(this.effects);
         return style;
     }

@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.client.gui;
 
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.helpers.MiscHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -48,9 +47,7 @@ public abstract class BlockEntityMenu<BE extends BlockEntity> extends AbstractCo
     }
 
     /**
-     * @param playerInventory
-     * @param xOffset
-     * @param yOffSet
+     * adds the player's hotbar slots to the menu
      */
     private void addPlayerHotbar(Inventory playerInventory, int xOffset, int yOffSet) {
         for (int i = 0; i < 9; i++) {

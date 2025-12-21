@@ -1,11 +1,8 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import com.mojang.datafixers.util.Pair;
-import net.kapitencraft.kap_lib.helpers.TextHelper;
+import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
-
-import java.util.List;
 
 public class ExtraNumbersLangProvider extends LanguageProvider {
     public ExtraNumbersLangProvider(PackOutput output) {
@@ -22,8 +19,6 @@ public class ExtraNumbersLangProvider extends LanguageProvider {
             add("enchantment.level." + i, TextHelper.convertToLatin(i));
         }
     }
-
-
 
     @Override
     public String getName() {

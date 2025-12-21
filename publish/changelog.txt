@@ -21,8 +21,15 @@ reworked publish_config.json:
     changelog: optional (see entries)
         format: one of [html, md, plain]. format to use in the changelog. optional, defaults to html
         style: one of [list, none]. style to use. will either list the changelog by categories or will print it as plain, formatted text. optional, defaults to list
+    assets: optional (see entries) all entries are relative to the project folder
+        auth: the path to the authentification tokens. !threat with EXTREME caution! this information may allow others to upload files / create projects under your name. do not store anywhere synchronized. defaults to `run/AuthCache.txt`. add `run` to .gitignore to use
+        changelog: the path to the changelog file. defaults to 'publish/changelog.txt'
+        categories: the path to the categories file used in the `list` changelog style. default to 'publish/categories.json'
 
 fixed RotateElement behaving weird due to position issues
 fixed CircleSpawner not spawning correctly due to RAD <-> DEG mismatch
+fixed many mixins not using MixinExtras
+removed ExtraCodecs#UUID
 
-added Curseforge auto publish capabilities (hopefully :eyes:)
+moved ClientHelper#addReqContent to RequirementManager#addReqContent
+moved to Neoforge 1.21.216

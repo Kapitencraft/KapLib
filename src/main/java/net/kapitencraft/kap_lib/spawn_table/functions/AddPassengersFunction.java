@@ -3,8 +3,8 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.spawn_table.registry.SpawnTableRegistries;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
@@ -37,7 +37,7 @@ public class AddPassengersFunction extends SpawnEntityConditionalFunction {
     @Override
     protected Entity run(Entity pEntity, SpawnContext pContext) {
         pEntity.getIndirectPassengers();
-        SpawnTable table = passengers.map(k -> pContext.getResolver().get(ExtraRegistries.Keys.SPAWN_TABLES, k).map(Holder::value).orElse(SpawnTable.EMPTY), Function.identity());
+        SpawnTable table = passengers.map(k -> pContext.getResolver().get(SpawnTableRegistries.Keys.SPAWN_TABLES, k).map(Holder::value).orElse(SpawnTable.EMPTY), Function.identity());
         table.getRandomEntitiesRaw(pContext, entity -> {
             entity.startRiding(pEntity, true);
         });

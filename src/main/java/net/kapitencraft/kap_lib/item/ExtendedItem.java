@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * adds the viewing player to the hover text method.
- * use this instead of {@link net.minecraft.world.item.Item#appendHoverText(ItemStack, Level, List, TooltipFlag) Item#appendHoverText}
+ * use this instead of {@link net.minecraft.world.item.Item#appendHoverText(ItemStack, Item.TooltipContext, List, TooltipFlag)}  Item#appendHoverText}
  */
 public interface ExtendedItem {
 

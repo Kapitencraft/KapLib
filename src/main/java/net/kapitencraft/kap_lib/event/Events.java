@@ -1,23 +1,28 @@
 package net.kapitencraft.kap_lib.event;
 
-import net.kapitencraft.kap_lib.client.ExtraComponents;
+import net.kapitencraft.kap_lib.component.ExtraComponents;
+import net.kapitencraft.kap_lib.cooldown.CooldownAttributeAdder;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
-import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBlockBreakEffect;
-import net.kapitencraft.kap_lib.enchantments.abstracts.EnchantmentBowEffect;
-import net.kapitencraft.kap_lib.enchantments.extras.EnchantmentDescriptionManager;
-import net.kapitencraft.kap_lib.helpers.*;
-import net.kapitencraft.kap_lib.inventory.wearable.Wearables;
-import net.kapitencraft.kap_lib.io.network.S2C.SyncBonusesPacket;
-import net.kapitencraft.kap_lib.io.network.S2C.SyncRequirementsPacket;
-import net.kapitencraft.kap_lib.item.bonus.BonusManager;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
-import net.kapitencraft.kap_lib.registry.ExtraEnchantmentEffectComponents;
-import net.kapitencraft.kap_lib.registry.ModAttachmentTypes;
-import net.kapitencraft.kap_lib.registry.custom.particle_animation.TerminatorTriggers;
-import net.kapitencraft.kap_lib.requirements.RequirementManager;
-import net.kapitencraft.kap_lib.requirements.type.RegistryReqType;
-import net.kapitencraft.kap_lib.tags.ExtraTags;
-import net.kapitencraft.kap_lib.util.attribute.TimedModifiers;
+import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
+import net.kapitencraft.kap_lib.core.helpers.IOHelper;
+import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
+import net.kapitencraft.kap_lib.core.helpers.ParticleHelper;
+import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBlockBreakEffect;
+import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBowEffect;
+import net.kapitencraft.kap_lib.enchantment.extras.EnchantmentDescriptionManager;
+import net.kapitencraft.kap_lib.inventory_page.wearable.Wearables;
+import net.kapitencraft.kap_lib.bonus.network.S2C.SyncBonusesPacket;
+import net.kapitencraft.kap_lib.mana.ManaAttributes;
+import net.kapitencraft.kap_lib.requirement.network.S2C.SyncRequirementsPacket;
+import net.kapitencraft.kap_lib.bonus.BonusManager;
+import net.kapitencraft.kap_lib.mana.ManaAttachmentTypes;
+import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
+import net.kapitencraft.kap_lib.enchantment.ExtraEnchantmentEffectComponents;
+import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
+import net.kapitencraft.kap_lib.requirement.RequirementManager;
+import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
+import net.kapitencraft.kap_lib.core.tags.ExtraTags;
+import net.kapitencraft.kap_lib.attribute.TimedModifiers;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -25,11 +30,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
@@ -50,6 +51,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
@@ -94,6 +96,14 @@ public class Events {
     );
 
     @SubscribeEvent
+    public static void onEntityAttributeModification(EntityAttributeModificationEvent event) {
+        event.add(EntityType.PLAYER, ManaAttributes.MANA_COST);
+        event.add(EntityType.PLAYER, ManaAttributes.MANA_REGEN);
+        event.add(EntityType.PLAYER, ManaAttributes.MAX_MANA);
+        CooldownAttributeAdder.addAttributes(event);
+    }
+
+    @SubscribeEvent
     public static void addRequirementListener(AddReloadListenerEvent event) {
         event.addListener(RequirementManager.instance);
         event.addListener(BonusManager.updateInstance());
@@ -103,7 +113,6 @@ public class Events {
     public static void appendPlayerHead(PlayerEvent.NameFormat event) {
         event.setDisplayname(ExtraComponents.playerHead(event.getEntity().getUUID()).append(event.getDisplayname()));
     }
-
 
     @SubscribeEvent
     public static void playerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
@@ -117,7 +126,7 @@ public class Events {
 
     @SubscribeEvent
     public static void addReqDisplay(ItemTooltipEvent event) {
-        ClientHelper.addReqContent(event.getToolTip()::add, RegistryReqType.ITEM, event.getItemStack().getItem(), event.getEntity());
+        RequirementManager.addReqContent(event.getToolTip()::add, RegistryReqType.ITEM, event.getItemStack().getItem(), event.getEntity());
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -166,7 +175,7 @@ public class Events {
             if (tag.contains("Mana", Tag.TAG_DOUBLE)) {
                 mana = tag.getDouble("Mana");
             } else mana = 100;
-            player.setData(ModAttachmentTypes.MANA, mana);
+            player.setData(ManaAttachmentTypes.MANA, mana);
             if (tag.contains("Health", Tag.TAG_FLOAT)) {
                 player.setHealth(tag.getFloat("Health"));
             }
@@ -190,12 +199,11 @@ public class Events {
         Cooldowns.send(sP);
     }
 
-
     @SubscribeEvent
     public static void leaveLevelEvent(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player) {
             //save mana to reset back to when re-joining
-            player.getPersistentData().putDouble("Mana", player.getData(ModAttachmentTypes.MANA));
+            player.getPersistentData().putDouble("Mana", player.getData(ManaAttachmentTypes.MANA));
         }
         if (event.getEntity().level().isClientSide()) {
             TerminatorTriggers.ENTITY_REMOVED.get().trigger(event.getEntity().getId());
@@ -239,18 +247,14 @@ public class Events {
         } else if (tag.getInt(DOUBLE_JUMP_ID) > 0) {
             tag.putInt(DOUBLE_JUMP_ID, 0);
         }
-
+        TimedModifiers.get(player).tick(player);
+        Cooldowns.get(player).tick(player);
     }
-
 
     @SubscribeEvent
     public static void entityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof LivingEntity living) || living.isDeadOrDying()) return;
-        if (living instanceof Player) {
-            Cooldowns.get(living).tick(living);
-            TimedModifiers.get(living).tick(living);
-        }
         if (living instanceof Mob mob) {
             if (mob.getTarget() != null && mob.getTarget().isInvisible()) {
                 mob.setTarget(null);

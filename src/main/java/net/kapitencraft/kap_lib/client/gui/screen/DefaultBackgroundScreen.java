@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.client.gui.screen;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class DefaultBackgroundScreen extends Screen implements IBackgroundScreen {
-    private static final ResourceLocation BACKGROUND_TEXTURE = KapLibMod.res("textures/gui/background.png");
+    private static final ResourceLocation BACKGROUND_TEXTURE = LibConstants.res("textures/gui/background.png");
 
     /**
      * the position of the background texture
@@ -35,7 +35,7 @@ public class DefaultBackgroundScreen extends Screen implements IBackgroundScreen
 
     @Override
     public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos, this.topPos, 0, 0, 0, getImageWidth(),  getImageHeight(), getImageWidth(), getImageHeight());
+        guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos, this.topPos, 0, 0, 0, getImageWidth(), getImageHeight(), getImageWidth(), getImageHeight());
     }
 
     @Override

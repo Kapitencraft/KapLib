@@ -1,29 +1,28 @@
 package net.kapitencraft.kap_lib.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.client.ExtraComponents;
-import net.kapitencraft.kap_lib.client.particle.animation.AnimationUtils;
-import net.kapitencraft.kap_lib.client.particle.animation.core.ParticleAnimation;
-import net.kapitencraft.kap_lib.client.particle.animation.elements.RotateElement;
-import net.kapitencraft.kap_lib.client.particle.animation.finalizers.RemoveParticleFinalizer;
-import net.kapitencraft.kap_lib.client.particle.animation.finalizers.SetLifeTimeFinalizer;
-import net.kapitencraft.kap_lib.client.particle.animation.elements.KeepAliveElement;
-import net.kapitencraft.kap_lib.client.particle.animation.elements.MoveAwayElement;
-import net.kapitencraft.kap_lib.client.particle.animation.spawners.LineSpawner;
-import net.kapitencraft.kap_lib.client.particle.animation.spawners.RingSpawner;
-import net.kapitencraft.kap_lib.client.particle.animation.spawners.SingleSpawner;
-import net.kapitencraft.kap_lib.client.particle.animation.terminators.TimedTerminator;
-import net.kapitencraft.kap_lib.client.util.pos_target.PositionTarget;
-import net.kapitencraft.kap_lib.client.util.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.component.ExtraComponents;
+import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.core.client.util.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.particle.animation.AnimationUtils;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
+import net.kapitencraft.kap_lib.particle.animation.elements.RotateElement;
+import net.kapitencraft.kap_lib.particle.animation.finalizers.RemoveParticleFinalizer;
+import net.kapitencraft.kap_lib.particle.animation.finalizers.SetLifeTimeFinalizer;
+import net.kapitencraft.kap_lib.particle.animation.elements.KeepAliveElement;
+import net.kapitencraft.kap_lib.particle.animation.elements.MoveAwayElement;
+import net.kapitencraft.kap_lib.particle.animation.spawners.LineSpawner;
+import net.kapitencraft.kap_lib.particle.animation.spawners.RingSpawner;
+import net.kapitencraft.kap_lib.particle.animation.spawners.SingleSpawner;
+import net.kapitencraft.kap_lib.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.data_gen.TestSpawnTableProvider;
-import net.kapitencraft.kap_lib.helpers.CommandHelper;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
+import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
-import net.kapitencraft.kap_lib.util.attribute.TimedModifierUtils;
+import net.kapitencraft.kap_lib.attribute.TimedModifierUtils;
+import net.kapitencraft.kap_lib.spawn_table.registry.SpawnTableRegistries;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
@@ -33,7 +32,6 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
@@ -87,7 +85,7 @@ public class ServerTestCommand {
 
     private static int testTimedModifier(CommandContext<CommandSourceStack> context) {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
-            TimedModifierUtils.add(player, KapLibMod.res("test"), 400, Attributes.MAX_HEALTH, 4, AttributeModifier.Operation.ADD_VALUE);
+            TimedModifierUtils.add(player, LibConstants.res("test"), 400, Attributes.MAX_HEALTH, 4, AttributeModifier.Operation.ADD_VALUE);
             return 1;
         });
     }
@@ -147,7 +145,7 @@ public class ServerTestCommand {
                     .create(LootContextParamSets.COMMAND);
             SpawnContext spawnContext = new SpawnContext.Builder(params)
                     .create(null);
-            Optional<SpawnTable> table = player.registryAccess().lookupOrThrow(ExtraRegistries.Keys.SPAWN_TABLES).get(TestSpawnTableProvider.TEST).map(Holder::value);
+            Optional<SpawnTable> table = player.registryAccess().lookupOrThrow(SpawnTableRegistries.Keys.SPAWN_TABLES).get(TestSpawnTableProvider.TEST).map(Holder::value);
             if (table.isPresent()) {
                 table.get().getRandomEntities(spawnContext, entity ->
                         entity.setPos(commandSourceStack.getPosition())

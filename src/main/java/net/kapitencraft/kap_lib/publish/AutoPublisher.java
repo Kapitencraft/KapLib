@@ -6,17 +6,20 @@ import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
-import net.kapitencraft.kap_lib.helpers.GsonHelper;
+import net.kapitencraft.kap_lib.core.helpers.GsonHelper;
 import org.slf4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.net.http.HttpClient;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class AutoPublisher {
     static final Gson GSON = new GsonBuilder()
@@ -26,14 +29,15 @@ public class AutoPublisher {
             .registerTypeAdapter(ChangelogInfo.class, new ChangelogInfo.Deserializer())
             .registerTypeAdapter(DependencyInfo.class, new DependencyInfo.Deserializer())
             .registerTypeAdapter(DependencyType.class, new DependencyType.Deserializer())
+            .registerTypeAdapter(AssetsInfo.class, new AssetsInfo.Deserializer())
             .create();
     static final Logger LOGGER = LogUtils.getLogger();
 
     private static final File CONFIG = new File("build/resources/main/publish_config.json");
-    static final File AUTHENTICATION = new File("run/AuthCache.txt");
+    static final String AUTHENTICATION_PATH = "run/AuthCache.txt";
     private static final File DATA_CACHE = new File("run/PublishCache.txt");
-    static final File CHANGELOG = new File("publish/changelog.txt");
-    static final File CATEGORIES = new File("publish/categories.json");
+    static final String CHANGELOG_PATH = "publish/changelog.txt";
+    static final String CATEGORIES_PATH = "publish/categories.json";
 
     record Config(AuthorInfo authorInfo,
                   ModInfo modInfo,
@@ -44,7 +48,8 @@ public class AutoPublisher {
                   String[] modules,
                   boolean withSources,
                   DependencyInfo[] dependencies,
-                  ChangelogInfo changelogInfo
+                  ChangelogInfo changelogInfo,
+                  AssetsInfo assetsInfo
     ) {
         private static class Deserializer implements JsonDeserializer<Config> {
 
@@ -59,10 +64,11 @@ public class AutoPublisher {
                 String modrinthId = GsonHelper.getOptionalAsString(object, "modrinth_id");
                 String curseforgeId = GsonHelper.getOptionalAsString(object, "curseforge_id");
                 String[] modules = object.has("modules") ? jsonDeserializationContext.deserialize(object.get("modules"), String[].class) : new String[0];
-                boolean withSources = object.has("with_sources") && GsonHelper.getAsBoolean(object, "with_sources");
-                DependencyInfo[] infos = object.has("dependencies") ? jsonDeserializationContext.deserialize(object.get("dependencies"), DependencyInfo[].class) : new DependencyInfo[0];
-                ChangelogInfo changelogInfo = jsonDeserializationContext.deserialize(object.get("changelog"), ChangelogInfo.class);
-                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, modules, withSources, infos, changelogInfo);
+                boolean withSources = GsonHelper.getOptionalAsBoolean(object, "with_sources", false);
+                DependencyInfo[] infos = jsonDeserializationContext.deserialize(object.get("dependencies"), DependencyInfo[].class);
+                ChangelogInfo changelogInfo = object.has("changelog") ? jsonDeserializationContext.deserialize(object.get("changelog"), ChangelogInfo.class) : ChangelogInfo.DEFAULT;
+                AssetsInfo assetsInfo = object.has("assets") ? jsonDeserializationContext.deserialize(object.get("assets"), AssetsInfo.class) : AssetsInfo.DEFAULT;
+                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, modules, withSources, infos, changelogInfo, assetsInfo);
             }
         }
     }
@@ -100,20 +106,42 @@ public class AutoPublisher {
 
     record ChangelogInfo(String format, String style) {
 
+        public static final ChangelogInfo DEFAULT = new ChangelogInfo("html", "list");
+
+        private Changelog createLog(String categoriesLocation) {
+            return switch (style) {
+                case "list" -> {
+                    ListChangelog.gatherCategories(categoriesLocation);
+                    yield new ListChangelog();
+                }
+                case "none" -> new PlainChangelog();
+                default -> throw new IllegalArgumentException("unknown style: " + style);
+            };
+        }
+
+        private String compileLog(Changelog log) {
+            return switch (format) {
+                case "html" -> log.toHtml();
+                case "md" -> log.toMd();
+                case "plain" -> log.toPlainText();
+                default -> throw new IllegalArgumentException("unknown format: " + format);
+            };
+        }
+
         private static class Deserializer implements JsonDeserializer<ChangelogInfo> {
 
             @Override
             public ChangelogInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
                 if (!jsonElement.isJsonObject()) throw new JsonParseException("changelog config must be object");
                 JsonObject object = jsonElement.getAsJsonObject();
-                String format = GsonHelper.getAsString(object, "format");
-                String style = GsonHelper.getAsString(object, "style");
+                String format = GsonHelper.getOptionalAsString(object, "format", "html");
+                String style = GsonHelper.getOptionalAsString(object, "style", "list");
                 return new ChangelogInfo(format, style);
             }
         }
     }
 
-    record DependencyInfo(String modrinthId, String versionName, DependencyType type, int ordinal) {
+    record DependencyInfo(String modrinthId, String curseforgeId, String versionName, DependencyType type, int ordinal) {
 
         JsonObject toModrinthDependency(String gameVersion) throws IOException {
             JsonObject object = new JsonObject();
@@ -123,29 +151,47 @@ public class AutoPublisher {
             return object;
         }
 
+        public JsonObject toCurseforgeDependency() {
+            JsonObject object = new JsonObject();
+            object.addProperty("slug", curseforgeId);
+            object.addProperty("type", this.type.curseforgeId());
+            return object;
+        }
+
         private static class Deserializer implements JsonDeserializer<DependencyInfo> {
 
             @Override
             public DependencyInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
                 if (!jsonElement.isJsonObject()) throw new JsonParseException("dependency info must be object");
                 JsonObject object = jsonElement.getAsJsonObject();
-                String modrinthId = GsonHelper.getAsString(object, "modrinth_id");
+                String modrinthId = GsonHelper.getOptionalAsString(object, "modrinth_id");
+                String curseforgeId = GsonHelper.getOptionalAsString(object, "curseforge_id");
                 String versionName = GsonHelper.getAsString(object, "version_name");
                 DependencyType depType = jsonDeserializationContext.deserialize(object.get("type"), DependencyType.class);
                 int ordinal = GsonHelper.getAsInt(object, "ordinal");
-                return new DependencyInfo(modrinthId, versionName, depType, ordinal);
+                return new DependencyInfo(modrinthId, versionName, curseforgeId, depType, ordinal);
             }
         }
     }
 
     enum DependencyType {
-        REQUIRED,
-        OPTIONAL,
-        INCOMPATIBLE,
-        EMBEDDED;
+        REQUIRED("requiredDependency"),
+        OPTIONAL("optionalDependency"),
+        INCOMPATIBLE("incompatible"),
+        EMBEDDED("embeddedLibrary");
+
+        private final String curseforgeId;
+
+        DependencyType(String curseforgeId) {
+            this.curseforgeId = curseforgeId;
+        }
 
         public String modrinthId() {
             return this.name().toLowerCase();
+        }
+
+        public String curseforgeId() {
+            return curseforgeId;
         }
 
         private static class Deserializer implements JsonDeserializer<DependencyType> {
@@ -157,6 +203,23 @@ public class AutoPublisher {
                 DependencyType dependencyType = DependencyType.valueOf(json.getAsJsonPrimitive().getAsString().toUpperCase());
                 if (dependencyType == null) throw new JsonParseException("unknown dependency type: " + json.getAsJsonPrimitive().getAsString());
                 return dependencyType;
+            }
+        }
+    }
+    
+    record AssetsInfo(String authPath, String changelogPath, String categoriesPath) {
+        public static final AssetsInfo DEFAULT = new AssetsInfo(AUTHENTICATION_PATH, CHANGELOG_PATH, CATEGORIES_PATH);
+
+        private static class Deserializer implements JsonDeserializer<AssetsInfo> {
+
+            @Override
+            public AssetsInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                if (!jsonElement.isJsonObject()) throw new JsonParseException("mod info must be object");
+                JsonObject object = jsonElement.getAsJsonObject();
+                String authPath = GsonHelper.getOptionalAsString(object, "auth", AUTHENTICATION_PATH);
+                String changelogPath = GsonHelper.getOptionalAsString(object, "changelog", CHANGELOG_PATH);
+                String categoriesPath = GsonHelper.getOptionalAsString(object, "categories", CATEGORIES_PATH);
+                return new AssetsInfo(authPath, changelogPath, categoriesPath);
             }
         }
     }
@@ -175,8 +238,15 @@ public class AutoPublisher {
             return;
         }
 
+        LOGGER.info("Compiling Changelog...");
+        try {
+            createChangelog(config.changelogInfo == null ? ChangelogInfo.DEFAULT : config.changelogInfo, config.assetsInfo.changelogPath, config.assetsInfo.categoriesPath);
+        } catch (FileNotFoundException e) {
+            LOGGER.error("changelog not found: {}", e.getMessage());
+            return;
+        }
+
         String modId = config.modInfo.id;
-        if (true) return;
         String modName = config.modInfo.name;
         String modVersion = config.modInfo.version;
         String mcVersion = config.mcVersion;
@@ -192,9 +262,16 @@ public class AutoPublisher {
                     return;
                 }
             }
-            if ((config.curseforgeId == null || CurseforgePublish.publish(config)) && (config.modrinthId == null || ModrinthPublish.publish(config))) {
-                saveDataCache(modVersion);
-                clearChangelog();
+
+            try (HttpClient client = HttpClient.newBuilder()
+                    .followRedirects(HttpClient.Redirect.ALWAYS)
+                    .build()) {
+                CurseforgePublish.publish(config, client);
+                if (true) return;
+                if ((config.curseforgeId == null || CurseforgePublish.publish(config, client)) && (config.modrinthId == null || ModrinthPublish.publish(config))) {
+                    saveDataCache(modVersion);
+                    clearChangelog();
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Error accessing API:");
@@ -209,7 +286,7 @@ public class AutoPublisher {
     }
 
     private static void clearChangelog() throws IOException {
-        FileWriter writer = new FileWriter(CHANGELOG);
+        FileWriter writer = new FileWriter(CHANGELOG_PATH);
         writer.close();
     }
 
@@ -227,13 +304,14 @@ public class AutoPublisher {
 
     private static String changelog;
 
-    static String createChangelog() throws FileNotFoundException {
-        if (changelog == null) {
-            BufferedReader reader = new BufferedReader(new FileReader(CHANGELOG));
-            Changelog log = new Changelog();
-            reader.lines().forEach(log::parse);
-            changelog = log.toHtml();
-        }
+    static void createChangelog(ChangelogInfo info, String changelogLocation, String categoriesLocation) throws FileNotFoundException {
+        BufferedReader reader = new BufferedReader(new FileReader(changelogLocation));
+        Changelog log = info.createLog(categoriesLocation);
+        log.parse(reader);
+        changelog = info.compileLog(log);
+    }
+
+    static String getChangelog() {
         return changelog;
     }
 
@@ -246,7 +324,7 @@ public class AutoPublisher {
     static String getAuth(boolean modrinth) {
         if (authString == null) {
             try {
-                authString = Files.readString(AUTHENTICATION.toPath()).split("\n");
+                authString = Files.readString(Path.of(AUTHENTICATION_PATH)).split("\n");
             } catch (IOException e) {
                 throw new IllegalStateException("could not load authentication", e);
             }
@@ -254,11 +332,21 @@ public class AutoPublisher {
         return authString[modrinth ? 0 : 1];
     }
 
-    //TODO add plain text and markdown support
-    private static class Changelog {
-        private static final List<Category> categories = gatherCategories();
+    private interface Changelog {
 
-        private static List<Category> gatherCategories() {
+        String toHtml();
+
+        String toMd();
+
+        String toPlainText();
+
+        void parse(BufferedReader reader);
+    }
+
+    private static class ListChangelog implements Changelog {
+        private static List<Category> categories;
+
+        private static void gatherCategories(String categoriesPath) {
             List<Category> categories = new ArrayList<>();
             categories.add(Category.FIXED);
             categories.add(Category.ADDED);
@@ -266,46 +354,28 @@ public class AutoPublisher {
             categories.add(Category.MOVED);
             categories.add(Category.KNOWN_ERROR);
 
-            loadCategoryFile(categories);
+            loadCategoryFile(categories, categoriesPath);
 
-            return ImmutableList.copyOf(categories);
+            ListChangelog.categories = ImmutableList.copyOf(categories);
         }
 
         private static final Gson GSON = new GsonBuilder().registerTypeAdapter(Category.class, new Category.Deserializer()).create();
 
-        private static void loadCategoryFile(List<Category> categories) {
+        private static void loadCategoryFile(List<Category> categories, String categoriesPath) {
             try {
-                if (!CATEGORIES.exists() || !CATEGORIES.isFile()) return;
-                Category[] categories1 = GSON.fromJson(new JsonReader(new FileReader(CATEGORIES)), Category[].class);
+                File file = new File(categoriesPath);
+                if (!file.exists() || !file.isFile()) return;
+                Category[] categories1 = GSON.fromJson(new JsonReader(new FileReader(file)), Category[].class);
                 categories.addAll(Arrays.asList(categories1));
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
 
-
         private final Multimap<Category, String> content;
 
-        private Changelog() {
+        private ListChangelog() {
             this.content = HashMultimap.create();
-        }
-
-        public void add(Category category, String name) {
-            this.content.put(category, name);
-        }
-
-        public void parse(String s) {
-            if (s.isEmpty()) return;
-            a: {
-                for (Category category : categories) {
-                    Matcher matcher = category.pattern.matcher(s);
-                    if (matcher.find()) {
-                        this.add(category, s.substring(matcher.end()));
-                        break a;
-                    }
-                }
-                add(Category.UNCATEGORIZED, s);
-            }
         }
 
         public String toHtml() {
@@ -316,6 +386,47 @@ public class AutoPublisher {
             return builder.toString();
         }
 
+        public String toMd() {
+            StringBuilder builder = new StringBuilder();
+            for (Category category : this.content.keySet()) {
+                addElementsMd(builder, this.content.get(category), category.title);
+            }
+            return builder.toString();
+        }
+
+        @Override
+        public String toPlainText() {
+            StringBuilder builder = new StringBuilder();
+            for (Category category : this.content.keySet()) {
+                addElementsPlainText(builder, this.content.get(category), category.title);
+            }
+            return builder.toString();
+        }
+
+        public void parse(BufferedReader reader) {
+            reader.lines().forEach(s -> {
+                if (s.isEmpty()) return;
+                a: {
+                    for (Category category : categories) {
+                        Matcher matcher = category.pattern.matcher(s);
+                        if (matcher.find()) {
+                            this.add(category, s.substring(matcher.end()));
+                            break a;
+                        }
+                    }
+                    add(Category.UNCATEGORIZED, s);
+                }
+            });
+        }
+
+        private static void addElementsPlainText(StringBuilder builder, Collection<String> data, String title) {
+            if (data.isEmpty()) return; //skip not used headers
+            builder.append(title);
+            for (String addition : data) {
+                builder.append(addition);
+            }
+        }
+
         private static void addElementsHtml(StringBuilder dataSink, Collection<String> data, String name) {
             if (data.isEmpty()) return; //skip not used headers
             dataSink.append(String.format("<h2>%s</h2><ol>\n", name));
@@ -323,6 +434,20 @@ public class AutoPublisher {
                 dataSink.append(String.format("\t<li>%s</li>\n", addition));
             }
             dataSink.append("</ol>\n");
+        }
+
+        private static void addElementsMd(StringBuilder dataSink, Collection<String> data, String name) {
+            if (data.isEmpty()) return; //skip not used headers
+            dataSink.append(String.format("# %s\n", name));
+            int i = 1;
+            for (String addition : data) {
+                dataSink.append(String.format("%s. %s\n", i, addition));
+                i++;
+            }
+        }
+
+        public void add(Category category, String name) {
+            this.content.put(category, name);
         }
 
         private record Category(Pattern pattern, String title) {
@@ -349,9 +474,69 @@ public class AutoPublisher {
         }
     }
 
+    private static final class PlainChangelog implements Changelog {
+        private String content;
+
+        @Override
+        public String toHtml() {
+            return content;
+        }
+
+        @Override
+        public String toMd() {
+            return content;
+        }
+
+        @Override
+        public String toPlainText() {
+            return content;
+        }
+
+        @Override
+        public void parse(BufferedReader reader) {
+            content = reader.lines().collect(Collectors.joining("\n"));
+        }
+
+        public String content() {
+            return content;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (PlainChangelog) obj;
+            return Objects.equals(this.content, that.content);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(content);
+        }
+
+        @Override
+        public String toString() {
+            return "PlainChangelog[" +
+                    "content=" + content + ']';
+        }
+
+    }
+
     private static final List<String> DEPENDENCY_TYPES = List.of("required", "optional", "incompatible", "embedded");
 
     static boolean verifyDependencyType(Object type) {
         return type instanceof String s && DEPENDENCY_TYPES.contains(s);
+    }
+
+    static byte[] concat(byte[]... arrays) {
+        int length = 0;
+        for (byte[] arr : arrays) length += arr.length;
+        byte[] result = new byte[length];
+        int pos = 0;
+        for (byte[] arr : arrays) {
+            System.arraycopy(arr, 0, result, pos, arr.length);
+            pos += arr.length;
+        }
+        return result;
     }
 }

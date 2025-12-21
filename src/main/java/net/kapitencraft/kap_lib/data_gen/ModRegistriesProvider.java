@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
@@ -15,6 +15,6 @@ public class ModRegistriesProvider extends DatapackBuiltinEntriesProvider {
             .add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap);
 
     public ModRegistriesProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries, BUILDER, Set.of(KapLibMod.MOD_ID));
+        super(output, registries, BUILDER, Set.of(LibConstants.MOD_ID));
     }
 }

@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.entity.EntityType;
@@ -26,7 +25,7 @@ public class ClientboundAddEntityPacketMixin {
 
     @Unique
     private short createEncodedY(float in) {
-        return (short) (in  / 360 * 65535);
+        return (short) (in / 360 * 65535);
     }
 
     @Unique

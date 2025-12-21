@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
-import net.kapitencraft.kap_lib.client.glyph.enchantment_applicable.EnchantmentApplicableAllocator;
-import net.kapitencraft.kap_lib.client.glyph.player_head.PlayerHeadAllocator;
+import net.kapitencraft.kap_lib.enchantment.client.enchantment_applicable.EnchantmentApplicableAllocator;
+import net.kapitencraft.kap_lib.component.player_head.PlayerHeadAllocator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.font.FontSet;
@@ -21,8 +21,6 @@ import java.util.Map;
 public class FontManagerMixin {
 
     @Shadow @Final private Map<ResourceLocation, FontSet> fontSets;
-
-    @Shadow @Final private TextureManager textureManager;
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void addPlayerHeadFontSet(TextureManager pTextureManager, CallbackInfo ci) {

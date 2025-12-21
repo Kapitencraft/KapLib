@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import org.jetbrains.annotations.NotNull;
@@ -12,10 +14,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(DefaultTooltipPositioner.class)
 public abstract class ClientTooltipPositionerMixin implements ClientTooltipPositioner {
 
-    @Redirect(method = "positionTooltip(IIIIII)Lorg/joml/Vector2ic;", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/tooltip/DefaultTooltipPositioner;positionTooltip(IILorg/joml/Vector2i;II)V"))
-    public void clearYSnap(DefaultTooltipPositioner instance, int pScreenWidth, int pScreenHeight, Vector2i pTooltipPos, int pTooltipWidth, int pTooltipHeight) {
-        if (pTooltipPos.x + pTooltipWidth > pScreenWidth) {
-            pTooltipPos.x = Math.max(pTooltipPos.x - 24 - pTooltipWidth, 4);
+    @WrapOperation(method = "positionTooltip(IIIIII)Lorg/joml/Vector2ic;", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/tooltip/DefaultTooltipPositioner;positionTooltip(IILorg/joml/Vector2i;II)V"))
+    public void clearYSnap(DefaultTooltipPositioner instance, int screenWidth, int screenHeight, Vector2i tooltipPos, int tooltipWidth, int tooltipHeight, Operation<Void> original) {
+        if (tooltipPos.x + tooltipWidth > screenWidth) {
+            tooltipPos.x = Math.max(tooltipPos.x - 24 - tooltipWidth, 4);
         }
     }
 }

@@ -1,0 +1,8 @@
+{
+  "asMod": true,
+  "extensions": false,
+  "at": false,
+  "assets": [
+    "kap_lib/shaders/**"
+  ]
+}

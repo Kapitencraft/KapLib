@@ -1,8 +1,10 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
-import net.kapitencraft.kap_lib.client.shaders.ModRenderTypes;
-import net.kapitencraft.kap_lib.mixin.duck.IChromatic;
+import net.kapitencraft.kap_lib.shader.ModRenderTypes;
+import net.kapitencraft.kap_lib.shader.mixin.duck.IChromatic;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.FontTexture;
 import net.minecraft.client.gui.font.GlyphRenderTypes;
@@ -11,7 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -23,9 +24,9 @@ public class FontSetMixin {
         IChromatic.of(texture).setChromaType(ModRenderTypes.chromatic(location));
     }
 
-    @Redirect(method = "stitch", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/FontTexture;add(Lcom/mojang/blaze3d/font/SheetGlyphInfo;)Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;"))
-    private BakedGlyph addChromaToGlyph(FontTexture instance, SheetGlyphInfo pGlyphInfo) {
-        BakedGlyph glyph = instance.add(pGlyphInfo);
+    @WrapOperation(method = "stitch", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/FontTexture;add(Lcom/mojang/blaze3d/font/SheetGlyphInfo;)Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;"))
+    private BakedGlyph addChromaToGlyph(FontTexture instance, SheetGlyphInfo glyphInfo, Operation<BakedGlyph> original) {
+        BakedGlyph glyph = original.call(instance, glyphInfo);
         if (glyph != null) IChromatic.of(glyph).setChromaType(IChromatic.of(instance).getChromaType());
         return glyph;
     }

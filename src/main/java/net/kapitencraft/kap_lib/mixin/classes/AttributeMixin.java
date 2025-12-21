@@ -1,12 +1,11 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import net.kapitencraft.kap_lib.mixin.duck.MixinSelfProvider;
-import net.kapitencraft.kap_lib.util.attribute.BaseAttributeLocations;
+import net.kapitencraft.kap_lib.core.mixin.duck.MixinSelfProvider;
+import net.kapitencraft.kap_lib.attribute.BaseAttributeLocations;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.common.extensions.IAttributeExtension;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 

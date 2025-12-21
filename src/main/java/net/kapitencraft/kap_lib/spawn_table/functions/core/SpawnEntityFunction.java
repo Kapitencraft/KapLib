@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.spawn_table.functions.core;
 
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.minecraft.world.entity.Entity;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.minecraft.world.level.storage.loot.LootContextUser;

@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.mixin.classes.client;
 import com.google.common.collect.ImmutableList;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.kapitencraft.kap_lib.client.shaders.BlockRenderTypes;
+import net.kapitencraft.kap_lib.shader.BlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

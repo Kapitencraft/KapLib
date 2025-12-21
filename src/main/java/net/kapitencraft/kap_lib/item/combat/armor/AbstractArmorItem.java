@@ -1,21 +1,15 @@
 package net.kapitencraft.kap_lib.item.combat.armor;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.client.armor.provider.ArmorModelProvider;
+import net.kapitencraft.kap_lib.item.combat.armor.client.provider.ArmorModelProvider;
 import net.kapitencraft.kap_lib.item.creative_tab.TabGroup;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -24,7 +18,7 @@ import java.util.function.Function;
 
 /**
  * basic armor item.
- * <br>for custom model implementation (override {@link #withCustomModel()} and {@link #createModelProvider()} to enable
+ * <br>for custom model implementation (override {@link #createModelProvider()} to enable
  */
 public abstract class AbstractArmorItem extends ArmorItem {
 
@@ -54,9 +48,6 @@ public abstract class AbstractArmorItem extends ArmorItem {
     }
 
     //region display / model
-
-    protected boolean withCustomModel() { return false; }
-
     /**
      * @return the model provider to use
      * no need to cache, this implementation does that already

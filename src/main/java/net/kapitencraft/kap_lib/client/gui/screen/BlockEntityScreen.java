@@ -1,8 +1,8 @@
 package net.kapitencraft.kap_lib.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.kapitencraft.kap_lib.client.gui.screen.tooltip.HoverTooltip;
 import net.kapitencraft.kap_lib.client.gui.BlockEntityMenu;
+import net.kapitencraft.kap_lib.client.gui.screen.tooltip.HoverTooltip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -19,10 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class BlockEntityScreen<BE extends BlockEntity, M extends BlockEntityMenu<BE>> extends AbstractContainerScreen<M> implements IModScreen {
+public abstract class BlockEntityScreen<BE extends BlockEntity, M extends BlockEntityMenu<BE>> extends AbstractContainerScreen<M> implements ExtendedScreen {
     public BlockEntityScreen(M menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
     }
+
     private final List<HoverTooltip> hoverTooltips = new ArrayList<>();
 
     @Override
@@ -35,11 +36,10 @@ public abstract class BlockEntityScreen<BE extends BlockEntity, M extends BlockE
         this.addRenderableWidget(tooltip.createButton(location, leftPos, topPos, onPress));
     }
 
-
     @Override
     protected void init() {
         super.init();
-        this.hoverTooltips.clear(); //ensure emptying them to reload them from the init calls from above
+        this.hoverTooltips.clear(); //ensure emptying to reload them from the init calls from above
     }
 
     @Override

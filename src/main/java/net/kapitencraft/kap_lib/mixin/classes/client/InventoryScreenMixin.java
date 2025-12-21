@@ -1,14 +1,14 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.kapitencraft.kap_lib.inventory.page.InventoryPageType;
-import net.kapitencraft.kap_lib.inventory.wrapper.RecipeBookButtonWrapper;
-import net.kapitencraft.kap_lib.inventory.page.InventoryPage;
-import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderers;
-import net.kapitencraft.kap_lib.inventory.page_renderer.InventoryPageRenderer;
-import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageIO;
-import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageReader;
-import net.kapitencraft.kap_lib.mixin.duck.inventory.InventoryPageWriter;
+import net.kapitencraft.kap_lib.inventory_page.wrapper.RecipeBookButtonWrapper;
+import net.kapitencraft.kap_lib.inventory_page.page.InventoryPage;
+import net.kapitencraft.kap_lib.inventory_page.page_renderer.InventoryPageRenderers;
+import net.kapitencraft.kap_lib.inventory_page.page_renderer.InventoryPageRenderer;
+import net.kapitencraft.kap_lib.inventory_page.mixin.duck.inventory.InventoryPageIO;
+import net.kapitencraft.kap_lib.inventory_page.mixin.duck.inventory.InventoryPageReader;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -27,7 +27,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -36,6 +35,8 @@ import java.util.Objects;
 
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends AbstractContainerScreen<InventoryMenu> {
+
+    //region tabs
     @Unique
     private static final ResourceLocation[] UNSELECTED_TOP_TABS = new ResourceLocation[]{
             ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_unselected_1"),
@@ -56,6 +57,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
             ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_6"),
             ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_top_selected_7")
     };
+    //endregion
 
     @Shadow protected abstract boolean isHovering(int pX, int pY, int pWidth, int pHeight, double pMouseX, double pMouseY);
 
@@ -91,8 +93,8 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         this.renderer = renderers[reader.getPageIndex()];
     }
 
-    @Redirect(method = "init", at = @At(value = "NEW", target = "(IIIILnet/minecraft/client/gui/components/WidgetSprites;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/ImageButton;"))
-    private ImageButton wrapRecipeBookButton(int x, int y, int width, int height, WidgetSprites sprites, Button.OnPress onPress) {
+    @WrapOperation(method = "init", at = @At(value = "NEW", target = "(IIIILnet/minecraft/client/gui/components/WidgetSprites;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/ImageButton;"))
+    private ImageButton wrapRecipeBookButton(int x, int y, int width, int height, WidgetSprites sprites, Button.OnPress onPress, Operation<ImageButton> original) {
         return new RecipeBookButtonWrapper(x, y, width, height, sprites, onPress, (InventoryPageReader) this.menu);
     }
 

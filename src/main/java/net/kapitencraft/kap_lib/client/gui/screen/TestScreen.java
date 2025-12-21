@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.client.gui.screen;
 
-import net.kapitencraft.kap_lib.client.widget.text.MultiLineTextBox;
+import net.kapitencraft.kap_lib.core.client.widget.text.MultiLineTextBox;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;

@@ -1,3 +1,5 @@
+//file:noinspection GroovyAssignabilityCheck
+import groovy.json.JsonSlurper
 
 plugins {
     id 'idea'
@@ -147,22 +149,28 @@ tasks.register('gitUpdate', Task) {
     }
 }
 
-// This block of code expands all declared replace properties in the specified resource targets.
-// A missing property will result in an error. Properties are expanded using ${} Groovy notation.
-// When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
-// See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
+
+var metaProperties = [
+        minecraft_version      : mc_version,
+        minecraft_version_range: minecraft_version_range,
+        neo_version            : neo_version,
+        neo_version_range      : neo_version_range,
+        loader_version_range   : loader_version_range,
+        mod_id                 : mod_id, mod_name: mod_name,
+        mod_license            : mod_license, mod_version: mod_version,
+        mod_authors            : mod_authors, mod_description: mod_description,
+]
+
 tasks.named('processResources', ProcessResources).configure {
-    var metaProperties = [
-            minecraft_version   : mc_version, minecraft_version_range: minecraft_version_range,
-            neo_version         : neo_version, neo_version_range: neo_version_range,
-            loader_version_range: loader_version_range,
-            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors         : mod_authors, mod_description: mod_description,
-    ]
     inputs.properties metaProperties
 
-    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
-        expand metaProperties + [project: project]
+    filesMatching(['pack.mcmeta']) {
+        expand metaProperties
+    }
+
+    filesMatching(['ee-at-neoforge.mods.toml']) {
+        rename { 'neoforge.mods.toml' }
+        expand metaProperties
     }
 
     var publishProperties = [
@@ -177,86 +185,220 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
-//TODO complete modules with different explicit mods but still storing data to KapLib mod id
+//TODO get the rest of the modules working
+//region modules
 ext.moduleFilters = [
-        util: [
-                includes: [
-                        'net/kapitencraft/kap_lib/helpers/CollectionHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/CollectorHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/CommandHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/ExtraStreamCodecs.class',
-                        'net/kapitencraft/kap_lib/helpers/InventoryHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/IOHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/LootTableHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/MathHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/ParticleHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/RNGHelper.class',
-                        'net/kapitencraft/kap_lib/helpers/TextHelper.class',
-                        'net/kapitencraft/kap_lib/util/Reference.class',
-                        'net/kapitencraft/kap_lib/util/particle_help/**',
-                        'net/kapitencraft/kap_lib/util/range/simple/**',
-                        'net/kapitencraft/kap_lib/util/string_converter/**',
-                        'net/kapitencraft/kap_lib/util/Vec2i.class',
-                        'net/kapitencraft/kap_lib/util/Color.class',
-                        //'net/kapitencraft/kap_lib/util/ExtraRarities.class',
-                        'net/kapitencraft/kap_lib/util/DoubleModifierCollector.class',
-                        'net/kapitencraft/kap_lib/util/IntegerModifierCollector.class',
-                        'net/kapitencraft/kap_lib/collection/**',
-                        'net/kapitencraft/kap_lib/io/serialization/**',
-                        'net/kapitencraft/kap_lib/stream/**',
-                ]
-        ],
-        publish: [
-                includes: [
-                        'net/kapitencraft/kap_lib/publish/**',
-                        'net/kapitencraft/kap_lib/io/network/ModrinthUtils.class'
-                ]
-        ],
-        enchantments: [
-                includes: [
-                        'net/kapitencraft/kap_lib/enchantments/abstracts/**',
-                        'net/kapitencraft/kap_lib/enchantments/ExtraEnchantmentCategories.class'
-                ]//NOTE abstracts require full jar at runtime
-        ],
-        items: [
-                includes: [
-                        'net/kapitencraft/kap_lib/client/armor/**',
-                        'net/kapitencraft/kap_lib/item/combat/**',
-                        'net/kapitencraft/kap_lib/item/creative_tab/**',
-                        'net/kapitencraft/kap_lib/item/tools/**',
-                        'net/kapitencraft/kap_lib/item/Compacting.class',
-                        'net/kapitencraft/kap_lib/item/ExtendedItem.class'
-                ]//NOTE totem, sword, extended item and tab groups require full jar at runtime
-        ],
-        datagen: [
-                includes: [
-                        'net/kapitencraft/kap_lib/data_gen/abst/EnglishLanguageProvider',
-                        'net/kapitencraft/kap_lib/data_gen/abst/TextureProvider'
+        core: [
+                asMod: true,
+                extensions: false,
+                at: true,
+                assets: [
+                        '*/lang/en_us.json',
+                        'kap_lib/textures/gui/background.png',
+                        'kap_lib/textures/gui/red_cross.png',
+                        'kap_lib/textures/gui/slot_background.png'
                 ]
         ]
 ]
 
-moduleFilters.each { moduleName, filters ->
-    tasks.register("${moduleName}Jar", Jar) {
-        from sourceSets.main.output
-        filters.includes.each { include it }
+def modulesDir = file("modules")
+modulesDir.eachFileMatch(~/.*\.json/) { file ->
+    def moduleName = file.name.replace(".json", "")
+    def config = new JsonSlurper().parse(file)
 
+    ext.moduleFilters[moduleName] = config
+}
 
-        archiveClassifier = moduleName
+static def mergeClassName(String moduleName, String postfix) {
+    return moduleName + postfix + '.class'
+}
+
+static def convertModuleName(String moduleName) {
+    String strings = ""
+    for (final def mE in moduleName.split("_")) {
+        strings += mE.capitalize()
+        strings += ' '
+    }
+    return strings
+}
+
+static def convertModuleId(String moduleId) {
+    String strings = ""
+    for (final def mE in moduleId.split("_")) {
+        if (strings.isEmpty())
+            strings += mE
+        else
+            strings += mE.capitalize()
+    }
+    return strings
+}
+
+moduleFilters.each { String moduleId, moduleData ->
+    String moduleName = convertModuleName(moduleId)
+    var tomlProperties = [
+            minecraft_version      : mc_version,
+            minecraft_version_range: minecraft_version_range,
+            loader_version_range   : loader_version_range,
+            neo_version            : neo_version,
+            mod_license            : mod_license,
+            mod_id                 : "${mod_id}_${moduleId}",
+            mod_version            : mod_version,
+            mod_name               : "${mod_name} ${moduleName}Module",
+            mod_authors            : mod_authors,
+            mod_description        : "${moduleName}Module of KapLib",
+            neo_version_range      : neo_version_range
+    ]
+
+    String moduleTaskId = convertModuleId(moduleId)
+
+    tasks.register("${moduleTaskId}Jar", Jar) {
+        from(sourceSets.main.output) {
+
+            include "net/kapitencraft/kap_lib/${moduleId}/**" //include anything inside that modules folder
+
+            if (moduleData.asMod) {
+                //include mod main class file
+                String mainClassFile = "net/kapitencraft/kap_lib/${moduleId}/${ mergeClassName(moduleName.replace(" ", ""), 'Module') }"
+                //if (!Project.file(mainClassFile).exists())
+                //    throw new NullPointerException("missing main class in module ${moduleId}")
+                include mainClassFile
+
+                //include AT if enabled
+                if (moduleData.at) {
+                    String AT = "META-INF/accesstransformer-${moduleId}.cfg"
+                    include AT
+                    rename "accesstransformer-${moduleId}.cfg", 'accesstransformer.cfg'
+                }
+
+                for (final def s in moduleData.assets) {
+                    include "assets/${s}" //include assets
+                }
+
+                for (final def s in moduleData.data) {
+                    include "data/${s}" //include data
+                }
+
+                include "${mod_id}_${moduleId}.mixins.json" //include mixin config
+            }
+
+            include 'pack.mcmeta'
+
+            // Embed core as JiJ
+            if (moduleId != 'core') {
+                from(tasks.coreJar.archiveFile) {
+                    include '*.jar'
+                    into 'META-INF/jarjar'
+                }
+
+                include 'META-INF/jarjar/metadata.json'
+                filesMatching('META-INF/jarjar/metadata.json') {
+                    expand metaProperties
+                }
+            }
+        }
+
+        //include files that are mod related
+        if (moduleData.asMod) {
+            //region mods.toml
+            //select correct mods.toml
+            from(sourceSets.main.output) {
+                exclude '^META-INF/*'
+                if (moduleData.extensions) {
+                    if (moduleData.at) {
+                        include 'META-INF/ee-at-neoforge.mods.toml'
+                    } else {
+                        include 'META-INF/ee-neoforge.mods.toml'
+                    }
+                } else {
+                    if (moduleData.at) {
+                        include 'META-INF/dev-neoforge.mods.toml'
+                    } else {
+                        include 'META-INF/nat-neoforge.mods.toml'
+                    }
+                }
+
+                rename { 'neoforge.mods.toml' }
+                expand tomlProperties
+            }
+            //endregion
+        }
+
+        archiveClassifier = moduleId
     }
 
-    tasks.register("${moduleName}SourcesJar", Jar) {
+    tasks.register("${moduleTaskId}SourcesJar", Jar) {
         from sourceSets.main.allSource
-        filters.includes.each { include it }
 
-        archiveClassifier = "${moduleName}-sources"
+        include 'net/kapitencraft/kap_lib/Modules.class'
+        include 'net/kapitencraft/kap_lib/${moduleId}/**' //include anything inside that modules folder
+
+        if (moduleData.asMod) {
+
+            //include mod main class file
+            include 'net/kapitencraft/kap_lib/${moduleId}/' + mergeClassName(moduleName.replace(" ", ""), 'Module')
+
+            if (moduleData.extensions) {
+                include 'META-INF/neoforge-enum_extensions.mods.toml'
+                rename { String s ->
+                    if (s == 'neoforge-enum_extensions.mods.toml')
+                        return 'neoforge.mods.toml'
+                    return null
+                }
+
+            } else {
+                include 'META-INF/neoforge.mods.toml'
+            }
+            filesMatching('META-INF/neoforge.mods.toml') {
+                expand tomlProperties
+            }
+
+            String AT = 'META-INF/accesstransformer-${moduleId}.cfg'
+            include AT
+            rename { String s ->
+                if (s == 'accesstransformer-${moduleId}.cfg')
+                    return 'accesstransformer.cfg'
+                return null
+            }
+
+            include '${mod_id}_${moduleId}.mixins.json'
+        }
+
+        include 'pack.mcmeta'
+
+        archiveClassifier = "${moduleId}-sources"
     }
 }
 
 tasks.named('build').configure {
-    dependsOn {moduleFilters.keySet().stream().map { "${it}Jar"}.toList()}
-    dependsOn {moduleFilters.keySet().stream().map { "${it}SourcesJar"}.toList()}
+    dependsOn {moduleFilters.keySet().stream().map { "${convertModuleId(it)}Jar"}.toList()}
+    dependsOn {moduleFilters.keySet().stream().map { "${convertModuleId(it)}SourcesJar"}.toList()}
 }
+//endregion
+
+//TODO fix runClient not working because processResources does no longer process neoforge.mods.toml
+tasks.named('jar') {
+    moduleFilters.keySet().forEach { String moduleId ->
+
+        it.exclude "net/kapitencraft/kap_lib/${moduleId}/mixin/**" //exclude all module mixins
+        it.exclude "net/kapitencraft/kap_lib/${moduleId}/event/handler/**"
+        it.exclude 'net/kapitencraft/kap_lib/' + convertModuleName(moduleId) + 'Module.class'
+
+        it.exclude 'net/kapitencraft/kap_lib/' + mergeClassName(moduleId, 'Module')
+
+        it.exclude "${mod_id}_${moduleId}.mixins.json"
+    }
+
+    exclude 'publish_config.json'
+
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand metaProperties
+    }
+}
+
+// This block of code expands all declared replace properties in the specified resource targets.
+// A missing property will result in an error. Properties are expanded using ${} Groovy notation.
+// When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
+// See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
 
 java {
     withSourcesJar()

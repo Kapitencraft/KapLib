@@ -1,10 +1,8 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.minecraft.world.entity.Entity;

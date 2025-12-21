@@ -1,11 +1,11 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.data_gen.abst.BonusProvider;
-import net.kapitencraft.kap_lib.item.bonus.type.AttributeModifiersBonus;
-import net.kapitencraft.kap_lib.item.bonus.type.EffectsBonus;
+import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.bonus.datagen.BonusProvider;
+import net.kapitencraft.kap_lib.bonus.type.AttributeModifiersBonus;
+import net.kapitencraft.kap_lib.bonus.type.EffectsBonus;
 import net.kapitencraft.kap_lib.registry.TestItems;
-import net.kapitencraft.kap_lib.registry.custom.WearableSlots;
+import net.kapitencraft.kap_lib.inventory_page.registry.WearableSlots;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -48,7 +48,7 @@ public class TestBonusProvider extends BonusProvider {
                 .slot(EquipmentSlot.FEET, Items.GOLDEN_BOOTS)
                 .slot(EquipmentSlot.MAINHAND, Items.GOLDEN_AXE)
                 .setBonus(AttributeModifiersBonus.builder()
-                        .addModifier(Attributes.LUCK, KapLibMod.res("test"), 20, AttributeModifier.Operation.ADD_VALUE)
+                        .addModifier(Attributes.LUCK, LibConstants.res("test"), 20, AttributeModifier.Operation.ADD_VALUE)
                         .build()
                 );
         this.createItemBonus(Items.NETHERITE_SWORD, "sword_strength")

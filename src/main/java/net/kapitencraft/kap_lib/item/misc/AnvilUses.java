@@ -1,9 +1,9 @@
 package net.kapitencraft.kap_lib.item.misc;
 
-import net.kapitencraft.kap_lib.event.ModEventFactory;
-import net.kapitencraft.kap_lib.event.custom.RegisterAnvilUsesEvent;
+import net.kapitencraft.kap_lib.item.event.custom.RegisterAnvilUsesEvent;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AnvilUpdateEvent;
 import org.jetbrains.annotations.ApiStatus;
@@ -37,9 +37,9 @@ public class AnvilUses {
     }
 
     /**
-     * @param bothPredicate predicate for both anvil inputs
+     * @param bothPredicate  predicate for both anvil inputs
      * @param resultConsumer results. modify the left stack
-     * @param xpCost the amount of XP this anvil use should take
+     * @param xpCost         the amount of XP this anvil use should take
      * @deprecated use {@link RegisterAnvilUsesEvent#registerAnvilUse(BiPredicate, BiConsumer, int)} instead
      */
     @Deprecated
@@ -50,7 +50,7 @@ public class AnvilUses {
 
     @ApiStatus.Internal
     public static void registerUses() {
-        ModEventFactory.fireModEvent(new RegisterAnvilUsesEvent());
+        ModLoader.postEvent(new RegisterAnvilUsesEvent());
     }
 
     @ApiStatus.Internal

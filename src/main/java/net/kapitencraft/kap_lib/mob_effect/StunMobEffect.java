@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.mob_effect;
 
-import net.kapitencraft.kap_lib.helpers.TextHelper;
+import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;

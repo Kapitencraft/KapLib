@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.Products;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.Markers;
+import net.kapitencraft.kap_lib.core.Markers;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.minecraft.Util;
 import net.minecraft.world.entity.Entity;
@@ -12,7 +12,6 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.predicates.ConditionUserBuilder;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
 
 import java.util.List;
 import java.util.function.Function;

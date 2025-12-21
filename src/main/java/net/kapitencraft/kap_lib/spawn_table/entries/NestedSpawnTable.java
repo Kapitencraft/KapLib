@@ -1,13 +1,10 @@
 package net.kapitencraft.kap_lib.spawn_table.entries;
 
 import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.registry.custom.core.ExtraRegistries;
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnPoolEntries;
+import net.kapitencraft.kap_lib.spawn_table.registry.SpawnTableRegistries;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnPoolEntries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
@@ -49,7 +46,7 @@ public class NestedSpawnTable extends SpawnPoolSingletonContainer {
     */
    public void createEntity(Consumer<Entity> stackConsumer, SpawnContext lootContext) {
       this.entry.map(
-              (p_335324_) -> lootContext.getResolver().get(ExtraRegistries.Keys.SPAWN_TABLES, p_335324_).map(Holder::value).orElse(SpawnTable.EMPTY),
+              (p_335324_) -> lootContext.getResolver().get(SpawnTableRegistries.Keys.SPAWN_TABLES, p_335324_).map(Holder::value).orElse(SpawnTable.EMPTY),
               Function.identity()).getRandomEntitiesRaw(lootContext, stackConsumer);
    }
 
@@ -69,7 +66,7 @@ public class NestedSpawnTable extends SpawnPoolSingletonContainer {
       }
 
       super.validate(validationContext);
-      this.entry.ifLeft((p_335332_) -> validationContext.resolver().get(ExtraRegistries.Keys.SPAWN_TABLES, p_335332_).ifPresentOrElse((p_339565_) -> p_339565_.value().validate(validationContext.enterElement("->{" + String.valueOf(p_335332_.location()) + "}", p_335332_)), () -> validationContext.reportProblem("Unknown loot table called " + String.valueOf(p_335332_.location())))).ifRight((p_331183_) -> p_331183_.validate(validationContext.forChild("->{inline}")));
+      this.entry.ifLeft((p_335332_) -> validationContext.resolver().get(SpawnTableRegistries.Keys.SPAWN_TABLES, p_335332_).ifPresentOrElse((p_339565_) -> p_339565_.value().validate(validationContext.enterElement("->{" + String.valueOf(p_335332_.location()) + "}", p_335332_)), () -> validationContext.reportProblem("Unknown loot table called " + String.valueOf(p_335332_.location())))).ifRight((p_331183_) -> p_331183_.validate(validationContext.forChild("->{inline}")));
    }
 
    public static Builder<?> spawnTableReference(ResourceKey<SpawnTable> pTable) {

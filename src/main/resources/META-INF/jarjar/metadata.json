@@ -1,0 +1,16 @@
+{
+  "jars": [
+    {
+      "identifier": {
+        "group": "maven.modrinth",
+        "artifact": "kap_lib_core"
+      },
+      "version": {
+        "range": "[v${mod_version}-mc${minecraft_version},)",
+        "artifactVersion": "v${mod_version}-mc${minecraft_version}"
+      },
+      "path": "META-INF/jarjar/kap_lib-v${mod_version}-mc${minecraft_version}-core.jar",
+      "isObfuscated": false
+    }
+  ]
+}

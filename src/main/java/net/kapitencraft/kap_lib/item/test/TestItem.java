@@ -2,12 +2,12 @@ package net.kapitencraft.kap_lib.item.test;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import net.kapitencraft.kap_lib.inventory.wearable.WearableItem;
-import net.kapitencraft.kap_lib.inventory.wearable.WearableSlot;
+import net.kapitencraft.kap_lib.inventory_page.wearable.WearableItem;
+import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.registry.TestCooldowns;
-import net.kapitencraft.kap_lib.registry.custom.WearableSlots;
-import net.kapitencraft.kap_lib.util.attribute.BaseAttributeLocations;
+import net.kapitencraft.kap_lib.inventory_page.registry.WearableSlots;
+import net.kapitencraft.kap_lib.attribute.BaseAttributeLocations;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;

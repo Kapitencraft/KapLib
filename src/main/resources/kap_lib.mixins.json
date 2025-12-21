@@ -5,7 +5,7 @@
   "package": "net.kapitencraft.kap_lib.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
-    "CreativeModeInventoryScreenMixin",
+    "client.CreativeModeInventoryScreenMixin",
     "client.AnvilScreenMixin",
     "client.BakedGlyphMixin",
     "client.ChatScreenMixin",
@@ -15,14 +15,15 @@
     "client.FontTextureMixin",
     "client.GameRendererMixin",
     "client.InventoryScreenMixin",
-    "client.ItemStackMixin",
+    "client.ItemStackClientMixin",
     "client.LevelRendererMixin",
     "client.ParticleEngineMixin",
     "client.RecipeBookComponentMixin",
     "client.RenderTypeMixin",
     "client.ShaderInstanceMixin",
     "client.SpriteLoaderMixin",
-    "client.StringRenderOutputMixin"
+    "client.StringRenderOutputMixin",
+    "client.AddEnchantmentTooltipMixin"
   ],
   "mixins": [
     "AbstractArrowMixin",
@@ -45,8 +46,7 @@
     "ProjectileMixin",
     "StringDecomposerMixin",
     "StringUtilMixin",
-    "StyleMixin",
-    "client.ItemEnchantmentsMixin"
+    "StyleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

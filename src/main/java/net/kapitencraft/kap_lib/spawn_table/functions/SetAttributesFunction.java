@@ -1,16 +1,13 @@
 package net.kapitencraft.kap_lib.spawn_table.functions;
 
-import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.Markers;
-import net.kapitencraft.kap_lib.collection.MapStream;
-import net.kapitencraft.kap_lib.io.serialization.JsonSerializer;
-import net.kapitencraft.kap_lib.registry.ExtraCodecs;
-import net.kapitencraft.kap_lib.registry.custom.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.core.Markers;
+import net.kapitencraft.kap_lib.core.collection.MapStream;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;

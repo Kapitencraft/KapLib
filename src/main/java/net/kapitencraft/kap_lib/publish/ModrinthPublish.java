@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
-import net.kapitencraft.kap_lib.io.network.ModrinthUtils;
+import net.kapitencraft.kap_lib.core.ModrinthUtils;
 import net.minecraft.util.GsonHelper;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -153,7 +153,7 @@ public class ModrinthPublish {
         fileParts[0] = "primary";
         data.put("file_parts", fileParts);
         data.put("primary_file", "primary");
-        data.put("changelog", AutoPublisher.createChangelog());
+        data.put("changelog", AutoPublisher.getChangelog());
 
         return AutoPublisher.GSON.toJson(data);
     }

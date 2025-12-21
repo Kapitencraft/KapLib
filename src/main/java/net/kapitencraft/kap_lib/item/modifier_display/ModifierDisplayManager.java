@@ -1,16 +1,13 @@
 package net.kapitencraft.kap_lib.item.modifier_display;
 
-import net.kapitencraft.kap_lib.event.ModEventFactory;
 import net.kapitencraft.kap_lib.event.custom.client.RegisterItemModifiersDisplayExtensionsEvent;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.fml.ModLoader;
 import org.jetbrains.annotations.Nullable;
-import oshi.util.platform.unix.solaris.KstatUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class ModifierDisplayManager {
@@ -19,7 +16,7 @@ public class ModifierDisplayManager {
 
     public static void init() {
         var event = new RegisterItemModifiersDisplayExtensionsEvent(equipmentProviders, wearableProviders);
-        ModEventFactory.fireModEvent(event);
+        ModLoader.postEvent(event);
     }
 
     public static ExtensionData getExtensions(ItemStack obj) {
@@ -36,7 +33,8 @@ public class ModifierDisplayManager {
         return new ExtensionData(equipment, wearable);
     }
 
-    public record ExtensionData(List<EquipmentDisplayExtension> equipmentProviders, List<WearableDisplayExtension> wearableProviders) {
+    public record ExtensionData(List<EquipmentDisplayExtension> equipmentProviders,
+                                List<WearableDisplayExtension> wearableProviders) {
 
     }
 }

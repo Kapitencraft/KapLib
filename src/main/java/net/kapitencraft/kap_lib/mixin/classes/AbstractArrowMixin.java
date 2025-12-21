@@ -1,10 +1,6 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
-import net.kapitencraft.kap_lib.registry.ExtraAttributes;
-import net.minecraft.world.entity.Entity;
+import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
