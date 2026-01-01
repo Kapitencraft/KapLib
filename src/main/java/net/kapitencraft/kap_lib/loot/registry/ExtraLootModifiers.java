@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.loot.modifiers.AddItemModifier;
 import net.kapitencraft.kap_lib.loot.modifiers.EnchantmentAddItemModifier;
-import net.kapitencraft.kap_lib.loot.modifiers.OreModifier;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -17,5 +16,4 @@ public interface ExtraLootModifiers {
 
     Supplier<MapCodec<AddItemModifier>> ADD_ITEM = REGISTRY.register("add_item", () -> AddItemModifier.CODEC);
     Supplier<MapCodec<EnchantmentAddItemModifier>> ENCH_ADD_ITEM = REGISTRY.register("ench_add_item", () -> EnchantmentAddItemModifier.CODEC);
-    Supplier<MapCodec<OreModifier>> ORE = REGISTRY.register("ore_mod", () -> OreModifier.CODEC);
 }

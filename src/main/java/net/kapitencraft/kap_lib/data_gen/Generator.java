@@ -34,5 +34,6 @@ public class Generator {
         generator.addProvider(false, new ModLanguageProvider(output));
         generator.addProvider(false, new TestRecipeProvider(output, lookupProvider));
         generator.addProvider(true, new TestTextureProvider(helper, output));
+        generator.addProvider(true, new TestGlobalLootModifierProvider(output, lookupProvider, "test"));
     }
 }

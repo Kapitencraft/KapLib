@@ -1,0 +1,12 @@
+{
+  "type": "kap_lib:add_item",
+  "chance": 5.0,
+  "conditions": [
+    {
+      "type": "blocks",
+      "condition": "kap_lib:table_type"
+    }
+  ],
+  "item": "minecraft:diamond",
+  "maxAmount": 10
+}

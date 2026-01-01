@@ -152,7 +152,6 @@ println "Discovered Modules: " + moduleFilters.keySet()
 sourceSets.main {
     resources {
         srcDir 'src/generated/resources'
-        exclude 'data/test/**'
         exclude 'META-INF/jarjar/**'
         exclude 'META-INF/dev-neoforge.mods.toml'
         exclude 'META-INF/ee-neoforge.mods.toml'
@@ -421,6 +420,7 @@ moduleFilters.each { String moduleId, moduleData ->
 
         exclude 'data/test'
         exclude 'assets/test'
+        exclude 'data/neoforge/loot_modifiers'
 
         if (moduleId != 'core') {
             filesMatching ('META-INF/jarjar/metadata.json') { FileCopyDetails fCD ->
@@ -462,6 +462,10 @@ tasks.named('jar') {
 
         it.exclude "${mod_id}_${moduleId}.mixins.json"
     }
+
+    exclude 'data/test'
+    exclude 'assets/test'
+    exclude 'data/neoforge/loot_modifiers'
 
     exclude 'publish_config.json'
 }

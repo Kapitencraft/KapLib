@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.core;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.core.config.ServerModConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -21,6 +22,7 @@ public class CoreModule {
 
     public CoreModule(IEventBus modEventBus, ModContainer container) {
         container.registerConfig(ModConfig.Type.CLIENT, CoreClientModConfig.SPEC);
+        container.registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
 
         NeoForge.EVENT_BUS.addListener(CoreModule::registerServer);
     }

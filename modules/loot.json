@@ -1,5 +1,7 @@
 {
   "asMod": true,
-  "extensions": false,
-  "at": false
+  "data": [
+    "test/loot_modifiers/**",
+    "neoforge/loot_modifiers/**"
+  ]
 }
