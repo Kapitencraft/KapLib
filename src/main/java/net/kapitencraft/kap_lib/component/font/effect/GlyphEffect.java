@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.component.font.effect;
 
+import net.minecraft.network.chat.Style;
+
 /**
  * base class for the glyph effect
  */
@@ -19,4 +21,14 @@ public abstract class GlyphEffect {
      * <br>mustn't match any {@link net.minecraft.ChatFormatting ChatFormatting} key
      */
     public abstract char getKey();
+
+
+
+    /**
+     * @param in the Style to add this effect to
+     * @return the new style with applied effect
+     */
+    public final Style apply(Style in) {
+        return EffectsStyle.of(in).addEffect(this);
+    }
 }

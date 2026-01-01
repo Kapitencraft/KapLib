@@ -12,9 +12,10 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class CommonPropertiesFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<CommonPropertiesFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<CommonPropertiesFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.STRING.listOf().fieldOf("properties").forGetter(CommonPropertiesFunction::gatherProperties)
             ).and(commonFields(i).t1())
             .apply(i, CommonPropertiesFunction::new)

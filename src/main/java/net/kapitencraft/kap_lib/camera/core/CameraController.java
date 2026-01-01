@@ -88,12 +88,18 @@ public class CameraController {
             event.setYaw((float) rot.y);
             event.setRoll((float) rot.z);
 
-            event.getCamera().setPosition(data.getPos(partialTick));
+            //position is changed in the CameraMixin
+        }
+    }
+
+    public Vec3 getCamPosition(float partialTick, Vec3 originalPosition) {
+        if (running) {
+            originalPosition = data.getPos(partialTick);
         }
         if (shaking && (!running || !shot.suppressesShake())) {
-            Vec3 pos = event.getCamera().getPosition();
-            event.getCamera().setPosition(pos.add(0, Mth.lerp((float) partialTick, oShake, shake), 0));
+            originalPosition = originalPosition.add(0, Mth.lerp(partialTick, oShake, shake), 0);
         }
+        return originalPosition;
     }
 
     public boolean running() {

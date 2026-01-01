@@ -5,7 +5,10 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -14,7 +17,7 @@ import java.util.function.Supplier;
  * x, y & z coordinates, r, g,b & a color values, lifetime & age values
  */
 public class ParticleConfig {
-    public double x,y,z;
+    public double x, y, z;
     public double dx, dy, dz;
     public float r, g, b, a;
     public int lifeTime, age;
@@ -137,7 +140,8 @@ public class ParticleConfig {
      */
     public int completePercentage(AnimationElement element) {
         int elementIndex = animation.allElements().indexOf(element);
-        if (elementIndex == -1) throw new IllegalArgumentException("element " + element + " not found inside animation " + animation);
+        if (elementIndex == -1)
+            throw new IllegalArgumentException("element " + element + " not found inside animation " + animation);
         if (this.elementIndex < elementIndex) return -1;
         else if (this.elementIndex > elementIndex) return 2;
         return activeCompletePercentage();

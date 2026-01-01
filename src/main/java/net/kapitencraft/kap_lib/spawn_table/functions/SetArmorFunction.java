@@ -26,9 +26,10 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class SetArmorFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetArmorFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetArmorFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.either(ResourceKey.codec(Registries.LOOT_TABLE), LootTable.DIRECT_CODEC).listOf().fieldOf("armorItems").forGetter(f -> f.armorItems),
             Codec.FLOAT.listOf().optionalFieldOf("dropChances", List.of()).forGetter(f -> f.armorDropChances)
     ).and(commonFields(i).t1()).apply(i, SetArmorFunction::new));

@@ -5,12 +5,11 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.core.Markers;
-import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnPoolEntries;
+import net.kapitencraft.kap_lib.core.util.Color;
+import net.kapitencraft.kap_lib.core.util.Loggers;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
-import net.kapitencraft.kap_lib.core.Color;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnPoolEntries;
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
@@ -47,9 +46,9 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
     });
 
     private static SpawnEffectCloud fromCodec(Integer integer, Integer integer1,
-                                    List<LootItemCondition> lootItemConditions, List<SpawnEntityFunction> spawnEntityFunctions,
-                                    Either<Holder<Potion>, List<MobEffectInstance>> holderListEither,
-                                    Float aFloat, Float aFloat1, Float aFloat2, Integer integer2, Integer integer3, Integer integer4, Optional<LootContext.EntityTarget> entityTarget) {
+                                              List<LootItemCondition> lootItemConditions, List<SpawnEntityFunction> spawnEntityFunctions,
+                                              Either<Holder<Potion>, List<MobEffectInstance>> holderListEither,
+                                              Float aFloat, Float aFloat1, Float aFloat2, Integer integer2, Integer integer3, Integer integer4, Optional<LootContext.EntityTarget> entityTarget) {
         return new SpawnEffectCloud(integer, integer1, lootItemConditions, spawnEntityFunctions, holderListEither, aFloat, aFloat1, aFloat2, integer2, integer3, integer4, entityTarget.orElse(null));
     }
 
@@ -82,7 +81,7 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
     protected void createEntity(Consumer<Entity> pEntityConsumer, SpawnContext pLootContext) {
         AreaEffectCloud cloud = EntityType.AREA_EFFECT_CLOUD.create(pLootContext.getLevel());
         if (cloud == null) {
-            KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "unable to create effect cloud!");
+            Loggers.SPAWN_TABLE_MANAGER.warn("unable to create effect cloud!");
             return;
         }
         effects
@@ -96,7 +95,8 @@ public class SpawnEffectCloud extends SpawnPoolSingletonContainer {
         cloud.setWaitTime(waitTime);
         if (owner != null) {
             if (pLootContext.getParam(owner.getParam()) instanceof LivingEntity living) cloud.setOwner(living);
-            else KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "owner {} was no living entity", pLootContext.getParam(owner.getParam()));
+            else
+                Loggers.SPAWN_TABLE_MANAGER.warn("owner {} was no living entity", pLootContext.getParam(owner.getParam()));
         }
         pEntityConsumer.accept(cloud);
     }

@@ -17,9 +17,10 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class AddPassengersFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<AddPassengersFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<AddPassengersFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             SpawnTable.GATHER_CODEC.fieldOf("passengers").forGetter(f -> f.passengers)
     ).and(commonFields(i).t1()).apply(i, AddPassengersFunction::new));
 

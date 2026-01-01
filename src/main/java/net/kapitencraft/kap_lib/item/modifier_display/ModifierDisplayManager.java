@@ -1,8 +1,15 @@
 package net.kapitencraft.kap_lib.item.modifier_display;
 
-import net.kapitencraft.kap_lib.event.custom.client.RegisterItemModifiersDisplayExtensionsEvent;
+import net.kapitencraft.kap_lib.item.event.custom.client.RegisterItemModifiersDisplayExtensionsEvent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.fml.ModLoader;
+import net.neoforged.neoforge.gametest.GameTestHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -16,6 +23,40 @@ public class ModifierDisplayManager {
 
     public static void init() {
         var event = new RegisterItemModifiersDisplayExtensionsEvent(equipmentProviders, wearableProviders);
+        if (GameTestHooks.isGametestEnabled()) {
+            equipmentProviders.add(s -> s.is(Items.NETHERITE_SWORD) ? new EquipmentDisplayExtension() {
+                @Override
+                public ResourceLocation getModifiersLocation() {
+                    return Item.BASE_ATTACK_DAMAGE_ID;
+                }
+
+                @Override
+                public Style getStyle() {
+                    return Style.EMPTY.withColor(ChatFormatting.GOLD);
+                }
+
+                @Override
+                public Type getType() {
+                    return Type.CURLY;
+                }
+            } : null);
+            equipmentProviders.add(s -> s.is(ItemTags.SWORDS) ? new EquipmentDisplayExtension() {
+                @Override
+                public ResourceLocation getModifiersLocation() {
+                    return Item.BASE_ATTACK_DAMAGE_ID;
+                }
+
+                @Override
+                public Style getStyle() {
+                    return Style.EMPTY.withColor(ChatFormatting.AQUA);
+                }
+
+                @Override
+                public Type getType() {
+                    return Type.POINTY;
+                }
+            } : null);
+        }
         ModLoader.postEvent(event);
     }
 

@@ -25,6 +25,7 @@ public class Generator {
         lookupProvider = generator.addProvider(true, new ModRegistriesProvider(output, lookupProvider)).getRegistryProvider();
         generator.addProvider(true, new ExtraNumbersLangProvider(output));
         CompletableFuture<TagsProvider.TagLookup<Block>> blockTagLookup = generator.addProvider(true, new ModTagsProvider.Block(output, lookupProvider, helper)).contentsGetter();
+        generator.addProvider(true, new TestItemRequirements(output));
         generator.addProvider(true, new ModTagsProvider.EntityTypes(output, lookupProvider));
         generator.addProvider(true, new ModTagsProvider.DamageType(output, lookupProvider, helper));
         generator.addProvider(true, new TestSpawnTableProvider(output, lookupProvider));

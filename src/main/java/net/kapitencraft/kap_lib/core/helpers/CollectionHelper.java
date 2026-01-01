@@ -217,12 +217,14 @@ public interface CollectionHelper {
     }
 
     /**
-     * checks if the given array contains the given value
+     * checks if the given array contains the given value by equality, not identity checks
      */
-    static <T> boolean arrayContains(T[] array, T t) {
-        return List.of(array).contains(t);
+    static <T> boolean arrayContains(T[] array, T obj) {
+        for (T t : array) {
+            if (t.equals(obj)) return true;
+        }
+        return false;
     }
-
 
     /**
      * merge the stream into the given {@code T} var type
@@ -230,7 +232,6 @@ public interface CollectionHelper {
     static <S, T extends S> Stream<T> cast(Stream<S> in, Class<T> clazz) {
         return in.filter(clazz::isInstance).map(clazz::cast);
     }
-
 
     /**
      * @param split the array

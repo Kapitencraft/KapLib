@@ -2,10 +2,10 @@ package net.kapitencraft.kap_lib.mixin.classes;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.kapitencraft.kap_lib.item.entity.fishing.IFishingHook;
+import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
 import net.kapitencraft.kap_lib.item.entity.fishing.AbstractFishingHook;
+import net.kapitencraft.kap_lib.item.entity.fishing.IFishingHook;
 import net.kapitencraft.kap_lib.item.entity.item.NoFireItemEntity;
-import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -58,9 +58,12 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
     @Shadow
     private int timeUntilLured;
 
-    @Shadow @Nullable public abstract Player getPlayerOwner();
+    @Shadow
+    @Nullable
+    public abstract Player getPlayerOwner();
 
-    @Shadow public int luck;
+    @Shadow
+    public int luck;
 
     protected FishingHookMixin(EntityType<? extends Projectile> p_37248_, Level p_37249_) {
         super(p_37248_, p_37249_);
@@ -83,7 +86,7 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
     @WrapOperation(method = "retrieve", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/Level;DDDI)Lnet/minecraft/world/entity/ExperienceOrb;"))
     private ExperienceOrb modifyExperience(Level level, double x, double y, double z, int value, Operation<ExperienceOrb> original) {
         Player player = this.getPlayerOwner();
-        if (player != null) value = (int) (value * AttributeHelper.getExperienceScale(player));
+        if (player != null) value = (int) (value * ExtraAttributes.getExperienceScale(player));
         return original.call(level, x, y, z, value);
     }
 

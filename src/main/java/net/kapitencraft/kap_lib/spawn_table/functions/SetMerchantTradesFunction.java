@@ -14,9 +14,10 @@ import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetMerchantTradesFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetMerchantTradesFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetMerchantTradesFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             MerchantOffers.CODEC.fieldOf("offers").forGetter(f -> f.offers)
     ).and(commonFields(i).t1()).apply(i, SetMerchantTradesFunction::new));
 

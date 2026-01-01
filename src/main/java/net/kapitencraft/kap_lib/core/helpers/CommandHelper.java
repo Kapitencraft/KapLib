@@ -21,13 +21,16 @@ public class CommandHelper {
     @ApiStatus.Internal
     public static Screen postCommandScreen = null;
 
+    /**
+     * @param creator a supplier for the screen to be opened
+     * @return the command to be inserted into {@link com.mojang.brigadier.builder.ArgumentBuilder#executes(Command) ArgumentBuilder#executes} 
+     */
     public static Command<CommandSourceStack> createScreenCommand(Supplier<Screen> creator) {
         return stack -> {
             postCommandScreen = creator.get();
             return 1;
         };
     }
-
 
     /**
      * send a success message to the given {@link CommandSourceStack} automatically coloring it green

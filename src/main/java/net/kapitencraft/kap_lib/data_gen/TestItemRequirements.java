@@ -1,10 +1,9 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.requirement.datagen.RequirementProvider;
-import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirement.conditions.DimensionReqCondition;
 import net.kapitencraft.kap_lib.requirement.conditions.StatReqCondition;
+import net.kapitencraft.kap_lib.requirement.datagen.RequirementProvider;
+import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
 import net.minecraft.data.PackOutput;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.EntityType;
@@ -18,7 +17,7 @@ import net.minecraft.world.level.Level;
 public class TestItemRequirements extends RequirementProvider<Item> {
 
     protected TestItemRequirements(PackOutput output) {
-        super(output, LibConstants.MOD_ID, RegistryReqType.ITEM);
+        super(output, "test", RegistryReqType.ITEM);
     }
 
     @Override

@@ -10,13 +10,19 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-@EventBusSubscriber(modid = LibConstants.MOD_ID)
+/**
+ * adds the attributes to the dedicated entity types
+ */
+@ApiStatus.Internal
+@EventBusSubscriber
 public class AttributeAdder {
+
     @SubscribeEvent
     public static void modifyAttributes(EntityAttributeModificationEvent event) {
         addAll(event, ExtraAttributes.STRENGTH, ONLY_WITH_BRAIN);

@@ -7,6 +7,9 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * a simple element that does an action when clicked
+ */
 public class ButtonElement extends Element {
     private final Runnable runnable;
 

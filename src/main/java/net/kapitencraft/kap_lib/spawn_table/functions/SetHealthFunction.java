@@ -13,9 +13,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetHealthFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetHealthFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetHealthFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.INT.fieldOf("health").forGetter(f -> f.health),
             Codec.INT.optionalFieldOf("absorption", 0).forGetter(f -> f.absorption)
     ).and(commonFields(i).t1()).apply(i, SetHealthFunction::new));

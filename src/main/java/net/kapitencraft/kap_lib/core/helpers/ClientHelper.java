@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.core.helpers;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import net.kapitencraft.kap_lib.core.Color;
+import net.kapitencraft.kap_lib.core.util.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -103,6 +103,12 @@ public class ClientHelper {
         p_253637_.addVertex(p_253920_, p_253994_, p_254492_, p_254474_).setColor(p_254080_, p_253655_, p_254133_, 255).setUv(p_254233_, p_253939_).setOverlay(OverlayTexture.NO_OVERLAY).setLight(15728880).setNormal(p_253881_, 0.0F, 1.0F, 0.0F);
     }
 
+    /**
+     * draws the given text in the center of the given area
+     * @param graphics the GuiGraphics object
+     * @param toDraw the text
+     * @param color the color
+     */
     public static void drawCenteredString(GuiGraphics graphics, int xStart, int yStart, int xEnd, int yEnd, Component toDraw, int color) {
         Font font = Minecraft.getInstance().font;
         int height = yEnd - yStart;
@@ -142,7 +148,6 @@ public class ClientHelper {
         loc = MathHelper.getHandHoldingItemAngle(HumanoidArm.RIGHT, target);
         addParticle(clientLevel, loc, random, delta, startColor, fadeColor);
     }
-
 
     @ApiStatus.Internal
     private static void addParticle(ClientLevel level, Vec3 loc, RandomSource random, Vec3 delta, Color startColor, Color fadeColor) {
@@ -217,6 +222,9 @@ public class ClientHelper {
         );
     }
 
+    /**
+     * attempts to get the entity inside this clients level
+     */
     public static @Nullable Entity getNullableEntity(int id) {
         return Objects.requireNonNull(
                 Minecraft.getInstance().level,

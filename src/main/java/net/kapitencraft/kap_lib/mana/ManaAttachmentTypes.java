@@ -23,5 +23,4 @@ public interface ManaAttachmentTypes {
      */
     Supplier<AttachmentType<Double>> MANA = REGISTRY.register("mana", () ->
             AttachmentType.builder(() -> 0d).serialize(Codec.DOUBLE).sync(ByteBufCodecs.DOUBLE).build());
-
 }

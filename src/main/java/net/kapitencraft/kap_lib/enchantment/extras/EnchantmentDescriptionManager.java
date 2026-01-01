@@ -2,13 +2,10 @@ package net.kapitencraft.kap_lib.enchantment.extras;
 
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.enchantment.client.enchantment_color.EnchantmentColorManager;
-import net.kapitencraft.kap_lib.enchantment.client.enchantment_applicable.EnchantmentApplicableAllocator;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
-import net.kapitencraft.kap_lib.enchantment.abstracts.ModEnchantment;
-import net.kapitencraft.kap_lib.enchantment.event.custom.RegisterEnchantmentApplicableCharsEvent;
-import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
+import net.kapitencraft.kap_lib.enchantment.client.enchantment_applicable.EnchantmentApplicableAllocator;
+import net.kapitencraft.kap_lib.enchantment.config.EnchantmentClientModConfig;
+import net.kapitencraft.kap_lib.enchantment.event.custom.RegisterEnchantmentApplicableCharsEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.screens.Screen;
@@ -20,15 +17,16 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EnchantmentTags;
-import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.neoforged.neoforge.common.NeoForge;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 
 public class EnchantmentDescriptionManager {
@@ -38,45 +36,19 @@ public class EnchantmentDescriptionManager {
     private static final ResourceLocation INFO_FONT_LOCATION = LibConstants.res("enchantment_info"),
             APPLICABLE_FONT_LOCATION = LibConstants.res("enchantment_applicable");
 
-    public static void addTooltip(Consumer<Component> tooltips, Holder<Enchantment> holder, int level) {
-        Enchantment ench = holder.value();
-        MutableComponent component = Component.empty();
-
-        component.append(ench.description());
-        if (level != 1 || ench.getMaxLevel() > 1)
-            component.append(CommonComponents.SPACE)
-                .append(Component.translatable("enchantment.level." + level));
-        component.withStyle(MiscHelper.nonNullOr(EnchantmentColorManager.getStyle(holder, level), Style.EMPTY.withColor(ChatFormatting.GRAY)));
-        if (true || fromBook(Items.DIAMOND_AXE)) { //TODO check book
-            if (CoreClientModConfig.showObtainDisplay()) {
-                String display = addObtainDisplay(holder);
-                if (!display.isEmpty()) {
-                    component.append(CommonComponents.SPACE);
-                    component.append(
-                            Component.literal(display)
-                                    .withStyle(INFO_STYLE.withFont(INFO_FONT_LOCATION))
-                    );
-                }
-            }
-            if (CoreClientModConfig.showApplyDisplay()) {
-                String applicable = getApplicable(ench);
-                if (!applicable.isEmpty()) {
-                    component.append(CommonComponents.SPACE);
-                    component.append(
-                            Component.literal(applicable)
-                                    .withStyle(INFO_STYLE.withFont(APPLICABLE_FONT_LOCATION))
-                    );
-                }
-            }
-        }
-        tooltips.accept(component);
-        if (Screen.hasShiftDown()) EnchantmentDescriptionManager.addTooltipForEnchant(tooltips, holder, level);
-        //ClientHelper.addReqContent(tooltips, RegistryReqType.ENCHANTMENT, ench, player);
+    public static void addTooltip(Consumer<Component> tooltips, Holder<Enchantment> holder) {
+        if (Screen.hasShiftDown()) addTooltipForEnchant(tooltips, holder);
     }
 
-    public static boolean fromBook(Item item) {
-        return item instanceof EnchantedBookItem;
+    public static void addTooltipForEnchant(Consumer<Component> tooltipSink, Holder<Enchantment> enchantment) {
+        getDescription(enchantment).forEach(tooltipSink);
     }
+
+    public static List<Component> getDescription(Holder<Enchantment> ench) {
+        return TextHelper.getDescriptionOrEmpty(
+                Util.makeDescriptionId("enchantment", ench.getKey().location()), component -> component.withStyle(ChatFormatting.DARK_GRAY));
+    }
+
 
     private static final char NO_TRADING = '\uF000', TREASURE = '\uF001';
 
@@ -85,16 +57,6 @@ public class EnchantmentDescriptionManager {
         if (enchantment.is(EnchantmentTags.TREASURE)) s += TREASURE;
         if (!enchantment.is(EnchantmentTags.TRADEABLE)) s += NO_TRADING;
         return s;
-    }
-
-    public static void addTooltipForEnchant(Consumer<Component> list, Holder<Enchantment> enchantment, int level) {
-        getDescription(enchantment, level).forEach(list);
-    }
-
-    public static List<Component> getDescription(Holder<Enchantment> ench, int level) {
-        Object[] objects = ench instanceof ModEnchantment modEnchantment ? modEnchantment.getDescriptionMods(level) : new Object[]{level};
-        Stream<String> stream = Arrays.stream(objects).map(String::valueOf);
-        return TextHelper.getDescriptionOrEmpty(Util.makeDescriptionId("enchantment", ench.getKey().location()), component -> component.withStyle(ChatFormatting.DARK_GRAY), stream.map(TextHelper::wrapInRed).toArray());
     }
 
     //region applicable display
@@ -155,6 +117,30 @@ public class EnchantmentDescriptionManager {
     public static void reset() {
         applicableMap.clear();
         applicableCache.clear();
+    }
+
+    public static void appendInfoDisplay(MutableComponent component, Holder<Enchantment> enchantment) {
+        Component space = CommonComponents.space().withStyle(Style.EMPTY.withStrikethrough(false).withUnderlined(false));
+        if (EnchantmentClientModConfig.showObtainDisplay()) {
+            String display = EnchantmentDescriptionManager.addObtainDisplay(enchantment);
+            if (!display.isEmpty()) {
+                component.append(space);
+                component.append(
+                        Component.literal(display)
+                                .withStyle(INFO_STYLE.withFont(INFO_FONT_LOCATION))
+                );
+            }
+        }
+        if (EnchantmentClientModConfig.showApplyDisplay()) {
+            String applicable = getApplicable(enchantment.value());
+            if (!applicable.isEmpty()) {
+                component.append(space);
+                component.append(
+                        Component.literal(applicable)
+                                .withStyle(INFO_STYLE.withFont(APPLICABLE_FONT_LOCATION))
+                );
+            }
+        }
     }
     //endregion
 }

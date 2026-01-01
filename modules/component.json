@@ -2,5 +2,6 @@
   "asMod": true,
   "assets": [
     "kap_lib/textures/font/unknown_player.png"
-  ]
+  ],
+  "dependencies": ["shader"]
 }

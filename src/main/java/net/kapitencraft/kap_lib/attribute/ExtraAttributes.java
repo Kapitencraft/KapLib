@@ -1,14 +1,19 @@
 package net.kapitencraft.kap_lib.attribute;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.core.util.Modules;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * joined extra attributes that might be useful
+ */
 public interface ExtraAttributes {
     DeferredRegister<Attribute> REGISTRY = LibConstants.registry(Registries.ATTRIBUTE);
     private static Holder<Attribute> register(String name, double initValue, double minValue, double maxValue, @Nullable ResourceLocation baseLocation) {
@@ -20,6 +25,7 @@ public interface ExtraAttributes {
         }.setSyncable(true));
     }
 
+    @SuppressWarnings("unused")
     private static Holder<Attribute> registerNegative(String name, double initValue, double minValue, double maxValue, ResourceLocation baseId) {
         return REGISTRY.register("generic." + name, () -> new RangedAttribute("generic." + name, initValue, minValue, maxValue) {
             @Override
@@ -97,9 +103,6 @@ public interface ExtraAttributes {
 
     //region Mining
     Holder<Attribute> PRISTINE = register("pristine", 0, 0, 400, BaseAttributeLocations.PRISTINE);
-    /**
-     * increases the chance to get more drops from mining
-     */
     Holder<Attribute> MINING_FORTUNE = register0Max("mining_fortune", 0, BaseAttributeLocations.MINING_FORTUNE);
     //endregion
 
@@ -117,4 +120,15 @@ public interface ExtraAttributes {
      * increases experience gained from mining and combat
      */
     Holder<Attribute> WISDOM = register("wisdom", 0, -100, 10000, BaseAttributeLocations.WISDOM);
+
+    /**
+     * gets the players experience scale, which should be multiplied with the base experience to get the final dropped experience
+     */
+    static double getExperienceScale(Player player) {
+        if (!Modules.isAttributesActive()) {
+            return 1;
+        }
+        double wisdom = player.getAttributeValue(ExtraAttributes.WISDOM);
+        return 1 + (wisdom / 100);
+    }
 }

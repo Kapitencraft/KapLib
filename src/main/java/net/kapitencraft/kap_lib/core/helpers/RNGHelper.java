@@ -13,8 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class RNGHelper {
 
-
-
     public static ItemEntity calculateAndDrop(ItemStack stack, float chance, LivingEntity source, Vec3 spawnPos) {
         double magicFind = 0;
         if (Math.random() <= getFinalChance(chance, magicFind)) {

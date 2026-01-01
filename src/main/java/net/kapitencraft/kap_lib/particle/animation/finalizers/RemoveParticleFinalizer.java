@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
-import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;

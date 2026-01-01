@@ -4,13 +4,12 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.core.Markers;
-import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.core.util.Loggers;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -19,9 +18,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetLeashedFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetLeashedFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetLeashedFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.mapEither(BlockPos.CODEC.fieldOf("pos"), LootContext.EntityTarget.CODEC.fieldOf("entity")).forGetter(SetLeashedFunction::createEither)
     ).and(commonFields(i).t1()).apply(i, SetLeashedFunction::fromCodec));
 
@@ -52,14 +52,14 @@ public class SetLeashedFunction extends SpawnEntityConditionalFunction {
             } else if (pos != null) {
                 target = new LeashFenceKnotEntity(pContext.getLevel(), pos);
             }
-            if (target == null) KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "unable to create leash position");
+            if (target == null) Loggers.SPAWN_TABLE_MANAGER.warn("unable to create leash position");
             else mob.setLeashedTo(target, false);
         }
         return pEntity;
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_LEASHED.get();
     }
 

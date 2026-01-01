@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.cooldown.registry;
 
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.inventory_page.wearable.Wearables;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;

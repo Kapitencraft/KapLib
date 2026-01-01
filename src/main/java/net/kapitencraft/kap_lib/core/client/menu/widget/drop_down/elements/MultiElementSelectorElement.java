@@ -38,9 +38,7 @@ public class MultiElementSelectorElement<T> extends ListElement {
 
     /**
      * create a new Builder for the specified class
-     * @param ignoredIdentificationClass the class of the builder's type
-     * @param <T>
-     * @return
+     * @param ignoredIdentificationClass the class of the builder's type. used to tell the compiler what to use for the generic
      */
     public static <T> Builder<T> builder(Class<T> ignoredIdentificationClass) {
         return new Builder<>();

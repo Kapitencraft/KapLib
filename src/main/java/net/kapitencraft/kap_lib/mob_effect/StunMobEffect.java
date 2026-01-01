@@ -22,7 +22,7 @@ public class StunMobEffect extends MobEffect {
     @Override
     public boolean applyEffectTick(@NotNull LivingEntity pLivingEntity, int pAmplifier) {
         if (pLivingEntity instanceof Player player) {
-            TextHelper.setHotbarDisplay(player, Component.translatable("effect.stun.timer").withStyle(ChatFormatting.RED));
+            TextHelper.setActionbar(player, Component.translatable("effect.stun.timer").withStyle(ChatFormatting.RED));
         }
         return true;
     }

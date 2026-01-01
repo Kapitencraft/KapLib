@@ -29,6 +29,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -43,12 +45,19 @@ public class TextHelper {
     public static final Component EMPTY = Component.literal("");
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    /**
+     * sends the given Component as the title for the given player
+     */
     public static void sendTitle(Player player, Component title) {
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
         }
     }
 
+    /**
+     * chains the given list of Components as you'd when enumerating something
+     * @param or whether it is a {@code or} or {@code and} list
+     */
     public static Component chain(List<? extends Component> toChain, boolean or) {
         if (toChain.size() == 1) return toChain.getFirst();
         List<Component> copy = new ArrayList<>(toChain);
@@ -68,6 +77,9 @@ public class TextHelper {
         return component;
     }
 
+    /**
+     * merges the given list using line feed as the separator
+     */
     public static Component listToPlainText(List<Component> list) {
         MutableComponent component = Component.empty();
         for (Component c : list) {
@@ -77,20 +89,20 @@ public class TextHelper {
         return component;
     }
 
+    /**
+     * gets the width of the thickest element in the collection or 0 if the collection is empty
+     */
     public static float getWidthFromMultiple(Collection<Component> collection, Font font) {
-        float f = 0;
-        for (Component comp : collection) {
-            float f1 = font.width(comp);
-            if (f < f1) f = f1;
-        }
-        return f;
+        return collection.stream().mapToInt(font::width).max().orElse(0);
     }
 
-    public static void addEmpty(List<Component> components) {
-        components.add(CommonComponents.EMPTY);
-    }
-
-
+    /**
+     * scans the translation files for the given keys each line and applies the given modifiers to the Component before adding it to the list to be returned.
+     * @param keyMapper an {@code I -> String} function that converts the list index into a String used for accessing the translation cache
+     * @param styleMods nullable style modifiers applied to each Component found by the scanner
+     * @param args optional args applied to each Component
+     */
+    @Contract("null, _, _ -> fail; _, _, _ -> new")
     public static List<Component> getAllMatchingFilter(Function<Integer, String> keyMapper, @Nullable UnaryOperator<MutableComponent> styleMods, Object... args) {
         List<Component> list = new ArrayList<>();
         int i = 0;
@@ -103,6 +115,9 @@ public class TextHelper {
         return list;
     }
 
+    /**
+     * returns the description in format {@code <name>.desc<n>} or {@code <name>.description<n>} where name is the given name and <n> is the index of the translation
+     */
     public static List<Component> getDescriptionList(String name, @Nullable UnaryOperator<MutableComponent> styleMods, Object... args) {
         return getAllMatchingFilter(integer -> {
             String descId = name + ".desc";
@@ -112,36 +127,21 @@ public class TextHelper {
         }, styleMods, args);
     }
 
+    /**
+     * overload for {@link #getDescriptionList(String, UnaryOperator, Object...)} to include the possibility that there is no registered description
+     */
     public static List<Component> getDescriptionOrEmpty(String name, @Nullable UnaryOperator<MutableComponent> styleMods, Object... args) {
         List<Component> components = getDescriptionList(name, styleMods, args);
-        return components.isEmpty() ? List.of(Component.translatable("desc.missing")) : components;
+        if (!components.isEmpty()) return components;
+        if (styleMods == null) {
+            return List.of(Component.translatable("desc.missing"));
+        }
+        return List.of(styleMods.apply(Component.translatable("desc.missing")));
     }
 
-    public static String wrapInObfuscation(String source) {
-        return wrapInFormatting(source, ChatFormatting.OBFUSCATED);
-    }
-
-    public static String wrapInFormatting(Object source, ChatFormatting formatting) {
-        char id = formatting.getChar();
-        boolean obfuscate = id == 'k';
-        StringBuilder builder = new StringBuilder();
-        String format = "§" + id;
-        builder.append(format);
-        if (obfuscate) builder.append("k§r ");
-        builder.append(source);
-        if (obfuscate) builder.append(" §kk");
-        builder.append("§r");
-        return builder.toString();
-    }
-
-    public static String mergeRegister(String a, String b) {
-        return a + "_" + b;
-    }
-
-    public static String swappedMergeRegister(String a, String b) {
-        return mergeRegister(b, a);
-    }
-
+    /**
+     * removes empty lines when lines above are already empty
+     */
     public static void removeUnnecessaryEmptyLines(List<Component> components) {
         Reference<Component> reference = Reference.of(null);
         components.removeIf(component -> {
@@ -166,18 +166,19 @@ public class TextHelper {
         return "/give " + targetSelector + " " + BuiltInRegistries.ITEM.getKey(stack.getItem()) + parseDataComponents(stack.getComponentsPatch());
     }
 
+    @ApiStatus.Internal
     private static String parseDataComponents(DataComponentPatch patch) {
         StringBuilder builder = new StringBuilder();
         builder.append("[");
         patch.entrySet().forEach(entry -> {
             if (entry.getValue().isEmpty() || entry.getKey().isTransient()) return;
             appendComponent(builder, entry, new StringTagVisitor());
-
         });
         builder.append("]");
         return builder.toString();
     }
 
+    @ApiStatus.Internal
     private static <T> void appendComponent(StringBuilder builder, Map.Entry<DataComponentType<?>, Optional<?>> entry, StringTagVisitor visitor) {
         Codec<T> codec = (Codec<T>) entry.getKey().codecOrThrow();
         DataResult<Tag> parse = codec.encodeStart(NbtOps.INSTANCE, ((T) entry.getValue().get()));
@@ -197,33 +198,47 @@ public class TextHelper {
         return Component.literal("§kA§r ").append(source).append(" §kA§r");
     }
 
+    /**
+     * surrounds the given name in name markers (')
+     */
     public static String wrapInNameMarkers(String name) {
         return "'" + name + "'";
     }
 
-    public static String wrapInRed(Object toWrap) {
-        return wrapInFormatting(toWrap, ChatFormatting.RED);
-    }
-
-    public static void setHotbarDisplay(Player player, Component display) {
+    /**
+     * sets the actionbar message
+     */
+    public static void setActionbar(Player player, Component display) {
         player.displayClientMessage(display, true);
     }
 
 
+    /**
+     * sets the subtitle to the given Component on the given player
+     */
     public static void sendSubTitle(Player player, Component subtitle) {
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
         }
     }
 
+    /**
+     * converts an item to it's ResourceLocation
+     */
     public static String getTextId(Item toGet) {
         return BuiltInRegistries.ITEM.getKey(toGet).toString();
     }
 
+    /**
+     * converts a ResourceLocation to it's dedicated item
+     */
     public static Item getFromId(String id) {
         return BuiltInRegistries.ITEM.get(ResourceLocation.parse(id));
     }
 
+    /**
+     * removes the active title from the given player
+     */
     public static void clearTitle(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.connection.send(new ClientboundClearTitlesPacket(true));
@@ -245,13 +260,9 @@ public class TextHelper {
     private static final List<String> LETTERS_SMALL = List.of("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
     private static final List<String> LETTERS_BIG = LETTERS_SMALL.stream().map(String::toUpperCase).toList();
 
-    public static String removeNumbers(String string) {
-        for (String number : NUMBERS) {
-            string = string.replace(number, "");
-        }
-        return string;
-    }
-
+    /**
+     * creates a String with the given length consisting of random latin characters
+     */
     public static String createRandom(int length) {
         StringBuilder s = new StringBuilder();
         final List<String> ALL_DEFAULT = new ArrayList<>();
@@ -264,48 +275,9 @@ public class TextHelper {
         return s.toString();
     }
 
-    public static ChatFormatting damageIndicatorColorGenerator(String type) {
-        return switch (type) {
-            case "heal" -> ChatFormatting.GREEN;
-            case "wither" -> ChatFormatting.BLACK;
-            case "ferocity" -> ChatFormatting.GOLD;
-            case "drown" -> ChatFormatting.AQUA;
-            case "ability", "fire" -> ChatFormatting.DARK_RED;
-            case "dodge" -> ChatFormatting.DARK_GRAY;
-            default -> ChatFormatting.RED;
-        };
-    }
-
-    public static @NotNull ChatFormatting damageIndicatorColorFromDouble(double in) {
-        return damageIndicatorColorGenerator(damageIndicatorDecoder(in));
-    }
-
-    public static String damageIndicatorDecoder(double in) {
-        return switch ((int) in) {
-            case 1 -> "heal";
-            case 2 -> "wither";
-            case 3 -> "ferocity";
-            case 4 -> "drown";
-            case 5 -> "ability";
-            case 6 -> "dodge";
-            case 7 -> "fire";
-            default -> "normal";
-        };
-    }
-
-    public static int damageIndicatorCoder(String id) {
-        return switch (id) {
-            case "heal" -> 1;
-            case "wither" -> 2;
-            case "ferocity" -> 3;
-            case "drown" -> 4;
-            case "ability" -> 5;
-            case "dodge" -> 6;
-            case "fire" -> 7;
-            default -> 0;
-        };
-    }
-
+    /**
+     * converts the given vector into a humanly readable string representation
+     */
     public static String fromVec3(Vec3 vec3) {
         return "Pos: [" + vec3.x + ", " + vec3.y + ", " + vec3.z + "]";
     }
@@ -314,67 +286,25 @@ public class TextHelper {
         return fromVec3(new Vec3(pos.getX(), pos.getY(), pos.getZ()));
     }
 
-    public static <T, K> T makeList(List<K> toMerge, Supplier<T> generator, Function<K, T> transfer, BiConsumer<T, T> useConsumer) {
-        T t = generator.get();
-        for (K k : toMerge) {
-            T transferred = transfer.apply(k);
-            useConsumer.accept(t, transferred);
-        }
-        return t;
-    }
-
-    public static <T> String makeList(List<T> toMerge, Function<T, String> provider) {
-        StringBuilder builder = new StringBuilder();
-        for (T t : toMerge) {
-            String s = provider.apply(t);
-            builder.append(s);
-            if (t != toMerge.getLast()) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
-    }
-
+    /**
+     * converts the given {@code snake_case} type string into a humanly readable name
+     */
     public static String makeGrammar(String toName) {
-        String val1 = toName.replace("_", " ");
-        char[] chars = val1.toCharArray();
-        return fromStrings(makeCapital(fromChars(chars)));
-    }
-
-    private static String[] fromChars(char[] chars) {
-        String[] strings = new String[chars.length];
+        char[] chars = toName.toCharArray();
         for (int i = 0; i < chars.length; i++) {
-            strings[i] = String.valueOf(chars[i]);
-        }
-        return strings;
-    }
-
-    private static String fromStrings(String[] strings) {
-        StringBuilder builder = new StringBuilder();
-        for (String s : strings) {
-            builder.append(s);
-        }
-        return builder.toString();
-    }
-
-    private static String[] makeCapital(String[] input) {
-        boolean nextCapital = false;
-        for (int i = 0; i < input.length; i++) {
-            if (Objects.equals(input[i], " ")) {
-                nextCapital = true;
-            } else if (nextCapital || i == 0) {
-                input[i] = input[i].toUpperCase();
-                nextCapital = false;
+            if (i == 0) {
+                chars[0] = Character.toUpperCase(chars[0]);
+            } else if (chars[i] == '_') {
+                chars[i++] = ' ';
+                chars[i] = Character.toUpperCase(chars[i]);
             }
         }
-        if (nextCapital) {
-            String[] toReturn = new String[input.length - 1];
-            System.arraycopy(input, 0, toReturn, 0, toReturn.length);
-            return toReturn;
-        }
-        return input;
+        return new String(chars);
     }
 
+    /**
+     * reads a Vec3 directly from a StringReader
+     */
     public static Vec3 readVec3(StringReader pReader) throws CommandSyntaxException {
         pReader.expect('(');
         double x = pReader.readDouble();
@@ -384,6 +314,7 @@ public class TextHelper {
         return new Vec3(x, y, z);
     }
 
+    //region latin
     private static final List<Pair<Integer, String>> latins = List.of(
             Pair.of(1, "I"),
             Pair.of(5, "V"),
@@ -425,4 +356,5 @@ public class TextHelper {
         latinCache.put(in, latin);
         return latin;
     }
+    //endregion
 }

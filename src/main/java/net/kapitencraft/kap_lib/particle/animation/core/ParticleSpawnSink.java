@@ -26,13 +26,14 @@ public class ParticleSpawnSink implements BiConsumer<ParticleOptions, Vec3> {
 
     /**
      * adds a new particle to the underlying Animator
+     *
      * @param particleConfig the particle to add
-     * @param x the x,
-     * @param y the y,
-     * @param z and the z coordinate to add the particle at
+     * @param x              the x,
+     * @param y              the y,
+     * @param z              and the z coordinate to add the particle at
      */
     public void accept(ParticleOptions particleConfig, double x, double y, double z) {
-        Particle particle = engine.createParticle(particleConfig, 0, 0, 0, 0, 0, 0);
+        Particle particle = engine.createParticle(particleConfig, x, y, z, 0, 0, 0);
         if (particle != null) {
             particle.setPos(x, y, z);
             particle.setParticleSpeed(0, 0, 0);
@@ -42,6 +43,7 @@ public class ParticleSpawnSink implements BiConsumer<ParticleOptions, Vec3> {
 
     /**
      * overload function which changes
+     *
      * @param particleConfig the first input argument
      * @param pos            the second input argument
      */

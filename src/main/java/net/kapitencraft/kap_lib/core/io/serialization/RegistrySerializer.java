@@ -14,6 +14,7 @@ import java.util.function.Function;
 public record RegistrySerializer<L>(MapCodec<L> codec, StreamCodec<RegistryFriendlyByteBuf, L> streamCodec) {
 
     /**
+     * creates a registry serializer that always returns the given value
      * @param value the value to use in the serializer
      * @param <L> the value type
      * @return a registry serializer with the given value of the given type

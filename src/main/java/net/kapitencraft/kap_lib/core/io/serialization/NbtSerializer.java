@@ -7,6 +7,9 @@ import net.minecraft.nbt.Tag;
 
 import java.util.function.Supplier;
 
+/**
+ * a simple serializer saving data in NBT
+ */
 public class NbtSerializer<T> extends Serializer<Tag, NbtOps, T> {
     public NbtSerializer(Codec<T> codec, Supplier<T> defaulted) {
         super(NbtOps.INSTANCE, codec, defaulted);

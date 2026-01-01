@@ -19,5 +19,6 @@ public class TestTextureProvider extends TextureProvider {
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/bell_side")));
         register(ResourceLocation.withDefaultNamespace("item/echo_shard"), LibConstants.res("block/spell_bell_top"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/bell_top")));
+        registerMaterial(ResourceLocation.fromNamespaceAndPath("test", "item/tin_ingot"), ResourceLocation.fromNamespaceAndPath("test", "tin"), this::registerGoldBlock);
     }
 }

@@ -6,6 +6,9 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.function.Supplier;
 
+/**
+ * serializer for both network and disc
+ */
 public class DataPackSerializer<T> extends JsonSerializer<T> {
     private final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec;
 

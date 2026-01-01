@@ -1,10 +1,27 @@
+# Additions
+added CameraPos Uniform
+
+
+# Fixes
+
+fixed Particle Animation Particles appearing around 0|0|0 for a frame
+fixed RingSpawner not rotating correctly
+fixed DisplayExtensions (for EquipmentSlots) not working
+fixed neither Camera animations nor shaking working
+fixed CEC style modifiers being applied to enchantment display entries
+fixed RotateElement behaving weird due to position issues
+fixed RingSpawner not spawning correctly due to RAD <-> DEG mismatch
+fixed many mixins not using MixinExtras
+fixed incompatibility with Sodium due to mixin
 fixed BonusProvider set-bonus slot order being shuffled each time
+
+# AutoPublish changes
+
 reworked publish_config.json:
-    modrinth_id: modrinth-project-id. at least it or curseforge_id must be present
-    curseforge_id: curseforge-project-slug. at least it or modrinth_id must be present
+    modrinth_id: modrinth-project-id.
     author: mandatory
         name: readable name of the author(s) of the project. mandatory
-        email: an email to contact you if modrinth or curseforge have issues with your request. mandatory
+        email: an email to contact you if modrinth has issues with your request. mandatory
     mod: mandatory
         id: the mod-id of the mod. mandatory
         name: the name of the mod. mandatory
@@ -22,14 +39,19 @@ reworked publish_config.json:
         format: one of [html, md, plain]. format to use in the changelog. optional, defaults to html
         style: one of [list, none]. style to use. will either list the changelog by categories or will print it as plain, formatted text. optional, defaults to list
     assets: optional (see entries) all entries are relative to the project folder
-        auth: the path to the authentification tokens. !threat with EXTREME caution! this information may allow others to upload files / create projects under your name. do not store anywhere synchronized. defaults to `run/AuthCache.txt`. add `run` to .gitignore to use
+        source: the path to the jar libs you wish to publish. defaults to build/libs
+        auth: the path to the authentification tokens. !threat with EXTREME caution! this information may allow others to upload files / create projects under your name. do not store anywhere synchronized. defaults to `run/AuthCache.txt`. ensure adding `run` to .gitignore to use
         changelog: the path to the changelog file. defaults to 'publish/changelog.txt'
         categories: the path to the categories file used in the `list` changelog style. default to 'publish/categories.json'
 
-fixed RotateElement behaving weird due to position issues
-fixed CircleSpawner not spawning correctly due to RAD <-> DEG mismatch
-fixed many mixins not using MixinExtras
-removed ExtraCodecs#UUID
+# Changes
 
 moved ClientHelper#addReqContent to RequirementManager#addReqContent
 moved to Neoforge 1.21.216
+renamed AbsolutePositionTarget to StaticPositionTarget
+
+# Removals
+
+removed ExtraCodecs#UUID
+removed "ChunkPosition" Uniform in Block Render types.
+removed book check in enchantment tooltip as ItemStack parameter has been lost

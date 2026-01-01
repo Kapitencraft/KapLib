@@ -3,7 +3,9 @@ package net.kapitencraft.kap_lib.shader;
 import com.mojang.blaze3d.shaders.Uniform;
 import net.kapitencraft.kap_lib.core.collection.MapStream;
 import net.kapitencraft.kap_lib.shader.event.custom.client.RegisterUniformsEvent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModLoader;
 
 import java.util.HashMap;
@@ -20,6 +22,14 @@ public class UniformsProvider {
 
     static {
         RegisterUniformsEvent event = new RegisterUniformsEvent(vecSuppliers, intSuppliers);
+        event.addVecUniform("CameraPosition", () -> {
+            Vec3 camPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            return new float[] {
+                    (float) camPos.x,
+                    (float) camPos.y,
+                    (float) camPos.z
+            };
+        });
         ModLoader.postEvent(event);
     }
 

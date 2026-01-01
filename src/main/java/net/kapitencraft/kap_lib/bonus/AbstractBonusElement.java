@@ -3,6 +3,9 @@ package net.kapitencraft.kap_lib.bonus;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
+/**
+ * a bonus element. override if you wish to add other means of bonuses being applied to entities
+ */
 public interface AbstractBonusElement {
 
     /**

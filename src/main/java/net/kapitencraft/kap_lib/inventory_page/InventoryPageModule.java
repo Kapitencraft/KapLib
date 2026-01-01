@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.inventory_page;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.inventory_page.registry.VanillaInventoryPages;
 import net.kapitencraft.kap_lib.inventory_page.registry.WearableAttachmentTypes;
 import net.kapitencraft.kap_lib.inventory_page.registry.WearableSlots;
 import net.neoforged.bus.api.IEventBus;
@@ -14,5 +15,6 @@ public class InventoryPageModule {
     public InventoryPageModule(IEventBus modEventBus, ModContainer container) {
         WearableSlots.REGISTRY.register(modEventBus);
         WearableAttachmentTypes.REGISTRY.register(modEventBus);
+        VanillaInventoryPages.REGISTRY.register(modEventBus);
     }
 }

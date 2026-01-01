@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.particle.custom;
 
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.particle.SimpleParticleRenderType;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;

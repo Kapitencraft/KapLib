@@ -5,6 +5,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * a position target that has a static offset
+ * @param target the target to be offset
+ * @param offset the offset
+ */
 public record RelativePositionTarget(PositionTarget target, Vec3 offset) implements PositionTarget {
 
     @Override

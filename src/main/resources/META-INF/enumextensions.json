@@ -5,7 +5,7 @@
       "name": "kap_lib$LEGENDARY",
       "constructor": "(ILjava/lang/String;Lnet/minecraft/ChatFormatting;)V",
       "parameters": {
-        "class": "net/kapitencraft/kap_lib/util/ExtraRarityProxies",
+        "class": "net/kapitencraft/kap_lib/core/util/ExtraRarityProxies",
         "field": "LEGENDARY_PROXY"
       }
     },
@@ -14,7 +14,7 @@
       "name": "kap_lib$MYTHIC",
       "constructor": "(ILjava/lang/String;Lnet/minecraft/ChatFormatting;)V",
       "parameters": {
-        "class": "net/kapitencraft/kap_lib/util/ExtraRarityProxies",
+        "class": "net/kapitencraft/kap_lib/core/util/ExtraRarityProxies",
         "field": "MYTHIC_PROXY"
       }
     },
@@ -23,7 +23,7 @@
       "name": "kap_lib$DIVINE",
       "constructor": "(ILjava/lang/String;Lnet/minecraft/ChatFormatting;)V",
       "parameters": {
-        "class": "net/kapitencraft/kap_lib/util/ExtraRarityProxies",
+        "class": "net/kapitencraft/kap_lib/core/util/ExtraRarityProxies",
         "field": "DIVINE_PROXY"
       }
     }

@@ -1,5 +1,4 @@
 {
-  "type": "kap_lib:attribute_modifiers",
   "bonus": {
     "type": "kap_lib:attribute_modifiers",
     "entries": {
@@ -13,11 +12,11 @@
     }
   },
   "equipment_slots": [
-    "head",
-    "legs",
+    "mainhand",
     "feet",
+    "legs",
     "chest",
-    "mainhand"
+    "head"
   ],
   "wearable_slots": []
 }

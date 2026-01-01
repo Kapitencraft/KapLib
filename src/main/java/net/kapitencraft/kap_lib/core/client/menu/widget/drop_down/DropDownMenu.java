@@ -1,18 +1,15 @@
 package net.kapitencraft.kap_lib.core.client.menu.widget.drop_down;
 
-import net.kapitencraft.kap_lib.overlay.ConfigureOverlaysScreen;
 import net.kapitencraft.kap_lib.core.client.menu.widget.Menu;
-import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements.ListElement;
 import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements.Element;
+import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements.ListElement;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * drop down menu
- * <br>see {@link ConfigureOverlaysScreen} for example
  */
 public class DropDownMenu extends Menu {
 
@@ -31,12 +28,6 @@ public class DropDownMenu extends Menu {
     public void show() {
         root.show(x, y);
         root.showChildren();
-    }
-
-
-    @Override
-    public void hide(Screen screen) {
-        super.hide(screen);
     }
 
     public void addElement(Element.Builder<?, ?> builder) {

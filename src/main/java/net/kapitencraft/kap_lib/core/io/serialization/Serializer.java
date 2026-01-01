@@ -9,6 +9,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
+/**
+ * base serializer class
+ */
 public abstract class Serializer<T, K extends DynamicOps<T>, L> {
 
     private final K generator;

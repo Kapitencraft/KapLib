@@ -5,10 +5,12 @@
   "package": "net.kapitencraft.kap_lib.item.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
-    "client.ItemStackMixin",
-    "client.ClientTooltipPositionerMixin"
+    "client.ClientTooltipPositionerMixin",
+    "client.ItemStackMixin"
   ],
   "mixins": [
+    "AttributeUtilMixin",
+    "AttributeUtilMixin$BaseModifierAccessor",
     "EnderManMixin",
     "FishingHookMixin",
     "FishingRodMixin",

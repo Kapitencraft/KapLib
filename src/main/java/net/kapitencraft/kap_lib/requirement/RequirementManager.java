@@ -3,11 +3,9 @@ package net.kapitencraft.kap_lib.requirement;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.*;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import net.kapitencraft.kap_lib.core.Markers;
 import net.kapitencraft.kap_lib.core.collection.MapStream;
 import net.kapitencraft.kap_lib.requirement.event.custom.RegisterRequirementTypesEvent;
 import net.kapitencraft.kap_lib.core.helpers.CollectionHelper;
@@ -31,15 +29,17 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Consumer;
 
 public class RequirementManager extends SimpleJsonResourceReloadListener {
-    public static final  Logger LOGGER = LogUtils.getLogger();
+    public static final  Logger LOGGER = LoggerFactory.getLogger("RequirementManager");
     public static RequirementManager instance = new RequirementManager(); //load instantly
 
     //sync
@@ -56,11 +56,13 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
         dataStreamCodec = ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, elementStreamCodec).map(Data::new, Data::elements);
     }
 
+    @ApiStatus.Internal
     public static void copyData(Data data) {
         instance.elements.clear();
         instance.elements.putAll(data.elements);
     }
 
+    @ApiStatus.Internal
     public static Data createData() {
         return new Data(instance.elements);
     }
@@ -123,8 +125,6 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
 
     private void registerTypes() {
         this.types.add(RequirementType.ITEM);
-        this.types.add(RequirementType.ENCHANTMENT);
-        this.types.add(RequirementType.BONUS);
         NeoForge.EVENT_BUS.post(new RegisterRequirementTypesEvent(this.types::add));
         typesForNames = this.types.stream().collect(CollectorHelper.toMapForKeys(RequirementType::getName));
     }
@@ -140,7 +140,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
 
         private Element(RequirementType<T> type) {
             this.type = type;
-            this.reqStreamCodec = ExtraStreamCodecs.multimap(this.type.serializer().getStreamCodec(), ReqCondition.STREAM_CODEC);
+            this.reqStreamCodec = ExtraStreamCodecs.multimap(type.serializer().getStreamCodec(), ReqCondition.STREAM_CODEC);
         }
 
         public boolean isType(RequirementType<?> type) {
@@ -161,8 +161,9 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
                                 )
                         );
             } catch (Exception e) {
-                LOGGER.warn(Markers.REQUIREMENTS_MANAGER, "error loading requirements for type '{}': {}", this.type.getName(), e.getMessage());
+                LOGGER.warn("error loading requirements for type '{}': {}", this.type.getName(), e.getMessage());
             }
+            LOGGER.debug("loaded {} requirements for type {}", this.requirements.size(), this.type.getName());
         }
 
         private void addElement(T value, ReqCondition<?> condition) {

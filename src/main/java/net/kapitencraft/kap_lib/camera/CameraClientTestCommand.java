@@ -6,22 +6,12 @@ import com.mojang.brigadier.context.CommandContext;
 import net.kapitencraft.kap_lib.camera.core.CameraController;
 import net.kapitencraft.kap_lib.camera.core.TrackingShot;
 import net.kapitencraft.kap_lib.camera.modifiers.GlideTowardsModifier;
-import net.kapitencraft.kap_lib.client.gui.screen.TestScreen;
-import net.kapitencraft.kap_lib.component.ExtraComponents;
-import net.kapitencraft.kap_lib.component.player_head.PlayerHeadAllocator;
-import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
-import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
-import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.UUID;
 
 public class CameraClientTestCommand {
 

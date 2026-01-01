@@ -190,7 +190,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
         private final List<EnchantmentGroup> groups;
 
         private ColorElement(EnchantmentColor color) {
-            this.colorType = SelectChatColorWidget.getColor(color);
+            this.colorType = color.toColorType();
             Style style = color.targetStyle();
             this.bold = style.isBold();
             this.underlined = style.isUnderlined();
@@ -318,9 +318,9 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
                     this.levelRange = new LevelRange(levelRange.getMin(), levelRange.getMax(), !levelRange.isMaxLevelRelative());
                 } else if (MathHelper.is2dBetween(relativeX, relativeY, 165, 43, 185, 53)) {
                     if (levelRange.getMin() == levelRange.getMax() && !levelRange.isMaxLevelRelative()) return;
-                    selector = new SelectCountWidget(leftPos + 102, topPos + 43, 200, font, levelRange.getMin(), this::setMinLevel, new IntegerNumberRange(-255, this.levelRange.getMax()), Component.translatable("cec.select_level_bound.min"));
+                    selector = new SelectCountWidget(leftPos + 62, topPos + 43, 280, font, levelRange.getMin(), this::setMinLevel, new IntegerNumberRange(-255, this.levelRange.getMax()), Component.translatable("cec.select_level_bound.min"));
                 } else if (MathHelper.is2dBetween(relativeX, relativeY, 190, 43, 210, 53)) {
-                    selector = new SelectCountWidget(leftPos + 102, topPos + 43, 200, font, levelRange.getMax(), this::setMaxLevel, new IntegerNumberRange(this.levelRange.getMin(), 255), Component.translatable("cec.select_level_bound.max"));
+                    selector = new SelectCountWidget(leftPos + 62, topPos + 43, 280, font, levelRange.getMax(), this::setMaxLevel, new IntegerNumberRange(this.levelRange.getMin(), 255), Component.translatable("cec.select_level_bound.max"));
                 }
             }
         }

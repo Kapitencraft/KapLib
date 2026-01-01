@@ -1,12 +1,9 @@
 package net.kapitencraft.kap_lib.core.util;
 
 import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.core.Markers;
-import net.kapitencraft.kap_lib.core.ModrinthUtils;
 import net.kapitencraft.kap_lib.core.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
@@ -22,10 +19,10 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.progress.ProgressMeter;
 import net.neoforged.fml.loading.progress.StartupNotificationManager;
 import net.neoforged.neoforgespi.language.IModFileInfo;
-import net.neoforged.neoforgespi.language.IModInfo;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,11 +33,14 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * handles modrinth based update checks.
+ * to register, use {@link RegisterUpdateCheckersEvent}
+ */
 public class UpdateChecker {
-    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Logger LOGGER = LoggerFactory.getLogger("UpdateChecker");
     private static final Map<String, UpdateData> projectData = new HashMap<>();
     private static final Config config = loadConfig();
 
@@ -74,6 +74,11 @@ public class UpdateChecker {
         thread.start();
     }
 
+
+    /**
+     * @param autoUpdate whether discovered updates should be downloaded immediately
+     * @param channel what channels the checker will accept
+     */
     private record Config(boolean autoUpdate, Channel channel) {
         private static final Codec<Config> CODEC = RecordCodecBuilder.create(configInstance -> configInstance
                 .group(
@@ -155,6 +160,8 @@ public class UpdateChecker {
             Map<ComparableVersion, JsonObject> versionData = rawVersionData.collect(
                             CollectorHelper.toKeyMappedStream(
                                     object -> {
+                                        if (!config.channel.is(GsonHelper.getAsString(object, "version_type")))
+                                            return null; //skip non-matching channels
                                         String versionNumber = GsonHelper.getAsString(object, "version_number");
                                         Matcher matcher = updateData.versionExtractor.matcher(versionNumber);
                                         if (matcher.matches()) {
@@ -203,12 +210,33 @@ public class UpdateChecker {
     private record Result(@NotNull String modId, ComparableVersion currentVersion, ComparableVersion targetVersion,
                           Update update, Type type) {
 
+        /**
+         * possible result types
+         */
         private enum Type {
+            /**
+             * could not connect to the server
+             */
             CONNECTION_FAILED,
+            /**
+             * unexpected error
+             */
             FAILED,
+            /**
+             * version is up-to-date; no update available
+             */
             UP_TO_DATE,
+            /**
+             * version is outdated. there is an update available
+             */
             OUTDATED,
+            /**
+             * the mod does not exist
+             */
             UNKNOWN,
+            /**
+             * version is ahead
+             */
             AHEAD
         }
 
@@ -294,10 +322,6 @@ public class UpdateChecker {
 
     private static void info(String msg) {
         StartupNotificationManager.addModMessage(msg);
-        LOGGER.info(Markers.UPDATE_CHECKER, msg);
-    }
-
-    private static String dependenciesToString(List<? extends IModInfo.ModVersion> list) {
-        return list.stream().map(Object::toString).collect(Collectors.joining(", ", "[", "]"));
+        LOGGER.info(msg);
     }
 }

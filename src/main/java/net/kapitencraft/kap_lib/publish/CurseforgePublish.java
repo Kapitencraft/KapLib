@@ -1,16 +1,14 @@
 package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -28,7 +26,7 @@ public class CurseforgePublish {
      * @return whether the publishing was successful or not
      */
     //TODO make working
-    static boolean publish(AutoPublisher.Config config, HttpClient client) {
+    static boolean publish(AutoPublisher.Config config, HttpClient client, List<AutoPublisher.Source> sources) {
         String modId = config.modInfo().id();
         String modName = config.modInfo().name();
         String modVersion = config.modInfo().version();
@@ -74,7 +72,7 @@ public class CurseforgePublish {
                     return false;
                 }
             }
-            int[] versions = new int[] {mcVersionId, loaderVersionId, loaderId};
+            int[] versions = new int[]{mcVersionId, loaderVersionId, loaderId};
 
             String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
 
@@ -99,7 +97,6 @@ public class CurseforgePublish {
                     fileFooter.getBytes()
             );
 
-            //TODO
             for (String extraFile : config.modules()) {
                 File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
                 //addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
@@ -167,7 +164,7 @@ public class CurseforgePublish {
         return AutoPublisher.GSON.toJson(data);
     }
 
-    // Helper method to add a file field //TODO figure out how to upload modules
+    // Helper method to add a file field
     private static String getFileHeader(String boundary, File file) {
         return """
                 --%s\r
@@ -178,7 +175,8 @@ public class CurseforgePublish {
     }
 
     private static void addDependencies(AutoPublisher.DependencyInfo[] dependencies, Map<String, Object> data) throws IOException {
-        if (dependencies == null || dependencies.length < 1) return; //no need to add all this information if there's no dependency to add
+        if (dependencies == null || dependencies.length < 1)
+            return; //no need to add all this information if there's no dependency to add
         Map<String, Object> map = new HashMap<>();
         List<JsonObject> dependencyData = new ArrayList<>();
         map.put("projects", dependencyData);

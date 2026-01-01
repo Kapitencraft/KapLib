@@ -1,8 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.activation_triggers.core;
 
-import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimator;
+import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

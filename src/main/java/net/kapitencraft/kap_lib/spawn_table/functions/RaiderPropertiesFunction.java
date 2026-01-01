@@ -12,9 +12,10 @@ import net.minecraft.world.entity.raid.Raider;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class RaiderPropertiesFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<RaiderPropertiesFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<RaiderPropertiesFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.BOOL.optionalFieldOf("canJoinRaid", false).forGetter(f -> f.canJoinRaid),
             Codec.BOOL.optionalFieldOf("celebrating", false).forGetter(f -> f.celebrating)
     ).and(commonFields(i).t1()).apply(i, RaiderPropertiesFunction::new));

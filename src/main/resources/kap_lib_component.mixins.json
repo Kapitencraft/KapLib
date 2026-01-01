@@ -5,7 +5,11 @@
   "package": "net.kapitencraft.kap_lib.component.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
-    "client.StringRenderOutputMixin"
+    "client.StringRenderOutputMixin",
+    "client.BakedGlyphMixin",
+    "client.FontTextureMixin",
+    "client.FontSetMixin",
+    "client.ComponentFontManagerMixin"
   ],
   "mixins": [
     "ComponentSerializationMixin",

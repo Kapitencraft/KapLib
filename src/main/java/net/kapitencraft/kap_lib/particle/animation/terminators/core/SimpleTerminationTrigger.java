@@ -29,6 +29,7 @@ public abstract class SimpleTerminationTrigger<T extends TerminationTriggerInsta
 
     /**
      * triggers a check for this termination trigger
+     *
      * @param instanceFilter filter the instances use to check whether they are affected by the trigger
      */
     protected void trigger(Predicate<T> instanceFilter) {

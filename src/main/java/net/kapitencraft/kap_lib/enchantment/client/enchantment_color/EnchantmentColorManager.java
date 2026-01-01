@@ -4,8 +4,6 @@ import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.collection.DoubleMap;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
-import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.Holder;
@@ -68,15 +66,15 @@ public class EnchantmentColorManager {
                         List.of(),
                         new LevelRange(0, 0, true),
                         Style.EMPTY.withColor(ChatFormatting.GOLD)
-                ),
-                EnchantmentColor.create(
-                        I18n.get("enchantment_colors.over_level"),
-                        List.of(),
-                        List.of(),
-                        new LevelRange(1, 255, true),
-                        MiscHelper.withSpecial(Style.EMPTY, GlyphEffects.RAINBOW)
-                )
-        ));
+                )//,
+                //EnchantmentColor.create(
+                //        I18n.get("enchantment_colors.over_level"),
+                //        List.of(),
+                //        List.of(),
+                //        new LevelRange(1, 255, true),
+                //        GlyphEffects.RAINBOW.get().apply(Style.EMPTY))
+        )
+        );
     }
 
     public static EnchantmentColorManager load() {

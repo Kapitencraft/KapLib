@@ -1,11 +1,11 @@
 package net.kapitencraft.kap_lib.particle.registry.particle_animation;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.EmptyFinalizer;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.ParticleFinalizer;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.RemoveParticleFinalizer;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.SetLifeTimeFinalizer;
+import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;

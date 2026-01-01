@@ -11,7 +11,10 @@ import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * manager of all animations

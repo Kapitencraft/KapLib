@@ -3,10 +3,10 @@ package net.kapitencraft.kap_lib.core.config;
 import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements.Element;
 import net.minecraft.ChatFormatting;
 import net.neoforged.neoforge.common.ModConfigSpec;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;
 
-//TODO figure out how to do config compatible with KapLib and modules
 public class CoreClientModConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
@@ -23,12 +23,6 @@ public class CoreClientModConfig {
         CURSOR_MOVE_OFFSET = BUILDER.comment("how many lines below the top the cursor will start scrolling up")
                 .defineInRange("cursor_move_offset", 2, 0, 5);
 
-        BUILDER.pop().comment("configuration for enchantment display").push("enchantment");
-        SHOW_ENCHANTMENT_OBTAIN_DISPLAY = BUILDER.comment("whether to show the enchantments obtain display", "e.g. if it's a treasure enchantment or can't be traded with villagers", "only shows on books")
-                .define("obtain_display", true);
-        SHOW_ENCHANTMENT_APPLICABLE = BUILDER.comment("whether to show the items a given enchantment can be applied to", "only shows on books")
-                .define("show_applicable", true);
-
         BUILDER.pop();
         PING_COLOR = BUILDER
                 .comment("determines the color which indicates pings")
@@ -40,9 +34,6 @@ public class CoreClientModConfig {
     private static final ModConfigSpec.IntValue CURSOR_MOVE_OFFSET;
 
     private static final ModConfigSpec.EnumValue<ChatFormatting> PING_COLOR;
-
-    private static final ModConfigSpec.BooleanValue SHOW_ENCHANTMENT_OBTAIN_DISPLAY;
-    private static final ModConfigSpec.BooleanValue SHOW_ENCHANTMENT_APPLICABLE;
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -60,13 +51,5 @@ public class CoreClientModConfig {
 
     public static Element.FocusTypes getFocusType() {
         return FOCUS_TYPE.get();
-    }
-
-    public static boolean showObtainDisplay() {
-        return SHOW_ENCHANTMENT_OBTAIN_DISPLAY.get();
-    }
-
-    public static boolean showApplyDisplay() {
-        return SHOW_ENCHANTMENT_APPLICABLE.get();
     }
 }

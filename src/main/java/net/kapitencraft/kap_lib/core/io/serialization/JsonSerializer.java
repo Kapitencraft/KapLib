@@ -7,6 +7,9 @@ import com.mojang.serialization.JsonOps;
 
 import java.util.function.Supplier;
 
+/**
+ * a simple serializer storing data in JSON
+ */
 public class JsonSerializer<T> extends Serializer<JsonElement, JsonOps, T> {
     public JsonSerializer(Codec<T> codec, Supplier<T> defaulted) {
         super(JsonOps.INSTANCE, codec, defaulted);

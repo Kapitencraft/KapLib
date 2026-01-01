@@ -41,7 +41,7 @@ public class StringDecomposerMixin {
                     formattedStyle = format == ChatFormatting.RESET ? style2 : formattedStyle.applyLegacyFormat(format);
                 } else if (GlyphEffects.effectsForKey().containsKey(c1)) {
                     GlyphEffect effect = GlyphEffects.effectsForKey().get(c1);
-                    formattedStyle = MiscHelper.withSpecial(formattedStyle, effect);
+                    formattedStyle = effect.apply(formattedStyle);
                 }
             } else if (Character.isHighSurrogate(c0)) {
                 if (j + 1 >= i) {

@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.overlay;
 
-import net.kapitencraft.kap_lib.core.Modules;
+import net.kapitencraft.kap_lib.core.util.Modules;
 import net.kapitencraft.kap_lib.overlay.holder.MultiLineOverlay;
 import net.kapitencraft.kap_lib.overlay.holder.SimpleOverlay;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
@@ -13,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.ModList;
 
 import java.util.List;
 

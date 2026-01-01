@@ -6,6 +6,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec2;
 
+/**
+ * provides the position
+ */
 public class FromEntityRotationTarget implements RotationTarget {
     private final int entityId;
 

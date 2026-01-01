@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8.5",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "package": "net.kapitencraft.kap_lib.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
@@ -23,7 +23,9 @@
     "client.ShaderInstanceMixin",
     "client.SpriteLoaderMixin",
     "client.StringRenderOutputMixin",
-    "client.AddEnchantmentTooltipMixin"
+    "client.AddEnchantmentTooltipMixin",
+    "client.EnchantmentMixin",
+    "client.CameraMixin"
   ],
   "mixins": [
     "AbstractArrowMixin",
@@ -31,6 +33,7 @@
     "AttributeMixin",
     "AttributesMixin",
     "AttributeUtilMixin",
+    "AttributeUtilMixin$BaseModifierAccessor",
     "CarvedPumpkinMixin",
     "ClientboundAddEntityPacketMixin",
     "ClientboundSetEntityMotionPacketMixin",

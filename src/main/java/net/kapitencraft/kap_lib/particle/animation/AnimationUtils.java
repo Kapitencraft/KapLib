@@ -21,7 +21,7 @@ public interface AnimationUtils {
         for (int i = 0; i < tips; i++) {
             spawner.addSpawner(LineSpawner.builder()
                     .start(PositionTarget.relative(origin, point(angleBetweenTips * i).scale(radius)))
-                    .end(PositionTarget.relative(origin, point(angleBetweenTips * (i+1)).scale(radius)))
+                    .end(PositionTarget.relative(origin, point(angleBetweenTips * (i + 1)).scale(radius)))
                     .spacing(spacing)
                     .setParticle(starType)
             );

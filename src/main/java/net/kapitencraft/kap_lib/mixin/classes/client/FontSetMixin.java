@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
 import net.kapitencraft.kap_lib.shader.ModRenderTypes;
-import net.kapitencraft.kap_lib.shader.mixin.duck.IChromatic;
+import net.kapitencraft.kap_lib.component.mixin.duck.IChromatic;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.gui.font.FontTexture;
 import net.minecraft.client.gui.font.GlyphRenderTypes;

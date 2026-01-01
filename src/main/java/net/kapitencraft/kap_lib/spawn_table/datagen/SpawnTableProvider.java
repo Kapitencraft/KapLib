@@ -76,7 +76,7 @@ public class SpawnTableProvider implements DataProvider {
       Multimap<String, String> multimap = problemreporter$collector.get();
       if (!multimap.isEmpty()) {
          multimap.forEach((p_124446_, p_124447_) -> LOGGER.warn("Found validation problem in {}: {}", p_124446_, p_124447_));
-         throw new IllegalStateException("Failed to validate loot tables, see logs");
+         throw new IllegalStateException("Failed to validate spawn tables, see logs");
       } else {
          return CompletableFuture.allOf(writableregistry.entrySet().stream().map((p_335193_) -> {
             ResourceKey<SpawnTable> resourcekey1 = p_335193_.getKey();

@@ -3,7 +3,6 @@ package net.kapitencraft.kap_lib.enchantment.client.enchantment_applicable;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
 import com.mojang.logging.LogUtils;
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.client.Minecraft;

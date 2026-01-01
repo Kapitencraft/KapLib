@@ -1,3 +1,4 @@
 {
-  "asMod": true
+  "asMod": true,
+  "dependencies": ["mana"]
 }

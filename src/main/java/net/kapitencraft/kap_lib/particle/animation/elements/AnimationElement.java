@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
-import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,6 +23,7 @@ public interface AnimationElement {
 
     /**
      * called when this element start taking over the animation of the given config
+     *
      * @param object the config being initialized
      */
     default void initialize(ParticleConfig object) {
@@ -31,6 +32,7 @@ public interface AnimationElement {
 
     /**
      * called when this element has completed animating the given config
+     *
      * @param config the config being finalized
      */
     default void finalize(ParticleConfig config) {

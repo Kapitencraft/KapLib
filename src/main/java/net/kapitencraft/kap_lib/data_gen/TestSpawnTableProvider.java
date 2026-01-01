@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.data_gen;
 
+import net.kapitencraft.kap_lib.spawn_table.SpawnTableServerTestCommand;
 import net.kapitencraft.kap_lib.spawn_table.datagen.SpawnTableProvider;
 import net.kapitencraft.kap_lib.spawn_table.SpawnPool;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
@@ -26,10 +27,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 public class TestSpawnTableProvider extends SpawnTableProvider {
-    public static final ResourceKey<SpawnTable> TEST = ResourceKey.create(SpawnTableRegistries.Keys.SPAWN_TABLES, ResourceLocation.fromNamespaceAndPath("test", "test"));
 
     public TestSpawnTableProvider(PackOutput pOutput, CompletableFuture<HolderLookup.Provider> registries) {
-        super(pOutput, Set.of(TEST), List.of(
+        super(pOutput, Set.of(SpawnTableServerTestCommand.TEST), List.of(
                 new SubProviderEntry(TestSubProvider::new, LootContextParamSets.COMMAND)
         ), registries);
     }
@@ -39,7 +39,7 @@ public class TestSpawnTableProvider extends SpawnTableProvider {
         @Override
         public void generate(@NotNull BiConsumer<ResourceKey<SpawnTable>, SpawnTable.Builder> pOutput) {
 
-            pOutput.accept(TEST, SpawnTable.spawnTable()
+            pOutput.accept(SpawnTableServerTestCommand.TEST, SpawnTable.spawnTable()
                     .withPool(SpawnPool.spawnPool("villager")
                             .add(SpawnEntity.spawnTableEntity(EntityType.VILLAGER))
                             .apply(VillagerPropertiesFunction.builder()

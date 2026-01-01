@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.core.string_converter.converter;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.string_converter.args.CalculationArgument;
 import net.kapitencraft.kap_lib.core.string_converter.args.TransferArg;
 import net.kapitencraft.kap_lib.core.string_converter.args.ValueArgument;
@@ -54,16 +54,17 @@ public abstract class TextConverter<T> {
                 break;
             } else {
                 int pos = currentArgs.indexOf(toMerge);
-                ValueArgument<T> firstArg = (ValueArgument<T>) currentArgs.get(pos-1);
-                ValueArgument<T> secondArg = (ValueArgument<T>) currentArgs.get(pos+1);
+                ValueArgument<T> firstArg = (ValueArgument<T>) currentArgs.get(pos - 1);
+                ValueArgument<T> secondArg = (ValueArgument<T>) currentArgs.get(pos + 1);
                 ValueArgument<T> resultArg = ValueArgument.create(toMerge, firstArg, secondArg);
                 removeAll(currentArgs, toMerge, firstArg, secondArg);
-                currentArgs.add(pos-1, resultArg);
+                currentArgs.add(pos - 1, resultArg);
             }
             cycle++;
         }
-        if (cycle == 1000) KapLibMod.LOGGER.warn("the converter failed to convert value from args: {}; out of time", args);
-        return currentArgs.get(0).value();
+        if (cycle == 1000)
+            LibConstants.LOGGER.warn("the converter failed to convert value from args: {}; out of time", args);
+        return currentArgs.getFirst().value();
     }
 
     protected abstract boolean isArg(String s);
@@ -73,7 +74,7 @@ public abstract class TextConverter<T> {
         CalculationArgument<T> firstArg = null;
         for (TransferArg<T> transferArg : list) {
             if (transferArg instanceof CalculationArgument<T> mathArgument) {
-                if (mathArgument.isPreferred()){
+                if (mathArgument.isPreferred()) {
                     return mathArgument;
                 } else {
                     if (firstArg == null) {

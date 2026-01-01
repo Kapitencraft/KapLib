@@ -52,7 +52,6 @@ public class ClientEvents {
         PlayerHeadAllocator.getInstance().shutDown();
     }
 
-    @Unique
     private static String getWearableKey(ResourceKey<WearableSlot> key) {
         ResourceLocation location = key.location();
         return location.getNamespace() + "." + location.getPath();

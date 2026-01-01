@@ -16,9 +16,10 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class AddEffectsFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<AddEffectsFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<AddEffectsFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             MobEffectInstance.CODEC.listOf().fieldOf("effects").forGetter(f -> f.effects)
     ).and(commonFields(i).t1()).apply(i, AddEffectsFunction::new));
 

@@ -5,14 +5,16 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.kapitencraft.kap_lib.core.helpers.LootTableHelper;
 import net.kapitencraft.kap_lib.core.helpers.RNGHelper;
 import net.kapitencraft.kap_lib.loot.IConditional;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +35,7 @@ public class AddItemModifier extends ModLootModifier implements IConditional {
                         .optionalFieldOf("maxAmount", 1).forGetter(m -> m.maxAmount)
                 ).and(DataComponentPatch.CODEC.optionalFieldOf("nbt").forGetter(m -> Optional.ofNullable(m.components)));
     }
+
     public static final MapCodec<AddItemModifier> CODEC = RecordCodecBuilder.mapCodec(inst -> addItemCodecStart(inst).apply(inst, (conditionsIn, item1, chance1, maxAmount1, tagOptional) -> new AddItemModifier(conditionsIn, item1, chance1, maxAmount1, tagOptional.orElse(null))));
     final Item item;
     final int maxAmount;
@@ -55,7 +58,9 @@ public class AddItemModifier extends ModLootModifier implements IConditional {
     }
 
     public void addItem(Consumer<ItemStack> consumer, LootContext context, float chance) {
-        ItemStack stack = RNGHelper.calculateAndDontDrop(item, maxAmount, LootTableHelper.getLivingSource(context), chance);
+        Entity param = context.getParam(LootContextParams.ATTACKING_ENTITY);
+        if (!(param instanceof LivingEntity living)) return;
+        ItemStack stack = RNGHelper.calculateAndDontDrop(item, maxAmount, living, chance);
         if (components != null)
             stack.applyComponentsAndValidate(this.components);
         if (stack != ItemStack.EMPTY) {

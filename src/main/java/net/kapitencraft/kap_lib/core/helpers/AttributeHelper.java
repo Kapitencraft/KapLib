@@ -1,28 +1,14 @@
 package net.kapitencraft.kap_lib.core.helpers;
 
-import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
-import net.kapitencraft.kap_lib.core.Modules;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 
 public interface AttributeHelper {
-
-    /**
-     * gets the players experience scale, which should be multiplied with the base experience to get the final dropped experience
-     */
-    static double getExperienceScale(Player player) {
-        if (!Modules.isAttributesActive()) {
-            return 1;
-        }
-        double wisdom = player.getAttributeValue(ExtraAttributes.WISDOM);
-        return 1 + (wisdom / 100);
-    }
 
     /**
      * simple null-save attribute value method

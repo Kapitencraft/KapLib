@@ -1,21 +1,16 @@
 package net.kapitencraft.kap_lib.shader.config;
 
-import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements.Element;
 import net.kapitencraft.kap_lib.shader.chroma.ChromaOrigin;
 import net.kapitencraft.kap_lib.shader.chroma.ChromaType;
-import net.minecraft.ChatFormatting;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-import java.util.Arrays;
-
-//TODO figure out how to do config compatible with KapLib and modules
 public class ShaderClientModConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
     static {
 
-        BUILDER.pop().comment("data to determine how chroma text should be rendered").push("chroma");
+        BUILDER.comment("data to determine how chroma text should be rendered").push("chroma");
         CHROMA_SPEED = BUILDER
                 .comment("the speed of chroma")
                 .defineInRange("speed", 4., 1., 50.);
@@ -41,9 +36,11 @@ public class ShaderClientModConfig {
     public static float getChromaSpeed() {
         return (float) (double) CHROMA_SPEED.get();
     }
+
     public static float getChromaSpacing() {
         return (float) (double) CHROMA_SPACING.get();
     }
+
     public static ChromaOrigin getChromaOrigin() {
         return CHROMA_ORIGIN.get();
     }

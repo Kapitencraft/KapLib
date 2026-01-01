@@ -15,7 +15,8 @@ import java.util.*;
 
 
 /**
- * the capability cooldown representation. does not need to be modified outside of this library
+ * the capability cooldown representation.
+ * use {@link Cooldown#applyCooldown(LivingEntity, boolean)} to add cooldowns to entities
  */
 @ApiStatus.Internal
 public class Cooldowns {

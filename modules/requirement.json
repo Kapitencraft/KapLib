@@ -1,5 +1,8 @@
 {
   "asMod": true,
   "extensions": false,
-  "at": false
+  "at": false,
+  "data": [
+    "test/requirements/**"
+  ]
 }

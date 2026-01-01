@@ -104,6 +104,9 @@ public interface CollectorHelper {
         });
     }
 
+    /**
+     * @return a collector to collect into a list of pairs with mapped second entries
+     */
     static <T, S> Collector<T, ?, List<Pair<T, S>>> toValueMappedPairList(Function<T, S> valueExtractor) {
         return toPairList(Function.identity(), valueExtractor);
     }

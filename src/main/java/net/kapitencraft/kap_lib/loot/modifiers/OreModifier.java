@@ -2,12 +2,10 @@ package net.kapitencraft.kap_lib.loot.modifiers;
 
 import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.kapitencraft.kap_lib.event.custom.ModifyOreDropsEvent;
-import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
-import net.kapitencraft.kap_lib.core.helpers.LootTableHelper;
+import net.kapitencraft.kap_lib.loot.event.custom.ModifyOreDropsEvent;
 import net.kapitencraft.kap_lib.loot.IConditional;
-import net.kapitencraft.kap_lib.loot.LootContextReader;
-import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -18,7 +16,7 @@ import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import org.jetbrains.annotations.NotNull;
 
 public class OreModifier extends ModLootModifier implements IConditional {
-    public static final MapCodec<OreModifier> CODEC = LootTableHelper.simpleCodec(OreModifier::new);
+    public static final MapCodec<OreModifier> CODEC = IConditional.simpleCodec(OreModifier::new);
 
     protected OreModifier(LootItemCondition[] conditionsIn) {
         super(conditionsIn);
@@ -26,14 +24,18 @@ public class OreModifier extends ModLootModifier implements IConditional {
 
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-        LootContextReader.simple(context, BlockState.class, LootContextParams.BLOCK_STATE).ifPresent(state -> generatedLoot.forEach(stack -> {
-            double attributeValue = AttributeHelper.getSaveAttributeValue(ExtraAttributes.MINING_FORTUNE, LootTableHelper.getLivingSource(context));
-            if (stack.getItem() != state.getBlock().asItem()) {
-                ModifyOreDropsEvent event = new ModifyOreDropsEvent(stack.getCount() * (int) (1 + attributeValue / 100));
-                NeoForge.EVENT_BUS.post(event);
-                stack.setCount(event.dropCount.calculate());
-            }
-        }));
+        BlockState state = context.getParam(LootContextParams.BLOCK_STATE);
+        if (state != null) {
+            Entity param = context.getParam(LootContextParams.THIS_ENTITY);
+            if (!(param instanceof LivingEntity)) return generatedLoot;
+            generatedLoot.forEach(stack -> {
+                if (stack.getItem() != state.getBlock().asItem()) {
+                    ModifyOreDropsEvent event = new ModifyOreDropsEvent(stack.getCount());
+                    NeoForge.EVENT_BUS.post(event);
+                    stack.setCount(event.dropCount.calculate());
+                }
+            });
+        }
         return generatedLoot;
     }
 

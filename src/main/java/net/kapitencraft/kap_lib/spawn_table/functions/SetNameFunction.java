@@ -13,9 +13,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetNameFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetNameFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetNameFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             ComponentSerialization.CODEC.fieldOf("name").forGetter(f -> f.name)
             ).and(commonFields(i).t1()).apply(i, SetNameFunction::new)
     );

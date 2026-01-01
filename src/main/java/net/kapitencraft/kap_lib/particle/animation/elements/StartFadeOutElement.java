@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
-import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

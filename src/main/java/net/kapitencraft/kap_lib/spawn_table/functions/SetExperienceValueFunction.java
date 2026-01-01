@@ -13,9 +13,10 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetExperienceValueFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetExperienceValueFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetExperienceValueFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.INT.fieldOf("value").forGetter(f -> f.value)
     ).and(commonFields(i).t1()).apply(i, SetExperienceValueFunction::new));
 

@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.component.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-//TODO figure out how to do config compatible with KapLib and modules
 public class ComponentClientModConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();

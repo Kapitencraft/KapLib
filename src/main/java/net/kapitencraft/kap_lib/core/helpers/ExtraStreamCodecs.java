@@ -24,6 +24,7 @@ import java.util.function.Function;
 
 public class ExtraStreamCodecs {
 
+    //region composite
     /**
      * composite stream codec for 7 elements
      */
@@ -51,7 +52,7 @@ public class ExtraStreamCodecs {
             }
 
             @Override
-            public void encode(B buffer, C value) {
+            public void encode(@NotNull B buffer, @NotNull C value) {
                 codec1.encode(buffer, getter1.apply(value));
                 codec2.encode(buffer, getter2.apply(value));
                 codec3.encode(buffer, getter3.apply(value));
@@ -92,7 +93,7 @@ public class ExtraStreamCodecs {
             }
 
             @Override
-            public void encode(B buffer, C value) {
+            public void encode(@NotNull B buffer, @NotNull C value) {
                 codec1.encode(buffer, getter1.apply(value));
                 codec2.encode(buffer, getter2.apply(value));
                 codec3.encode(buffer, getter3.apply(value));
@@ -136,7 +137,7 @@ public class ExtraStreamCodecs {
             }
 
             @Override
-            public void encode(B buffer, C value) {
+            public void encode(@NotNull B buffer, @NotNull C value) {
                 codec1.encode(buffer, getter1.apply(value));
                 codec2.encode(buffer, getter2.apply(value));
                 codec3.encode(buffer, getter3.apply(value));
@@ -183,7 +184,7 @@ public class ExtraStreamCodecs {
             }
 
             @Override
-            public void encode(B buffer, C value) {
+            public void encode(@NotNull B buffer, @NotNull C value) {
                 codec1.encode(buffer, getter1.apply(value));
                 codec2.encode(buffer, getter2.apply(value));
                 codec3.encode(buffer, getter3.apply(value));
@@ -197,11 +198,18 @@ public class ExtraStreamCodecs {
             }
         };
     }
+    //endregion
 
+    /**
+     * creates an StreamCodec that is able to send Enum entries
+     */
     public static <E extends Enum<E>> StreamCodec<ByteBuf, E> enumCodec(E[] elements) {
         return ByteBufCodecs.idMapper(v -> elements[v], Enum::ordinal);
     }
 
+    /**
+     * Vec3 stream codec
+     */
     public static final StreamCodec<? super FriendlyByteBuf, Vec3> VEC_3 = StreamCodec.of(FriendlyByteBuf::writeVec3, FriendlyByteBuf::readVec3);
 
     public static final StreamCodec<? super ByteBuf, EquipmentSlot> EQUIPMENT_SLOT = ByteBufCodecs.STRING_UTF8.map(EquipmentSlot::byName, EquipmentSlot::getName);
@@ -216,10 +224,15 @@ public class ExtraStreamCodecs {
         return p_320272_ -> ByteBufCodecs.map(HashMap::new, keyCodec, p_320272_);
     }
 
+    /**
+     * creates a codec to serialize googles Multimaps
+     * @param keyCodec the key of the multimap
+     * @param valueCodec the value of the multimap
+     */
     public static <B extends ByteBuf, K, V> StreamCodec<B, Multimap<K, V>> multimap(StreamCodec<? super B, K> keyCodec, StreamCodec<? super B, V> valueCodec) {
         return new StreamCodec<>() {
             @Override
-            public Multimap<K, V> decode(B buffer) {
+            public @NotNull Multimap<K, V> decode(@NotNull B buffer) {
                 int size = buffer.readInt();
                 Multimap<K, V> map = HashMultimap.create();
                 for (int i = 0; i < size; i++) {
@@ -235,13 +248,13 @@ public class ExtraStreamCodecs {
             }
 
             @Override
-            public void encode(B buffer, Multimap<K, V> value) {
+            public void encode(@NotNull B buffer, @NotNull Multimap<K, V> value) {
                 Set<K> keys = value.keySet();
                 buffer.writeInt(keys.size());
                 for (K k : keys) {
                     keyCodec.encode(buffer, k);
                     Collection<V> values = value.get(k);
-                    buffer.writeInt(value.size());
+                    buffer.writeInt(values.size());
                     values.forEach(v -> valueCodec.encode(buffer, v));
                 }
             }
@@ -251,7 +264,7 @@ public class ExtraStreamCodecs {
     public static <B extends ByteBuf, MK, K, V> StreamCodec<B, DoubleMap<MK, K, V>> doubleMap(StreamCodec<? super B, MK> key1Codec, StreamCodec<? super B, K> key2Codec, StreamCodec<? super B, V> valueCodec) {
         return new StreamCodec<>() {
             @Override
-            public DoubleMap<MK, K, V> decode(B buffer) {
+            public @NotNull DoubleMap<MK, K, V> decode(@NotNull B buffer) {
                 int size = buffer.readInt();
                 DoubleMap<MK, K, V> map = new DoubleMap<>();
                 for (int i = 0; i < size; i++) {
@@ -267,7 +280,7 @@ public class ExtraStreamCodecs {
             }
 
             @Override
-            public void encode(B buffer, DoubleMap<MK, K, V> value) {
+            public void encode(@NotNull B buffer, @NotNull DoubleMap<MK, K, V> value) {
                 Set<MK> keys = value.keySet();
                 buffer.writeInt(keys.size());
                 for (MK key : keys) {

@@ -3,11 +3,12 @@
   "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_21",
   "package": "net.kapitencraft.kap_lib.core.mixin.classes",
-  "refmap": "kap_lib_attribute.mixin-refmap.json",
+  "refmap": "kap_lib_core.mixin-refmap.json",
   "client": [
     "client.ChatScreenMixin"
   ],
   "mixins": [
+    "AttributeMixin",
     "AbstractArrowMixin",
     "AnvilMenuMixin",
     "CarvedPumpkinMixin",

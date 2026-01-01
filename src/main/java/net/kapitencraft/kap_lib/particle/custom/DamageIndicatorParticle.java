@@ -3,8 +3,7 @@ package net.kapitencraft.kap_lib.particle.custom;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.particle.config.ParticleClientModConfig;
@@ -33,8 +32,8 @@ public class DamageIndicatorParticle extends Particle {
     protected DamageIndicatorParticle(ClientLevel level, double x, double y, double z, double amount, double damageType, float rangeOffset) {
         super(level, x, y, z);
 
-        this.text = amount == Float.MAX_VALUE ? "INFINITE" : KapLibMod.doubleFormat(amount);
-        this.color = TextHelper.damageIndicatorColorFromDouble(damageType).getColor();
+        this.text = amount == Float.MAX_VALUE ? "INFINITE" : LibConstants.doubleFormat(amount);
+        this.color = DamageIndicatorParticleOptions.damageIndicatorColorFromDouble(damageType).getColor();
         this.setColor(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color));
         this.darkColor = FastColor.ARGB32.color(255, (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25));
         this.lifetime = ParticleClientModConfig.getIndicatorLifetime();
@@ -42,8 +41,6 @@ public class DamageIndicatorParticle extends Particle {
         this.yd = rangeOffset;
         this.xd = Mth.nextDouble(MathHelper.RANDOM_SOURCE, -MAX_MOVEMENT, MAX_MOVEMENT) * rangeOffset;
     }
-
-    private static final char CRIT_CHAR = ' '; //TODO add stars around damage if critical
 
     private float fadeout = -1;
     private float prevFadeout = -1;
@@ -142,9 +139,7 @@ public class DamageIndicatorParticle extends Particle {
 
     public static class Provider implements ParticleProvider<DamageIndicatorParticleOptions> {
 
-        public Provider() {
-
-        }
+        public Provider() {}
 
         @Nullable
         @Override

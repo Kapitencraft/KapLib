@@ -5,13 +5,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import net.kapitencraft.kap_lib.bonus.Bonus;
+import net.kapitencraft.kap_lib.bonus.registry.BonusRegistries;
 import net.kapitencraft.kap_lib.core.collection.DoubleMap;
 import net.kapitencraft.kap_lib.core.collection.MapStream;
 import net.kapitencraft.kap_lib.inventory_page.registry.custom.InventoryPageRegistries;
 import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
-import net.kapitencraft.kap_lib.bonus.Bonus;
-import net.kapitencraft.kap_lib.bonus.registry.BonusRegistries;
-import net.kapitencraft.kap_lib.item.combat.armor.AbstractArmorItem;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -33,7 +32,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -41,7 +39,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * data generator for item bonuses
+ * data generator for bonuses
+ * <br> if the inventory page module is installed, use {@link WearableBonusProvider} instead
  */
 public abstract class BonusProvider extends ItemTagsProvider {
     private final PackOutput output;
@@ -52,9 +51,10 @@ public abstract class BonusProvider extends ItemTagsProvider {
 
     /**
      * creates a new BonusProvider
-     * @param output the data output
-     * @param modId the mod id
-     * @param pLookupProvider access to the registries
+     *
+     * @param output             the data output
+     * @param modId              the mod id
+     * @param pLookupProvider    access to the registries
      * @param existingFileHelper existing file helper
      */
     public BonusProvider(PackOutput output, String modId, CompletableFuture<HolderLookup.Provider> pLookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
@@ -92,11 +92,11 @@ public abstract class BonusProvider extends ItemTagsProvider {
     public @NotNull CompletableFuture<?> run(@NotNull CachedOutput pOutput) {
         register();
         List<? extends CompletableFuture<?>> setExecutors = MapStream.of(this.setBuilders)
-            .mapToSimple((key, builder) -> {
-                Path path = output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve(this.modId).resolve("bonuses").resolve("set")
-                        .resolve(key + ".json");
-                return DataProvider.saveStable(pOutput, saveSet(builder), path);
-            }).toList();
+                .mapToSimple((key, builder) -> {
+                    Path path = output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve(this.modId).resolve("bonuses").resolve("set")
+                            .resolve(key + ".json");
+                    return DataProvider.saveStable(pOutput, saveSet(builder), path);
+                }).toList();
         List<CompletableFuture<?>> itemExecutors = new ArrayList<>();
         this.itemBuilders.forAllEach((item, location, itemBuilder) -> {
             Path path = output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve(this.modId).resolve("bonuses")
@@ -121,8 +121,8 @@ public abstract class BonusProvider extends ItemTagsProvider {
                     .ifPresent(e -> main.add("bonus", e));
         }
 
-        if (item != null) main.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item), "unknown item with class: " + item.getClass().getCanonicalName()).toString());
-        main.addProperty("type", Objects.requireNonNull(BonusRegistries.SERIALIZERS.getKey(itemBuilder.bonus.getSerializer()), "unknown bonus with class: " + itemBuilder.bonus.getClass().getCanonicalName()).toString());
+        if (item != null)
+            main.addProperty("item", Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item), "unknown item with class: " + item.getClass().getCanonicalName()).toString());
         return main;
     }
 
@@ -134,11 +134,6 @@ public abstract class BonusProvider extends ItemTagsProvider {
                 array.add(slot.getName());
             }
             main.add("equipment_slots", array);
-            JsonArray wearables = new JsonArray();
-            for (WearableSlot slot : builder.wearableContent.keySet()) {
-                wearables.add(InventoryPageRegistries.WEARABLE_SLOTS.getKey(slot).toString());
-            }
-            main.add("wearable_slots", wearables);
         }
         return main;
     }
@@ -149,8 +144,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
     }
 
     protected class SetBuilder extends ItemBuilder {
-        private final Map<EquipmentSlot, SetSlotBuilder> equipmentContent = new HashMap<>();
-        private final Map<WearableSlot, SetSlotBuilder> wearableContent = new LinkedHashMap<>(); //ensure order is preserved
+        private final Map<EquipmentSlot, SetSlotBuilder> equipmentContent = new EnumMap<>(EquipmentSlot.class);
         private final String name;
 
         protected SetBuilder(String name) {
@@ -170,42 +164,12 @@ public abstract class BonusProvider extends ItemTagsProvider {
             return this.slot(slot, supplier.get());
         }
 
-        public SetBuilder armor(Map<ArmorItem.Type, ? extends Supplier<? extends AbstractArmorItem>> armors) {
-            for (Map.Entry<ArmorItem.Type, ? extends Supplier<? extends AbstractArmorItem>> piece : armors.entrySet()) {
+        public SetBuilder armor(Map<ArmorItem.Type, ? extends Supplier<? extends Item>> armors) {
+            for (Map.Entry<ArmorItem.Type, ? extends Supplier<? extends Item>> piece : armors.entrySet()) {
                 EquipmentSlot slot = piece.getKey().getSlot();
                 this.slot(slot, piece.getValue());
             }
             return this;
-        }
-
-        public SetBuilder slot(WearableSlot slot, Consumer<SetSlotBuilder> builder) {
-            ResourceLocation location = InventoryPageRegistries.WEARABLE_SLOTS.getKey(slot);
-            if (location == null) throw new IllegalArgumentException("unregistered wearable slot detected!");
-            wearableContent.putIfAbsent(slot, Util.make(new SetSlotBuilder(ResourceLocation.fromNamespaceAndPath(BonusProvider.this.modId, "set/" + name + "/wearable/" + location.getNamespace() + "/" + location.getPath())), builder));
-            return this;
-        }
-
-        public SetBuilder slot(Holder<WearableSlot> slot, Item item) {
-            return this.slot(slot, setSlotBuilder -> setSlotBuilder.add(item));
-        }
-
-        public SetBuilder slot(Holder<WearableSlot> slot, Supplier<? extends Item> supplier) {
-            return this.slot(slot, supplier.get());
-        }
-
-        public SetBuilder slot(Holder<WearableSlot> slot, Consumer<SetSlotBuilder> builder) {
-            if (!slot.isBound()) throw new IllegalArgumentException("unregistered wearable slot detected!");
-            ResourceLocation location = slot.getKey().location();
-            wearableContent.putIfAbsent(slot.value(), Util.make(new SetSlotBuilder(ResourceLocation.fromNamespaceAndPath(BonusProvider.this.modId, "set/" + name + "/wearable/" + location.getNamespace() + "/" + location.getPath())), builder));
-            return this;
-        }
-
-        public SetBuilder slot(WearableSlot slot, Item item) {
-            return this.slot(slot, setSlotBuilder -> setSlotBuilder.add(item));
-        }
-
-        public SetBuilder slot(WearableSlot slot, Supplier<? extends Item> supplier) {
-            return this.slot(slot, supplier.get());
         }
 
         @Override
@@ -295,7 +259,6 @@ public abstract class BonusProvider extends ItemTagsProvider {
     protected void addTags(@NotNull HolderLookup.Provider pProvider) {
         this.setBuilders.values().forEach(setBuilder -> {
             setBuilder.equipmentContent.values().forEach(setSlotBuilder -> builders.put(setSlotBuilder.key.location(), setSlotBuilder.builder));
-            setBuilder.wearableContent.values().forEach(setSlotBuilder -> builders.put(setSlotBuilder.key.location(), setSlotBuilder.builder));
         });
     }
 }

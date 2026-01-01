@@ -4,14 +4,13 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.core.Markers;
+import net.kapitencraft.kap_lib.core.util.Loggers;
 import net.kapitencraft.kap_lib.core.collection.MapStream;
-import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,9 +20,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public final class SetAttributesFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetAttributesFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetAttributesFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.pair(Attribute.CODEC, Modifiers.CODEC).listOf().fieldOf("modifiers").forGetter(f -> f.data)
     ).and(commonFields(i).t1()).apply(i, SetAttributesFunction::new));
 
@@ -41,7 +41,7 @@ public final class SetAttributesFunction extends SpawnEntityConditionalFunction 
                 try {
                     pair.getSecond().apply(living.getAttribute(pair.getFirst()));
                 } catch (Exception e) {
-                    KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "unable to apply attribute modifiers for '{}': {}", pair.getFirst().getKey().location(), e.getMessage());
+                    Loggers.SPAWN_TABLE_MANAGER.warn("unable to apply attribute modifiers for '{}': {}", pair.getFirst().getKey().location(), e.getMessage());
                 }
             }
         } else logWrongType("LivingEntity", pEntity);

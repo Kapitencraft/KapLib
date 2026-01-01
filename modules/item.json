@@ -1,5 +1,6 @@
 {
   "asMod": true,
   "extensions": false,
-  "at": false
+  "at": false,
+  "dependencies": ["inventory_page"]
 }

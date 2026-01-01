@@ -11,6 +11,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * abstract class for all DropDownMenu elements
+ */
 public abstract class Element implements Renderable {
     private static final int BACKGROUND_COLOR = 0xFF090909, FOCUS_COLOR = 0xFF7F7F7F;
     public static final int OFFSET_PER_ELEMENT = 10;
@@ -50,6 +53,11 @@ public abstract class Element implements Renderable {
         this.y = y;
     }
 
+    /**
+     * called when the user clicks on this element.
+     * @param relativeX the x position of the mouse relative to the left position of the element
+     * @param relativeY the y position of the mouse relative to the top position of the element
+     */
     public abstract void click(float relativeX, float relativeY);
 
     public void startHovering(int x, int y) {
@@ -111,7 +119,6 @@ public abstract class Element implements Renderable {
         OUTLINE("outline"),
         BACKGROUND("background");
 
-
         private final String serializedName;
 
         FocusTypes(String serializedName) {
@@ -127,7 +134,6 @@ public abstract class Element implements Renderable {
     public abstract static class Builder<T extends Element, I extends Builder<T, I>> {
         protected Component name;
 
-        @SuppressWarnings("unchecked")
         public I setName(Component name) {
             this.name = name;
             return (I) this;

@@ -8,7 +8,7 @@ import net.kapitencraft.kap_lib.core.client.BannerPatternRenderer;
 import net.kapitencraft.kap_lib.core.client.UsefulTextures;
 import net.kapitencraft.kap_lib.core.client.widget.PositionedWidget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.core.Color;
+import net.kapitencraft.kap_lib.core.util.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.geom.ModelPart;

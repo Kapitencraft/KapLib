@@ -8,14 +8,12 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
-public class EntityPositionTarget implements PositionTarget {
-    private final int target;
-    private final EntityAnchorArgument.Anchor anchor;
-
-    public EntityPositionTarget(int target, EntityAnchorArgument.Anchor anchor) {
-        this.target = target;
-        this.anchor = anchor;
-    }
+/**
+ * a position target returns the position of an entity. the anchor can be used to specify whether to return the feet position or the head position
+ * @param target the target entity, as its entity id
+ * @param anchor the anchor of the position. either feet or head
+ */
+public record EntityPositionTarget(int target, EntityAnchorArgument.Anchor anchor) implements PositionTarget {
 
     @Override
     public Vec3 get() {

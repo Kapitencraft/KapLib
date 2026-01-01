@@ -22,6 +22,9 @@ public class ExtraTags {
     }
 
     public interface Enchantments {
+        /**
+         * ultimate enchantments. only one of them can be applied at a time
+         */
         TagKey<Enchantment> ULTIMATE = modKey("ultimate");
 
         static TagKey<Enchantment> modKey(String path) {

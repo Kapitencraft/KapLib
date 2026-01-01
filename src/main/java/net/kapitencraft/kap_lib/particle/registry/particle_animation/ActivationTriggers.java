@@ -1,9 +1,9 @@
 package net.kapitencraft.kap_lib.particle.registry.particle_animation;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.EntityAddedTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
+import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;

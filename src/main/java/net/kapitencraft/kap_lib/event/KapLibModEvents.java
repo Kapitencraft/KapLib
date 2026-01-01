@@ -1,7 +1,9 @@
 package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.component.registry.custom.ComponentRegistries;
+import net.kapitencraft.kap_lib.cooldown.registry.CooldownRegistries;
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.inventory_page.registry.custom.InventoryPageRegistries;
 import net.kapitencraft.kap_lib.overlay.registry.custom.OverlayRegistries;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.kapitencraft.kap_lib.enchantment.EnchantmentEffectRegistries;
@@ -10,6 +12,7 @@ import net.kapitencraft.kap_lib.bonus.registry.BonusRegistries;
 import net.kapitencraft.kap_lib.item.creative_tab.TabGroup;
 import net.kapitencraft.kap_lib.item.misc.AnvilUses;
 import net.kapitencraft.kap_lib.camera.registry.custom.CameraRegistries;
+import net.kapitencraft.kap_lib.requirement.registry.RequirementRegistries;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
 import net.kapitencraft.kap_lib.core.util.UpdateChecker;
 import net.kapitencraft.kap_lib.spawn_table.registry.SpawnTableRegistries;
@@ -45,6 +48,9 @@ public class KapLibModEvents {
         ComponentRegistries.registerAll(event::register);
         CameraRegistries.registerAll(event::register);
         OverlayRegistries.registerAll(event::register);
+        CooldownRegistries.registerAll(event::register);
+        InventoryPageRegistries.registerAll(event::register);
+        RequirementRegistries.registerAll(event::register);
     }
 
     @SubscribeEvent

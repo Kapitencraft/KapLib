@@ -1,8 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
-import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;

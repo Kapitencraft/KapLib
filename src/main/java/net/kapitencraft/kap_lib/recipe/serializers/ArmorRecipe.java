@@ -174,7 +174,7 @@ public class ArmorRecipe extends CustomRecipe {
             ArmorType[] values = ArmorType.values();
             List<ResourceLocation> locations = stringListEither.map(string -> Arrays.stream(values)
                     .map(ArmorType::getSerializedName)
-                    .map(s -> TextHelper.mergeRegister(string, s)
+                    .map(s -> string + "_" + s
                     ).map(ResourceLocation::parse).toList(), Function.identity()
             );
             Map<ArmorType, ItemStack> stackMap = new HashMap<>();

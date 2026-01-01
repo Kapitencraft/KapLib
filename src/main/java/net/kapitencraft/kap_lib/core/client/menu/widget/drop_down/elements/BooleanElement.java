@@ -10,10 +10,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public class BooleanElement extends Element implements IValueModifierElement<BooleanElement, Boolean> {
+/**
+ * a simple element that stores a boolean and can be toggled on click
+ */
+public class BooleanElement extends Element implements IValueModifierElement<Boolean> {
 
     private final Consumer<Boolean> onChange;
     private boolean selected = false;
+
     protected BooleanElement(ListElement parent, DropDownMenu menu, Component name, Consumer<Boolean> onChange) {
         super(parent, menu, name);
         this.onChange = onChange;

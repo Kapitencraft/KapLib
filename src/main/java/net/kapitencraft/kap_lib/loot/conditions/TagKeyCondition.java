@@ -3,9 +3,8 @@ package net.kapitencraft.kap_lib.loot.conditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.loot.registry.ExtraLootItemConditions;
 import net.kapitencraft.kap_lib.core.util.Reference;
-import net.kapitencraft.kap_lib.loot.LootContextReader;
+import net.kapitencraft.kap_lib.loot.registry.ExtraLootItemConditions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -14,7 +13,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
@@ -77,13 +75,16 @@ public class TagKeyCondition implements LootItemCondition {
         Reference<Boolean> reference = Reference.of(false);
         switch (this.type) {
             case ENTITY, ITEM -> {
-                LootContextReader.simple(context, Entity.class, (LootContextParam<Entity>) target.getParam()).ifPresent(entity -> {
-                    if (type == Type.ENTITY) reference.setValue(entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(id))));
-                    else reference.setValue(entity instanceof LivingEntity living ? living.getMainHandItem().is(TagKey.create(Registries.ITEM, ResourceLocation.parse(id))) : false);
-                });
+                Entity entity = context.getParam(target.getParam());
+                return entity != null &&
+                        type == Type.ENTITY ?
+                        entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(id))) :
+                        entity instanceof LivingEntity living &&
+                                living.getMainHandItem().is(TagKey.create(Registries.ITEM, ResourceLocation.parse(id)));
             }
             case BLOCK -> {
-                LootContextReader.simple(context, BlockState.class, LootContextParams.BLOCK_STATE).ifPresent(state -> reference.setValue(state.is(TagKey.create(Registries.BLOCK, ResourceLocation.parse(id)))));
+                BlockState state = context.getParam(LootContextParams.BLOCK_STATE);
+                return state != null && state.is(TagKey.create(Registries.BLOCK, ResourceLocation.parse(id)));
             }
         }
         return reference.getValue();

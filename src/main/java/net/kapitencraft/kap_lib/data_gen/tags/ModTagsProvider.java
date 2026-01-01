@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.data_gen.tags;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.data_gen.ModDamageTypes;
 import net.kapitencraft.kap_lib.core.tags.ExtraTags;
 import net.kapitencraft.kap_lib.mana.ManaDamageTypes;
 import net.minecraft.core.HolderLookup;

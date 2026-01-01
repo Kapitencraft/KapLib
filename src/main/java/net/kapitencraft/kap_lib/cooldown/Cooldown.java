@@ -29,29 +29,52 @@ public class Cooldown {
         this.toDo = toDo;
     }
 
+    /**
+     * applies or resets this cooldown on the given entity
+     * @param living the entity to apply the cooldown to
+     * @param reduceWithTime if the {@link CooldownAttributes#COOLDOWN_REDUCTION} attribute should be considered
+     */
     public void applyCooldown(LivingEntity living, boolean reduceWithTime) {
         Cooldowns.get(living).applyCooldown(living, this, reduceWithTime);
     }
 
+    /**
+     * @param living the entity of the request
+     * @param reduceWithTime whether the {@link CooldownAttributes#COOLDOWN_REDUCTION} attribute should be considered
+     * @return the time in ticks the cooldown would be active
+     */
     public int getCooldownTime(LivingEntity living, boolean reduceWithTime) {
         double mul = reduceWithTime ? living.getAttributeValue(CooldownAttributes.COOLDOWN_REDUCTION) : 0;
         return (int) (defaultTime * (1 - mul / 100));
     }
 
-    public int getActiveCooldownTime(LivingEntity living) {
+    /**
+     * gets the remaining time of this cooldown on the given entity.
+     * @param living the entity to query
+     * @return the remaining time or 0 if it is not active
+     */
+    public int getRemainingCooldownTime(LivingEntity living) {
         return Cooldowns.get(living).getCooldownTime(this);
     }
 
+    /**
+     * @param entity the entity to query
+     * @return whether this cooldown is active on the given entity
+     */
     public boolean isActive(LivingEntity entity) {
         return Cooldowns.get(entity).isActive(this);
     }
 
+    @ApiStatus.Internal
     public void onDone(LivingEntity living) {
         toDo.accept(living);
     }
 
+    /**
+     * creates a component indicating the active time and the full time of this cooldown
+     */
     public Component createDisplay(LivingEntity living) {
-        int cooldownTicks = getActiveCooldownTime(living);
+        int cooldownTicks = getRemainingCooldownTime(living);
         int defaultTime = getCooldownTime(living, true);
         return Component.translatable("cooldown.display", (cooldownTicks > 0 ?
                 Component.translatable("cooldown.active").withStyle(ChatFormatting.RED).append(CommonComponents.SPACE).append(Component.literal("(" + MathHelper.shortRound(cooldownTicks / 20.) + "s)").withStyle(ChatFormatting.DARK_GRAY))

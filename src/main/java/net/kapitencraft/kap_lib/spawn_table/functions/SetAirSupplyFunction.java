@@ -11,9 +11,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetAirSupplyFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetAirSupplyFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetAirSupplyFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.INT.fieldOf("supply").forGetter(f -> f.supply)
     ).and(commonFields(i).t1()).apply(i, SetAirSupplyFunction::new));
 

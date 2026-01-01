@@ -32,14 +32,12 @@ public class IOHelper {
     private static final String LENGTH_ID = "Length";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-
     /**
      * @return if the tag contains the given id, and it's an Integer type, and it's value is > 0
      */
     public static boolean checkForIntAbove0(CompoundTag tag, String name) {
         return tag.contains(name, 3) && tag.getInt(name) > 0;
     }
-
 
     /**
      * @return if the tag is null or empty
@@ -209,6 +207,10 @@ public class IOHelper {
                 .map(creator);
     }
 
+    /**
+     * @param s the string to convert
+     * @return the parsed tag or a new one if the input was invalid
+     */
     public static CompoundTag fromString(String s) {
         try {
             return new TagParser(new StringReader(s)).readStruct();
@@ -276,6 +278,9 @@ public class IOHelper {
         return listTag;
     }
 
+    /**
+     * gets or creates a new entry in the given Tag with the given name
+     */
     public static CompoundTag getOrCreateCompound(CompoundTag tag, String name) {
         if (tag.contains(name, 10)) return tag.getCompound(name);
         CompoundTag data = new CompoundTag();
@@ -283,6 +288,9 @@ public class IOHelper {
         return data;
     }
 
+    /**
+     * gets or creates a new list in the given Tag with the given name and type
+     */
     public static ListTag getOrCreateList(CompoundTag tag, String name, int listType) {
         if (tag.contains(name, Tag.TAG_LIST)) return tag.getList(name, listType);
         ListTag listTag = new ListTag();
@@ -376,6 +384,12 @@ public class IOHelper {
         }
     }
 
+    /**
+     * if the given file does not exist, return an empty list
+     * lists all files within that directory, including files inside other files
+     * if the given file is not a directory, return itself instead
+     * @param file the file to get all children of
+     */
     public static List<File> listResources(File file) {
         if (!file.exists()) return List.of();
         if (!file.isDirectory()) return List.of(file);
@@ -383,15 +397,15 @@ public class IOHelper {
         List<File> queue = new ArrayList<>();
         queue.add(file);
         while (!queue.isEmpty()) {
-            if (queue.get(0).isDirectory()) {
-                String[] childNames = queue.get(0).list();
+            if (queue.getFirst().isDirectory()) {
+                String[] childNames = queue.getFirst().list();
                 if (childNames != null) for (String childName : childNames) {
-                    queue.add(new File(queue.get(0), childName));
+                    queue.add(new File(queue.getFirst(), childName));
                 }
             } else {
-                finals.add(queue.get(0));
+                finals.add(queue.getFirst());
             }
-            queue.remove(0);
+            queue.removeFirst();
         }
         return finals;
     }

@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.datagen;
 import com.google.common.hash.HashCode;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.core.Color;
+import net.kapitencraft.kap_lib.core.util.Color;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.util.FastColor;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,9 +19,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.IntUnaryOperator;
 
 /**
+ * data provider able to generate textures by manipulating other textures
  * idea and code by Startraveler. abridged and adapted
  */
 @SuppressWarnings("UnusedReturnValue")
@@ -42,14 +45,16 @@ public abstract class TextureProvider implements DataProvider {
     /**
      * get alpha from an RGBA pixel
      */
-    public static int getAlpha(int rgbaPixel) {
+    @ApiStatus.Internal
+    private static int getAlpha(int rgbaPixel) {
         return (rgbaPixel >> 24) & 255;
     }
 
     /**
      * put all opaques in a list
      */
-    public static List<Color> loadOpaquePixels(NativeImage image, @Nullable NativeImage mask) {
+    @ApiStatus.Internal
+    private static List<Color> loadOpaquePixels(NativeImage image, @Nullable NativeImage mask) {
         List<Color> pixels = new ArrayList<>();
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
@@ -67,7 +72,8 @@ public abstract class TextureProvider implements DataProvider {
     /**
      * calculate color distance
      */
-    public static double colorDistance(Color c1, Color c2) {
+    @ApiStatus.Internal
+    private static double colorDistance(Color c1, Color c2) {
         float dr = c1.r() - c2.r();
         float dg = c1.g() - c2.g();
         float db = c1.b() - c2.b();
@@ -77,7 +83,7 @@ public abstract class TextureProvider implements DataProvider {
     /**
      * get n-many colors that are maximally far apart
      */
-    public static List<Color> getMostUniqueColors(List<Color> pixels, int n) {
+    private static List<Color> getMostUniqueColors(List<Color> pixels, int n) {
         if (pixels.isEmpty()) return new ArrayList<>();
 
         // count occurrences
@@ -129,25 +135,18 @@ public abstract class TextureProvider implements DataProvider {
     }
 
     /**
-     * perceptual brightness calc
-     */
-    public static double brightness(Color color) {
-        return 0.2126 * color.r() + 0.7152 * color.g() + 0.0722 * color.b();
-    }
-
-    /**
      * sort dark-to-bright
      */
     public static List<Color> sortByBrightness(List<Color> colors) {
         List<Color> sorted = new ArrayList<>(colors);
-        sorted.sort(Comparator.comparingDouble(TextureProvider::brightness));
+        sorted.sort(Comparator.comparingDouble(Color::brightness));
         return sorted;
     }
 
     /**
      * get palette from img
      */
-    public static List<Color> getPalette(NativeImage image, NativeImage mask, int paletteSize) {
+    private static List<Color> getPalette(NativeImage image, NativeImage mask, int paletteSize) {
         List<Color> opaquePixels = loadOpaquePixels(image, mask);
         List<Color> uniqueColors = getMostUniqueColors(opaquePixels, paletteSize);
         return sortByBrightness(uniqueColors);
@@ -156,7 +155,7 @@ public abstract class TextureProvider implements DataProvider {
     /**
      * lerp short palette to a longer palette's size
      */
-    public static List<Color> expandToLength(List<Color> src, int targetLen) {
+    private static List<Color> expandToLength(List<Color> src, int targetLen) {
         if (src.isEmpty()) {
             throw new IllegalArgumentException("Cannot expand an empty palette");
         }
@@ -196,7 +195,7 @@ public abstract class TextureProvider implements DataProvider {
     /**
      *make a mapper from one palette to another
      */
-    public static IntUnaryOperator makeColorMapper(List<Color> srcColors, List<Color> dstColors) {
+    private static IntUnaryOperator makeColorMapper(List<Color> srcColors, List<Color> dstColors) {
         List<Color> sortedSrc = sortByBrightness(new ArrayList<>(srcColors));
         List<Color> sortedDst = sortByBrightness(new ArrayList<>(dstColors));
 
@@ -225,7 +224,7 @@ public abstract class TextureProvider implements DataProvider {
     /**
      * MAIN FUCKASS METHOD
      */
-    public static NativeImage remapTexture(NativeImage paletteSource, NativeImage patternSource, NativeImage maskSource, int paletteSize) {
+    private static NativeImage remapTexture(NativeImage paletteSource, NativeImage patternSource, NativeImage maskSource, int paletteSize) {
         List<Color> sourcePalette = getPalette(paletteSource, null, paletteSize);
         List<Color> patternPalette = getPalette(patternSource, maskSource, paletteSize);
 
@@ -236,7 +235,7 @@ public abstract class TextureProvider implements DataProvider {
     /**
      * MAIN FUCKASS METHOD WITH A DEFAULT 256 PALETTE SIZE
      */
-    public static NativeImage remapTexture(NativeImage paletteSource, NativeImage targetTexture, NativeImage maskSource) {
+    private static NativeImage remapTexture(NativeImage paletteSource, NativeImage targetTexture, NativeImage maskSource) {
         return remapTexture(paletteSource, targetTexture, maskSource, 256);
     }
 
@@ -271,7 +270,7 @@ public abstract class TextureProvider implements DataProvider {
                 });
 
             } catch (IOException ex) {
-                throw new IllegalStateException(ex);
+                throw new IllegalStateException("error executing pipeline " + p.in, ex);
             }
         }).toArray(CompletableFuture[]::new));
     }
@@ -353,6 +352,11 @@ public abstract class TextureProvider implements DataProvider {
     }
     //endregion
 
+    /**
+     * transfers the colors of the original texture onto the shape of the given texture
+     * @param patternSource the shape to transfer to
+     * @param mask used to keep certain parts of the texture like they were originally, useful for tools
+     */
     protected record Transfer(ResourceLocation patternSource, ResourceLocation mask) implements Converter {
         /**
          * @param patternSource the texture to use the pattern of
@@ -391,6 +395,10 @@ public abstract class TextureProvider implements DataProvider {
         }
     }
 
+    /**
+     * inverts the colors as by
+     * {@code  cN -> 255 - cO}
+     */
     protected record Invert() implements Converter {
 
         public static Invert create() {
@@ -410,6 +418,9 @@ public abstract class TextureProvider implements DataProvider {
         }
     }
 
+    /**
+     * flips the image around the middle on the x-axis
+     */
     protected record FlipX() implements Converter {
 
         @Override
@@ -426,6 +437,9 @@ public abstract class TextureProvider implements DataProvider {
         }
     }
 
+    /**
+     * flips the image around the middle on the y-axis
+     */
     protected record FlipY() implements Converter {
 
         @Override
@@ -436,12 +450,15 @@ public abstract class TextureProvider implements DataProvider {
         }
     }
 
+    /**
+     * reduces texture to grey scaled by calculating the brightness of the color and applying it to all channels
+     */
     protected record Pale() implements Converter {
 
         @Override
         public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
             return in.mappedCopy(i -> {
-                double brightness = TextureProvider.brightness(Color.fromARGBPacked(i));
+                double brightness = Color.fromARGBPacked(i).brightness();
                 return new Color((float) brightness, (float) brightness, (float) brightness, FastColor.ARGB32.alpha(i) / 255f).pack();
             });
         }
@@ -459,38 +476,73 @@ public abstract class TextureProvider implements DataProvider {
         return builder;
     }
 
-    protected Pipeline.Builder registerHoe(ResourceLocation paletteSource, ResourceLocation name) {
-        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_hoe"))
+    /**
+     * @param paletteSource the colors to use for the hoe
+     * @param matName the name of the material. result will be {@code <namespace>:item/<path>_hoe}
+     * @return the builder of the hoe, if more changes are requested
+     */
+    protected Pipeline.Builder registerHoe(ResourceLocation paletteSource, ResourceLocation matName) {
+        return this.register(paletteSource, matName.withPrefix("item/").withSuffix("_hoe"))
                 .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_hoe"), LibConstants.res("item/mask/hoe")));
     }
 
-    protected Pipeline.Builder registerSword(ResourceLocation paletteSource, ResourceLocation name) {
-        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_sword"))
+    /**
+     * @param paletteSource the colors to use for the sword
+     * @param matName the name of the material. result will be {@code <namespace>:item/<path>_sword}
+     * @return the builder of the sword, if more changes are requested
+     */
+    protected Pipeline.Builder registerSword(ResourceLocation paletteSource, ResourceLocation matName) {
+        return this.register(paletteSource, matName.withPrefix("item/").withSuffix("_sword"))
                 .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_sword"), LibConstants.res("item/mask/sword")));
     }
 
-    protected Pipeline.Builder registerPickaxe(ResourceLocation paletteSource, ResourceLocation name) {
-        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_pickaxe"))
+    /**
+     * @param paletteSource the colors to use for the pickaxe
+     * @param matName the name of the material. result will be {@code <namespace>:item/<path>_pickaxe}
+     * @return the builder of the pickaxe, if more changes are requested
+     */
+    protected Pipeline.Builder registerPickaxe(ResourceLocation paletteSource, ResourceLocation matName) {
+        return this.register(paletteSource, matName.withPrefix("item/").withSuffix("_pickaxe"))
                 .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_pickaxe"), LibConstants.res("item/mask/pickaxe")));
     }
 
-    protected Pipeline.Builder registerShovel(ResourceLocation paletteSource, ResourceLocation name) {
-        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_shovel"))
+    /**
+     * @param paletteSource the colors to use for the shovel
+     * @param matName the name of the material. result will be {@code <namespace>:item/<path>_shovel}
+     * @return the builder of the shovel, if more changes are requested
+     */
+    protected Pipeline.Builder registerShovel(ResourceLocation paletteSource, ResourceLocation matName) {
+        return this.register(paletteSource, matName.withPrefix("item/").withSuffix("_shovel"))
                 .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_shovel"), LibConstants.res("item/mask/shovel")));
     }
 
-    protected Pipeline.Builder registerAxe(ResourceLocation paletteSource, ResourceLocation name) {
-        return this.register(paletteSource, name.withPrefix("item/").withSuffix("_axe"))
+    /**
+     * @param paletteSource the colors to use for the axe
+     * @param matName the name of the material. result will be {@code <namespace>:item/<path>_axe}
+     * @return the builder of the axe, if more changes are requested
+     */
+    protected Pipeline.Builder registerAxe(ResourceLocation paletteSource, ResourceLocation matName) {
+        return this.register(paletteSource, matName.withPrefix("item/").withSuffix("_axe"))
                 .then(Transfer.createWithMask(ResourceLocation.withDefaultNamespace("item/golden_axe"), LibConstants.res("item/mask/axe")));
     }
 
+    /**
+     * @param paletteSource the color to use for the ore files
+     * @param name the name of the material. <br>results will be {@code <namespace>:item/raw_<path>} and {@code <namespace>:item/<path>_dust}
+     */
     protected void registerOre(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/raw_"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("item/raw_gold")));
+        this.register(paletteSource, name.withPrefix("block/raw_").withSuffix("_block"))
+                .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/raw_gold_block")));
         this.register(paletteSource, name.withPrefix("item/").withSuffix("_dust"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("item/glowstone_dust")));
     }
 
+    /**
+     * @param paletteSource the colors to use for the tool files
+     * @param name the name of the tool's material
+     */
     protected void registerTools(ResourceLocation paletteSource, ResourceLocation name) {
         this.registerHoe(paletteSource, name);
         this.registerSword(paletteSource, name);
@@ -499,6 +551,11 @@ public abstract class TextureProvider implements DataProvider {
         this.registerAxe(paletteSource, name);
     }
 
+    /**
+     * registers a netherite styled armor including items and model
+     * @param paletteSource the colors to use for the armor
+     * @param name the name of the armor's material
+     */
     protected void registerNetheriteArmor(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/").withSuffix("_helmet"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("item/netherite_helmet")));
@@ -514,6 +571,11 @@ public abstract class TextureProvider implements DataProvider {
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("models/armor/netherite_layer_2")));
     }
 
+    /**
+     * registers a diamond styled armor including items and model
+     * @param paletteSource the colors to use for the armor
+     * @param name the name of the armor's material
+     */
     protected void registerDiamondArmor(ResourceLocation paletteSource, ResourceLocation name) {
         this.register(paletteSource, name.withPrefix("item/").withSuffix("_helmet"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("item/diamond_helmet")));
@@ -527,6 +589,63 @@ public abstract class TextureProvider implements DataProvider {
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("models/armor/diamond_layer_1")));
         this.register(paletteSource, name.withPrefix("models/armor/").withSuffix("_layer_2"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("models/armor/diamond_layer_2")));
+    }
+
+    /**
+     * generates a full material to the generator
+     * <br>includes:
+     *  nugget, dust, armor, tools, raw ore, block
+     * @param paletteSource the colors to use for the material
+     * @param matName the name of the material
+     * @param blockGenerator the generator for the block. see {@link #registerIronBlock(ResourceLocation, ResourceLocation)} for example
+     */
+    protected void registerMaterial(ResourceLocation paletteSource, ResourceLocation matName, BiConsumer<ResourceLocation, ResourceLocation> blockGenerator) {
+        registerOre(paletteSource, matName);
+        registerTools(paletteSource, matName);
+        registerNetheriteArmor(paletteSource, matName);
+        this.register(paletteSource, matName.withPrefix("item/").withSuffix("_nugget"))
+                .then(Transfer.create(ResourceLocation.withDefaultNamespace("item/iron_nugget")));
+        blockGenerator.accept(paletteSource, matName);
+    }
+
+    /**
+     * registers an iron styled block texture
+     * @param paletteSource the colors to use for the block
+     * @param matName the name of the material of the block
+     */
+    protected void registerIronBlock(ResourceLocation paletteSource, ResourceLocation matName) {
+        this.register(paletteSource, matName.withPrefix("block/").withSuffix("_block"))
+                .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/iron_block")));
+    }
+
+    /**
+     * registers a gold styled block texture
+     * @param paletteSource the colors to use for the block
+     * @param matName the name of the material of the block
+     */
+    protected void registerGoldBlock(ResourceLocation paletteSource, ResourceLocation matName) {
+        this.register(paletteSource, matName.withPrefix("block/").withSuffix("_block"))
+                .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/diamond_block")));
+    }
+
+    /**
+     * registers an emerald styled block texture
+     * @param paletteSource the colors to use for the block
+     * @param matName the name of the material of the block
+     */
+    protected void registerEmeraldBlock(ResourceLocation paletteSource, ResourceLocation matName) {
+        this.register(paletteSource, matName.withPrefix("block/").withSuffix("_block"))
+                .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/emerald_block")));
+    }
+
+    /**
+     * registers a netherite styled block texture
+     * @param paletteSource the colors to use for the block
+     * @param matName the name of the material of the block
+     */
+    protected void registerNetheriteBlock(ResourceLocation paletteSource, ResourceLocation matName) {
+        this.register(paletteSource, matName.withPrefix("block/").withSuffix("_block"))
+                .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/netherite_block")));
     }
     //endregion
 }

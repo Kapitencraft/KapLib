@@ -19,7 +19,6 @@ public class BannerPatternRenderer {
     private static final Minecraft MINECRAFT = Minecraft.getInstance();
     private static final ModelPart FLAG;
 
-
     static {
         FLAG = MINECRAFT.getEntityModels().bakeLayer(ModelLayers.BANNER).getChild("flag");
         FLAG.xRot = 0.0F;

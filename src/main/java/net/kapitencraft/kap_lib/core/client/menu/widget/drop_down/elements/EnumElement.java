@@ -10,7 +10,11 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class EnumElement<T extends Enum<T>> extends ListElement implements IValueModifierElement<EnumElement<T>, T> {
+/**
+ * an element that allows to select from a set of different values
+ * @param <T> the type of the element
+ */
+public class EnumElement<T> extends ListElement implements IValueModifierElement<T> {
     private T selected;
     private final Function<T, Component> nameMapper;
     private final Consumer<T> onChange;
@@ -31,17 +35,19 @@ public class EnumElement<T extends Enum<T>> extends ListElement implements IValu
     public void addElement(Element element) {
     }
 
-    public EnumElement<T> value(T value) {
-        this.selected = value;
-        return this;
-    }
-
+    /**
+     * sets the value of this element and notifies the change listener on changes
+     * @param value the value to set
+     */
     @Override
     public void setValue(T value) {
         this.selected = value;
-        this.onChange.accept(this.selected);
+        this.onChange.accept(value);
     }
 
+    /**
+     * entry element
+     */
     private class ListItem extends BooleanElement {
         private final T id;
 

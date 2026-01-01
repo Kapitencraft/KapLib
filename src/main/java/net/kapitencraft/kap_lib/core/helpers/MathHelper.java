@@ -29,6 +29,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public interface MathHelper {
+    /**
+     * A random source. use provided ones wherever possible
+     */
     RandomSource RANDOM_SOURCE = RandomSource.create();
 
     double DAMAGE_CALCULATION_VALUE = 50;
@@ -50,8 +53,11 @@ public interface MathHelper {
         return IntSet.of(range);
     }
 
+    /**
+     * creates a vector in clockwise order perpendicular to the original one
+     */
     static Vec2 normal(Vec2 og) {
-        return new Vec2(og.x, -og.y);
+        return new Vec2(og.y, -1 / og.x);
     }
 
     /**
@@ -92,6 +98,9 @@ public interface MathHelper {
         return entity.position().add(entity.calculateViewVector(0.0F, entity.getYRot() + (float)(arm == HumanoidArm.RIGHT ? 80 : -80)).scale(0.5D));
     }
 
+    /**
+     * rotates the given vector around the given pivot on the x-axis
+     */
     static Vec3 rotateXAxis(@NotNull Vec3 source, Vec3 pivot, float angle) {
         double y = (source.y - pivot.y) * Mth.cos(angle) - (source.z - pivot.z) * Mth.sin(angle) + pivot.y;
         double z = (source.y - pivot.y) * Mth.sin(angle) + (source.z - pivot.z) * Mth.cos(angle) + pivot.z;
@@ -99,10 +108,7 @@ public interface MathHelper {
     }
 
     /**
-     * @param source the source Vec to rotate
-     * @param pivot the rotation pivot
-     * @param angle the angle in radians
-     * @return the rotated angle
+     * rotates the given vector around the given pivot on the y-axis
      */
     static Vec3 rotateHorizontalYAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
         double x = (source.x - pivot.x) * Mth.cos(angle) - (source.z - pivot.z) * Mth.sin(angle) + pivot.x;
@@ -110,6 +116,9 @@ public interface MathHelper {
         return new Vec3(x, source.y, z);
     }
 
+    /**
+     * rotates the given vector around the given pivot on the z-axis
+     */
     static Vec3 rotateZAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
         double x = (source.x - pivot.x) * Mth.cos(angle) - (source.y - pivot.y) * Mth.sin(angle) + pivot.x;
         double y = (source.x - pivot.x) * Mth.sin(angle) + (source.y - pivot.y) * Mth.cos(angle) + pivot.y;
@@ -188,23 +197,6 @@ public interface MathHelper {
         setter.accept(getter.get() + change);
     }
 
-    static void up1(Reference<Integer> reference) {
-        add(reference::getIntValue, reference::setValue, 1);
-    }
-
-    static void mul(Supplier<Integer> getter, Consumer<Integer> setter, int mul) {
-        setter.accept(getter.get() * mul);
-    }
-
-    static void mul(Supplier<Double> getter, Consumer<Double> setter, double mul) {
-        setter.accept(getter.get() * mul);
-    }
-
-    static void mul(Supplier<Float> getter, Consumer<Float> setter, float mul) {
-        setter.accept(getter.get() * mul);
-    }
-
-
     /**
      * @return a list of locations in the line of sight ot the given entity
      */
@@ -268,6 +260,9 @@ public interface MathHelper {
         return new BlockPos((int) (a.getX() + diff.getX() * t), (int) (a.getY() + diff.getY() * t), (int) (a.getZ() + diff.getZ() * t));
     }
 
+    /**
+     * creates a list of vectors that are all positioned on the given line with given spacing
+     */
     static List<Vec3> makeLine(Vec3 a, Vec3 b, float spacing) {
         Vec3 diff = b.subtract(a);
         int numPoints = (int) (diff.length() / spacing);
@@ -279,10 +274,16 @@ public interface MathHelper {
         return list;
     }
 
+    /**
+     * validates that the given index is a valid index into the given array (it being non-negative, smaller than the size of the list)
+     */
     static <T> boolean validIndex(List<T> values, int selectedIndex) {
         return isBetween(selectedIndex, 0, values.size() - 1);
     }
 
+    /**
+     * adds roll rotation to the given rotation vector
+     */
     static Vec3 withRoll(Vec2 rotation, float roll) {
         return new Vec3(rotation.x, rotation.y, roll);
     }
@@ -393,13 +394,25 @@ public interface MathHelper {
         return toReturn;
     }
 
+    /**
+     * gets all entities within a cube around the middle point and range
+     * @param loc the middle point of the area
+     * @param range the radius of the cube
+     */
     static <T extends Entity> List<T> getEntitiesAround(Class<T> tClass, Level level, Vec3 loc, double range) {
         return level.getEntitiesOfClass(tClass, new AABB(loc.x - range, loc.y - range, loc.z - range, loc.x + range, loc.y + range, loc.z + range));
     }
 
-    static List<Entity> getAllEntitiesInsideCylinder(float radius, Vec3 sourcePos, Vec2 rot, double range, Level level) {
+    /**
+     * gets all entities within a cylinder
+     * @param radius the radius of the cylinder
+     * @param sourcePos the bottom center of the cylinder
+     * @param rot the rotation of the cylinder
+     * @param height the height of the cylinder
+     */
+    static List<Entity> getAllEntitiesInsideCylinder(float radius, Vec3 sourcePos, Vec2 rot, double height, Level level) {
         List<Entity> toReturn = new ArrayList<>();
-        ArrayList<Vec3> lineOfSight = lineOfSight(rot, sourcePos, range, 0.1);
+        ArrayList<Vec3> lineOfSight = lineOfSight(rot, sourcePos, height, 0.1);
         lineOfSight.forEach(vec3 -> {
             List<Entity> entities = getEntitiesAround(Entity.class, level, vec3, radius);
             toReturn.addAll(entities.stream().filter(entity -> !toReturn.contains(entity)).toList());
@@ -407,10 +420,16 @@ public interface MathHelper {
         return toReturn;
     }
 
+    /**
+     * calculates the necessary rotation vector for the source entity to look at the target entity pivoted at their feet
+     */
     static Vec2 createTargetRotation(Entity source, Entity target) {
         return createTargetRotationFromPos(source.position(), target.position());
     }
 
+    /**
+     * calculates the necessary rotation vector for the source vector to look at the target vector
+     */
     static Vec2 createTargetRotationFromPos(@NotNull Vec3 source, @NotNull Vec3 target) {
         double dX = target.x - source.x;
         double dY = target.y - source.y;
@@ -419,10 +438,16 @@ public interface MathHelper {
         return new Vec2(Mth.wrapDegrees((float)(-(Mth.atan2(dY, d3) * (double)(180F / (float)Math.PI)))), Mth.wrapDegrees((float)(Mth.atan2(dZ, dX) * (double)(180F / (float)Math.PI)) - 90.0F));
     }
 
+    /**
+     * same as createTargetRotation but using eye position instead of feet position
+     */
     static Vec2 createTargetRotationFromEyeHeight(Entity source, Entity target) {
         return createTargetRotationFromPos(source.getEyePosition(), target.getEyePosition());
     }
 
+    /**
+     * checks whether the given source entity is behind the given target entity
+     */
     static boolean isBehind(Entity source, Entity target) {
         Vec3 vec32 = source.position();
         Vec3 vec31 = vec32.vectorTo(target.position()).normalize();
@@ -470,23 +495,26 @@ public interface MathHelper {
 
     @Contract("null, _ -> fail")
     static Vec3 removeByScale(Vec3 vec3, double scale) {
-        double x = vec3.x;
-        double y = vec3.y;
-        double z = vec3.z;
-        double halfX = (x - (x * scale));
-        double halfY = (y - (y * scale));
-        double halfZ = (z - (z * scale));
-        return new Vec3(halfX, halfY, halfZ);
+        return new Vec3(vec3.x * (1 - scale), vec3.y * (1 - scale), vec3.z * (1 - scale));
     }
 
+    /**
+     * returns a float within the given range
+     */
     static float randomBetween(RandomSource source, float min, float max) {
         return Mth.lerp(source.nextFloat(), min, max);
     }
 
+    /**
+     * returns a double within the given range
+     */
     static double randomBetween(RandomSource source, double min, double max) {
         return Mth.lerp(source.nextDouble(), min, max);
     }
 
+    /**
+     * returns a random position within the given box spanned by the two vectors as opposing corners
+     */
     static Vec3 randomBetween(RandomSource source, Vec3 min, Vec3 max) {
         return new Vec3(
                 randomBetween(source, min.x, max.x),
@@ -495,6 +523,9 @@ public interface MathHelper {
         );
     }
 
+    /**
+     * returns a random position within the given bounding box
+     */
     static Vec3 randomIn(RandomSource source, AABB box) {
         return new Vec3(
                 randomBetween(source, box.minX, box.maxX),
@@ -503,6 +534,9 @@ public interface MathHelper {
         );
     }
 
+    /**
+     * gets the largest difference between the 2 vectors, in form of a scalar
+     */
     static float getOversizeScale(Vec3 original, Vec3 clamped) {
         if (clamped.equals(original)) return 1;
         float x = original.x == 0 ? 0 : (float) (original.x / clamped.x);
@@ -511,6 +545,9 @@ public interface MathHelper {
         return pickLargest(x, y, z);
     }
 
+    /**
+     * picks the largest of the given values or -1 if the array is empty
+     */
     static float pickLargest(float... values) {
         Float min = null;
         for (float f : values) {
@@ -521,9 +558,12 @@ public interface MathHelper {
         return min == null ? -1 : min;
     }
 
+    /**
+     * randomly offsets the given block position horizontally
+     */
     static BlockPos randomOffset(BlockPos pivot, RandomSource source) {
         int random = source.nextIntBetweenInclusive(0, 8);
-        if (random > 2) random++; //ensure 4 is never hit
+        if (random > 3) random++; //ensure 4 is never hit
         int xOffset = random / 3 - 1;
         int zOffset = random % 3 - 1;
         return pivot.offset(xOffset, 0, zOffset);

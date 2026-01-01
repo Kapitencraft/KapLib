@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public interface Bonus<T extends Bonus<T>> extends IEventListener {
+public interface Bonus<T extends Bonus<T>> {
     Codec<Bonus<?>> CODEC = BonusRegistries.SERIALIZERS.byNameCodec().dispatchStable(Bonus::getSerializer, RegistrySerializer::codec);
     StreamCodec<RegistryFriendlyByteBuf, Bonus<?>> STREAM_CODEC = ByteBufCodecs.registry(BonusRegistries.Keys.SERIALIZERS).dispatch(Bonus::getSerializer, RegistrySerializer::streamCodec);
 
@@ -28,17 +28,22 @@ public interface Bonus<T extends Bonus<T>> extends IEventListener {
     default void onApply(LivingEntity living) {
     }
 
-    @Override
-    default void onUse() {
-
+    /**
+     * called whenever an entity un-equips this bonus
+     * @param living the entity this bonus was previously applied to
+     */
+    default void onRemove(LivingEntity living) {
     }
 
     @Nullable
-    @Override
     default Cooldown getCooldown() {
         return null;
     }
 
+    /**
+     * @return the serializer for this bonus type.
+     * <br>must be registered to the {@link BonusRegistries#SERIALIZERS} registry
+     */
     RegistrySerializer<T> getSerializer();
 
     /**
@@ -65,14 +70,6 @@ public interface Bonus<T extends Bonus<T>> extends IEventListener {
      * @param type the damage type that was used to kill this entity
      */
     default void onEntityKilled(LivingEntity killed, LivingEntity user, MiscHelper.DamageType type) {
-    }
-
-
-    /**
-     * called whenever an entity un-equips this bonus
-     * @param living the entity this bonus was previously applied to
-     */
-    default void onRemove(LivingEntity living) {
     }
 
     /**

@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 public interface SpawnEntityFunctions {
     Codec<SpawnEntityFunction> TYPED_CODEC = SpawnTableRegistries.SPAWN_FUNCTION_TYPES
             .byNameCodec()
-            .dispatch("function", SpawnEntityFunction::getType, SpawnEntityFunctionType::codec);
+            .dispatch("function", SpawnEntityFunction::getType, s -> s.codec().get());
 
     Codec<SpawnEntityFunction> ROOT_CODEC = Codec.lazyInitialized(() -> Codec.withAlternative(TYPED_CODEC, SequenceFunction.INLINE_CODEC));
 
@@ -45,7 +45,7 @@ public interface SpawnEntityFunctions {
     Supplier<SpawnEntityFunctionType<AddPassengersFunction>> ADD_PASSENGERS = register("add_passengers", AddPassengersFunction.CODEC);
     Supplier<SpawnEntityFunctionType<SequenceFunction>> SEQUENCE = register("sequence", SequenceFunction.CODEC);
 
-    static <T extends SpawnEntityFunction> DeferredHolder<SpawnEntityFunctionType<?>, SpawnEntityFunctionType<T>> register(String name, MapCodec<T> serializer) {
+    private static <T extends SpawnEntityFunction> DeferredHolder<SpawnEntityFunctionType<?>, SpawnEntityFunctionType<T>> register(String name, Supplier<MapCodec<T>> serializer) {
         return REGISTRY.register(name, () -> new SpawnEntityFunctionType<>(serializer));
     }
 

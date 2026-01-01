@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.mana;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.attribute.BaseAttributeLocations;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +15,7 @@ public interface ManaAttributes {
     DeferredRegister<Attribute> REGISTRY = LibConstants.registry(Registries.ATTRIBUTE);
 
     private static Holder<Attribute> register(String name, double initValue, double minValue, double maxValue, @Nullable ResourceLocation baseLocation) {
-        return REGISTRY.register("generic." + name, ()-> new RangedAttribute("generic." + name, initValue, minValue, maxValue) {
+        return REGISTRY.register("generic." + name, () -> new RangedAttribute("generic." + name, initValue, minValue, maxValue) {
             @Override
             public @Nullable ResourceLocation getBaseId() {
                 return baseLocation;

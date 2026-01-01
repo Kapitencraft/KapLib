@@ -1,14 +1,8 @@
 package net.kapitencraft.kap_lib.core.helpers;
 
-import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
-import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.particle.custom.DamageIndicatorParticleOptions;
-import net.kapitencraft.kap_lib.camera.network.S2C.ActivateShakePacket;
-import net.kapitencraft.kap_lib.spawn_table.SpawnPool;
+import net.kapitencraft.kap_lib.core.util.Color;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.tags.ExtraTags;
-import net.kapitencraft.kap_lib.core.Color;
 import net.kapitencraft.kap_lib.core.util.ExtraRarities;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
@@ -20,17 +14,14 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.ServerAdvancementManager;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
@@ -54,25 +45,19 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class MiscHelper {
-    public static final String OVERFLOW_MANA_ID = "overflowMana";
     //EAST = new Rotation("x+", 90, 1);
     //WEST = new Rotation("x-",270, 3);
     //SOUTH = new Rotation("z+", 180, 2);
@@ -90,23 +75,13 @@ public class MiscHelper {
         ClientHelper.sendElytraBoostParticles(target, random, delta, new Color(0, 0, 1, 1), new Color(.5f, 0, .5f, 1));
     }
 
+    /**
+     * swaps the items in the two hands of the given entity
+     */
     public static void swapHands(@NotNull LivingEntity living) {
         ItemStack mainHand = living.getMainHandItem();
         living.setItemInHand(InteractionHand.MAIN_HAND, living.getOffhandItem());
         living.setItemInHand(InteractionHand.OFF_HAND, mainHand);
-    }
-
-    /**
-     * @param style the Style to add the effect to
-     * @param effect the effect to be added
-     * @return the new Style with applied effect
-     */
-    public static Style withSpecial(Style style, Supplier<? extends GlyphEffect> effect) {
-        return withSpecial(style, effect.get());
-    }
-
-    public static Style withSpecial(Style style, GlyphEffect effect) {
-        return EffectsStyle.of(style).addEffect(effect);
     }
 
     /**
@@ -119,8 +94,9 @@ public class MiscHelper {
 
     /**
      * method to get the Rarity of an {@link ItemStack}
+     *
      * @param rarity the stack's item's base rarity
-     * @param stack the stack to check the rarity on
+     * @param stack  the stack to check the rarity on
      * @return the rarity after calculation enchantment mods
      */
     @Contract("null, _ -> fail; _, null -> fail")
@@ -133,7 +109,8 @@ public class MiscHelper {
                 case UNCOMMON -> Rarity.RARE;
                 case RARE -> Rarity.EPIC;
                 case EPIC -> ExtraRarities.LEGENDARY;
-                default -> rarity == ExtraRarities.LEGENDARY ? ExtraRarities.MYTHIC : rarity == ExtraRarities.MYTHIC ? ExtraRarities.DIVINE : Rarity.COMMON;
+                default ->
+                        rarity == ExtraRarities.LEGENDARY ? ExtraRarities.MYTHIC : rarity == ExtraRarities.MYTHIC ? ExtraRarities.DIVINE : Rarity.COMMON;
             };
         }
     }
@@ -141,11 +118,12 @@ public class MiscHelper {
 
     /**
      * a simple method to get a difficulty sensitive value
+     *
      * @param difficulty the difficulty to scan for
-     * @param easy the value if difficulty is easy
-     * @param medium the value if difficulty is medium
-     * @param hard the value if difficulty is hard
-     * @param peaceful the value if difficulty is peaceful
+     * @param easy       the value if difficulty is easy
+     * @param medium     the value if difficulty is medium
+     * @param hard       the value if difficulty is hard
+     * @param peaceful   the value if difficulty is peaceful
      * @return the value from the check
      */
     public static <T> T forDifficulty(Difficulty difficulty, T easy, T medium, T hard, T peaceful) {
@@ -159,6 +137,7 @@ public class MiscHelper {
 
     /**
      * method to do code when a t is not null
+     *
      * @param t value to check null of
      */
     public static <T> void ifNonNull(@Nullable T t, Consumer<T> toDo) {
@@ -168,9 +147,10 @@ public class MiscHelper {
     }
 
     /**
-     * simular method to ifNonNull but with return value and supplier for null
-     * @param t method to check null
-     * @param function transfer-method to convert it into the return value
+     * similar method to ifNonNull but with return value and supplier for null
+     *
+     * @param t         method to check null
+     * @param function  transfer-method to convert it into the return value
      * @param defaulted {@link Supplier} to get a value if t was null
      * @return mapped result (either from function or defaulted)
      */
@@ -193,7 +173,8 @@ public class MiscHelper {
 
     /**
      * method to add an achievement to a player
-     * @param player player to add achievement to
+     *
+     * @param player          player to add achievement to
      * @param achievementName name of the achievement
      * @return true if the achievement has been awarded, false otherwise
      * @deprecated use custom achievement triggers
@@ -214,10 +195,10 @@ public class MiscHelper {
     }
 
     /**
-     * @param provider mapper to get value from
+     * @param provider     mapper to get value from
      * @param defaultValue returned if none of the values does
-     * @param key key to search for
-     * @param values values to search in
+     * @param key          key to search for
+     * @param values       values to search in
      * @return the found value or defaultValue if noting was returned
      */
     public static <T, K> T getValue(Function<T, K> provider, T defaultValue, K key, T... values) {
@@ -232,9 +213,10 @@ public class MiscHelper {
     /**
      * a method to delay {@code run} by delayTicks.
      * <br><b>do avoid this method if possible. use a level or a current running event you created instead</b>
-     * @author Kapitencraft
+     *
      * @param delayTicks time (in ticks) to delay
-     * @param run runnable to execute at the end of the delay
+     * @param run        runnable to execute at the end of the delay
+     * @author Kapitencraft
      * @see Level#scheduleTick(BlockPos, Block, int)
      */
     public static void schedule(int delayTicks, Runnable run) {
@@ -253,6 +235,7 @@ public class MiscHelper {
                 if (this.ticks >= this.waitTicks)
                     end();
             }
+
             private void end() {
                 NeoForge.EVENT_BUS.unregister(this);
                 run.run();
@@ -263,7 +246,8 @@ public class MiscHelper {
 
     /**
      * method to teleport entity maxRange blocks forward, checking block hits
-     * @param entity entity to teleport
+     *
+     * @param entity   entity to teleport
      * @param maxRange maximal range of the teleport, reduced when hitting a block
      * @return if the entity has been teleported
      */
@@ -273,7 +257,7 @@ public class MiscHelper {
             entity.stopRiding();
             entity.move(MoverType.SELF, targetPos);
         } catch (Exception e) {
-            KapLibMod.LOGGER.warn("error trying to teleport entity '{}': {}", entity, e.getMessage());
+            LibConstants.LOGGER.warn("error trying to teleport entity '{}': {}", entity, e.getMessage());
             return false;
         }
         return true;
@@ -283,7 +267,8 @@ public class MiscHelper {
     /**
      * method to directly teleport a player to the target location
      * sending sounds and resetting fall-distance
-     * @param entity entity to teleport
+     *
+     * @param entity           entity to teleport
      * @param teleportPosition target teleportation location
      */
     public static void teleport(Entity entity, Vec3 teleportPosition) {
@@ -307,6 +292,7 @@ public class MiscHelper {
 
     /**
      * method to simply get the attacker from a {@link DamageSource}
+     *
      * @param source {@link DamageSource} to get attacker from
      * @return the {@link Nullable} {@link LivingEntity} to get from the damagesource
      */
@@ -317,6 +303,7 @@ public class MiscHelper {
     /**
      * {@link DamageType} to get from a DamageSource
      * used for Enchantments
+     *
      * @param source source to get DamageType from
      * @return DamageType from the source
      */
@@ -344,6 +331,9 @@ public class MiscHelper {
         MISC
     }
 
+    /**
+     * creates a  marker armor stand
+     */
     public static ArmorStand createMarker(Vec3 pos, Level level, boolean invisible) {
         ArmorStand stand = new ArmorStand(level, pos.x, pos.y, pos.z);
         CompoundTag tag = stand.getPersistentData();
@@ -351,25 +341,21 @@ public class MiscHelper {
         stand.setInvulnerable(true);
         stand.setInvisible(invisible);
         stand.setNoGravity(true);
-        stand.setBoundingBox(new AABB(0,0,0,0,0,0));
+        stand.setBoundingBox(new AABB(0, 0, 0, 0, 0, 0));
         return stand;
     }
 
-
+    /**
+     * @deprecated use {@link net.minecraft.Util#make(Supplier) Util#make} instead
+     */
+    @Deprecated
     public static <T> T of(Supplier<T> sup) {
         return sup.get();
     }
 
-    public static void createDamageIndicator(LivingEntity entity, float amount, String type) {
-        if (entity.level() instanceof ServerLevel serverLevel) {
-            float rangeOffset = entity.getBbHeight() / 2;
-            ParticleHelper.sendParticles(serverLevel, new DamageIndicatorParticleOptions(TextHelper.damageIndicatorCoder(type), amount, rangeOffset), false, entity.getX(), entity.getY(), entity.getZ(), 1, 0, 0, 0, 0);
-        }
-    }
-
     @Nullable
     public static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_, BlockEntityType<E> p_152134_, BlockEntityTicker<? super E> p_152135_) {
-        return p_152134_ == p_152133_ ? (BlockEntityTicker<A>)p_152135_ : null;
+        return p_152134_ == p_152133_ ? (BlockEntityTicker<A>) p_152135_ : null;
     }
 
     private static Vec3 getUpdateForPos(Vec3 cam, LivingEntity living) {
@@ -403,9 +389,10 @@ public class MiscHelper {
 
     /**
      * only increases, not adds the effect duration
+     *
      * @param living the entity to increase the effect of
      * @param effect the effect to increase
-     * @param ticks the amount of time, in ticks, to increase by
+     * @param ticks  the amount of time, in ticks, to increase by
      * @return whether the effect was active and has been increased
      */
     public static boolean increaseEffectDuration(LivingEntity living, Holder<MobEffect> effect, int ticks) {
@@ -454,21 +441,13 @@ public class MiscHelper {
         return drops;
     }
 
-    public static void shakeGround(ServerLevel level, Vec3 pos, float intensity, float strength, float frequency) {
-        float radius = strength / intensity;
-        List<ServerPlayer> targets = level.getEntitiesOfClass(ServerPlayer.class, new AABB(pos, pos).inflate(radius));
-        targets.forEach(p -> {
-            float dist = Mth.sqrt((float) p.distanceToSqr(pos));
-            PacketDistributor.sendToPlayer(p, new ActivateShakePacket(intensity, strength * (dist / radius), frequency));
-        });
-    }
-
     /**
      * you may ask why.
      * <br> but I ask <i>why not</i>
      * gets an array of all items in the given tag
+     *
      * @param access access to
-     * @param tag the tag to get all elements of
+     * @param tag    the tag to get all elements of
      * @return an array of all items in the tag
      */
     public static Item[] getItemsFromTag(RegistryAccess access, TagKey<Item> tag) {
@@ -481,24 +460,5 @@ public class MiscHelper {
         return level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key);
     }
 
-    @ApiStatus.Internal
-    public static Codec<List<SpawnPool>> spawnPoolsCodec(BiConsumer<SpawnPool, String> nameSetter) {
-        var decoder = ConditionalOps.createConditionalCodec(SpawnPool.CODEC).listOf()
-                .map(pools -> {
-                    if (pools.size() == 1) {
-                        if (pools.getFirst().isPresent() && pools.getFirst().get().getName() == null) {
-                            nameSetter.accept(pools.getFirst().get(), "main");
-                        }
-                    } else {
-                        for (int i = 0; i < pools.size(); ++i) {
-                            if (pools.get(i).isPresent() && pools.get(i).get().getName() == null) {
-                                nameSetter.accept(pools.get(i).get(), "pool" + i);
-                            }
-                        }
-                    }
 
-                    return pools.stream().filter(Optional::isPresent).map(Optional::get).toList();
-                });
-        return Codec.of(SpawnPool.CODEC.listOf(), decoder);
-    }
 }

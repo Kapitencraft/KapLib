@@ -3,13 +3,12 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.core.Markers;
-import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
+import net.kapitencraft.kap_lib.core.util.Loggers;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityConditionalFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
@@ -21,9 +20,10 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<MobPropertiesFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<MobPropertiesFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             LootContext.EntityTarget.CODEC.optionalFieldOf("attackTarget").forGetter(f -> Optional.ofNullable(f.attackTarget)),
             Codec.BOOL.optionalFieldOf("canPickupLoot", false).forGetter(f -> f.canPickupLoot),
             Codec.BOOL.optionalFieldOf("persistenceRequired", false).forGetter(f -> f.persistenceRequired),
@@ -54,13 +54,14 @@ public class MobPropertiesFunction extends SpawnEntityConditionalFunction {
             if (attackTarget != null) {
                 if (pContext.getParam(attackTarget.getParam()) instanceof LivingEntity living) {
                     mob.setTarget(living);
-                } else KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "attack target {} was not living entity", pContext.getParam(attackTarget.getParam()));
+                } else
+                    Loggers.SPAWN_TABLE_MANAGER.warn("attack target {} was not living entity", pContext.getParam(attackTarget.getParam()));
             }
             if (canPickupLoot) mob.setCanPickUpLoot(true);
             if (persistenceRequired) mob.setPersistenceRequired();
             if (noAi) mob.setNoAi(true);
             if (lootTable != null) mob.lootTable = lootTable;
-        } else KapLibMod.LOGGER.warn(Markers.SPAWN_TABLE_MANAGER, "entity {} was no mob", pEntity);
+        } else Loggers.SPAWN_TABLE_MANAGER.warn("entity {} was no mob", pEntity);
 
         return pEntity;
     }

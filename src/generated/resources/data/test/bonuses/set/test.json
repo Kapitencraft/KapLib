@@ -1,5 +1,4 @@
 {
-  "type": "kap_lib:simple_mob_effect",
   "bonus": {
     "type": "kap_lib:simple_mob_effect",
     "effects": [
@@ -16,12 +15,10 @@
     ]
   },
   "equipment_slots": [
-    "head",
-    "legs",
     "feet",
-    "chest"
+    "legs",
+    "chest",
+    "head"
   ],
-  "wearable_slots": [
-    "kap_lib:belt"
-  ]
+  "wearable_slots": []
 }

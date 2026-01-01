@@ -25,7 +25,7 @@ public interface PositionTarget extends Supplier<Vec3> {
      * @return a position target for the given position
      */
     static PositionTarget fixed(Vec3 pos) {
-        return new AbsolutePositionTarget(pos);
+        return new StaticPositionTarget(pos);
     }
 
     static PositionTarget relative(PositionTarget pos, Vec3 offset) {
@@ -57,7 +57,7 @@ public interface PositionTarget extends Supplier<Vec3> {
     enum Types implements IExtensibleEnum {
         ENTITY(EntityPositionTarget.Type::new),
         ENTITY_BB(EntityBBPositionTarget.Type::new),
-        POS(AbsolutePositionTarget.Type::new),
+        POS(StaticPositionTarget.Type::new),
         RELATIVE(RelativePositionTarget.Type::new);
 
         private final Type<? extends PositionTarget> type;

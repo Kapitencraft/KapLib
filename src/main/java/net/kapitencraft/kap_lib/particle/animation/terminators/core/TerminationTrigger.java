@@ -1,8 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.terminators.core;
 
-import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimator;
+import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -25,8 +25,8 @@ public interface TerminationTrigger<T extends TerminationTriggerInstance> {
             manager.remove(animator);
         }
 
-            public boolean isFor(ParticleAnimator animator) {
-                return this.animator == animator;
-            }
+        public boolean isFor(ParticleAnimator animator) {
+            return this.animator == animator;
         }
+    }
 }

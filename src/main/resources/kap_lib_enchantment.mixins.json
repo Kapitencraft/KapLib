@@ -5,10 +5,11 @@
   "package": "net.kapitencraft.kap_lib.enchantment.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
-    "client.AddEnchantmentTooltipMixin"
+    "client.AddEnchantmentTooltipMixin",
+    "client.EnchantmentFontManagerMixin",
+    "client.EnchantmentMixin"
   ],
-  "mixins": [
-  ],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   }

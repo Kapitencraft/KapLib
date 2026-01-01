@@ -34,6 +34,10 @@ public interface InventoryHelper {
         }
     }
 
+    /**
+     * @param living the entity to get the equipment of
+     * @return the equipment of the entity, wrapped into a map of slot -> stack
+     */
     static Map<EquipmentSlot, ItemStack> equipment(LivingEntity living) {
         return Arrays.stream(EquipmentSlot.values()).collect(CollectorHelper.toMap(living::getItemBySlot));
     }

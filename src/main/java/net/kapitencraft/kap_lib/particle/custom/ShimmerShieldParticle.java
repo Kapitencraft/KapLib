@@ -1,11 +1,13 @@
 package net.kapitencraft.kap_lib.particle.custom;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.kapitencraft.kap_lib.core.util.Color;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.core.Color;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.*;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -79,7 +81,7 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
     }
 
     @Override
-    public AABB getRenderBoundingBox(float partialTicks) {
+    public @NotNull AABB getRenderBoundingBox(float partialTicks) {
         return getBoundingBox();
     }
 
@@ -104,24 +106,35 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
         }
 
         private void render(VertexConsumer pBuffer, Vec3 camPos, float pPartialTicks) {
-            Vec3 origin = target.position().add(0, target.getBbHeight() / 2, 0);
-            Vec3 pos = origin.add(offset(pPartialTicks));
-            Vec2 rot = MathHelper.createTargetRotationFromPos(pos, origin);
-            Quaternionf quaternionf = new Quaternionf(rot.x * ((float)Math.PI / 180F), rot.y * ((float)Math.PI / 180F), 0, 1);
+            Vector3f origin = target.position().add(0, target.getBbHeight() / 2, 0).toVector3f();
+
+            Vector3f offset = new Vector3f(0, 0, 1);
+            Quaternionf q = new Quaternionf();
+            q.rotateLocalX(this.x.getAngle(pPartialTicks));
+            q.rotateLocalY(this.y.getAngle(pPartialTicks));
+            q.rotateLocalZ(this.z.getAngle(pPartialTicks));
+            offset.rotate(q);
+            offset.mul(target.getBbWidth(), .8f * target.getBbHeight(), target.getBbWidth());
+
+            Vec2 rot = MathHelper.createTargetRotationFromPos(new Vec3(offset.x, offset.y, offset. z), Vec3.ZERO);
+
+            Quaternionf quaternionf = new Quaternionf();
+            quaternionf.rotateLocalX(rot.x * Mth.DEG_TO_RAD);
+            quaternionf.rotateLocalY(-rot.y * Mth.DEG_TO_RAD);
 
             Vector3f[] avector3f = new Vector3f[]{
-                    new Vector3f(-1.0F, 0, -1.0F),
-                    new Vector3f(-1.0F, 0, 1.0F),
-                    new Vector3f(1.0F, 0, 1.0F),
-                    new Vector3f(1.0F, 0, -1.0F)
+                    new Vector3f(-1, -1, 0),
+                    new Vector3f(-1, 1, 0),
+                    new Vector3f(1, 1, 0),
+                    new Vector3f(1, -1, 0)
             };
 
-            Vec3 relative = pos.subtract(camPos);
-            for(int i = 0; i < 4; ++i) {
+            Vector3f relative = origin.add(offset).sub(camPos.toVector3f());
+            for (int i = 0; i < 4; ++i) {
                 Vector3f vector3f = avector3f[i];
                 vector3f.rotate(quaternionf);
                 vector3f.mul(getQuadSize(pPartialTicks));
-                vector3f.add(relative.toVector3f());
+                vector3f.add(relative);
             }
 
             Color color = max.mix(min, (Math.max(this.age - 1, 0) + pPartialTicks) / this.lifeTime);
@@ -151,14 +164,6 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
             return this.age++ >= this.lifeTime;
         }
 
-        private Vec3 offset(float partialTick) {
-            return new Vec3(
-                    this.x.getOffset(partialTick)*.8*target.getBbWidth(),
-                    this.y.getOffset(partialTick)*.8*target.getBbHeight(),
-                    this.z.getOffset(partialTick)*.8*target.getBbWidth()
-            );
-        }
-
         private static class Dimension {
             private final float speed;
             private float pos, oPos;
@@ -166,14 +171,15 @@ public class ShimmerShieldParticle extends TextureSheetParticle {
             private Dimension(float speed, float pos) {
                 this.speed = speed;
                 this.pos = pos;
+                this.oPos = pos;
             }
 
             private static Dimension random(RandomSource source, float maxSpeed) {
                 return new Dimension(MathHelper.randomBetween(source, -maxSpeed, maxSpeed), MathHelper.randomBetween(source, 0, 360));
             }
 
-            private float getOffset(float partialTick) {
-                return Mth.sin(Mth.lerp(partialTick, this.oPos, this.pos));
+            private float getAngle(float partialTick) {
+                return Mth.lerp(partialTick, this.oPos, this.pos) * Mth.DEG_TO_RAD;
             }
 
             private void tick() {

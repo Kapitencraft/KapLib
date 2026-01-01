@@ -16,6 +16,7 @@
   "modules": [
     "attribute",
     "bonus",
+    "camera",
     "component",
     "cooldown",
     "datagen",
@@ -32,5 +33,9 @@
     "requirement",
     "shader",
     "spawn_table"
-  ]
+  ],
+  "changelog": {
+    "format": "md",
+    "style": "none"
+  }
 }

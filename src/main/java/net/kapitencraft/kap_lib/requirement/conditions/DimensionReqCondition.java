@@ -22,7 +22,7 @@ import java.util.List;
 public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
     private static final MapCodec<DimensionReqCondition> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).listOf().fieldOf("dimensions").forGetter(i -> i.dimensions),
-            Codec.BOOL.fieldOf("inverted").forGetter(i -> i.inverted)
+            Codec.BOOL.optionalFieldOf("inverted", false).forGetter(i -> i.inverted)
             ).apply(instance, DimensionReqCondition::new)
     );
 

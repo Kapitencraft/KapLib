@@ -11,9 +11,10 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetMotionFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetMotionFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetMotionFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Vec3.CODEC.fieldOf("motion").forGetter(f -> f.motion)
     ).and(commonFields(i).t1()).apply(i, SetMotionFunction::new));
 

@@ -8,7 +8,7 @@ import net.neoforged.fml.common.Mod;
 
 @Mod(RequirementModule.MODULE_ID)
 public class RequirementModule {
-    public static final String MODULE_ID = LibConstants.MOD_ID + "_item";
+    public static final String MODULE_ID = LibConstants.MOD_ID + "_requirement";
 
     public RequirementModule(IEventBus modEventBus, ModContainer container) {
         RequirementTypes.REGISTRY.register(modEventBus);

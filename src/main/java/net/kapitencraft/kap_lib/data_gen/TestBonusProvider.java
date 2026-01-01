@@ -33,7 +33,6 @@ public class TestBonusProvider extends BonusProvider {
                 .slot(EquipmentSlot.CHEST, Items.DIAMOND_CHESTPLATE)
                 .slot(EquipmentSlot.LEGS, Items.DIAMOND_LEGGINGS)
                 .slot(EquipmentSlot.FEET, Items.DIAMOND_BOOTS)
-                .slot(WearableSlots.BELT, TestItems.OBJECT)
                 .setBonus(
                         new EffectsBonus(
                                 List.of(

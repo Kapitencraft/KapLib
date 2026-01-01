@@ -34,6 +34,7 @@ public class AutoPublisher {
     static final Logger LOGGER = LogUtils.getLogger();
 
     private static final File CONFIG = new File("build/resources/main/publish_config.json");
+    static final String SOURCE_PATH = "build/libs";
     static final String AUTHENTICATION_PATH = "run/AuthCache.txt";
     private static final File DATA_CACHE = new File("run/PublishCache.txt");
     static final String CHANGELOG_PATH = "publish/changelog.txt";
@@ -141,7 +142,8 @@ public class AutoPublisher {
         }
     }
 
-    record DependencyInfo(String modrinthId, String curseforgeId, String versionName, DependencyType type, int ordinal) {
+    record DependencyInfo(String modrinthId, String curseforgeId, String versionName, DependencyType type,
+                          int ordinal) {
 
         JsonObject toModrinthDependency(String gameVersion) throws IOException {
             JsonObject object = new JsonObject();
@@ -201,14 +203,15 @@ public class AutoPublisher {
                 if (!json.isJsonPrimitive() || !json.getAsJsonPrimitive().isString())
                     throw new JsonParseException("dependency type must be string");
                 DependencyType dependencyType = DependencyType.valueOf(json.getAsJsonPrimitive().getAsString().toUpperCase());
-                if (dependencyType == null) throw new JsonParseException("unknown dependency type: " + json.getAsJsonPrimitive().getAsString());
+                if (dependencyType == null)
+                    throw new JsonParseException("unknown dependency type: " + json.getAsJsonPrimitive().getAsString());
                 return dependencyType;
             }
         }
     }
-    
-    record AssetsInfo(String authPath, String changelogPath, String categoriesPath) {
-        public static final AssetsInfo DEFAULT = new AssetsInfo(AUTHENTICATION_PATH, CHANGELOG_PATH, CATEGORIES_PATH);
+
+    record AssetsInfo(String sourcePath, String authPath, String changelogPath, String categoriesPath) {
+        public static final AssetsInfo DEFAULT = new AssetsInfo(SOURCE_PATH, AUTHENTICATION_PATH, CHANGELOG_PATH, CATEGORIES_PATH);
 
         private static class Deserializer implements JsonDeserializer<AssetsInfo> {
 
@@ -216,10 +219,11 @@ public class AutoPublisher {
             public AssetsInfo deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
                 if (!jsonElement.isJsonObject()) throw new JsonParseException("mod info must be object");
                 JsonObject object = jsonElement.getAsJsonObject();
+                String sourcePath = GsonHelper.getOptionalAsString(object, "source", SOURCE_PATH);
                 String authPath = GsonHelper.getOptionalAsString(object, "auth", AUTHENTICATION_PATH);
                 String changelogPath = GsonHelper.getOptionalAsString(object, "changelog", CHANGELOG_PATH);
                 String categoriesPath = GsonHelper.getOptionalAsString(object, "categories", CATEGORIES_PATH);
-                return new AssetsInfo(authPath, changelogPath, categoriesPath);
+                return new AssetsInfo(sourcePath, authPath, changelogPath, categoriesPath);
             }
         }
     }
@@ -238,7 +242,12 @@ public class AutoPublisher {
             return;
         }
 
-        LOGGER.info("Compiling Changelog...");
+        LOGGER.debug("Verifying file existence...");
+        List<Source> source = verifyFileExistence(config.modInfo.id, config.modInfo.version, config.mcVersion, config.assetsInfo.sourcePath, config.modules, config.withSources);
+        LOGGER.debug("successfully verified {} files", source.size());
+
+        if (true) return;
+        LOGGER.debug("Compiling Changelog...");
         try {
             createChangelog(config.changelogInfo == null ? ChangelogInfo.DEFAULT : config.changelogInfo, config.assetsInfo.changelogPath, config.assetsInfo.categoriesPath);
         } catch (FileNotFoundException e) {
@@ -266,9 +275,9 @@ public class AutoPublisher {
             try (HttpClient client = HttpClient.newBuilder()
                     .followRedirects(HttpClient.Redirect.ALWAYS)
                     .build()) {
-                CurseforgePublish.publish(config, client);
+                CurseforgePublish.publish(config, client, source);
                 if (true) return;
-                if ((config.curseforgeId == null || CurseforgePublish.publish(config, client)) && (config.modrinthId == null || ModrinthPublish.publish(config))) {
+                if ((config.curseforgeId == null || CurseforgePublish.publish(config, client, source)) && (config.modrinthId == null || ModrinthPublish.publish(config, source))) {
                     saveDataCache(modVersion);
                     clearChangelog();
                 }
@@ -279,6 +288,34 @@ public class AutoPublisher {
         }
     }
 
+    //region file verify
+    record Source(String moduleName, File obj) {}
+
+    /**
+     * returns a list of all files, including main, module and source if enabled
+     */
+    private static List<Source> verifyFileExistence(String modId, String modVersion, String mcVersion, String sourcePath, String[] modules, boolean withSources) {
+        List<Source> sources = new ArrayList<>();
+        String fileBase = String.format("%s/%s-", sourcePath, modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
+        sources.add(new Source("primary", checkFileExistence(fileBase)));
+        if (withSources)
+            sources.add(new Source("primary-sources", checkFileExistence(fileBase + "-sources")));
+        for (String module : modules) {
+            sources.add(new Source(module, checkFileExistence(fileBase + "-" + module)));
+            if (withSources)
+                sources.add(new Source(module + "-sources", checkFileExistence(String.format("%s-%s-sources", fileBase, module))));
+        }
+
+        return sources;
+    }
+
+    private static File checkFileExistence(String fileBase) {
+        File file = new File(fileBase + ".jar");
+        if (!file.exists()) throw new NullPointerException("missing jar at " + file.getPath());
+        return file;
+    }
+    //endregion
+
     private static void saveDataCache(String modVersion) throws IOException {
         FileWriter writer = new FileWriter(DATA_CACHE);
         writer.write(modVersion);
@@ -288,31 +325,6 @@ public class AutoPublisher {
     private static void clearChangelog() throws IOException {
         FileWriter writer = new FileWriter(CHANGELOG_PATH);
         writer.close();
-    }
-
-    static String getFileSHA512(File file) {
-        try {
-            byte[] fileData = Files.readAllBytes(file.toPath());
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
-            byte[] hash = md.digest(fileData);
-            return Base64.getEncoder().encodeToString(hash);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            e.printStackTrace(System.err);
-            return null;
-        }
-    }
-
-    private static String changelog;
-
-    static void createChangelog(ChangelogInfo info, String changelogLocation, String categoriesLocation) throws FileNotFoundException {
-        BufferedReader reader = new BufferedReader(new FileReader(changelogLocation));
-        Changelog log = info.createLog(categoriesLocation);
-        log.parse(reader);
-        changelog = info.compileLog(log);
-    }
-
-    static String getChangelog() {
-        return changelog;
     }
 
     static String formatVersion(String modVersion, String mcVersion) {
@@ -330,6 +342,20 @@ public class AutoPublisher {
             }
         }
         return authString[modrinth ? 0 : 1];
+    }
+
+    //region changelog
+    private static String changelog;
+
+    static void createChangelog(ChangelogInfo info, String changelogLocation, String categoriesLocation) throws FileNotFoundException {
+        BufferedReader reader = new BufferedReader(new FileReader(changelogLocation));
+        Changelog log = info.createLog(categoriesLocation);
+        log.parse(reader);
+        changelog = info.compileLog(log);
+    }
+
+    static String getChangelog() {
+        return changelog;
     }
 
     private interface Changelog {
@@ -521,6 +547,7 @@ public class AutoPublisher {
         }
 
     }
+    //endregion
 
     private static final List<String> DEPENDENCY_TYPES = List.of("required", "optional", "incompatible", "embedded");
 

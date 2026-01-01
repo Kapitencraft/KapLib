@@ -30,7 +30,7 @@ public interface EffectsStyle {
      * converts (or casts) a {@code  Style} to an {@code EffectsStyle} to use above methods
      * @param style the style to convert
      * @return the {@code EffectsStyle} that the Style contains
-     * @apiNote use {@link MiscHelper#withSpecial(Style, GlyphEffect) MiscHelper#withSpecial} instead
+     * @apiNote use {@link GlyphEffect#apply(Style)} instead
      */
     @ApiStatus.Internal
     static EffectsStyle of(Style style) {

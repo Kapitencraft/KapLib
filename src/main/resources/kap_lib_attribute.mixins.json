@@ -7,11 +7,9 @@
   "client": [
   ],
   "mixins": [
-    "FishingRodMixin",
     "AbstractArrowMixin",
-    "AttributeMixin",
     "AttributesMixin",
-    "AttributeUtilMixin",
+    "FishingRodMixin",
     "ItemsMixin",
     "LivingEntityMixin",
     "ProjectileMixin"

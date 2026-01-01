@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.core.util;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -14,7 +14,8 @@ public class Reference<T> {
         value = defaultValue;
     }
 
-    public Reference() {}
+    public Reference() {
+    }
 
     public static <T> Reference<T> of(@Nullable T t) {
         return new Reference<>(t);
@@ -36,7 +37,7 @@ public class Reference<T> {
         try {
             return (int) value;
         } catch (Exception e) {
-            KapLibMod.LOGGER.warn("error whilst attempting to get value: {}", e.getMessage());
+            LibConstants.LOGGER.warn("error whilst attempting to get value: {}", e.getMessage());
         }
         return 0;
     }

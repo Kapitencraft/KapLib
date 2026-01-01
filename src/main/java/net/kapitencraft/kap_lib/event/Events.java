@@ -1,28 +1,29 @@
 package net.kapitencraft.kap_lib.event;
 
+import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
+import net.kapitencraft.kap_lib.attribute.TimedModifiers;
+import net.kapitencraft.kap_lib.bonus.BonusManager;
+import net.kapitencraft.kap_lib.bonus.network.S2C.SyncBonusesPacket;
+import net.kapitencraft.kap_lib.bonus.requirement.BonusRequirementType;
 import net.kapitencraft.kap_lib.component.ExtraComponents;
 import net.kapitencraft.kap_lib.cooldown.CooldownAttributeAdder;
 import net.kapitencraft.kap_lib.cooldown.Cooldowns;
-import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
-import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.core.helpers.ParticleHelper;
+import net.kapitencraft.kap_lib.core.tags.ExtraTags;
+import net.kapitencraft.kap_lib.enchantment.ExtraEnchantmentEffectComponents;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.enchantment.extras.EnchantmentDescriptionManager;
 import net.kapitencraft.kap_lib.inventory_page.wearable.Wearables;
-import net.kapitencraft.kap_lib.bonus.network.S2C.SyncBonusesPacket;
-import net.kapitencraft.kap_lib.mana.ManaAttributes;
-import net.kapitencraft.kap_lib.requirement.network.S2C.SyncRequirementsPacket;
-import net.kapitencraft.kap_lib.bonus.BonusManager;
 import net.kapitencraft.kap_lib.mana.ManaAttachmentTypes;
-import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
-import net.kapitencraft.kap_lib.enchantment.ExtraEnchantmentEffectComponents;
+import net.kapitencraft.kap_lib.mana.ManaAttributes;
+import net.kapitencraft.kap_lib.particle.custom.DamageIndicatorParticleOptions;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
 import net.kapitencraft.kap_lib.requirement.RequirementManager;
+import net.kapitencraft.kap_lib.requirement.event.custom.RegisterRequirementTypesEvent;
+import net.kapitencraft.kap_lib.requirement.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
-import net.kapitencraft.kap_lib.core.tags.ExtraTags;
-import net.kapitencraft.kap_lib.attribute.TimedModifiers;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -48,14 +49,11 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.MovementInputUpdateEvent;
-import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
@@ -69,7 +67,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * event listeners for KapLib.
@@ -78,22 +77,6 @@ import java.util.*;
 @ApiStatus.Internal
 @EventBusSubscriber
 public class Events {
-    /**
-     * event classes that should not be cancelled
-     */
-    //TODO re-add
-    private static final List<Class<? extends LivingEvent>> dontCancel = List.of(
-            ItemTooltipEvent.class,
-            RenderPlayerEvent.Pre.class,
-            RenderPlayerEvent.Post.class,
-            PlayerEvent.LoadFromFile.class,
-            PlayerEvent.NameFormat.class,
-            PlayerEvent.TabListNameFormat.class,
-            PlayerEvent.PlayerLoggedInEvent.class,
-            PlayerEvent.PlayerLoggedOutEvent.class,
-            MovementInputUpdateEvent.class,
-            LivingBreatheEvent.class
-    );
 
     @SubscribeEvent
     public static void onEntityAttributeModification(EntityAttributeModificationEvent event) {
@@ -115,13 +98,11 @@ public class Events {
     }
 
     @SubscribeEvent
-    public static void playerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            PacketDistributor.sendToPlayer(serverPlayer,
-                    new SyncRequirementsPacket(RequirementManager.createData()),
-                    new SyncBonusesPacket(BonusManager.instance.createData())
-            );
-        }
+    public static void playerLogIn(OnDatapackSyncEvent event) {
+        event.getRelevantPlayers().forEach(p -> PacketDistributor.sendToPlayer(p,
+                SyncRequirementsPacket.create(),
+                new SyncBonusesPacket(BonusManager.instance.createData())
+        ));
     }
 
     @SubscribeEvent
@@ -131,7 +112,7 @@ public class Events {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void healingDisplay(LivingHealEvent event) {
-        if (event.getAmount() > 0) MiscHelper.createDamageIndicator(event.getEntity(), event.getAmount(), "heal");
+        if (event.getAmount() > 0) DamageIndicatorParticleOptions.create(event.getEntity(), event.getAmount(), "heal");
     }
 
     @SubscribeEvent
@@ -153,10 +134,10 @@ public class Events {
                 EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) -> {
                     LootContext context = Enchantment.entityContext(serverLevel, level, arrow, arrow.position());
                     enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW_SPAWN.value()).forEach(enchantmentEntityEffect -> {
-                            if (enchantmentEntityEffect.matches(context)) {
-                                enchantmentEntityEffect.effect().apply(serverLevel, level, itemInUse, arrow, arrow.position());
-                            }
-                        });
+                        if (enchantmentEntityEffect.matches(context)) {
+                            enchantmentEntityEffect.effect().apply(serverLevel, level, itemInUse, arrow, arrow.position());
+                        }
+                    });
                     ListTag list = IOHelper.getOrCreateList(arrow.getPersistentData(), enchantment.getKey().location().toString(), Tag.TAG_COMPOUND);
                     List<ConditionalEffect<EnchantmentBowEffect>> effects = enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value());
                     for (int i = 0; i < effects.size(); i++) {
@@ -236,8 +217,9 @@ public class Events {
         if (!player.onGround()) {
             if (canJump(player) && tag.getInt(DOUBLE_JUMP_ID) < player.getAttributeValue(ExtraAttributes.DOUBLE_JUMP)) {
                 if (player.jumping && player.noJumpDelay <= 0) {
-                    ParticleHelper.sendAlwaysVisibleParticles(ParticleTypes.CLOUD, player.level(), player.getX(), player.getY(), player.getZ(), 0.25, 0.0, 0.25, 0,0,0, 15);
-                    player.noJumpDelay = 10; player.fallDistance = 0;
+                    ParticleHelper.sendAlwaysVisibleParticles(ParticleTypes.CLOUD, player.level(), player.getX(), player.getY(), player.getZ(), 0.25, 0.0, 0.25, 0, 0, 0, 15);
+                    player.noJumpDelay = 10;
+                    player.fallDistance = 0;
                     Vec3 targetLoc = player.getLookAngle().multiply(1, 0, 1).scale(0.75).add(0, 1, 0);
                     player.setDeltaMovement(targetLoc.x, targetLoc.y > 0 ? targetLoc.y : -targetLoc.y, targetLoc.z);
                     player.hurtMarked = true;
@@ -269,7 +251,7 @@ public class Events {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onBlockDrops(BlockDropsEvent event) {
         if (event.getBreaker() instanceof Player player) {
-            double scale = AttributeHelper.getExperienceScale(player);
+            double scale = ExtraAttributes.getExperienceScale(player);
             event.setDroppedExperience((int) (event.getDroppedExperience() * scale));
         }
     }
@@ -293,7 +275,8 @@ public class Events {
                     LootParams params = builder.create(EnchantmentBlockBreakEffect.PARAM_SET);
                     LootContext context = new LootContext.Builder(params).create(Optional.empty());
                     for (ConditionalEffect<EnchantmentBlockBreakEffect> effect : holder.value().getEffects(ExtraEnchantmentEffectComponents.BLOCK_BREAK.get())) {
-                        if (effect.matches(context)) mutableBoolean.setValue(effect.effect().onBreak(state, event.getPos(), level, i) || mutableBoolean.booleanValue());
+                        if (effect.matches(context))
+                            mutableBoolean.setValue(effect.effect().onBreak(state, event.getPos(), level, i) || mutableBoolean.booleanValue());
                     }
                 });
             }
@@ -304,7 +287,12 @@ public class Events {
     public static void onLivingExperienceDrop(LivingExperienceDropEvent event) {
         Player player = event.getAttackingPlayer();
         if (player != null) {
-            event.setDroppedExperience((int) (event.getDroppedExperience() * AttributeHelper.getExperienceScale(player)));
+            event.setDroppedExperience((int) (event.getDroppedExperience() * ExtraAttributes.getExperienceScale(player)));
         }
+    }
+
+    @SubscribeEvent
+    public static void onRegisterRequirementTypes(RegisterRequirementTypesEvent event) {
+        event.add(BonusRequirementType.INSTANCE);
     }
 }

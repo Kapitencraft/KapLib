@@ -1,7 +1,5 @@
 package net.kapitencraft.kap_lib.core.helpers;
 
-import net.kapitencraft.kap_lib.particle.ParticleAmountHolder;
-import net.kapitencraft.kap_lib.particle.ParticleGradientHolder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,16 +27,9 @@ public class ParticleHelper {
     public static <T extends ParticleOptions> int sendParticles(T type, boolean force, Entity source, int amount, double deltaX, double deltaY, double deltaZ, double speed) {
         return sendParticles(source.level(), type, force, source.position(), amount, deltaX, deltaY, deltaZ, speed);
     }
+
     public static <T extends ParticleOptions> int sendParticles(Level level, T type, boolean force, Vec3 loc, int amount, double deltaX, double deltaY, double deltaZ, double speed) {
         return sendParticles(level, type, force, loc.x, loc.y, loc.z, amount, deltaX, deltaY, deltaZ, speed);
-    }
-
-    public static <T extends ParticleOptions> int sendParticles(Level level, boolean force, Vec3 loc, double deltaX, double deltaY, double deltaZ, double speed, ParticleAmountHolder holder) {
-        return sendParticles(level, holder.particleType(), force, loc.x, loc.y, loc.z, holder.amount(), deltaX, deltaY, deltaZ, speed);
-    }
-
-    public static <T extends ParticleOptions> int sendParticles(Level level, boolean force, Vec3 loc, double deltaX, double deltaY, double deltaZ, double speed, ParticleGradientHolder holder) {
-        return sendParticles(level, force, loc, deltaX, deltaY, deltaZ, speed, holder.holder1()) + sendParticles(level, force, loc, deltaX, deltaY, deltaZ, speed, holder.holder2());
     }
 
     public static void sendAlwaysVisibleParticles(ParticleOptions type, Level level, double x, double y, double z, double dx, double dy, double dz, double sx, double sy, double sz, int amount) {

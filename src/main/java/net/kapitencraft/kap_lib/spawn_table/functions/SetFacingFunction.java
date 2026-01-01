@@ -12,9 +12,10 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.Vec2;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetFacingFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetFacingFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetFacingFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.FLOAT.fieldOf("pitch").forGetter(f -> f.rot.x),
             Codec.FLOAT.fieldOf("yaw").forGetter(f -> f.rot.y)
     ).and(commonFields(i).t1()).apply(i, SetFacingFunction::fromCodec));

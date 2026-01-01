@@ -1,0 +1,17 @@
+package net.kapitencraft.kap_lib.loot.event.custom;
+
+import net.kapitencraft.kap_lib.core.util.IntegerModifierCollector;
+import net.neoforged.bus.api.Event;
+
+/**
+ * used to calculate changes on the ore drops
+ */
+public class ModifyOreDropsEvent extends Event {
+
+    public final IntegerModifierCollector dropCount;
+
+    public ModifyOreDropsEvent(int dropCount) {
+        this.dropCount = new IntegerModifierCollector();
+        this.dropCount.setBase(dropCount);
+    }
+}

@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.mana.event.handler;
 
 import net.kapitencraft.kap_lib.mana.ManaAttachmentTypes;
 import net.kapitencraft.kap_lib.mana.ManaAttributes;
-import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.EntityType;

@@ -8,9 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 
+/**
+ * class that stores the tick related info of the timed modifiers.
+ * <br>handles ticking and removing timed modifiers
+ */
+@ApiStatus.Internal
 public class TimedModifiers {
     public static final Codec<TimedModifiers> CODEC = Entry.CODEC.listOf().xmap(TimedModifiers::new, m -> m.modifiers);
 

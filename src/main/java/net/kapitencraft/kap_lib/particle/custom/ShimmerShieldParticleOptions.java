@@ -4,8 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
+import net.kapitencraft.kap_lib.core.util.Color;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
-import net.kapitencraft.kap_lib.core.Color;
 import net.kapitencraft.kap_lib.particle.registry.ExtraParticleTypes;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleOptions;
@@ -18,16 +18,16 @@ import java.util.UUID;
 
 public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldParticleOptions> implements ParticleOptions {
     private static final MapCodec<ShimmerShieldParticleOptions> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.INT.fieldOf("minLifeTime").forGetter(ShimmerShieldParticleOptions::getMinLifeTime),
-            Codec.INT.fieldOf("maxElements").forGetter(ShimmerShieldParticleOptions::getMaxElements),
-            Codec.INT.fieldOf("entityId").forGetter(ShimmerShieldParticleOptions::getEntityId),
-            Codec.INT.fieldOf("minRegenTime").forGetter(ShimmerShieldParticleOptions::getMinRegenTime),
-            Codec.INT.fieldOf("maxRegenTime").forGetter(ShimmerShieldParticleOptions::getMaxRegenTime),
-            Codec.INT.fieldOf("maxLifeTime").forGetter(ShimmerShieldParticleOptions::getMaxLifeTime),
-            Color.CODEC.fieldOf("minColor").forGetter(ShimmerShieldParticleOptions::getMinColor),
-            Color.CODEC.fieldOf("maxColor").forGetter(ShimmerShieldParticleOptions::getMaxColor),
-            Codec.FLOAT.fieldOf("maxSpeed").forGetter(ShimmerShieldParticleOptions::getMaxSpeed),
-            UUIDUtil.STRING_CODEC.fieldOf("uuid").forGetter(ShimmerShieldParticleOptions::getUUID)
+                    Codec.INT.fieldOf("minLifeTime").forGetter(ShimmerShieldParticleOptions::getMinLifeTime),
+                    Codec.INT.fieldOf("maxElements").forGetter(ShimmerShieldParticleOptions::getMaxElements),
+                    Codec.INT.fieldOf("entityId").forGetter(ShimmerShieldParticleOptions::getEntityId),
+                    Codec.INT.fieldOf("minRegenTime").forGetter(ShimmerShieldParticleOptions::getMinRegenTime),
+                    Codec.INT.fieldOf("maxRegenTime").forGetter(ShimmerShieldParticleOptions::getMaxRegenTime),
+                    Codec.INT.fieldOf("maxLifeTime").forGetter(ShimmerShieldParticleOptions::getMaxLifeTime),
+                    Color.CODEC.fieldOf("minColor").forGetter(ShimmerShieldParticleOptions::getMinColor),
+                    Color.CODEC.fieldOf("maxColor").forGetter(ShimmerShieldParticleOptions::getMaxColor),
+                    Codec.FLOAT.fieldOf("maxSpeed").forGetter(ShimmerShieldParticleOptions::getMaxSpeed),
+                    UUIDUtil.STRING_CODEC.fieldOf("uuid").forGetter(ShimmerShieldParticleOptions::getUUID)
             ).apply(instance, ShimmerShieldParticleOptions::new) //that's a lot
     );
     public static final StreamCodec<ByteBuf, ShimmerShieldParticleOptions> STREAM_CODEC = ExtraStreamCodecs.composite(

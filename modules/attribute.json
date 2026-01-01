@@ -1,4 +1,5 @@
 {
   "asMod": true,
-  "extensions": false
+  "extensions": false,
+  "dependencies": ["particle"]
 }

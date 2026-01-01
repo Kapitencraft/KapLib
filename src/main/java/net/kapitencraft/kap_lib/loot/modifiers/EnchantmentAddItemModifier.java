@@ -4,16 +4,17 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.kapitencraft.kap_lib.core.helpers.LootTableHelper;
 import net.kapitencraft.kap_lib.core.string_converter.converter.TextToDoubleConverter;
 import net.kapitencraft.kap_lib.core.string_converter.param_storage.ParamStorage;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,6 +31,7 @@ public class EnchantmentAddItemModifier extends AddItemModifier {
     );
     private final Holder<Enchantment> enchantment;
     private final TextToDoubleConverter converter;
+
     @SuppressWarnings("all")
     protected EnchantmentAddItemModifier(LootItemCondition[] conditionsIn, Item item, float chance, int maxAmount, Optional<DataComponentPatch> tag, Holder<Enchantment> enchantment, String provider) {
         super(conditionsIn, item, chance, maxAmount, tag.orElse(null));
@@ -39,12 +41,11 @@ public class EnchantmentAddItemModifier extends AddItemModifier {
 
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-        LivingEntity entity = LootTableHelper.getLivingSource(context);
-        ItemStack stack = entity == null ? null : entity.getMainHandItem();
-        if (stack != null) {
-            double enchLevel = stack.getEnchantmentLevel(enchantment);
-            addItem(generatedLoot::add, context, (float) (chance * converter.transfer(new ParamStorage<>(Map.of("ench", enchLevel)))));
-        }
+        Entity param = context.getParam(LootContextParams.ATTACKING_ENTITY);
+        if (!(param instanceof LivingEntity living)) return generatedLoot;
+        ItemStack stack = living.getMainHandItem();
+        double enchLevel = stack.getEnchantmentLevel(enchantment);
+        addItem(generatedLoot::add, context, (float) (chance * converter.transfer(new ParamStorage<>(Map.of("ench", enchLevel)))));
         return generatedLoot;
     }
 }

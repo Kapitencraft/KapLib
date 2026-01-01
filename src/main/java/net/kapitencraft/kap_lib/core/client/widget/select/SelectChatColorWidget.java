@@ -1,13 +1,8 @@
 package net.kapitencraft.kap_lib.core.client.widget.select;
 
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.enchantment.client.enchantment_color.EnchantmentColor;
-import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
-import net.kapitencraft.kap_lib.shader.ModRenderTypes;
+import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.core.client.widget.PositionedWidget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +19,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class SelectChatColorWidget extends PositionedWidget {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final Consumer<ColorType> valueSink;
     private final Component title;
     private final Font font;
@@ -33,7 +31,7 @@ public class SelectChatColorWidget extends PositionedWidget {
         this.valueSink = valueSink;
         this.title = title;
         this.font = font;
-        if (font.width(title) > 90) KapLibMod.LOGGER.warn("title for chat color select wider than feasible");
+        if (font.width(title) > 90) LOGGER.warn("title for chat color select wider than feasible");
         this.value = value;
     }
 
@@ -53,9 +51,6 @@ public class SelectChatColorWidget extends PositionedWidget {
         }
     }
 
-    private static final ColorType[] COLOR_TYPES = createColorTypes();
-    private static final TextColor[] COLOR_LOOKUP = createLookup();
-
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         for (int i = 0; i < 17; i++) {
@@ -73,29 +68,20 @@ public class SelectChatColorWidget extends PositionedWidget {
         return super.mouseClicked(pMouseX, pMouseY, pButton);
     }
 
+    public static final ColorType[] COLOR_TYPES = createColorTypes();
+    public static final TextColor[] COLOR_LOOKUP = createLookup();
+
     private static TextColor[] createLookup() {
         return Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).map(TextColor::fromLegacyFormat).toArray(TextColor[]::new);
     }
 
-    private static final int COLOR_TYPE_COUNT = 17;
-
-    public static ColorType getColor(EnchantmentColor color) {
-        Style style = color.targetStyle();
-        EffectsStyle effectsStyle = EffectsStyle.of(style);
-        if (effectsStyle.hasEffect(GlyphEffects.RAINBOW.get())) return COLOR_TYPES[16]; //get the rainbow element
-        for (int i = 0; i < 16; i++) {
-            if (COLOR_LOOKUP[i].equals(style.getColor())) return COLOR_TYPES[i];
-        }
-        throw new IllegalArgumentException("could not extract color from style: " + style);
-    }
-
     private static ColorType[] createColorTypes() {
         List<ColorType> types = Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).map(VanillaColorType::new).collect(Collectors.toCollection(ArrayList::new));
-        types.add(new ChromaColorType());
+        //if (Modules.isComponentActive()) {
+        //    ComponentCompat.appendChromaType(types);
+        //}
         return types.toArray(ColorType[]::new);
     }
-
-    private static final int COLOR_SIZE = 10;
 
     public interface ColorType {
 
@@ -118,20 +104,6 @@ public class SelectChatColorWidget extends PositionedWidget {
         @Override
         public Style getStyle() {
             return formattedStyle;
-        }
-    }
-
-    private static class ChromaColorType implements ColorType {
-        private static final Style CHROMA_STYLE = MiscHelper.withSpecial(Style.EMPTY, GlyphEffects.RAINBOW);
-
-        @Override
-        public void render(GuiGraphics graphics, int x, int y, int width) {
-            graphics.fill(ModRenderTypes.FILL_CHROMA, x, y, x + width, y + width, 0);
-        }
-
-        @Override
-        public Style getStyle() {
-            return CHROMA_STYLE;
         }
     }
 }

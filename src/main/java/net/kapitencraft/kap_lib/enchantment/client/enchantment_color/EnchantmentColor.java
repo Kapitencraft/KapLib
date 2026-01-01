@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.enchantment.client.enchantment_color;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.component.StyleCodecs;
+import net.kapitencraft.kap_lib.core.client.widget.select.SelectChatColorWidget;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -19,7 +19,7 @@ public record EnchantmentColor(String name, List<Holder<Enchantment>> elements, 
             Enchantment.CODEC.listOf().optionalFieldOf("elements", List.of()).forGetter(EnchantmentColor::elements),
             EnchantmentGroup.CODEC.listOf().optionalFieldOf("groups", List.of()).forGetter(EnchantmentColor::groups),
             LevelRange.CODEC.optionalFieldOf("levelRange").forGetter(c -> Optional.ofNullable(c.levelRange)),
-            StyleCodecs.EFFECT_SERIALIZING_STYLE.fieldOf("style").forGetter(EnchantmentColor::targetStyle)
+            Style.Serializer.CODEC.fieldOf("style").forGetter(EnchantmentColor::targetStyle)
     ).apply(enchantmentColorInstance, EnchantmentColor::fromCodec));
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
@@ -33,8 +33,9 @@ public record EnchantmentColor(String name, List<Holder<Enchantment>> elements, 
 
     /**
      * gets the style for this color if both parameters match
+     *
      * @param enchantment the enchantment to query
-     * @param level the level to query
+     * @param level       the level to query
      * @return the target style, or null, if the enchantment & level do not match
      */
     public Style getStyleForEnchantment(Holder<Enchantment> enchantment, int level) {
@@ -45,5 +46,17 @@ public record EnchantmentColor(String name, List<Holder<Enchantment>> elements, 
         if (this.levelRange != null && !this.levelRange.test(level, enchantment.value().getMaxLevel()))
             return null;
         return this.targetStyle;
+    }
+
+    public SelectChatColorWidget.ColorType toColorType() {
+        Style style = this.targetStyle();
+        //if (Modules.isComponentActive() && ComponentCompat.checkRainbowActive(style)) {
+        //    return SelectChatColorWidget.COLOR_TYPES[16]; //get the rainbow element
+        //}
+        for (int i = 0; i < 16; i++) {
+            if (SelectChatColorWidget.COLOR_LOOKUP[i].equals(style.getColor()))
+                return SelectChatColorWidget.COLOR_TYPES[i];
+        }
+        throw new IllegalArgumentException("could not extract color from style: " + style);
     }
 }

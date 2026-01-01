@@ -1,16 +1,17 @@
 package net.kapitencraft.kap_lib.particle.animation.core;
 
 import com.google.common.base.Preconditions;
+import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.EntityAddedTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.TriggerInstance;
 import net.kapitencraft.kap_lib.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.ParticleFinalizer;
+import net.kapitencraft.kap_lib.particle.animation.spawners.GroupSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
-import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.particle.network.S2C.SendParticleAnimationPacket;
 import net.minecraft.CrashReport;
 import net.minecraft.network.RegistryFriendlyByteBuf;

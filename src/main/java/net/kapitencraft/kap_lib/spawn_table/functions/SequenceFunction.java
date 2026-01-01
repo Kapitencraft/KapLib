@@ -3,24 +3,25 @@ package net.kapitencraft.kap_lib.spawn_table.functions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.SpawnContext;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunction;
 import net.kapitencraft.kap_lib.spawn_table.functions.core.SpawnEntityFunctionType;
+import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 public class SequenceFunction implements SpawnEntityFunction {
-    public static final MapCodec<SequenceFunction> CODEC = RecordCodecBuilder.mapCodec(
-        p_335342_ -> p_335342_.group(SpawnEntityFunctions.TYPED_CODEC.listOf().fieldOf("functions").forGetter(p_298431_ -> p_298431_.functions))
-                .apply(p_335342_, SequenceFunction::new)
+    public static final Supplier<MapCodec<SequenceFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(
+            p_335342_ -> p_335342_.group(SpawnEntityFunctions.TYPED_CODEC.listOf().fieldOf("functions").forGetter(p_298431_ -> p_298431_.functions))
+                    .apply(p_335342_, SequenceFunction::new)
     );
     public static final Codec<SequenceFunction> INLINE_CODEC = SpawnEntityFunctions.TYPED_CODEC
-        .listOf()
-        .xmap(SequenceFunction::new, p_298862_ -> p_298862_.functions);
+            .listOf()
+            .xmap(SequenceFunction::new, p_298862_ -> p_298862_.functions);
     private final List<SpawnEntityFunction> functions;
     private final BiFunction<Entity, SpawnContext, Entity> compositeFunction;
 

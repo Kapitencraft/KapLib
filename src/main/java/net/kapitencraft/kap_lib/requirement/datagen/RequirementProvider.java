@@ -12,28 +12,30 @@ import net.minecraft.data.PackOutput;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public abstract class RequirementProvider<T> implements DataProvider {
-    private final Codec<Map<T, ReqCondition<?>>> codec;
+    private final Codec<Map<T, List<ReqCondition<?>>>> codec;
     private final PackOutput output;
     private final String modId;
     private final RequirementType<T> type;
 
-    private final Map<T, ReqCondition<?>> requirements = new HashMap<>();
+    private final Map<T, List<ReqCondition<?>>> requirements = new HashMap<>();
 
     protected RequirementProvider(PackOutput output, String modId, RequirementType<T> type) {
         this.output = output;
         this.modId = modId;
         this.type = type;
-        this.codec = Codec.unboundedMap(type.serializer().getCodec(), ReqCondition.CODEC);
+        this.codec = Codec.unboundedMap(type.serializer().getCodec(), ReqCondition.CODEC.listOf());
     }
 
     protected void add(T element, ReqCondition<?> condition) {
-        this.requirements.put(element, condition);
+        this.requirements.computeIfAbsent(element, e -> new ArrayList<>()).add(condition);
     }
 
     protected void add(Supplier<T> supplier, ReqCondition<?> condition) {

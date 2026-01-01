@@ -21,10 +21,17 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class EnchantmentHelperExtras {
+
+    /**
+     * @return an enchantment builder with ultimate exclusive set
+     */
     public static Enchantment.Builder ultimate(HolderGetter<Enchantment> enchantments, Enchantment.EnchantmentDefinition definition) {
         return Enchantment.enchantment(definition).exclusiveWith(enchantments.getOrThrow(ExtraTags.Enchantments.ULTIMATE));
     }
 
+    /**
+     * creates an enchantment definition for bow enchantments
+     */
     public static Enchantment.EnchantmentDefinition bow(HolderGetter<Item> items, int weight, int maxLevel, Enchantment.Cost minCost, Enchantment.Cost maxCost, int anvilCost) {
         return Enchantment.definition(
                 items.getOrThrow(ItemTags.BOW_ENCHANTABLE),
@@ -69,15 +76,30 @@ public class EnchantmentHelperExtras {
         }
     }
 
+    /**
+     * @param access access to the registries, necessary to lookup holder for ResourceKey
+     * @param stack the item to check the enchantments of
+     * @param key the resource key of the enchantment
+     * @param enchConsumer what to do when the enchantment exists and has a level greater than 0
+     */
     public static void getEnchantmentLevelAndDo(RegistryAccess access, ItemStack stack, ResourceKey<Enchantment> key, Consumer<Integer> enchConsumer) {
         getEnchantmentLevelAndDo(stack, access.holderOrThrow(key), enchConsumer);
     }
 
+    /**
+     * @param entity the entity to check
+     * @param enchantmentHolder the holder of the enchantment to check for
+     * @param enchConsumer what to do when the enchantment exists and has a level greater than 0
+     */
     public static void getEnchantmentLevelAndDo(LivingEntity entity, Holder<Enchantment> enchantmentHolder, Consumer<Integer> enchConsumer) {
         int level = EnchantmentHelper.getEnchantmentLevel(enchantmentHolder, entity);
         if (level > 0) enchConsumer.accept(level);
     }
 
+    /**
+     * overload to insert RegistryAccess and ResourceKey instead of Holder
+     * @see #getEnchantmentLevelAndDo(LivingEntity, Holder, Consumer)
+     */
     public static void getEnchantmentLevelAndDo(LivingEntity living, ResourceKey<Enchantment> key, Consumer<Integer> enchConsumer) {
         getEnchantmentLevelAndDo(living, living.registryAccess().holderOrThrow(key), enchConsumer);
     }

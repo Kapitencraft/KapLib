@@ -15,9 +15,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.KapLibMod;
 import net.kapitencraft.kap_lib.component.config.ComponentClientModConfig;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
@@ -168,7 +166,7 @@ public class PlayerHeadAllocator extends FontSet {
     }
 
     private void reallocate() {
-        KapLibMod.LOGGER.debug("re-allocating player head atlas");
+        LOGGER.debug("re-allocating player head atlas");
         NativeImage original = this.atlas;
         NativeImage image = new NativeImage(original.getWidth() * 2, original.getHeight(), false);
         original.copyRect(image, 0, 0, 0, 0, original.getWidth(), original.getHeight(), false, false);

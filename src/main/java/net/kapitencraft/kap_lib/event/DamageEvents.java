@@ -17,9 +17,10 @@ import net.kapitencraft.kap_lib.bonus.BonusManager;
 import net.kapitencraft.kap_lib.item.combat.totem.AbstractTotemItem;
 import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
 import net.kapitencraft.kap_lib.enchantment.ExtraEnchantmentEffectComponents;
+import net.kapitencraft.kap_lib.particle.custom.DamageIndicatorParticleOptions;
 import net.kapitencraft.kap_lib.requirement.RequirementManager;
 import net.kapitencraft.kap_lib.core.util.DamageCounter;
-import net.kapitencraft.kap_lib.core.util.FerociousDamageSource;
+import net.kapitencraft.kap_lib.attribute.damage.FerociousDamageSource;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -84,7 +85,7 @@ public class DamageEvents {
                 event.setNewDamage(0);
             }
         }
-        MiscHelper.createDamageIndicator(attacked, event.getNewDamage(), dodge ? "dodge" : source.getMsgId());
+        DamageIndicatorParticleOptions.create(attacked, event.getNewDamage(), dodge ? "dodge" : source.getMsgId());
         DamageCounter.increaseDamage(event.getNewDamage());
     }
 
@@ -116,7 +117,7 @@ public class DamageEvents {
                     attacked.hurt(FerociousDamageSource.create(attacker, (ferocity - 100), ferocityDamage), ferocityDamage);
                 });
             }
-            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -154,7 +155,7 @@ public class DamageEvents {
         if (attacker == null) return;
         if (MiscHelper.getDamageType(event.getSource()) == MiscHelper.DamageType.MELEE && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {
             double Strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH, attacker);
-            MathHelper.mul(event::getNewDamage, event::setNewDamage, (float) (1 + Strength / 100));
+            event.setNewDamage(event.getNewDamage() * (float) (1 + Strength / 100));
         }
         double armorShredder = AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER, attacker);
         LivingEntity attacked = event.getEntity();
@@ -196,7 +197,6 @@ public class DamageEvents {
         @Nullable LivingEntity attacker = MiscHelper.getAttacker(event.getDamageSource());
         if (attacker == null) { return; }
         ItemStack stack = attacker.getUseItem();
-        MiscHelper.DamageType type = MiscHelper.getDamageType(event.getDamageSource());
         EnchantedItemInUse shield = new EnchantedItemInUse(stack, attacked.getUsedItemHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND, attacked);
         if (attacker.level() instanceof ServerLevel serverLevel) {
             EnchantmentHelper.runIterationOnItem(stack, (enchantment, level) -> {

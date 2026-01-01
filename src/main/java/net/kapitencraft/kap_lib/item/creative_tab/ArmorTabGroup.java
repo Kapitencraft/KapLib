@@ -2,11 +2,10 @@ package net.kapitencraft.kap_lib.item.creative_tab;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.*;
-import net.neoforged.neoforge.common.util.MutableHashedLinkedMap;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class ArmorTabGroup extends TabGroup {
     public void register(BuildCreativeModeTabContentsEvent event) {
         this.items.removeIf(o -> {
             if (!(o.get() instanceof ArmorItem)) {
-                KapLibMod.LOGGER.warn("non-armor item has been added to armor tabgroup: {}", o.getKey());
+                LibConstants.LOGGER.warn("non-armor item has been added to armor tabgroup: {}", o.getKey());
                 return true;
             }
             return false;

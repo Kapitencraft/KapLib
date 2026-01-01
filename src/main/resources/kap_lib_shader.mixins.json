@@ -5,9 +5,6 @@
   "package": "net.kapitencraft.kap_lib.shader.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
-    "client.FontManagerMixin",
-    "client.FontSetMixin",
-    "client.BakedGlyphMixin",
     "client.RenderTypeMixin",
     "client.ShaderInstanceMixin",
     "client.LevelRendererMixin"

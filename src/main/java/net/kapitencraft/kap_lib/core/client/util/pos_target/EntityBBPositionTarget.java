@@ -7,6 +7,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * gets a random position in the target entities bounding box
+ */
 public class EntityBBPositionTarget implements PositionTarget {
     private final int entity;
 

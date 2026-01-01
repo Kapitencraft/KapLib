@@ -13,9 +13,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetEntityOwnerFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetEntityOwnerFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetEntityOwnerFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             LootContext.EntityTarget.CODEC.fieldOf("target").forGetter(f -> f.target)
     ).and(commonFields(i).t1()).apply(i, SetEntityOwnerFunction::new));
 

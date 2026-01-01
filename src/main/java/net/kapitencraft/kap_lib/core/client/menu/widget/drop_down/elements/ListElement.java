@@ -9,6 +9,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * list elements are used to group other elements by categories
+ */
 public class ListElement extends Element {
     protected final List<Element> children = new ArrayList<>();
     private boolean showChildren = false;

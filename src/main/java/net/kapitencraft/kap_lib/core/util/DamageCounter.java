@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.core.util;
 
+/**
+ * counts damage
+ */
 public class DamageCounter {
     private static float damage = 0;
     private static int attacked = 0;

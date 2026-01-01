@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
-import net.kapitencraft.kap_lib.core.ModrinthUtils;
+import net.kapitencraft.kap_lib.core.util.ModrinthUtils;
 import net.minecraft.util.GsonHelper;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 public class ModrinthPublish {
     private static final String API_URL = "https://api.modrinth.com/v2/version";
 
-    static boolean publish(AutoPublisher.Config config) {
+    static boolean publish(AutoPublisher.Config config, List<AutoPublisher.Source> sources) {
         String modId = config.modInfo().id();
         String modName = config.modInfo().name();
         String modVersion = config.modInfo().version();
@@ -35,11 +35,6 @@ public class ModrinthPublish {
             connection.setRequestProperty("User-Agent", String.format(config.authorInfo().name() + "/%s/%s (%s)", modName, modVersion, config.authorInfo().email()));
             connection.setRequestProperty("Authorization", AutoPublisher.getAuth(true));
 
-            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
-
-            File mainFile = new File(fileBase + ".jar");
-
-
             try (OutputStream outputStream = connection.getOutputStream();
                  PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
 
@@ -47,11 +42,8 @@ public class ModrinthPublish {
                 addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.modrinthId(), fillModules(config.modules(), config.withSources()), config.dependencies());
 
                 // Add file part
-                addFilePart(writer, outputStream, boundary, "primary", mainFile);
-
-                for (String extraFile : getExtraModules(config.modules(), config.withSources())) {
-                    File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
-                    addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
+                for (AutoPublisher.Source source : sources) {
+                    addFilePart(writer, outputStream, boundary, source.moduleName(), source.obj());
                 }
                 // Write the final boundary directly to OutputStream
                 outputStream.write(("--" + boundary + "--\r\n").getBytes());
@@ -140,7 +132,7 @@ public class ModrinthPublish {
 
         data.put("name", String.format("%s v%s", modName, modVersion));
         data.put("version_number", AutoPublisher.formatVersion(modVersion, mcVersion));
-        data.put("loaders", new String[] {"neoforge"});
+        data.put("loaders", new String[]{"neoforge"});
         data.put("game_versions", new String[]{mcVersion});
         data.put("version_type", "release");
         addDependencies(dependencies, data, mcVersion);
@@ -186,7 +178,7 @@ public class ModrinthPublish {
             if (data == null) throw new IllegalStateException("connecting to '" + modId + "' failed");
             JsonObject[] available = data.filter(object -> GsonHelper.getAsString(object, "version_number").equals(name)).toArray(JsonObject[]::new);
             if (ordinal >= available.length || ordinal < 0) {
-                throw new IndexOutOfBoundsException(String.format("ordinal %s out of bounds for version count %s", ordinal , available.length));
+                throw new IndexOutOfBoundsException(String.format("ordinal %s out of bounds for version count %s", ordinal, available.length));
             }
             return GsonHelper.getAsString(available[ordinal], "id");
         } catch (IOException e) {

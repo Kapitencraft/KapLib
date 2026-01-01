@@ -17,10 +17,11 @@ public interface RequirementRegistries {
     @ApiStatus.Internal
     List<Registry<?>> registries = new ArrayList<>();
 
-    Registry<RegistrySerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = reg(Keys.REQ_CONDITIONS);
+    Registry<RegistrySerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = syncReg(Keys.REQ_CONDITIONS);
 
-    private static <T> Registry<T> reg(ResourceKey<Registry<T>> key) {
-        Registry<T> registry = new RegistryBuilder<>(key).create();
+    private static <T> Registry<T> syncReg(ResourceKey<Registry<T>> key) {
+        Registry<T> registry = new RegistryBuilder<>(key).sync(true)
+                .create();
         registries.add(registry);
         return registry;
     }

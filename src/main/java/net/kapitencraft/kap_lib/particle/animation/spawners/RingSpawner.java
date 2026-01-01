@@ -4,8 +4,8 @@ import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.core.client.util.rot_target.RotationTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -55,35 +55,26 @@ public class RingSpawner extends VisibleSpawner {
     public void spawn(ParticleSpawnSink sink) {
         Vec2 rot = rotation.get();
         for (int i = 0; i < spawnerCount; i++) {
-            double sin = Math.sin(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
-            double cos = Math.cos(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
-            double x = axis == Direction.Axis.X ? 0 : sin,
-                   y = switch (axis) {
-                case X -> sin;
-                case Y -> 0;
-                case Z -> cos;
-                }, z = axis == Direction.Axis.Z ? 0 : cos;
-            Vec3 targetOffset = new Vec3(x, y, z);
-            //TODO check other rotations
-            switch (axis) {
-                case X -> {
-                    targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, rot.x * Mth.DEG_TO_RAD);
-                    targetOffset = MathHelper.rotateZAxis(targetOffset, Vec3.ZERO, rot.y * Mth.DEG_TO_RAD);
-                }
-                case Y -> {
-                    targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, rot.x * Mth.DEG_TO_RAD);
-                    targetOffset = MathHelper.rotateZAxis(targetOffset, Vec3.ZERO, rot.y * Mth.DEG_TO_RAD);
-                }
-                case Z -> {
-                    targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, -rot.x * Mth.DEG_TO_RAD);
-                    targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, -rot.y * Mth.DEG_TO_RAD);
-                }
-            }
+            Vec3 targetOffset = getTargetOffset(i);
+            targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, -rot.x * Mth.DEG_TO_RAD);
+            targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, -rot.y * Mth.DEG_TO_RAD);
             Vec3 targetPos = targetOffset.add(Vec3.ZERO.with(axis, curHeightChange)).add(target.get());
             sink.accept(particle, targetPos);
             curRot += rotPerTick;
             if (heightChangePerTick > 0) applyHeightChange();
         }
+    }
+
+    private @NotNull Vec3 getTargetOffset(int i) {
+        double sin = Math.sin(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
+        double cos = Math.cos(Math.toRadians(curRot + angleBetweenSpawner * i)) * radius;
+        double x = axis == Direction.Axis.X ? 0 : sin,
+                y = switch (axis) {
+                    case X -> sin;
+                    case Y -> 0;
+                    case Z -> cos;
+                }, z = axis == Direction.Axis.Z ? 0 : cos;
+        return new Vec3(x, y, z);
     }
 
     @ApiStatus.Internal

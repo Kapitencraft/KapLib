@@ -11,9 +11,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SetFireFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<SetFireFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<SetFireFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.BOOL.optionalFieldOf("visual", true).forGetter(f -> f.visualFire),
             Codec.INT.fieldOf("duration").forGetter(f -> f.duration)
     ).and(commonFields(i).t1()).apply(i, SetFireFunction::new));

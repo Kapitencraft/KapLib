@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
-import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -14,6 +14,7 @@ public interface Spawner {
 
     /**
      * ticks this spawner. spawn Particles using {@link ParticleSpawnSink#accept(ParticleOptions, Vec3) ParticleSpawnSink#accept(...)}
+     *
      * @param sink the particle spawn acceptor
      */
     void spawn(ParticleSpawnSink sink);

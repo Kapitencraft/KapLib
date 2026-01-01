@@ -25,17 +25,4 @@ public abstract class LevelRendererMixin {
             renderSectionLayer(renderType, d0, d1, d2, frustumMatrix, projectionMatrix);
         }
     }
-
-    @Inject(method = "renderSectionLayer", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;bind()V"))
-    private void addChunkPositionUniform(
-            RenderType renderType, double x, double y, double z, Matrix4f frustrumMatrix, Matrix4f projectionMatrix, CallbackInfo ci,
-            //locals
-            @Local ShaderInstance shaderInstance, @Local BlockPos pos
-    ) {
-        Uniform chunkPosition = shaderInstance.getUniform("ChunkPosition");
-        if (chunkPosition != null) {
-            chunkPosition.set(pos.getX(), pos.getY(), pos.getZ());
-            chunkPosition.upload();
-        }
-    }
 }

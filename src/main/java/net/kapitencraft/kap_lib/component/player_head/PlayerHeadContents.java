@@ -10,6 +10,10 @@ import net.minecraft.network.chat.Style;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * component contents for a player head.
+ * <br> use {@link net.kapitencraft.kap_lib.component.ExtraComponents#playerHead(UUID)} to create a player head component
+ */
 public class PlayerHeadContents implements ComponentContents {
     public static final MapCodec<PlayerHeadContents> CODEC = UUIDUtil.STRING_CODEC.xmap(PlayerHeadContents::new, PlayerHeadContents::getUuid).fieldOf("value");
 

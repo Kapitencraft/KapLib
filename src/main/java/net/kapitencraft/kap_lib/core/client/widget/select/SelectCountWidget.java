@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
-//TODO fix scale being wrong
 public class SelectCountWidget extends PositionedWidget {
     private final Consumer<Integer> valueSink;
     private final IntegerNumberRange range;

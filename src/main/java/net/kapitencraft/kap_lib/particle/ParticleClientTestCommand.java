@@ -1,12 +1,9 @@
 package net.kapitencraft.kap_lib.particle;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.kapitencraft.kap_lib.client.gui.screen.TestScreen;
-import net.kapitencraft.kap_lib.commands.ClientTestCommand;
-import net.kapitencraft.kap_lib.core.Color;
+import net.kapitencraft.kap_lib.core.util.Color;
 import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.particle.custom.LightningParticleOptions;
 import net.kapitencraft.kap_lib.particle.custom.ShimmerShieldParticleOptions;

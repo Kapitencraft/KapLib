@@ -22,11 +22,11 @@ public interface RotationTarget extends Supplier<Vec2> {
     }
 
     static RotationTarget absolute(float x, float y) {
-        return new AbsoluteRotationTarget(new Vec2(x, y));
+        return new StaticRotationTarget(new Vec2(x, y));
     }
 
     static RotationTarget absolute(Vec2 rot) {
-        return new AbsoluteRotationTarget(rot);
+        return new StaticRotationTarget(rot);
     }
 
     static RotationTarget forEntity(Entity entity) {
@@ -39,7 +39,7 @@ public interface RotationTarget extends Supplier<Vec2> {
 
     enum Types implements IExtensibleEnum {
         TRACK_POSITION(TrackPositionRotationTarget.Type::new),
-        ABSOLUTE(AbsoluteRotationTarget.Type::new),
+        ABSOLUTE(StaticRotationTarget.Type::new),
         FROM_ENTITY(FromEntityRotationTarget.Type::new);
 
         private final Type<? extends RotationTarget> type;

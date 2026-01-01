@@ -19,9 +19,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class VillagerPropertiesFunction extends SpawnEntityConditionalFunction {
-    public static final MapCodec<VillagerPropertiesFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+    public static final Supplier<MapCodec<VillagerPropertiesFunction>> CODEC = () -> RecordCodecBuilder.mapCodec(i -> i.group(
             BuiltInRegistries.VILLAGER_TYPE.byNameCodec().optionalFieldOf("biomeType").forGetter(f -> Optional.ofNullable(f.type)),
             BuiltInRegistries.VILLAGER_PROFESSION.byNameCodec().optionalFieldOf("profession").forGetter(f -> Optional.ofNullable(f.profession)),
             Codec.INT.optionalFieldOf("level", 0).forGetter(f -> f.level)

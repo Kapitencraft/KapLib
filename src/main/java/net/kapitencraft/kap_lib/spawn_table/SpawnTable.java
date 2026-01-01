@@ -19,11 +19,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -33,11 +36,33 @@ public class SpawnTable {
            p_338123_ -> p_338123_.group(
                            LootContextParamSets.CODEC.lenientOptionalFieldOf("type", DEFAULT_PARAM_SET).forGetter(p_298001_ -> p_298001_.paramSet),
                            ResourceLocation.CODEC.optionalFieldOf("random_sequence").forGetter(p_297998_ -> Optional.ofNullable(p_297998_.randomSequence)),
-                           MiscHelper.spawnPoolsCodec(SpawnPool::setName).optionalFieldOf("pools", List.of()).forGetter(p_298002_ -> p_298002_.pools),
+                           SpawnTable.spawnPoolsCodec(SpawnPool::setName).optionalFieldOf("pools", List.of()).forGetter(p_298002_ -> p_298002_.pools),
                            net.neoforged.neoforge.common.conditions.ConditionalOps.decodeListWithElementConditions(SpawnEntityFunctions.ROOT_CODEC).optionalFieldOf("functions", List.of()).forGetter(p_298000_ -> p_298000_.functions)
                    )
                    .apply(p_338123_, SpawnTable::new)
    );
+
+   @ApiStatus.Internal
+   private static Codec<List<SpawnPool>> spawnPoolsCodec(BiConsumer<SpawnPool, String> nameSetter) {
+      var decoder = ConditionalOps.createConditionalCodec(SpawnPool.CODEC).listOf()
+              .map(pools -> {
+                 if (pools.size() == 1) {
+                    if (pools.getFirst().isPresent() && pools.getFirst().get().getName() == null) {
+                       nameSetter.accept(pools.getFirst().get(), "main");
+                    }
+                 } else {
+                    for (int i = 0; i < pools.size(); ++i) {
+                       if (pools.get(i).isPresent() && pools.get(i).get().getName() == null) {
+                          nameSetter.accept(pools.get(i).get(), "pool" + i);
+                       }
+                    }
+                 }
+
+                 return pools.stream().filter(Optional::isPresent).map(Optional::get).toList();
+              });
+      return Codec.of(SpawnPool.CODEC.listOf(), decoder);
+   }
+
    public static final Codec<Holder<SpawnTable>> CODEC = RegistryFileCodec.create(SpawnTableRegistries.Keys.SPAWN_TABLES, DIRECT_CODEC);
    public static final Codec<Either<ResourceKey<SpawnTable>, SpawnTable>> GATHER_CODEC = Codec.either(ResourceKey.codec(SpawnTableRegistries.Keys.SPAWN_TABLES), SpawnTable.DIRECT_CODEC);
 
