@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.item.modifier_display;
 
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.item.event.custom.client.RegisterItemModifiersDisplayExtensionsEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Style;
@@ -9,7 +10,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.fml.ModLoader;
-import net.neoforged.neoforge.gametest.GameTestHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class ModifierDisplayManager {
 
     public static void init() {
         var event = new RegisterItemModifiersDisplayExtensionsEvent(equipmentProviders, wearableProviders);
-        if (GameTestHooks.isGametestEnabled()) {
+        if (LibConstants.gameTestEnabled()) {
             equipmentProviders.add(s -> s.is(Items.NETHERITE_SWORD) ? new EquipmentDisplayExtension() {
                 @Override
                 public ResourceLocation getModifiersLocation() {

@@ -1,17 +1,19 @@
 package net.kapitencraft.kap_lib.core;
 
-import com.mojang.logging.LogUtils;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.gametest.GameTestHooks;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import org.apache.logging.slf4j.Log4jLogger;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * constants of the library. used to access registries and locations as well as files
@@ -41,4 +43,18 @@ public class LibConstants {
     public static String doubleFormat(double d) {
         return new DecimalFormat("#.##").format(d);
     }
+
+    public static boolean gameTestEnabled() {
+        return GameTestHooks.isGametestEnabled() && getEnabledNamespaces().contains("kap_lib");
+    }
+
+    private static Set<String> getEnabledNamespaces() {
+        String enabledNamespacesStr = System.getProperty("neoforge.enabledGameTestNamespaces");
+        if (enabledNamespacesStr == null) {
+            return Set.of();
+        }
+
+        return Arrays.stream(enabledNamespacesStr.split(",")).filter(s -> !s.isBlank()).collect(Collectors.toUnmodifiableSet());
+    }
+
 }

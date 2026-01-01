@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.enchantment.event.handler;
 
+import net.kapitencraft.kap_lib.core.helpers.IOHelper;
+import net.kapitencraft.kap_lib.core.tags.ExtraTags;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentCountEffect;
@@ -8,6 +10,8 @@ import net.kapitencraft.kap_lib.enchantment.extras.EnchantmentDescriptionManager
 import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.enchantment.ExtraEnchantmentEffectComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -30,6 +34,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -140,5 +145,37 @@ public class EnchantmentEvents {
     @SubscribeEvent
     public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
         ConfigureEnchantmentColorsCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void joinLevelEvent(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof AbstractArrow arrow && arrow.level() instanceof ServerLevel serverLevel) {
+            if (arrow.getOwner() instanceof LivingEntity living) {
+                ItemStack bow = living.getUseItem();
+                CompoundTag arrowTag = arrow.getPersistentData();
+                if (bow.is(ExtraTags.Items.HITS_ENDERMAN)) {
+                    arrowTag.putBoolean("HitsEnderMan", true);
+                }
+                EnchantedItemInUse itemInUse = new EnchantedItemInUse(bow, living.getUsedItemHand() == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND, living);
+
+                EnchantmentHelper.runIterationOnItem(bow, (enchantment, level) -> {
+                    LootContext context = Enchantment.entityContext(serverLevel, level, arrow, arrow.position());
+                    enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW_SPAWN.value()).forEach(enchantmentEntityEffect -> {
+                        if (enchantmentEntityEffect.matches(context)) {
+                            enchantmentEntityEffect.effect().apply(serverLevel, level, itemInUse, arrow, arrow.position());
+                        }
+                    });
+                    ListTag list = IOHelper.getOrCreateList(arrow.getPersistentData(), enchantment.getKey().location().toString(), Tag.TAG_COMPOUND);
+                    List<ConditionalEffect<EnchantmentBowEffect>> effects = enchantment.value().getEffects(ExtraEnchantmentEffectComponents.BOW.value());
+                    for (int i = 0; i < effects.size(); i++) {
+                        CompoundTag tag = new CompoundTag();
+                        ConditionalEffect<EnchantmentBowEffect> effect = effects.get(i);
+                        if (effect.matches(context))
+                            effect.effect().write(tag, level, bow, living, arrow);
+                        list.add(i, tag);
+                    }
+                });
+            }
+        }
     }
 }

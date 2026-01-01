@@ -123,7 +123,7 @@ public class KapLibMod {
 
         VanillaInventoryPages.REGISTRY.register(modEventBus);
 
-        if (GameTestHooks.isGametestEnabled()) {
+        if (LibConstants.gameTestEnabled()) {
             TestItems.REGISTRY.register(modEventBus);
             TestCooldowns.REGISTRY.register(modEventBus);
         }

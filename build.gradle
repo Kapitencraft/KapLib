@@ -393,7 +393,7 @@ moduleFilters.each { String moduleId, moduleData ->
                     }
                     include "META-INF/accesstransformer-${moduleId}.cfg"
                     filesMatching ("META-INF/accesstransformer-${moduleId}.cfg") { FileCopyDetails fCD ->
-                        fCD.setName('accesstranformer.cfg')
+                        fCD.setName('accesstransformer.cfg')
                     }
                 } else {
                     if (moduleData.extensions) {

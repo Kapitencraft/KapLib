@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.cooldown;
 
 import net.kapitencraft.kap_lib.cooldown.registry.CooldownAttachmentTypes;
 import net.kapitencraft.kap_lib.cooldown.registry.CooldownAttributes;
+import net.kapitencraft.kap_lib.cooldown.registry.CooldownLootItemConditions;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -16,5 +17,6 @@ public class CooldownModule {
     public CooldownModule(IEventBus modEventBus, ModContainer container) {
         CooldownAttributes.REGISTRY.register(modEventBus);
         CooldownAttachmentTypes.REGISTRY.register(modEventBus);
+        CooldownLootItemConditions.REGISTRY.register(modEventBus);
     }
 }

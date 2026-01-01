@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.kapitencraft.kap_lib.item.modifier_display.EquipmentDisplayExtension;
 import net.kapitencraft.kap_lib.item.modifier_display.ModifierDisplayManager;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -37,7 +38,7 @@ public class AttributeUtilMixin {
     }
 
     @ModifyReceiver(method = "applyTextFor", at = @At(value = "FIELD", target = "Lnet/neoforged/neoforge/common/util/AttributeUtil$BaseModifier;base:Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;", opcode = Opcodes.GETFIELD))
-    private static @Coerce Object modifyBaseMod(@Coerce BaseModifierAccessor instance, @Share("mod") LocalRef<BaseModifierAccessor> mod) {
+    private static @Coerce Object modifyBaseMod(@Coerce BaseModifierAccessor instance, @Share("base") LocalRef<BaseModifierAccessor> mod) {
         mod.set(instance);
         return instance;
     }
@@ -60,7 +61,7 @@ public class AttributeUtilMixin {
                 }
             }
             if (active != null) {
-                component.append(equipmentProvider.createComponent(active.amount()));
+                component.append(CommonComponents.SPACE).append(equipmentProvider.createComponent(active.amount()));
             }
         }
         return component;
