@@ -1,7 +1,7 @@
-package net.kapitencraft.kap_lib.client.gui.screen;
+package net.kapitencraft.kap_lib.core.client.gui.screen;
 
-import net.kapitencraft.kap_lib.client.gui.BlockEntityMenu;
-import net.kapitencraft.kap_lib.client.gui.screen.tooltip.HoverTooltip;
+import net.kapitencraft.kap_lib.core.client.gui.BlockEntityMenu;
+import net.kapitencraft.kap_lib.core.client.gui.screen.tooltip.HoverTooltip;
 
 import java.util.ArrayList;
 

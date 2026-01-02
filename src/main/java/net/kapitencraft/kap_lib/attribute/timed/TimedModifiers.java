@@ -1,7 +1,8 @@
-package net.kapitencraft.kap_lib.attribute;
+package net.kapitencraft.kap_lib.attribute.timed;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.attribute.AttributeAttachmentTypes;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;

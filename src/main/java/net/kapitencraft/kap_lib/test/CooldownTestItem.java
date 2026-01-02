@@ -9,6 +9,7 @@ import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
 import net.kapitencraft.kap_lib.registry.TestCooldowns;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -29,7 +30,11 @@ import java.util.List;
 public class CooldownTestItem extends WearableItem implements ExtendedItem {
 
     public CooldownTestItem() {
-        super(new Properties().rarity(Rarity.EPIC));
+        super(new Properties().rarity(Rarity.EPIC)
+                .component(DataComponents.DAMAGE, 1000)
+                .component(DataComponents.MAX_DAMAGE, 1001)
+                .stacksTo(1)
+        );
     }
 
     @Override

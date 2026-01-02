@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.attribute;
+package net.kapitencraft.kap_lib.attribute.timed;
 
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;

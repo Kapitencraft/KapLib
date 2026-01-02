@@ -309,6 +309,9 @@ public abstract class TextureProvider implements DataProvider {
         }
     }
 
+    /**
+     * base converter. override or use pre-defined versions below
+     */
     protected interface Converter {
 
         //NativeImages save in ARGB format
@@ -319,9 +322,7 @@ public abstract class TextureProvider implements DataProvider {
 
     //region shade
     protected record RedShade() implements Converter {
-        public static RedShade create() {
-            return new RedShade();
-        }
+        public static final Converter INSTANCE = new RedShade();
 
         @Override
         public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
@@ -330,9 +331,7 @@ public abstract class TextureProvider implements DataProvider {
     }
 
     protected record GreenShade() implements Converter {
-        public static GreenShade create() {
-            return new GreenShade();
-        }
+        public static final Converter INSTANCE = new GreenShade();
 
         @Override
         public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
@@ -341,9 +340,7 @@ public abstract class TextureProvider implements DataProvider {
     }
 
     protected record BlueShade() implements Converter {
-        public static BlueShade create() {
-            return new BlueShade();
-        }
+        public static final Converter INSTANCE = new BlueShade();
 
         @Override
         public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
@@ -401,6 +398,8 @@ public abstract class TextureProvider implements DataProvider {
      */
     protected record Invert() implements Converter {
 
+        public static final Converter INSTANCE = new Invert();
+
         public static Invert create() {
             return new Invert();
         }
@@ -422,6 +421,7 @@ public abstract class TextureProvider implements DataProvider {
      * flips the image around the middle on the x-axis
      */
     protected record FlipX() implements Converter {
+        public static final Converter INSTANCE = new FlipX();
 
         @Override
         public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
@@ -430,7 +430,7 @@ public abstract class TextureProvider implements DataProvider {
             NativeImage image = new NativeImage(width, height, false);
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    image.setPixelRGBA(x, y, image.getPixelRGBA(width - x - 1, y));
+                    image.setPixelRGBA(x, y, in.getPixelRGBA(width - x - 1, y));
                 }
             }
             return image;
@@ -441,6 +441,8 @@ public abstract class TextureProvider implements DataProvider {
      * flips the image around the middle on the y-axis
      */
     protected record FlipY() implements Converter {
+
+        public static final Converter INSTANCE = new FlipY();
 
         @Override
         public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
@@ -454,12 +456,32 @@ public abstract class TextureProvider implements DataProvider {
      * reduces texture to grey scaled by calculating the brightness of the color and applying it to all channels
      */
     protected record Pale() implements Converter {
+        public static final Converter INSTANCE = new Pale();
 
         @Override
         public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
             return in.mappedCopy(i -> {
                 double brightness = Color.fromARGBPacked(i).brightness();
                 return new Color((float) brightness, (float) brightness, (float) brightness, FastColor.ARGB32.alpha(i) / 255f).pack();
+            });
+        }
+    }
+
+    /**
+     * increases saturation of this picture to maximum (all channels have either value 0 or 255)
+     */
+    protected record Saturate() implements Converter {
+        public static final Converter INSTANCE = new Saturate();
+
+        @Override
+        public NativeImage convert(NativeImage in, ExistingFileHelper helper) {
+            return in.mappedCopy(i -> {
+                for (int j = 0; j < 3; j++) {
+                    int val = ((i >> (j * 8)) & 255) > 127 ? 255 : 0;
+                    int mask = 0xFF << (j * 8);
+                    i = (i & ~mask) | (val << (j * 8));
+                }
+                return i;
             });
         }
     }

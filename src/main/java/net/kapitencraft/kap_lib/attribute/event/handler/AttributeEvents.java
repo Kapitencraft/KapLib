@@ -1,8 +1,8 @@
 package net.kapitencraft.kap_lib.attribute.event.handler;
 
 import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
-import net.kapitencraft.kap_lib.attribute.TimedModifiers;
-import net.kapitencraft.kap_lib.attribute.compat.AttributeCompat;
+import net.kapitencraft.kap_lib.attribute.timed.TimedModifiers;
+import net.kapitencraft.kap_lib.attribute.compat.ParticleCompat;
 import net.kapitencraft.kap_lib.core.util.Modules;
 import net.kapitencraft.kap_lib.core.helpers.*;
 import net.kapitencraft.kap_lib.attribute.damage.FerociousDamageSource;
@@ -152,7 +152,7 @@ public class AttributeEvents {
         double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIFE_STEAL, attacker);
         if (event.getSource().isDirect() && liveSteal > 0) {
             if (attacker.level() instanceof ServerLevel && Modules.isParticleActive()) {
-                AttributeCompat.sendLifeStealAnimation(attacked, attacker);
+                ParticleCompat.sendLifeStealAnimation(attacked, attacker);
             }
             attacker.heal(Math.min((float) liveSteal, event.getNewDamage()));
         }

@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
-import net.kapitencraft.kap_lib.attribute.TimedModifiers;
+import net.kapitencraft.kap_lib.attribute.timed.TimedModifiers;
 import net.kapitencraft.kap_lib.bonus.BonusManager;
 import net.kapitencraft.kap_lib.bonus.network.S2C.SyncBonusesPacket;
 import net.kapitencraft.kap_lib.bonus.requirement.BonusRequirementType;

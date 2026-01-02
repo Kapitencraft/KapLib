@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.attribute;
 
+import net.kapitencraft.kap_lib.attribute.timed.TimedModifiers;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;

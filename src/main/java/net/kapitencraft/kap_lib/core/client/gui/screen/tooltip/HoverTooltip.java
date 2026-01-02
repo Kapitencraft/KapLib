@@ -1,6 +1,6 @@
-package net.kapitencraft.kap_lib.client.gui.screen.tooltip;
+package net.kapitencraft.kap_lib.core.client.gui.screen.tooltip;
 
-import net.kapitencraft.kap_lib.client.gui.screen.ExtendedScreen;
+import net.kapitencraft.kap_lib.core.client.gui.screen.ExtendedScreen;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;

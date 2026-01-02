@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.attribute;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import net.kapitencraft.kap_lib.attribute.timed.TimedModifierUtils;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
 import net.minecraft.commands.CommandSourceStack;

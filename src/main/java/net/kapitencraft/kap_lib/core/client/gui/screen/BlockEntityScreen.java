@@ -1,8 +1,8 @@
-package net.kapitencraft.kap_lib.client.gui.screen;
+package net.kapitencraft.kap_lib.core.client.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.kapitencraft.kap_lib.client.gui.BlockEntityMenu;
-import net.kapitencraft.kap_lib.client.gui.screen.tooltip.HoverTooltip;
+import net.kapitencraft.kap_lib.core.client.gui.BlockEntityMenu;
+import net.kapitencraft.kap_lib.core.client.gui.screen.tooltip.HoverTooltip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

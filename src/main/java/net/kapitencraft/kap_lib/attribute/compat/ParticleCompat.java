@@ -11,7 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class AttributeCompat {
+public class ParticleCompat {
 
     public static void sendLifeStealAnimation(LivingEntity attacked, @NotNull LivingEntity attacker) {
         ParticleAnimation.builder()

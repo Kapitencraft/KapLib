@@ -115,7 +115,10 @@ public interface ExtraAttributes {
      * amount of armor ignored by attacks
      */
     Holder<Attribute> ARMOR_SHREDDER = register("armor_shredder", 0, 0, 100, BaseAttributeLocations.ARMOR_SHREDDER);
-    Holder<Attribute> FISHING_SPEED = register0Max("fishing_speed", 0, BaseAttributeLocations.FISHING_SPEED);
+    /**
+     * defines how quick fishing is. values above 600 instantly attract fish
+     */
+    Holder<Attribute> FISHING_SPEED = register("fishing_speed", 0, 0, 600, BaseAttributeLocations.FISHING_SPEED);
     /**
      * increases experience gained from mining and combat
      */

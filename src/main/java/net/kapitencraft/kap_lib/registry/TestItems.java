@@ -15,5 +15,4 @@ public interface TestItems {
     Supplier<CooldownTestItem> OBJECT = REGISTRY.register("test", CooldownTestItem::new);
 
     Holder<Item> TEST_SWORD = REGISTRY.register("sword", TestSwordItem::new);
-
 }

@@ -1,6 +1,6 @@
-package net.kapitencraft.kap_lib.client.gui;
+package net.kapitencraft.kap_lib.core.client.gui;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -88,7 +88,7 @@ public abstract class BlockEntityMenu<BE extends BlockEntity> extends AbstractCo
                 return ItemStack.EMPTY;
             }
         } else {
-            KapLibMod.LOGGER.warn("Invalid slotIndex: {}", index);
+            LibConstants.LOGGER.warn("Invalid slotIndex: {}", index);
             return ItemStack.EMPTY;
         }
         // If stack size == 0 (the entire stack was moved) set slot contents to null

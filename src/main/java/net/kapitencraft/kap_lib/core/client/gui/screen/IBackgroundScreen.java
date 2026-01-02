@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.gui.screen;
+package net.kapitencraft.kap_lib.core.client.gui.screen;
 
 /**
  * interface for reducing effort when creating a screen with background

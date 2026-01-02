@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.client.gui.screen;
+package net.kapitencraft.kap_lib.core.client.gui.screen;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.client.gui.GuiGraphics;

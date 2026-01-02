@@ -45,16 +45,6 @@ public class LibConstants {
     }
 
     public static boolean gameTestEnabled() {
-        return GameTestHooks.isGametestEnabled() && getEnabledNamespaces().contains("kap_lib");
+        return GameTestHooks.isGametestEnabled();
     }
-
-    private static Set<String> getEnabledNamespaces() {
-        String enabledNamespacesStr = System.getProperty("neoforge.enabledGameTestNamespaces");
-        if (enabledNamespacesStr == null) {
-            return Set.of();
-        }
-
-        return Arrays.stream(enabledNamespacesStr.split(",")).filter(s -> !s.isBlank()).collect(Collectors.toUnmodifiableSet());
-    }
-
 }
