@@ -466,7 +466,7 @@ moduleFilters.each { String moduleId, moduleData ->
             writeFullJarJarMetadata(new FileWriter(file), deps)
             from (file) {
                 into 'META-INF/jarjar'
-                rename '.', 'metadata.json'
+                rename '.+', 'metadata.json'
             }
         }
 
