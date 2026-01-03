@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Block;
 @MethodsReturnNonnullByDefault
 public interface RequirementType<T> {
     RegistryReqType<Item> ITEM = RegistryReqType.registry("item", BuiltInRegistries.ITEM, Registries.ITEM);
-    RegistryReqType<Block> ENCHANTMENT = RegistryReqType.registry("block", BuiltInRegistries.BLOCK, Registries.BLOCK);
+    RegistryReqType<Block> BLOCK = RegistryReqType.registry("block", BuiltInRegistries.BLOCK, Registries.BLOCK);
 
     DataPackSerializer<T> serializer();
 

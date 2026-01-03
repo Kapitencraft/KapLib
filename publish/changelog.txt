@@ -1,6 +1,6 @@
 # Additions
 added CameraPos Uniform
-
+added RequirementTypes.BLOCK suppressing place and interactions
 
 # Fixes
 

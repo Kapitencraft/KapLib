@@ -11,7 +11,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.function.Supplier;
 
 
-public interface RequirementTypes {
+public interface RequirementConditionTypes {
 
     DeferredRegister<RegistrySerializer<? extends ReqCondition<?>>> REGISTRY = LibConstants.registry(RequirementRegistries.Keys.REQ_CONDITIONS);
 

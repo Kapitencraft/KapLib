@@ -24,16 +24,19 @@ import net.kapitencraft.kap_lib.requirement.RequirementManager;
 import net.kapitencraft.kap_lib.requirement.event.custom.RegisterRequirementTypesEvent;
 import net.kapitencraft.kap_lib.requirement.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
+import net.kapitencraft.kap_lib.requirement.type.RequirementType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.ConditionalEffect;
 import net.minecraft.world.item.enchantment.EnchantedItemInUse;
@@ -59,6 +62,7 @@ import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -106,8 +110,31 @@ public class Events {
     }
 
     @SubscribeEvent
+    public static void onBlockEntityPlace(BlockEvent.EntityPlaceEvent event) {
+        if (event.getEntity() instanceof LivingEntity living)
+            event.setCanceled(!RequirementManager.meetsBlockRequirementsFromEvent(event, living));
+    }
+
+    @SubscribeEvent
+    public static void onBlockEntityMultiPlace(BlockEvent.EntityMultiPlaceEvent event) {
+        if (event.getEntity() instanceof LivingEntity living)
+            event.setCanceled(!RequirementManager.meetsBlockRequirementsFromEvent(event, living));
+    }
+
+    @SubscribeEvent
+    public static void onPlayerInteractRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        BlockState state = event.getLevel().getBlockState(event.getHitVec().getBlockPos());
+        event.setCanceled(!RequirementManager.meetsBlockRequirements(state.getBlock(), event.getEntity()));
+    }
+
+    @SubscribeEvent
     public static void addReqDisplay(ItemTooltipEvent event) {
-        RequirementManager.addReqContent(event.getToolTip()::add, RegistryReqType.ITEM, event.getItemStack().getItem(), event.getEntity());
+        List<Component> list = event.getToolTip();
+        if (event.getItemStack().getItem() instanceof BlockItem blockItem) {
+            RequirementManager.addReqContent(list::add, RequirementType.BLOCK, blockItem.getBlock(), event.getEntity());
+        } else {
+            RequirementManager.addReqContent(list::add, RequirementType.ITEM, event.getItemStack().getItem(), event.getEntity());
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

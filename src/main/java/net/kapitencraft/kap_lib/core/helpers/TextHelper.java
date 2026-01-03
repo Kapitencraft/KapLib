@@ -212,7 +212,6 @@ public class TextHelper {
         player.displayClientMessage(display, true);
     }
 
-
     /**
      * sets the subtitle to the given Component on the given player
      */

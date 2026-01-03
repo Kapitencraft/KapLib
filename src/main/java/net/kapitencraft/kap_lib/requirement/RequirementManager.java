@@ -2,18 +2,17 @@ package net.kapitencraft.kap_lib.requirement;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.gson.*;
+import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.core.collection.MapStream;
-import net.kapitencraft.kap_lib.requirement.event.custom.RegisterRequirementTypesEvent;
 import net.kapitencraft.kap_lib.core.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.core.helpers.CollectorHelper;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
 import net.kapitencraft.kap_lib.requirement.conditions.abstracts.ReqCondition;
-import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
+import net.kapitencraft.kap_lib.requirement.event.custom.RegisterRequirementTypesEvent;
 import net.kapitencraft.kap_lib.requirement.type.RequirementType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,8 +26,10 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +40,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class RequirementManager extends SimpleJsonResourceReloadListener {
-    public static final  Logger LOGGER = LoggerFactory.getLogger("RequirementManager");
+    public static final Logger LOGGER = LoggerFactory.getLogger("RequirementManager");
     public static RequirementManager instance = new RequirementManager(); //load instantly
 
     //sync
@@ -47,7 +48,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     //don't sync
     private final List<RequirementType<?>> types = new ArrayList<>();
     public final StreamCodec<RegistryFriendlyByteBuf, RequirementManager.Data> dataStreamCodec;
-    private Map<String, RequirementType<?>> typesForNames;
+    private Map<String, RequirementType<?>> typesByName;
 
     public RequirementManager() {
         super(JsonHelper.GSON, "requirements");
@@ -72,13 +73,13 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
         MapStream.of(pObject)
                 .mapKeys(ResourceLocation::getPath)
                 .mapKeys(s -> s.replace(".json", ""))
-                .mapKeys(typesForNames::get)
+                .mapKeys(typesByName::get)
                 .forEach(this::readElement);
     }
 
     private <T> void readElement(RequirementType<T> type, JsonElement jsonElement) {
         this.elements.values().stream().filter(element -> element.isType(type))
-                .findFirst().ifPresentOrElse(element -> element.read(jsonElement), ()-> {
+                .findFirst().ifPresentOrElse(element -> element.read(jsonElement), () -> {
                     Element<T> element = new Element<>(type);
                     element.read(jsonElement);
                     this.elements.put(type.getName(), element);
@@ -120,13 +121,22 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     }
 
     public static boolean meetsItemRequirementsFromEvent(LivingEvent event, EquipmentSlot slot) {
-        return instance != null && instance.meetsRequirements(RegistryReqType.ITEM, event.getEntity().getItemBySlot(slot).getItem(), event.getEntity());
+        return instance != null && instance.meetsRequirements(RequirementType.ITEM, event.getEntity().getItemBySlot(slot).getItem(), event.getEntity());
+    }
+
+    public static boolean meetsBlockRequirements(Block block, LivingEntity entity) {
+        return instance != null && instance.meetsRequirements(RequirementType.BLOCK, block, entity);
+    }
+
+    public static boolean meetsBlockRequirementsFromEvent(BlockEvent event, LivingEntity living) {
+        return meetsBlockRequirements(event.getState().getBlock(), living);
     }
 
     private void registerTypes() {
         this.types.add(RequirementType.ITEM);
+        this.types.add(RequirementType.BLOCK);
         NeoForge.EVENT_BUS.post(new RegisterRequirementTypesEvent(this.types::add));
-        typesForNames = this.types.stream().collect(CollectorHelper.toMapForKeys(RequirementType::getName));
+        typesByName = this.types.stream().collect(CollectorHelper.toMapForKeys(RequirementType::getName));
     }
 
     public record Data(HashMap<String, Element<?>> elements) {
@@ -149,7 +159,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
 
         public void read(JsonElement jsonElement) {
             try {
-                Codec<Map<T, List<ReqCondition<?>>>> codec = Codec.unboundedMap(this.type.serializer().getCodec(),  ReqCondition.CODEC.listOf());
+                Codec<Map<T, List<ReqCondition<?>>>> codec = Codec.unboundedMap(this.type.serializer().getCodec(), ReqCondition.CODEC.listOf());
 
                 DataResult<Map<T, List<ReqCondition<?>>>> result = codec.parse(JsonOps.INSTANCE, jsonElement);
                 result.resultOrPartial(s -> LOGGER.warn("error loading requirements for type: {}", s))
@@ -177,7 +187,7 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
     }
 
     private <T> Element<T> fromNetwork(RegistryFriendlyByteBuf buf) {
-        RequirementType<T> type = (RequirementType<T>) typesForNames.get(buf.readUtf());
+        RequirementType<T> type = (RequirementType<T>) typesByName.get(buf.readUtf());
         Element<T> element = new Element<>(type);
         element.requirements.putAll(element.reqStreamCodec.decode(buf));
         return element;

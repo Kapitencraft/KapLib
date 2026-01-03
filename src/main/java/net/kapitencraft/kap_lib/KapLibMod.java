@@ -41,7 +41,7 @@ import net.kapitencraft.kap_lib.recipe.registry.ExtraRecipeSerializers;
 import net.kapitencraft.kap_lib.recipe.registry.ExtraRecipeTypes;
 import net.kapitencraft.kap_lib.registry.TestCooldowns;
 import net.kapitencraft.kap_lib.registry.TestItems;
-import net.kapitencraft.kap_lib.requirement.registry.RequirementTypes;
+import net.kapitencraft.kap_lib.requirement.registry.RequirementConditionTypes;
 import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTableServerTestCommand;
 import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
@@ -94,7 +94,7 @@ public class KapLibMod {
 
         ExtraCriterionTriggers.REGISTRY.register(modEventBus);
 
-        RequirementTypes.REGISTRY.register(modEventBus);
+        RequirementConditionTypes.REGISTRY.register(modEventBus);
 
         BonusTypes.REGISTRY.register(modEventBus);
 
