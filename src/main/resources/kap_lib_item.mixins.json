@@ -5,7 +5,6 @@
   "package": "net.kapitencraft.kap_lib.item.mixin.classes",
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
-    "client.ClientTooltipPositionerMixin",
     "client.ItemStackMixin"
   ],
   "mixins": [

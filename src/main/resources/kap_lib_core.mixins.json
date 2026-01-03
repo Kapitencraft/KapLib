@@ -5,7 +5,8 @@
   "package": "net.kapitencraft.kap_lib.core.mixin.classes",
   "refmap": "kap_lib_core.mixin-refmap.json",
   "client": [
-    "client.ChatScreenMixin"
+    "client.ChatScreenMixin",
+    "client.ClientTooltipPositionerMixin"
   ],
   "mixins": [
     "AttributeMixin",
