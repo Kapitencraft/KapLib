@@ -1,6 +1,8 @@
 # Additions
 added CameraPos Uniform
 added RequirementTypes.BLOCK suppressing place and interactions
+added AttackerEmptyOffhand loot condition
+added BehindEntity loot condition
 
 # Fixes
 
@@ -46,6 +48,7 @@ reworked publish_config.json:
 
 # Changes
 
+moved many classes around to group them into their respective module
 moved ClientHelper#addReqContent to RequirementManager#addReqContent
 moved to Neoforge 1.21.216
 renamed AbsolutePositionTarget to StaticPositionTarget
@@ -53,6 +56,6 @@ renamed AbsolutePositionTarget to StaticPositionTarget
 # Removals
 
 removed OreModifier and dedicated Event
-removed ExtraCodecs#UUID
+removed ExtraCodecs#UUID, replaced by UUIDUtils.STRING_CODEC
 removed "ChunkPosition" Uniform in Block Render types.
 removed book check in enchantment tooltip as ItemStack parameter has been lost
