@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.core.mixin.classes;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.core.mixin.duck.ScaledClientMotionPacket;
 import net.minecraft.network.FriendlyByteBuf;
@@ -13,19 +14,20 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ClientboundSetEntityMotionPacket.class)
 public class ClientboundSetEntityMotionPacketMixin implements ScaledClientMotionPacket {
-    //TODO AT
-    @Shadow private int xa;
-    @Shadow private int ya;
-    @Shadow private int za;
+    @Shadow
+    private int xa;
+    @Shadow
+    private int ya;
+    @Shadow
+    private int za;
     @Unique
     private float deltaScale;
 
-    @Inject(method = "<init>(ILnet/minecraft/world/phys/Vec3;)V", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void calculateScale(int pId, Vec3 pDeltaMovement, CallbackInfo ci, double d0, double d1, double d2, double d3) {
+    @Inject(method = "<init>(ILnet/minecraft/world/phys/Vec3;)V", at = @At("TAIL"))
+    private void calculateScale(int pId, Vec3 pDeltaMovement, CallbackInfo ci, @Local(ordinal = 1) double d1, @Local(ordinal = 2) double d2, @Local(ordinal = 3) double d3) {
         this.deltaScale = MathHelper.getOversizeScale(pDeltaMovement, new Vec3(d1, d2, d3));
         this.xa = (int) (pDeltaMovement.x * deltaScale * 8000);
         this.ya = (int) (pDeltaMovement.y * deltaScale * 8000);
