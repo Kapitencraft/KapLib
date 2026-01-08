@@ -27,9 +27,7 @@ public class CurseforgePublish {
      */
     //TODO make working
     static boolean publish(AutoPublisher.Config config, HttpClient client, List<AutoPublisher.Source> sources) {
-        String modId = config.modInfo().id();
-        String modName = config.modInfo().name();
-        String modVersion = config.modInfo().version();
+        AutoPublisher.ModInfo modInfo = config.modInfo();
         String mcVersion = config.mcVersion();
         String loaderVersion = config.loaderVersion();
         Integer mcVersionId;
@@ -40,7 +38,7 @@ public class CurseforgePublish {
                 //one element: {"id":14271,"gameVersionTypeID":3,"name":"60.0.20","slug":"60-0-20","apiVersion":null}
                 HttpRequest.Builder request = HttpRequest.newBuilder().uri(URI.create(VERSION_API_URL))
                         .GET();
-                appendAuth(request, config, modName, modVersion);
+                appendAuth(request, config, modInfo.name(), modInfo.version());
 
                 HttpResponse<String> response = client.send(request.build(), HttpResponse.BodyHandlers.ofString());
 
@@ -74,14 +72,14 @@ public class CurseforgePublish {
             }
             int[] versions = new int[]{mcVersionId, loaderVersionId, loaderId};
 
-            String fileBase = String.format("./build/libs/%s-", modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
+            String fileBase = String.format("./build/libs/%s-", modInfo.id()) + modInfo.artifactVersion();
 
             File mainFile = new File(fileBase + ".jar");
 
             String boundary = "----Boundary" + UUID.randomUUID();
 
             // Add text part
-            String requestData = getData(boundary, modName, modVersion, config.modules(), config.dependencies(), versions);
+            String requestData = getData(boundary, modInfo.name(), modInfo.version(), config.modules(), config.dependencies(), versions);
 
             // Add file part
             String fileHeader = getFileHeader(boundary, mainFile);
@@ -104,7 +102,7 @@ public class CurseforgePublish {
 
             HttpRequest.Builder builder = HttpRequest.newBuilder()
                     .uri(URI.create(API_URL + config.curseforgeId() + "/upload-file"));
-            appendAuth(builder, config, modName, modVersion);
+            appendAuth(builder, config, modInfo.name(), modInfo.version());
             builder.header("Accept", "application/json");
             builder.header("Content-Type", "multipart/form-data; boundary=" + boundary);
             HttpRequest request = builder.POST(HttpRequest.BodyPublishers.ofByteArray(requestBody)).build();

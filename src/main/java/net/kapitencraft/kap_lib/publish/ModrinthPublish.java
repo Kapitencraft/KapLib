@@ -19,7 +19,6 @@ public class ModrinthPublish {
     private static final String API_URL = "https://api.modrinth.com/v2/version";
 
     static boolean publish(AutoPublisher.Config config, List<AutoPublisher.Source> sources) {
-        String modId = config.modInfo().id();
         String modName = config.modInfo().name();
         String modVersion = config.modInfo().version();
         String mcVersion = config.mcVersion();

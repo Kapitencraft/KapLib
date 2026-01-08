@@ -14,8 +14,6 @@ import java.lang.reflect.Type;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,7 +72,7 @@ public class AutoPublisher {
         }
     }
 
-    record ModInfo(String id, String name, String version) {
+    record ModInfo(String id, String name, String version, String artifactVersion) {
 
         private static class Deserializer implements JsonDeserializer<ModInfo> {
 
@@ -85,7 +83,8 @@ public class AutoPublisher {
                 String id = GsonHelper.getAsString(object, "id");
                 String name = GsonHelper.getAsString(object, "name");
                 String version = GsonHelper.getAsString(object, "version");
-                return new ModInfo(id, name, version);
+                String artifactVersion = GsonHelper.getAsString(object, "artifact_version");
+                return new ModInfo(id, name, version, artifactVersion);
             }
         }
     }
@@ -241,12 +240,23 @@ public class AutoPublisher {
             LOGGER.error("Config not found.");
             return;
         }
+        String modVersion = config.modInfo.version;
+        if (DATA_CACHE.exists()) {
+            try {
+                String lastVersion = new String(Files.readAllBytes(DATA_CACHE.toPath()));
+                if (lastVersion.equals(modVersion)) {
+                    LOGGER.error("last published version matches current version"); //do not upload the same version twice
+                    return;
+                }
+            } catch (IOException e) {
+                LOGGER.warn("unable to read version cache: {}, ignoring", e.getMessage());
+            }
+        }
 
         LOGGER.debug("Verifying file existence...");
-        List<Source> source = verifyFileExistence(config.modInfo.id, config.modInfo.version, config.mcVersion, config.assetsInfo.sourcePath, config.modules, config.withSources);
+        List<Source> source = verifyFileExistence(config.modInfo.id, config.modInfo.artifactVersion, config.assetsInfo.sourcePath, config.modules, config.withSources);
         LOGGER.debug("successfully verified {} files", source.size());
 
-        if (true) return;
         LOGGER.debug("Compiling Changelog...");
         try {
             createChangelog(config.changelogInfo == null ? ChangelogInfo.DEFAULT : config.changelogInfo, config.assetsInfo.changelogPath, config.assetsInfo.categoriesPath);
@@ -255,29 +265,18 @@ public class AutoPublisher {
             return;
         }
 
-        String modId = config.modInfo.id;
-        String modName = config.modInfo.name;
-        String modVersion = config.modInfo.version;
         String mcVersion = config.mcVersion;
         String fmlVersion = config.loaderVersion;
         LOGGER.info("Auto Publish activated with args:");
-        LOGGER.info("modId=\"{}\", modName=\"{}\", modVersion={}, mcVersion={}, loaderVersion={}", modId, modName, modVersion, mcVersion, fmlVersion);
+        LOGGER.info("modId=\"{}\", modName=\"{}\", modVersion={}, mcVersion={}, loaderVersion={}", config.modInfo.id, config.modInfo.name, modVersion, mcVersion, fmlVersion);
 
         try {
-            if (DATA_CACHE.exists()) {
-                String lastVersion = new String(Files.readAllBytes(DATA_CACHE.toPath()));
-                if (lastVersion.equals(modVersion)) {
-                    LOGGER.error("last published version matches current version"); //do not upload the same version twice
-                    return;
-                }
-            }
-
             try (HttpClient client = HttpClient.newBuilder()
                     .followRedirects(HttpClient.Redirect.ALWAYS)
                     .build()) {
-                CurseforgePublish.publish(config, client, source);
-                if (true) return;
-                if ((config.curseforgeId == null || CurseforgePublish.publish(config, client, source)) && (config.modrinthId == null || ModrinthPublish.publish(config, source))) {
+                if (
+                      //  (config.curseforgeId == null || CurseforgePublish.publish(config, client, source)) &&
+                                (config.modrinthId == null || ModrinthPublish.publish(config, source))) {
                     saveDataCache(modVersion);
                     clearChangelog();
                 }
@@ -289,14 +288,15 @@ public class AutoPublisher {
     }
 
     //region file verify
-    record Source(String moduleName, File obj) {}
+    record Source(String moduleName, File obj) {
+    }
 
     /**
      * returns a list of all files, including main, module and source if enabled
      */
-    private static List<Source> verifyFileExistence(String modId, String modVersion, String mcVersion, String sourcePath, String[] modules, boolean withSources) {
+    private static List<Source> verifyFileExistence(String modId, String artifactVersion, String sourcePath, String[] modules, boolean withSources) {
         List<Source> sources = new ArrayList<>();
-        String fileBase = String.format("%s/%s-", sourcePath, modId) + AutoPublisher.formatVersion(modVersion, mcVersion);
+        String fileBase = String.format("%s/%s-", sourcePath, modId) + artifactVersion;
         sources.add(new Source("primary", checkFileExistence(fileBase)));
         if (withSources)
             sources.add(new Source("primary-sources", checkFileExistence(fileBase + "-sources")));
@@ -327,6 +327,7 @@ public class AutoPublisher {
         writer.close();
     }
 
+    @Deprecated
     static String formatVersion(String modVersion, String mcVersion) {
         return String.format("v%s-mc%s", modVersion, mcVersion);
     }
@@ -432,7 +433,8 @@ public class AutoPublisher {
         public void parse(BufferedReader reader) {
             reader.lines().forEach(s -> {
                 if (s.isEmpty()) return;
-                a: {
+                a:
+                {
                     for (Category category : categories) {
                         Matcher matcher = category.pattern.matcher(s);
                         if (matcher.find()) {

@@ -28,8 +28,9 @@ reworked publish_config.json:
         id: the mod-id of the mod. mandatory
         name: the name of the mod. mandatory
         version: the version of the mod. mandatory
-    mc_version: the used minecraft version of the project
-    loader_version: the used loader version of the project (neo, forge or fabric version)
+        artifact_version: the base name extension for the files to be published. mandatory
+    mc_version: the used minecraft version of the project. mandatory
+    loader_version: the used loader version of the project (neo, forge or fabric version). mandatory
     with_sources: whether to include modules with `-sources` extension. boolean, optional, defaults to false
     modules: optional, string list
         each entry is the suffix of a file in the libs folder, nominating a file to be published alongside the main file
