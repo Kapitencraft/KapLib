@@ -24,31 +24,31 @@ public class CoreClientModConfig {
                 .defineInRange("cursor_move_offset", 2, 0, 5);
 
         BUILDER.pop();
-        PING_COLOR = BUILDER
-                .comment("determines the color which indicates pings")
-                .defineEnum("ping_color", ChatFormatting.YELLOW, Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).toArray(ChatFormatting[]::new));
     }
 
     private static final ModConfigSpec.DoubleValue SCROLL_SCALE;
     private static final ModConfigSpec.EnumValue<Element.FocusTypes> FOCUS_TYPE;
     private static final ModConfigSpec.IntValue CURSOR_MOVE_OFFSET;
 
-    private static final ModConfigSpec.EnumValue<ChatFormatting> PING_COLOR;
-
     public static final ModConfigSpec SPEC = BUILDER.build();
 
-    public static ChatFormatting getPingColor() {
-        return PING_COLOR.get();
-    }
-
+    /**
+     * scale for scrolling in GUIs
+     */
     public static double getScrollScale() {
         return SCROLL_SCALE.get();
     }
 
+    /**
+     * offset before cursor will start moving inside multiline textbox
+     */
     public static int getCursorMoveOffset() {
         return CURSOR_MOVE_OFFSET.get();
     }
 
+    /**
+     * focus type for menus
+     */
     public static Element.FocusTypes getFocusType() {
         return FOCUS_TYPE.get();
     }
