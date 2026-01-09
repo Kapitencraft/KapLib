@@ -13,9 +13,9 @@ public class ServerModConfig {
     private static final ModConfigSpec.IntValue MAX_ITERATION_BROKEN_BLOCKS = BUILDER
             .comment("determines how many blocks per tick should be broken by the multi-break enchantments")
             .defineInRange("iter_max_broken", 20, 1, 200);
-    private static final ModConfigSpec.BooleanValue DISABLE_ANVIL_LIMIT = BUILDER
-            .comment("determines whether to disable anvil \"Too Expensive\" cap")
-            .define("disable_anvil_limit", true);
+    private static final ModConfigSpec.IntValue ANVIL_LIMIT = BUILDER
+            .comment("determines highest anvil experience level before \"Too Expensive\" cap. vanilla default: 40")
+            .defineInRange("anvil_limit", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 
@@ -27,7 +27,7 @@ public class ServerModConfig {
         return MAX_ITERATION_BROKEN_BLOCKS.get();
     }
 
-    public static boolean disableAnvilLimit() {
-        return DISABLE_ANVIL_LIMIT.get();
+    public static int getAnvilLimit() {
+        return ANVIL_LIMIT.get();
     }
 }

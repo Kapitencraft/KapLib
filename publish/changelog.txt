@@ -53,6 +53,7 @@ moved many classes around to group them into their respective module
 moved ClientHelper#addReqContent to RequirementManager#addReqContent
 moved to Neoforge 1.21.216
 renamed AbsolutePositionTarget to StaticPositionTarget
+server mod config$disable_anvil_limit was renamed to anvil_limit and will now define the max XP level before cost gets too expensive (vanilla default: 40)
 
 # Removals
 
