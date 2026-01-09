@@ -59,7 +59,7 @@ public class ExtraTags {
 
     public interface Blocks {
         /**
-         * list of vanilla golem heads.
+         * list of vanilla golem heads. blocks must extend the CarvedPumpkinBlock class
          */
         TagKey<Block> VANILLA_GOLEM_HEADS = vanillaKey("golem_heads");
 

@@ -17,6 +17,22 @@ fixed many mixins not using MixinExtras
 fixed incompatibility with Sodium due to mixin
 fixed BonusProvider set-bonus slot order being shuffled each time
 
+# Changes
+
+moved many classes around to group them into their respective module
+moved ClientHelper#addReqContent to RequirementManager#addReqContent
+moved to Neoforge 1.21.216
+renamed AbsolutePositionTarget to StaticPositionTarget
+server mod config$disable_anvil_limit was renamed to anvil_limit and will now define the max XP level before cost gets too expensive (vanilla default: 40)
+
+# Removals
+
+removed server config $ enable_social as it wasn't used.
+removed OreModifier and dedicated Event
+removed ExtraCodecs#UUID, replaced by UUIDUtils.STRING_CODEC
+removed "ChunkPosition" Uniform in Block Render types.
+removed book check in enchantment tooltip as ItemStack parameter has been lost
+
 # AutoPublish changes
 
 reworked publish_config.json:
@@ -46,19 +62,3 @@ reworked publish_config.json:
         auth: the path to the authentification tokens. !threat with EXTREME caution! this information may allow others to upload files / create projects under your name. do not store anywhere synchronized. defaults to `run/AuthCache.txt`. ensure adding `run` to .gitignore to use
         changelog: the path to the changelog file. defaults to 'publish/changelog.txt'
         categories: the path to the categories file used in the `list` changelog style. default to 'publish/categories.json'
-
-# Changes
-
-moved many classes around to group them into their respective module
-moved ClientHelper#addReqContent to RequirementManager#addReqContent
-moved to Neoforge 1.21.216
-renamed AbsolutePositionTarget to StaticPositionTarget
-server mod config$disable_anvil_limit was renamed to anvil_limit and will now define the max XP level before cost gets too expensive (vanilla default: 40)
-
-# Removals
-
-removed server config $ enable_social as it wasn't used.
-removed OreModifier and dedicated Event
-removed ExtraCodecs#UUID, replaced by UUIDUtils.STRING_CODEC
-removed "ChunkPosition" Uniform in Block Render types.
-removed book check in enchantment tooltip as ItemStack parameter has been lost
