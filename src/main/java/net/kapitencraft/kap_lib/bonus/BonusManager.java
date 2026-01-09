@@ -121,7 +121,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     @ApiStatus.Internal
     public static void createFromData(Data data) {
-        updateInstance();
+        if (instance == null)
+            instance = new BonusManager();
         instance.itemBonuses.putAll(data.itemBonuses);
         instance.sets.putAll(data.sets);
     }
@@ -269,7 +270,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             List<AbstractBonusElement> previous = ImmutableList.copyOf(getBonusesForItem(from, true).values());
             List<AbstractBonusElement> next = ImmutableList.copyOf(getBonusesForItem(to, true).values());
             for (AbstractBonusElement element : previous) {
-                if (!next.contains(element)) {
+                if (!next.contains(element) || (element instanceof SetBonusElement sBE && sBE.matchesItem(slot, from) && !sBE.matchesItem(slot, to))) {
                     if (element instanceof SetBonusElement setBonusElement) {
                         SetData data = setData.get(element);
                         //skip if element isn't actually the equipped item
@@ -286,7 +287,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                 }
             }
             for (AbstractBonusElement element : next) {
-                if (!previous.contains(element)) {
+                if (!previous.contains(element) || (element instanceof SetBonusElement sBE && sBE.matchesItem(slot, to) && !sBE.matchesItem(slot, from))) {
                     if (element instanceof SetBonusElement setElement) {
                         if (!setElement.requiresSlot(slot) || !setElement.matchesItem(slot, to)) continue;
 
@@ -373,6 +374,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
             public void removeWearable(WearableSlot slot) {
                 this.mask &= ~(1L << (slot.getSlotIndex() + 6));
+            }
+
+            @Override
+            public String toString() {
+                return "SetData{mask = " + Long.toBinaryString(mask) + "}";
             }
         }
     }

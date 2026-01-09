@@ -11,6 +11,7 @@ import net.kapitencraft.kap_lib.cooldown.Cooldowns;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.core.helpers.ParticleHelper;
 import net.kapitencraft.kap_lib.core.tags.ExtraTags;
+import net.kapitencraft.kap_lib.core.util.BlockBreakSet;
 import net.kapitencraft.kap_lib.enchantment.ExtraEnchantmentEffectComponents;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBowEffect;
@@ -67,6 +68,7 @@ import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jetbrains.annotations.ApiStatus;
@@ -321,5 +323,10 @@ public class Events {
     @SubscribeEvent
     public static void onRegisterRequirementTypes(RegisterRequirementTypesEvent event) {
         event.add(BonusRequirementType.INSTANCE);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void tickVeinMiner(ServerTickEvent.Post event) {
+        BlockBreakSet.tickAll();
     }
 }

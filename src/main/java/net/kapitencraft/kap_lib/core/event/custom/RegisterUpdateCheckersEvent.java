@@ -22,7 +22,7 @@ public class RegisterUpdateCheckersEvent extends Event implements IModBusEvent {
     /**
      * @param projectId the id or slug of the Modrinth project
      * @param modId the id of the mod
-     * @param versionExtractor a pattern able to extract the mod's version from the version string. must contain exactly o
+     * @param versionExtractor a pattern able to extract the mod's version from the version string. must contain exactly one group
      */
     public void register(String modId, String projectId, Pattern versionExtractor) {
         sink.apply(projectId, modId, versionExtractor);

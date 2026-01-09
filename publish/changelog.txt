@@ -15,6 +15,7 @@ fixed RotateElement behaving weird due to position issues
 fixed RingSpawner not spawning correctly due to RAD <-> DEG mismatch
 fixed many mixins not using MixinExtras
 fixed incompatibility with Sodium due to mixin
+fixed SetBonuses not updating when switching from item with correct bonus but wrong slot to item with correct bonus and correct slot
 fixed BonusProvider set-bonus slot order being shuffled each time
 
 # Changes

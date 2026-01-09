@@ -10,7 +10,7 @@ public class BonusRequirementType implements RequirementType<AbstractBonusElemen
     public static final RequirementType<AbstractBonusElement> INSTANCE = new BonusRequirementType();
 
     private static final  DataPackSerializer<AbstractBonusElement> SERIALIZER = new DataPackSerializer<>(
-            BonusManager.updateInstance().getElementCodec(), //ensure instance is loaded
+            BonusManager.instance.getElementCodec(), //ensure instance is loaded
             BonusManager.instance.streamCodec
     );
 

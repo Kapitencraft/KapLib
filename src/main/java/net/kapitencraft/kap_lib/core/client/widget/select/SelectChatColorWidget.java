@@ -39,7 +39,7 @@ public class SelectChatColorWidget extends PositionedWidget {
     public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         pGuiGraphics.fill(this.x, this.y, this.getMaxX(), this.getMaxY(), 0xFF404040);
         pGuiGraphics.drawCenteredString(this.font, this.title, this.x + width / 2, this.y + 2, 0xFFFFFF);
-        for (int i = 0; i < 16; i++) { //TODO add rainbow
+        for (int i = 0; i < COLOR_TYPES.length; i++) {
             ColorType type = COLOR_TYPES[i];
             int x = this.x + 2 + (i % 4) * 24;
             int y = this.y + 14 + (i / 4) * 24;
@@ -77,6 +77,7 @@ public class SelectChatColorWidget extends PositionedWidget {
 
     private static ColorType[] createColorTypes() {
         List<ColorType> types = Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).map(VanillaColorType::new).collect(Collectors.toCollection(ArrayList::new));
+
         //if (Modules.isComponentActive()) {
         //    ComponentCompat.appendChromaType(types);
         //}
