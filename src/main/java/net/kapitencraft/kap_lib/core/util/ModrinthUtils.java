@@ -6,6 +6,7 @@ import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -20,6 +21,7 @@ import java.util.stream.Stream;
 /**
  * helper with modrinth related HTTPS requests
  */
+@ApiStatus.Internal
 public class ModrinthUtils {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final String PROJECT_URL = "https://api.modrinth.com/v2/project/";

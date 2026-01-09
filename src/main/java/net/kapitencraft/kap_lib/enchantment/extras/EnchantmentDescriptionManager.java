@@ -49,7 +49,6 @@ public class EnchantmentDescriptionManager {
                 Util.makeDescriptionId("enchantment", ench.getKey().location()), component -> component.withStyle(ChatFormatting.DARK_GRAY));
     }
 
-
     private static final char NO_TRADING = '\uF000', TREASURE = '\uF001';
 
     public static String addObtainDisplay(Holder<Enchantment> enchantment) {

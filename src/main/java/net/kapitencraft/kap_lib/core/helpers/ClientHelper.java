@@ -206,7 +206,6 @@ public class ClientHelper {
         return Objects.requireNonNull(Minecraft.getInstance().screen, "active screen is null!").width;
     }
 
-
     /**
      * @return the height of the currently open screen
      */

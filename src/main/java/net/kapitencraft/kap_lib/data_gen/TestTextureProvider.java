@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.datagen.TextureProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +18,9 @@ public class TestTextureProvider extends TextureProvider {
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/bell_side")));
         register(ResourceLocation.withDefaultNamespace("item/echo_shard"), testRL("block/spell_bell_top"))
                 .then(Transfer.create(ResourceLocation.withDefaultNamespace("block/bell_top")));
+
         registerMaterial(testRL("item/tin_ingot"), testRL("tin"), this::registerGoldBlock);
+
         register(ResourceLocation.withDefaultNamespace("item/clock_00"), testRL("item/clock/pale"))
                 .then(Pale.INSTANCE);
         register(ResourceLocation.withDefaultNamespace("item/clock_00"), testRL("item/clock/saturated"))

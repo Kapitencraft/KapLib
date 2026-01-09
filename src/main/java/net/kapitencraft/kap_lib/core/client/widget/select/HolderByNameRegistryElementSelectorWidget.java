@@ -40,7 +40,7 @@ public class HolderByNameRegistryElementSelectorWidget<T> extends PositionedWidg
         this.font = font;
         this.valueSink = valueSink;
         titleWidth = this.font.width(SELECT_PANEL);
-        this.maxScroll = size() - (height - 22);
+        this.maxScroll = size() * 12 - (height - 22);
         this.scroll = 0;
     }
 
@@ -116,7 +116,7 @@ public class HolderByNameRegistryElementSelectorWidget<T> extends PositionedWidg
     public boolean mouseScrolled(double pMouseX, double pMouseY, double scrollX, double scrollY) {
         if (MathHelper.is2dBetween(pMouseX, pMouseY, this.x + 1, this.y + 11, getMaxX() - 1, this.getMaxY() - 11)) {
             this.scroll += (float) (scrollY * CoreClientModConfig.getScrollScale());
-            this.scroll = Mth.clamp(scroll, -maxScroll, 0);
+            this.scroll = Mth.clamp(scroll, -maxScroll, 1);
             return true;
         }
         return super.mouseScrolled(pMouseX, pMouseY, scrollX, scrollY);

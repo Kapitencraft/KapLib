@@ -73,12 +73,11 @@ public class Cooldown {
     /**
      * creates a component indicating the active time and the full time of this cooldown
      */
-    public Component createDisplay(LivingEntity living) {
+    public Component createDisplay(LivingEntity living, boolean reduceWithTime) {
         int cooldownTicks = getRemainingCooldownTime(living);
-        int defaultTime = getCooldownTime(living, true);
         return Component.translatable("cooldown.display", (cooldownTicks > 0 ?
                 Component.translatable("cooldown.active").withStyle(ChatFormatting.RED).append(CommonComponents.SPACE).append(Component.literal("(" + MathHelper.shortRound(cooldownTicks / 20.) + "s)").withStyle(ChatFormatting.DARK_GRAY))
-                : Component.translatable("cooldown.inactive").withStyle(ChatFormatting.GREEN).append(Component.literal(", " + MathHelper.shortRound(defaultTime / 20.) + "s").withStyle(ChatFormatting.DARK_GRAY))
+                : Component.translatable("cooldown.inactive").withStyle(ChatFormatting.GREEN).append(Component.literal(", " + MathHelper.shortRound(getCooldownTime(living, reduceWithTime) / 20.) + "s").withStyle(ChatFormatting.DARK_GRAY))
                 )
         );
     }

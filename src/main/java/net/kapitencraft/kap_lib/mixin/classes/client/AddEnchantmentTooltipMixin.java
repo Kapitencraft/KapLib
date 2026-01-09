@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 @Mixin(ItemEnchantments.class)
 public abstract class AddEnchantmentTooltipMixin {
 
-    @Inject(method = "addToTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/Enchantment;getFullname(Lnet/minecraft/core/Holder;I)Lnet/minecraft/network/chat/Component;", shift = At.Shift.AFTER))
+    @Inject(method = "addToTooltip", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V", shift = At.Shift.AFTER))
     private void injectTranslations(Item.TooltipContext context, Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag, CallbackInfo ci, @Local Holder<Enchantment> enchantmentHolder) {
         EnchantmentDescriptionManager.addTooltip(tooltipAdder, enchantmentHolder);
     }

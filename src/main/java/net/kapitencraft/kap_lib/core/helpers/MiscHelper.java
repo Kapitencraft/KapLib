@@ -91,7 +91,6 @@ public class MiscHelper {
         return item.builtInRegistryHolder().is(tagKey);
     }
 
-
     /**
      * method to get the Rarity of an {@link ItemStack}
      *

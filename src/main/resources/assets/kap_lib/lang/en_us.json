@@ -32,6 +32,7 @@
   "cec.max_level": "max",
   "cec.min_level": "min",
   "cec.relative": "relative",
+  "cec.select_color": "Select Color",
   "cec.select_enchantment": "Select Enchantment",
   "cec.select_level_bound.min": "Select Minimum Level",
   "cec.select_level_bound.max": "Select Maximum Level",

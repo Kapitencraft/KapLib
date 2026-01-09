@@ -71,6 +71,6 @@ public class CooldownTestItem extends WearableItem implements ExtendedItem {
 
     @Override
     public void appendHoverTextWithPlayer(@NotNull ItemStack itemStack, @Nullable TooltipContext context, @NotNull List<Component> list, @NotNull TooltipFlag flag, Player player) {
-        list.add(TestCooldowns.TEST.value().createDisplay(player));
+        list.add(TestCooldowns.TEST.value().createDisplay(player, false));
     }
 }
