@@ -1,5 +1,5 @@
 # Additions
-added CameraPos Uniform
+added CameraPos shader Uniform
 added RequirementTypes.BLOCK suppressing place and interactions
 added AttackerEmptyOffhand loot condition
 added BehindEntity loot condition
@@ -57,6 +57,7 @@ server mod config$disable_anvil_limit was renamed to anvil_limit and will now de
 
 # Removals
 
+removed server config $ enable_social as it wasn't used.
 removed OreModifier and dedicated Event
 removed ExtraCodecs#UUID, replaced by UUIDUtils.STRING_CODEC
 removed "ChunkPosition" Uniform in Block Render types.

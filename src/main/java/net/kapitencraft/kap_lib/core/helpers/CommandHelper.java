@@ -78,11 +78,4 @@ public class CommandHelper {
     public static boolean isOwner(CommandSourceStack stack) {
         return stack.hasPermission(4);
     }
-
-    /**
-     * check if social commands are enabled
-     */
-    public static boolean isSocialEnabled(CommandSourceStack stack) {
-        return ServerModConfig.areSocialCommandsEnabled();
-    }
 }
