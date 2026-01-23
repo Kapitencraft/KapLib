@@ -14,8 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -37,6 +35,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         this.origin = origin;
         this.registerDefaultState(this.stateDefinition.any().setValue(getPartProperty(), origin));
     }
+
     /**
      * @return the direction property to use. this
      * <br>one of {@link Orientation#PROPERTY}, {@link HorizontalOrientation#PROPERTY}
@@ -47,6 +46,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
     @Override
     protected @NotNull BlockState updateShape(BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
         O orientation = state.getValue(getOrientationProperty());
+
         Property<P> partProperty = getPartProperty();
         if (isNeighbourDirection(state.getValue(partProperty), orientation, facing)) {
             return facingState.is(this) && facingState.getValue(partProperty) != state.getValue(partProperty)
@@ -133,24 +133,20 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         return current.subtract(orientation.getPos(part));
     }
 
-    protected BlockPos getOriginPositionFromState(BlockState state, BlockPos pos) {
-        return getOriginPosition(state.getValue(getOrientationProperty()), state.getValue(getPartProperty()), pos);
-    }
-
     protected boolean isOrigin(BlockState state) {
         return state.getValue(getPartProperty()) == origin;
     }
 
-    @Override
-    protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(getOrientationProperty(), state.getValue(getOrientationProperty()).rotate(rot));
-    }
+    //@Override
+    //protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
+    //    return state.setValue(getNormalDirectionProperty(), rot.rotate(state.getValue(getNormalDirectionProperty())));
+    //}
 
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed blockstate.
      */
-    @Override
-    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(getOrientationProperty(), state.getValue(getOrientationProperty()).mirror(mirror));
-    }
+    //@Override
+    //protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+    //    return state.rotate(mirror.getRotation(state.getValue(getNormalDirectionProperty())));
+    //}
 }
