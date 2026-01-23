@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 
 public interface TestItems {
 
-    DeferredRegister<Item> REGISTRY = DeferredRegister.createItems("test");
+    DeferredRegister.Items REGISTRY = DeferredRegister.createItems("test");
 
     Supplier<CooldownTestItem> OBJECT = REGISTRY.register("test", CooldownTestItem::new);
 
