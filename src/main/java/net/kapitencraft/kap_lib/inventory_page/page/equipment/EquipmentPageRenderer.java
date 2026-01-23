@@ -8,11 +8,13 @@ import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class EquipmentPageRenderer implements InventoryPageRenderer {
     private static final ResourceLocation BACKGROUND = LibConstants.res("textures/gui/inventory/equipment.png");
+    private static final Component TITLE = Component.translatable("inventory.page.equipment");
 
     public EquipmentPageRenderer(EquipmentPage page) {
     }
@@ -39,5 +41,10 @@ public class EquipmentPageRenderer implements InventoryPageRenderer {
     @Override
     public @NotNull ResourceLocation pageBackgroundLocation() {
         return BACKGROUND;
+    }
+
+    @Override
+    public Component getTitle() {
+        return TITLE;
     }
 }

@@ -4,10 +4,12 @@ import net.kapitencraft.kap_lib.inventory_page.page_renderer.InventoryPageRender
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 public class CraftingPageRenderer implements InventoryPageRenderer {
+    private static final Component TITLE = Component.translatable("inventory.page.crafting");
 
     public CraftingPageRenderer(CraftingPage ignored) {
     }
@@ -25,5 +27,10 @@ public class CraftingPageRenderer implements InventoryPageRenderer {
     @Override
     public @NotNull ResourceLocation pageBackgroundLocation() {
         return AbstractContainerScreen.INVENTORY_LOCATION;
+    }
+
+    @Override
+    public Component getTitle() {
+        return TITLE;
     }
 }

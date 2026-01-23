@@ -48,5 +48,6 @@
   "enchantment.minecraft.piercing.desc":"Allows projectiles to pierce through mobs.",
   "enchantment.minecraft.soul_speed.desc":"Increases movement speed on soul blocks.",
   "enchantment.minecraft.swift_sneak.desc":"Increases movement speed while sneaking.",
-  "enchantment.minecraft.wind_burst.desc": "flings you into the sky when hitting a mace hit"
+  "enchantment.minecraft.wind_burst.desc": "flings you into the sky when hitting a mace hit",
+  "inventory.page.crafting": "Crafting"
 }

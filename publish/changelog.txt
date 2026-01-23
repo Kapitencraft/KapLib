@@ -3,6 +3,7 @@ added CameraPos shader Uniform
 added RequirementTypes.BLOCK suppressing place and interactions
 added AttackerEmptyOffhand loot condition
 added BehindEntity loot condition
+added Page Renderer Titles when hovering
 
 # Fixes
 

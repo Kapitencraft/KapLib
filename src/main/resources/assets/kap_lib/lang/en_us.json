@@ -153,5 +153,6 @@
   "set.bonus.name": "Set Bonus",
 
   "bonus_type.simple_mob_effect.def": "Adds following Effects each tick:",
-  "command.server_test.spawn_table.not_found": "Spawn Table \"test:test\" not found"
+  "command.server_test.spawn_table.not_found": "Spawn Table \"test:test\" not found",
+  "inventory.page.equipment": "Equipment"
 }

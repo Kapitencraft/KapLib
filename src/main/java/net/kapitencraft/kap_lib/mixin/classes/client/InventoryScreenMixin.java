@@ -178,6 +178,17 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     @Inject(method = "renderLabels", at = @At("HEAD"), cancellable = true)
     private void cancelIfOtherPage(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, CallbackInfo ci) {
+        int relativeY = pMouseY - this.topPos;
+        int relativeX = pMouseX - this.leftPos;
+        if (relativeY >= -32 && relativeY <= 0 && relativeX > 0 && relativeX < this.imageWidth) {
+            InventoryPageIO pageIo = (InventoryPageIO) this.menu;
+            int index = relativeX / 28;
+            if (index < pageIo.getPages().length) {
+                if (visible[index] != -1) {
+                    pGuiGraphics.renderTooltip(this.font, renderers[visible[index]].getTitle(), relativeX, relativeY);
+                }
+            }
+        }
         if (((InventoryPageReader) this.menu).getPageIndex() != 0) ci.cancel();
     }
 

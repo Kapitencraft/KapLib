@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.inventory_page.page_renderer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,4 +72,6 @@ public interface InventoryPageRenderer {
     default boolean onMouseScrolled(int relativeX, int relativeY, double pDelta) {
         return false;
     }
+
+    Component getTitle();
 }
