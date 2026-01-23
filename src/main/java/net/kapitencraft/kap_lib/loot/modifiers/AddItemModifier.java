@@ -58,7 +58,7 @@ public class AddItemModifier extends ModLootModifier implements IConditional {
     }
 
     public void addItem(Consumer<ItemStack> consumer, LootContext context, float chance) {
-        Entity param = context.getParam(LootContextParams.ATTACKING_ENTITY);
+        Entity param = context.getParamOrNull(LootContextParams.ATTACKING_ENTITY);
         if (!(param instanceof LivingEntity living)) return;
         ItemStack stack = RNGHelper.calculateAndDontDrop(item, maxAmount, living, chance);
         if (components != null)

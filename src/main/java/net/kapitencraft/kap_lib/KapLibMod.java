@@ -30,6 +30,7 @@ import net.kapitencraft.kap_lib.mana.ManaAttachmentTypes;
 import net.kapitencraft.kap_lib.mana.ManaAttributes;
 import net.kapitencraft.kap_lib.mana.advancement.ExtraCriterionTriggers;
 import net.kapitencraft.kap_lib.mob_effect.registry.ExtraMobEffects;
+import net.kapitencraft.kap_lib.multiblock.MultiblockServerTestCommand;
 import net.kapitencraft.kap_lib.overlay.OverlaysCommand;
 import net.kapitencraft.kap_lib.overlay.registry.Overlays;
 import net.kapitencraft.kap_lib.particle.ParticleClientTestCommand;
@@ -39,6 +40,7 @@ import net.kapitencraft.kap_lib.particle.registry.ExtraParticleTypes;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.*;
 import net.kapitencraft.kap_lib.recipe.registry.ExtraRecipeSerializers;
 import net.kapitencraft.kap_lib.recipe.registry.ExtraRecipeTypes;
+import net.kapitencraft.kap_lib.registry.TestBlocks;
 import net.kapitencraft.kap_lib.registry.TestCooldowns;
 import net.kapitencraft.kap_lib.registry.TestItems;
 import net.kapitencraft.kap_lib.requirement.registry.RequirementConditionTypes;
@@ -123,6 +125,7 @@ public class KapLibMod {
         VanillaInventoryPages.REGISTRY.register(modEventBus);
 
         if (LibConstants.gameTestEnabled()) {
+            TestBlocks.REGISTRY.register(modEventBus);
             TestItems.REGISTRY.register(modEventBus);
             TestCooldowns.REGISTRY.register(modEventBus);
         }
@@ -167,5 +170,6 @@ public class KapLibMod {
         SpawnTableServerTestCommand.register(dispatcher);
         CoreServerTestCommand.register(dispatcher);
         AttributeServerTestCommand.register(dispatcher);
+        MultiblockServerTestCommand.register(dispatcher);
     }
 }

@@ -1,7 +1,9 @@
 package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.attribute.ExtendedItemProperties;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.overlay.OverlayManager;
 import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
 import net.kapitencraft.kap_lib.shader.event.custom.client.RegisterUniformsEvent;
 import net.kapitencraft.kap_lib.inventory_page.page_renderer.InventoryPageRenderers;
@@ -17,6 +19,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
 @EventBusSubscriber(Dist.CLIENT)
@@ -26,6 +29,14 @@ public class KapLibModClientEvents {
         event.registerSpecial(ExtraParticleTypes.DAMAGE_INDICATOR.get(), new DamageIndicatorParticle.Provider());
         event.registerSpecial(ExtraParticleTypes.LIGHTNING.get(), new LightningParticle.Provider());
         event.registerSprite(ExtraParticleTypes.SHIMMER_SHIELD.get(), new ShimmerShieldParticle.Provider());
+    }
+
+    /**
+     * register the renderer
+     */
+    @SubscribeEvent
+    public static void overlays(RegisterGuiLayersEvent event) {
+        event.registerAboveAll(LibConstants.res("overlay"), OverlayManager.INSTANCE::render);
     }
 
     @SubscribeEvent

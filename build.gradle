@@ -310,7 +310,6 @@ neoForge {
     }
 
     runs {
-        // applies to all the run configs below
         configureEach {
 
             systemProperty 'forge.enabledGameTestNamespaces', mod_id
