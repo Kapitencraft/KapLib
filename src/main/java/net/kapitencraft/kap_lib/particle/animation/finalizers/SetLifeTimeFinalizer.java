@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -37,10 +40,19 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
                 ByteBufCodecs.BOOL, f -> f.resetAge,
                 SetLifeTimeFinalizer::new
         );
+        private static final MapCodec<SetLifeTimeFinalizer> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.INT.fieldOf("lifeTime").forGetter(f -> f.lifeTime),
+                Codec.BOOL.optionalFieldOf("resetAge", false).forGetter(f -> f.resetAge)
+        ).apply(i, SetLifeTimeFinalizer::new));
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, SetLifeTimeFinalizer> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, SetLifeTimeFinalizer> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<SetLifeTimeFinalizer> codec() {
+            return CODEC;
         }
     }
 

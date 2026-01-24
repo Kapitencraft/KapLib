@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.terminators;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.SimpleTerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
@@ -20,6 +23,10 @@ public class BonusRemovedTerminator extends SimpleTerminationTrigger<BonusRemove
         this.trigger(i -> i.entityId == entityId && i.elementId == elementId);
     }
 
+    private static final MapCodec<Instance> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+            Codec.INT.fieldOf("target").forGetter(ti -> ti.entityId),
+            ResourceLocation.CODEC.fieldOf("id").forGetter(ti -> ti.elementId)
+    ).apply(i, BonusRemovedTerminator.Instance::new));
     private static final StreamCodec<? super RegistryFriendlyByteBuf, Instance> STREAM_CODEC = StreamCodec.of(
             BonusRemovedTerminator::toNw, BonusRemovedTerminator::fromNw
     );
@@ -34,8 +41,13 @@ public class BonusRemovedTerminator extends SimpleTerminationTrigger<BonusRemove
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> codec() {
+    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> streamCodec() {
         return STREAM_CODEC;
+    }
+
+    @Override
+    public MapCodec<Instance> codec() {
+        return CODEC;
     }
 
     public static class Instance implements TerminationTriggerInstance {

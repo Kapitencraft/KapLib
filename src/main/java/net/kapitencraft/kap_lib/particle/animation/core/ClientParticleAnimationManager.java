@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.Trig
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.ApiStatus;
@@ -20,10 +21,12 @@ import java.util.Map;
  * manager of all animations
  */
 //TODO store animations in JSON and load them via reference
-public final class ParticleAnimationManager {
+public final class ClientParticleAnimationManager {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final ParticleAnimationManager INSTANCE = new ParticleAnimationManager();
+    public static final ClientParticleAnimationManager INSTANCE = new ClientParticleAnimationManager();
+
+    private final Map<ResourceLocation, ParticleAnimationPreset> presets = new HashMap<>();
     /**
      * running animations
      */
@@ -33,6 +36,10 @@ public final class ParticleAnimationManager {
      * animations waiting for their activation
      */
     private final Map<ParticleAnimator, List<TriggerInstance>> onHold = new HashMap<>();
+
+    public static void activate(List<ParticleAnimation> animations) {
+        animations.forEach(INSTANCE::accept);
+    }
 
     /**
      * use {@link ParticleAnimation.Builder#register()}<br>
@@ -58,6 +65,7 @@ public final class ParticleAnimationManager {
         activeAnimations.add(animator);
     }
 
+    @ApiStatus.Internal
     private <T extends TriggerInstance> void addListener(ActivationTrigger.Listener<T> instance, List<TriggerInstance> target) {
         ActivationTrigger<T> trigger = (ActivationTrigger<T>) instance.getTrigger().getTrigger();
         if (!trigger.active(instance)) {
@@ -81,6 +89,11 @@ public final class ParticleAnimationManager {
                 throw new ReportedException(report);
             }
         });
+    }
+
+    @ApiStatus.Internal
+    public void updatePresets(Map<ResourceLocation, ParticleAnimationPreset> presets) {
+
     }
 
     public void triggerComplete(ParticleAnimator animator, TriggerInstance trigger) {

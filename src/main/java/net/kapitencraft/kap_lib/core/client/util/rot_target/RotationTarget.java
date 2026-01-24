@@ -1,8 +1,10 @@
 package net.kapitencraft.kap_lib.core.client.util.rot_target;
 
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
@@ -14,11 +16,12 @@ import java.util.function.Supplier;
  * provides rotations for spawning / moving particles
  */
 public interface RotationTarget extends Supplier<Vec2> {
-    StreamCodec<RegistryFriendlyByteBuf, RotationTarget> CODEC = StreamCodec.of(Types::toNw, RotationTarget::fromNw);
+    Codec<RotationTarget> CODEC = Types.CODEC.dispatch(RotationTarget::getType, types -> types.type.codec());
+    StreamCodec<RegistryFriendlyByteBuf, RotationTarget> STREAM_CODEC = StreamCodec.of(Types::toNw, RotationTarget::fromNw);
 
     static RotationTarget fromNw(RegistryFriendlyByteBuf buf) {
         Types t = Types.values()[buf.readInt()];
-        return t.type.codec().decode(buf);
+        return t.type.streamCodec().decode(buf);
     }
 
     static RotationTarget absolute(float x, float y) {
@@ -37,10 +40,12 @@ public interface RotationTarget extends Supplier<Vec2> {
 
     Types getType();
 
-    enum Types implements IExtensibleEnum {
+    enum Types implements StringRepresentable, IExtensibleEnum {
         TRACK_POSITION(TrackPositionRotationTarget.Type::new),
         ABSOLUTE(StaticRotationTarget.Type::new),
         FROM_ENTITY(FromEntityRotationTarget.Type::new);
+
+        private static final Codec<Types> CODEC = StringRepresentable.fromEnum(Types::values);
 
         private final Type<? extends RotationTarget> type;
 
@@ -51,14 +56,16 @@ public interface RotationTarget extends Supplier<Vec2> {
         private static <T extends RotationTarget> void toNw(RegistryFriendlyByteBuf buf, T val) {
             Types types = val.getType();
             buf.writeInt(types.ordinal());
-            ((Type<T>) types.type).codec().encode(buf, val);
+            ((Type<T>) types.type).streamCodec().encode(buf, val);
         }
 
-        public static Types create(String name, Supplier<PositionTarget.Type<? extends PositionTarget>> typeSupplier) {
-            throw new IllegalAccessError("enum not extended!");
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase();
         }
     }
     interface Type<T extends RotationTarget> {
-        StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
+        MapCodec<T> codec();
+        StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
     }
 }

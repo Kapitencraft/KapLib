@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -41,11 +42,17 @@ public class GroupElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<GroupElement> {
-        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> STREAM_CODEC = AnimationElement.CODEC.apply(ByteBufCodecs.list()).map(GroupElement::new, e -> e.elements);
+        private static final MapCodec<GroupElement> CODEC = AnimationElement.CODEC.listOf().xmap(GroupElement::new, e -> e.elements).fieldOf("elements");
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> STREAM_CODEC = AnimationElement.STREAM_CODEC.apply(ByteBufCodecs.list()).map(GroupElement::new, e -> e.elements);
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<GroupElement> codec() {
+            return CODEC;
         }
     }
 

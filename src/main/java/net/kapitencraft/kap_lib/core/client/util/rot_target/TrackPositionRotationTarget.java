@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.core.client.util.rot_target;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,6 +24,11 @@ public record TrackPositionRotationTarget(PositionTarget source, PositionTarget 
     }
 
     public static class Type implements RotationTarget.Type<TrackPositionRotationTarget> {
+        private static final MapCodec<TrackPositionRotationTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("source").forGetter(TrackPositionRotationTarget::source),
+                PositionTarget.CODEC.fieldOf("target").forGetter(TrackPositionRotationTarget::target)
+        ).apply(i, TrackPositionRotationTarget::new));
+
         private static final StreamCodec<? super RegistryFriendlyByteBuf, TrackPositionRotationTarget> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, TrackPositionRotationTarget::source,
                 PositionTarget.STREAM_CODEC, TrackPositionRotationTarget::target,
@@ -28,8 +36,13 @@ public record TrackPositionRotationTarget(PositionTarget source, PositionTarget 
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, TrackPositionRotationTarget> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, TrackPositionRotationTarget> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<TrackPositionRotationTarget> codec() {
+            return CODEC;
         }
     }
 }

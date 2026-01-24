@@ -2,6 +2,8 @@ package net.kapitencraft.kap_lib.particle.animation.activation_triggers;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.TriggerInstance;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ActivationTriggers;
@@ -14,6 +16,7 @@ import net.minecraft.world.entity.Entity;
 import java.util.Objects;
 
 public class EntityAddedTrigger implements ActivationTrigger<EntityAddedTrigger.Instance> {
+    private static final MapCodec<Instance> CODEC = Codec.INT.xmap(Instance::new, i -> i.entityId).fieldOf("entity");
     private static final StreamCodec<? super RegistryFriendlyByteBuf, Instance> STREAM_CODEC = ByteBufCodecs.INT.map(Instance::new, i -> i.entityId);
 
     private final Multimap<Integer, Listener<Instance>> instances = HashMultimap.create();
@@ -38,7 +41,12 @@ public class EntityAddedTrigger implements ActivationTrigger<EntityAddedTrigger.
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> codec() {
+    public MapCodec<Instance> codec() {
+        return CODEC;
+    }
+
+    @Override
+    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> streamCodec() {
         return STREAM_CODEC;
     }
 

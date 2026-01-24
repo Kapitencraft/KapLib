@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.core.client.util.pos_target;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,11 +30,17 @@ public class EntityBBPositionTarget implements PositionTarget {
     }
 
     public static class Type implements PositionTarget.Type<EntityBBPositionTarget> {
+        private static final MapCodec<EntityBBPositionTarget> CODEC = Codec.INT.xmap(EntityBBPositionTarget::new, t -> t.entity).fieldOf("target");
         private static final StreamCodec<? super RegistryFriendlyByteBuf, EntityBBPositionTarget> STREAM_CODEC = ByteBufCodecs.INT.map(EntityBBPositionTarget::new, t -> t.entity);
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, EntityBBPositionTarget> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, EntityBBPositionTarget> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<EntityBBPositionTarget> codec() {
+            return CODEC;
         }
     }
 }

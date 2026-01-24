@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.mixin.classes.client;
 
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimationManager;
+import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.util.RandomSource;
@@ -21,7 +21,7 @@ public class ParticleEngineMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void addAnimationTick(CallbackInfo ci) {
         this.level.getProfiler().push("KapLib particle animation");
-        ParticleAnimationManager.INSTANCE.tick(this.random);
+        ClientParticleAnimationManager.INSTANCE.tick(this.random);
         this.level.getProfiler().pop();
     }
 }

@@ -1,13 +1,14 @@
 package net.kapitencraft.kap_lib.particle.animation.core;
 
 import com.google.common.base.Preconditions;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.EntityAddedTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.TriggerInstance;
 import net.kapitencraft.kap_lib.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.ParticleFinalizer;
-import net.kapitencraft.kap_lib.particle.animation.spawners.GroupSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
@@ -32,12 +33,21 @@ import java.util.Objects;
  * static data container for animations. use {@link ParticleAnimator} for dynamic information such as tick count
  */
 public class ParticleAnimation {
-    public static final StreamCodec<RegistryFriendlyByteBuf, ParticleAnimation> CODEC = ExtraStreamCodecs.composite(
-            AnimationElement.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::allElements,
-            ParticleFinalizer.CODEC, p -> p.finalizer,
-            TerminationTrigger.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTerminators,
-            ActivationTrigger.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTriggers,
-            Spawner.CODEC, p -> p.spawner,
+    public static final Codec<ParticleAnimation> CODEC = RecordCodecBuilder.create(i -> i.group(
+            AnimationElement.CODEC.listOf().fieldOf("elements").forGetter(ParticleAnimation::allElements),
+            ParticleFinalizer.CODEC.fieldOf("finalizer").forGetter(a -> a.finalizer),
+            TerminationTrigger.CODEC.listOf().fieldOf("terminators").forGetter(ParticleAnimation::getTerminators),
+            ActivationTrigger.CODEC.listOf().fieldOf("activator").forGetter(ParticleAnimation::getTriggers),
+            Spawner.CODEC.fieldOf("spawner").forGetter(a -> a.spawner),
+            Codec.INT.fieldOf("min_delay").forGetter(a -> a.minSpawnDelay),
+            Codec.INT.fieldOf("max_delay").forGetter(a -> a.maxSpawnDelay)
+    ).apply(i, ParticleAnimation::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ParticleAnimation> STREAM_CODEC = ExtraStreamCodecs.composite(
+            AnimationElement.STREAM_CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::allElements,
+            ParticleFinalizer.STREAM_CODEC, p -> p.finalizer,
+            TerminationTrigger.STREAM_CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTerminators,
+            ActivationTrigger.STREAM_CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTriggers,
+            Spawner.STREAM_CODEC, p -> p.spawner,
             ByteBufCodecs.INT, p -> p.minSpawnDelay,
             ByteBufCodecs.INT, p -> p.maxSpawnDelay,
             ParticleAnimation::new
@@ -209,14 +219,18 @@ public class ParticleAnimation {
          * @param player the player to send the animation to
          */
         public void sendToPlayer(ServerPlayer player) {
-            PacketDistributor.sendToPlayer(player, new SendParticleAnimationPacket(this.build()));
+            ParticleAnimation animation = this.build();
+            ServerParticleAnimationManager.accept(animation);
+            PacketDistributor.sendToPlayer(player, new SendParticleAnimationPacket(animation));
         }
 
         /**
          * used to register the animation of this builder to all players inside the given level
          */
         public void sendToAllPlayers() {
-            PacketDistributor.sendToAllPlayers(new SendParticleAnimationPacket(this.build()));
+            ParticleAnimation animation = this.build();
+            ServerParticleAnimationManager.accept(animation);
+            PacketDistributor.sendToAllPlayers(new SendParticleAnimationPacket(animation));
         }
 
         /**
@@ -224,7 +238,7 @@ public class ParticleAnimation {
          */
         @OnlyIn(Dist.CLIENT)
         public void register() {
-            ParticleAnimationManager.INSTANCE.accept(this.build());
+            ClientParticleAnimationManager.INSTANCE.accept(this.build());
         }
     }
 

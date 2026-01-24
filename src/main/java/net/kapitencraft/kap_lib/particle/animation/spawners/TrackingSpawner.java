@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
@@ -36,6 +38,11 @@ public class TrackingSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<TrackingSpawner> {
+        private static final MapCodec<TrackingSpawner> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                PositionTarget.CODEC.fieldOf("position").forGetter(s -> s.target)
+        ).apply(i, TrackingSpawner::new));
+
         private static final StreamCodec<? super RegistryFriendlyByteBuf, TrackingSpawner> STREAM_CODEC = StreamCodec.composite(
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
                 PositionTarget.STREAM_CODEC, s -> s.target,
@@ -43,8 +50,13 @@ public class TrackingSpawner extends VisibleSpawner {
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, TrackingSpawner> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, TrackingSpawner> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<TrackingSpawner> codec() {
+            return CODEC;
         }
     }
 

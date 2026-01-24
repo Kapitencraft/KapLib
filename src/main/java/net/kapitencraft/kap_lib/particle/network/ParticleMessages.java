@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.particle.network;
 
+import net.kapitencraft.kap_lib.particle.network.S2C.ActivateParticleAnimationsPacket;
 import net.kapitencraft.kap_lib.particle.network.S2C.SendParticleAnimationPacket;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -12,5 +13,6 @@ public class ParticleMessages {
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToClient(SendParticleAnimationPacket.TYPE, SendParticleAnimationPacket.CODEC, SendParticleAnimationPacket::handle);
+        registrar.playToClient(ActivateParticleAnimationsPacket.TYPE, ActivateParticleAnimationsPacket.CODEC, ActivateParticleAnimationsPacket::handle);
     }
 }

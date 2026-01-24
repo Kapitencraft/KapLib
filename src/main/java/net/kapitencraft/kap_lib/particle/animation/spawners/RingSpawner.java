@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.core.client.util.rot_target.RotationTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
@@ -16,6 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -98,10 +102,21 @@ public class RingSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<RingSpawner> {
+        private static final MapCodec<RingSpawner> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("target").forGetter(s -> s.target),
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                RotationTarget.CODEC.fieldOf("rotation").forGetter(s -> s.rotation),
+                Direction.Axis.CODEC.fieldOf("axis").forGetter(s -> s.axis),
+                Codec.FLOAT.fieldOf("rot_speed").forGetter(s -> s.rotPerTick),
+                Codec.FLOAT.fieldOf("max_height").forGetter(s -> s.maxHeight),
+                Codec.FLOAT.fieldOf("height_change").forGetter(s -> s.heightChangePerTick),
+                Codec.FLOAT.fieldOf("radius").forGetter(s -> s.radius),
+                Codec.INT.fieldOf("count").forGetter(s -> s.spawnerCount)
+        ).apply(i, RingSpawner::new));
         private static final StreamCodec<RegistryFriendlyByteBuf, RingSpawner> STREAM_CODEC = ExtraStreamCodecs.composite(
                 PositionTarget.STREAM_CODEC, s -> s.target,
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
-                RotationTarget.CODEC, s -> s.rotation,
+                RotationTarget.STREAM_CODEC, s -> s.rotation,
                 ExtraStreamCodecs.enumCodec(Direction.Axis.values()), s -> s.axis,
                 ByteBufCodecs.FLOAT, s -> s.rotPerTick,
                 ByteBufCodecs.FLOAT, s -> s.maxHeight,
@@ -112,8 +127,13 @@ public class RingSpawner extends VisibleSpawner {
         );
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, RingSpawner> codec() {
+        public StreamCodec<RegistryFriendlyByteBuf, RingSpawner> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<RingSpawner> codec() {
+            return CODEC;
         }
     }
 

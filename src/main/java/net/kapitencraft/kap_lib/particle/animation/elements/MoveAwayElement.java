@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
@@ -13,12 +16,12 @@ import org.jetbrains.annotations.NotNull;
 public class MoveAwayElement implements AnimationElement {
     private final PositionTarget target;
     private final float speed;
-    private final int tickLength;
+    private final int duration;
 
     public MoveAwayElement(PositionTarget target, float speed, int tickLength) {
         this.target = target;
         this.speed = speed;
-        this.tickLength = tickLength;
+        this.duration = tickLength;
     }
 
     @Override
@@ -28,7 +31,7 @@ public class MoveAwayElement implements AnimationElement {
 
     @Override
     public int createLength(ParticleConfig config) {
-        return tickLength;
+        return duration;
     }
 
     @Override
@@ -44,16 +47,26 @@ public class MoveAwayElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<MoveAwayElement> {
+        private static final MapCodec<MoveAwayElement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("target").forGetter(e -> e.target),
+                Codec.FLOAT.fieldOf("speed").forGetter(e -> e.speed),
+                Codec.INT.fieldOf("duration").forGetter(e -> e.duration)
+        ).apply(i, MoveAwayElement::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, MoveAwayElement> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, e -> e.target,
                 ByteBufCodecs.FLOAT, e -> e.speed,
-                ByteBufCodecs.INT, e -> e.tickLength,
+                ByteBufCodecs.INT, e -> e.duration,
                 MoveAwayElement::new
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, MoveAwayElement> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, MoveAwayElement> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<MoveAwayElement> codec() {
+            return CODEC;
         }
     }
 

@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -41,11 +42,17 @@ public record GroupSpawner(List<Spawner> spawners) implements Spawner {
     }
 
     public static class Type implements VisibleSpawner.Type<GroupSpawner> {
-        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> STREAM_CODEC = Spawner.CODEC.apply(ByteBufCodecs.list()).map(GroupSpawner::new, GroupSpawner::spawners);
+        private static final MapCodec<GroupSpawner> CODEC = Spawner.CODEC.listOf().xmap(GroupSpawner::new, GroupSpawner::spawners).fieldOf("entries");
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> STREAM_CODEC = Spawner.STREAM_CODEC.apply(ByteBufCodecs.list()).map(GroupSpawner::new, GroupSpawner::spawners);
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<GroupSpawner> codec() {
+            return CODEC;
         }
     }
 }

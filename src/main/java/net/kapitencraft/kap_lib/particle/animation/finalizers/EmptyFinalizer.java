@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -24,10 +25,16 @@ public class EmptyFinalizer implements ParticleFinalizer {
 
     public static class Type implements ParticleFinalizer.Type<EmptyFinalizer> {
         private static final StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+        private static final MapCodec<EmptyFinalizer> CODEC = MapCodec.unit(INSTANCE);
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<EmptyFinalizer> codec() {
+            return CODEC;
         }
     }
 

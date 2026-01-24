@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -30,11 +32,17 @@ public class StartFadeOutElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<StartFadeOutElement> {
+        private static final MapCodec<StartFadeOutElement> CODEC = Codec.FLOAT.xmap(StartFadeOutElement::new, e -> e.rate).fieldOf("rate");
         private static final StreamCodec<? super RegistryFriendlyByteBuf, StartFadeOutElement> STREAM_CODEC = ByteBufCodecs.FLOAT.map(StartFadeOutElement::new, e -> e.rate);
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, StartFadeOutElement> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, StartFadeOutElement> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<StartFadeOutElement> codec() {
+            return CODEC;
         }
     }
 

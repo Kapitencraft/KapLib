@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.core.client.util.pos_target;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -26,6 +29,10 @@ public record EntityPositionTarget(int target, EntityAnchorArgument.Anchor ancho
     }
 
     public static class Type implements PositionTarget.Type<EntityPositionTarget> {
+        private static final MapCodec<EntityPositionTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.INT.fieldOf("target").forGetter(t -> t.target),
+                Codec.BOOL.fieldOf("target_head").xmap(b -> b ? EntityAnchorArgument.Anchor.EYES : EntityAnchorArgument.Anchor.FEET, a -> a == EntityAnchorArgument.Anchor.EYES).forGetter(EntityPositionTarget::anchor)
+        ).apply(i, EntityPositionTarget::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, EntityPositionTarget> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.INT, t -> t.target,
                 ExtraStreamCodecs.enumCodec(EntityAnchorArgument.Anchor.values()), t -> t.anchor,
@@ -33,8 +40,13 @@ public record EntityPositionTarget(int target, EntityAnchorArgument.Anchor ancho
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, EntityPositionTarget> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, EntityPositionTarget> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<EntityPositionTarget> codec() {
+            return CODEC;
         }
     }
 

@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.core.client.util.pos_target;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,6 +25,10 @@ public record RelativePositionTarget(PositionTarget target, Vec3 offset) impleme
     }
 
     public static class Type implements PositionTarget.Type<RelativePositionTarget> {
+        private static final MapCodec<RelativePositionTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("target").forGetter(RelativePositionTarget::target),
+                Vec3.CODEC.fieldOf("offset").forGetter(RelativePositionTarget::offset)
+        ).apply(i, RelativePositionTarget::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, RelativePositionTarget> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, RelativePositionTarget::target,
                 ExtraStreamCodecs.VEC_3, RelativePositionTarget::offset,
@@ -30,8 +36,13 @@ public record RelativePositionTarget(PositionTarget target, Vec3 offset) impleme
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, RelativePositionTarget> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, RelativePositionTarget> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<RelativePositionTarget> codec() {
+            return CODEC;
         }
     }
 

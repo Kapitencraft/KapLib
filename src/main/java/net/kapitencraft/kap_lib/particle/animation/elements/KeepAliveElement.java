@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -34,11 +36,17 @@ public class KeepAliveElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<KeepAliveElement> {
+        private static final MapCodec<KeepAliveElement> CODEC = Codec.INT.xmap(KeepAliveElement::new, e -> e.duration).fieldOf("duration");
         private static final StreamCodec<? super RegistryFriendlyByteBuf, KeepAliveElement> STREAM_CODEC = ByteBufCodecs.INT.map(KeepAliveElement::new, e -> e.duration);
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, KeepAliveElement> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, KeepAliveElement> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<KeepAliveElement> codec() {
+            return CODEC;
         }
     }
 

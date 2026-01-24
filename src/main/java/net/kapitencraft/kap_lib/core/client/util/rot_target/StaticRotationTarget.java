@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.core.client.util.rot_target;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,6 +18,10 @@ public class StaticRotationTarget implements RotationTarget {
         this.rot = rot;
     }
 
+    private StaticRotationTarget(float x, float y) {
+        this(new Vec2(x, y));
+    }
+
     @Override
     public Vec2 get() {
         return rot;
@@ -26,15 +33,24 @@ public class StaticRotationTarget implements RotationTarget {
     }
 
     public static class Type implements RotationTarget.Type<StaticRotationTarget> {
+        private static final MapCodec<StaticRotationTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.FLOAT.fieldOf("x").forGetter(t -> t.rot.x),
+                Codec.FLOAT.fieldOf("y").forGetter(t -> t.rot.y)
+        ).apply(i, StaticRotationTarget::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, StaticRotationTarget> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.FLOAT, t -> t.rot.x,
                 ByteBufCodecs.FLOAT, t -> t.rot.y,
-                (x, y) -> new StaticRotationTarget(new Vec2(x, y))
+                StaticRotationTarget::new
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, StaticRotationTarget> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, StaticRotationTarget> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<StaticRotationTarget> codec() {
+            return CODEC;
         }
     }
 }

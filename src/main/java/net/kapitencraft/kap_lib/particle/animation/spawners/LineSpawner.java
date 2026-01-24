@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
@@ -66,6 +69,13 @@ public class LineSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<LineSpawner> {
+        private static final MapCodec<LineSpawner> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                PositionTarget.CODEC.fieldOf("start").forGetter(s -> s.start),
+                PositionTarget.CODEC.fieldOf("end").forGetter(s -> s.end),
+                Codec.FLOAT.fieldOf("spacing").forGetter(s -> s.spacing)
+        ).apply(i, LineSpawner::new));
+
         private static final StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> STREAM_CODEC = StreamCodec.composite(
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
                 PositionTarget.STREAM_CODEC, s -> s.start,
@@ -75,8 +85,13 @@ public class LineSpawner extends VisibleSpawner {
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<LineSpawner> codec() {
+            return CODEC;
         }
     }
 

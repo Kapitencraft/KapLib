@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -9,7 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 
 public interface AnimationElement {
-    StreamCodec<RegistryFriendlyByteBuf, AnimationElement> CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.MODIFIER_TYPES).dispatch(AnimationElement::getType, Type::codec);
+    Codec<AnimationElement> CODEC = ParticleAnimationRegistries.ANIMATION_ELEMENT_TYPES.byNameCodec().dispatch(AnimationElement::getType, Type::codec);
+    StreamCodec<RegistryFriendlyByteBuf, AnimationElement> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.MODIFIER_TYPES).dispatch(AnimationElement::getType, Type::streamCodec);
 
     @NotNull Type<? extends AnimationElement> getType();
 
@@ -48,6 +51,7 @@ public interface AnimationElement {
     }
 
     interface Type<T extends AnimationElement> {
-        StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
+        StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
+        MapCodec<T> codec();
     }
 }

@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
@@ -13,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * [WIP] does some weird shenanigans
+ * rotates each applied particle around the provided pivot
  */
 public class RotateElement implements AnimationElement {
     private final PositionTarget pivot;
@@ -42,17 +45,12 @@ public class RotateElement implements AnimationElement {
         return duration;
     }
 
-    //Disproven reasons:
-    //1. multiple configs for the same element
-    //2. decreasing distance by rotation
     @Override
     public void tick(ParticleConfig object, int tick, double percentage) {
         Vec3 pv = pivot.get();
-        //System.out.println("rotate: " + object.hashCode() + ": pos: " + object.pos() + ", o-dist: " + object.pos().distanceTo(pv));
         object.setPos(
                 MathHelper.rotateAroundAxis(object.pos(), pv, degreePerTick, axis)
         );
-        //System.out.println("n-pos: " + object.pos() + ", n-dist: " + object.pos().distanceTo(pv));
     }
 
     public static class Builder implements AnimationElement.Builder {
@@ -88,6 +86,13 @@ public class RotateElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<RotateElement> {
+        private static final MapCodec<RotateElement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("pivot").forGetter(e -> e.pivot),
+                Codec.FLOAT.fieldOf("speed").forGetter(e -> e.degreePerTick),
+                Codec.INT.fieldOf("duration").forGetter(e -> e.duration),
+                Direction.Axis.CODEC.fieldOf("axis").forGetter(e -> e.axis)
+        ).apply(i, RotateElement::new));
+
         private static final StreamCodec<? super RegistryFriendlyByteBuf, RotateElement> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, e -> e.pivot,
                 ByteBufCodecs.FLOAT, e -> e.degreePerTick,
@@ -97,8 +102,13 @@ public class RotateElement implements AnimationElement {
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, RotateElement> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, RotateElement> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<RotateElement> codec() {
+            return CODEC;
         }
     }
 }

@@ -1,6 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.activation_triggers.core;
 
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimationManager;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimator;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -10,6 +12,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 public interface ActivationTrigger<T extends TriggerInstance> {
+    Codec<TriggerInstance> CODEC = ParticleAnimationRegistries.ACTIVATION_TRIGGERS.byNameCodec().dispatch(TriggerInstance::getTrigger, ActivationTrigger::codec);
+    StreamCodec<RegistryFriendlyByteBuf, TriggerInstance> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.ACTIVATION_TRIGGERS).dispatch(TriggerInstance::getTrigger, ActivationTrigger::streamCodec);
+
 
     void addListener(Listener<T> instance);
 
@@ -17,9 +22,8 @@ public interface ActivationTrigger<T extends TriggerInstance> {
 
     boolean active(Listener<T> instance);
 
-    StreamCodec<RegistryFriendlyByteBuf, TriggerInstance> CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.ACTIVATION_TRIGGERS).dispatch(TriggerInstance::getTrigger, ActivationTrigger::codec);
-
-    StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
+    MapCodec<T> codec();
+    StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
 
     @OnlyIn(Dist.CLIENT)
     class Listener<T extends TriggerInstance> {
@@ -32,7 +36,7 @@ public interface ActivationTrigger<T extends TriggerInstance> {
         }
 
         public void run() {
-            ParticleAnimationManager.INSTANCE.triggerComplete(animator, trigger);
+            ClientParticleAnimationManager.INSTANCE.triggerComplete(animator, trigger);
         }
 
         public T getTrigger() {

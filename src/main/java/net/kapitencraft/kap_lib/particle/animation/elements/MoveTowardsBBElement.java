@@ -1,5 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
@@ -72,6 +75,11 @@ public class MoveTowardsBBElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<MoveTowardsBBElement> {
+        private static final MapCodec<MoveTowardsBBElement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.INT.fieldOf("entity").forGetter(e -> e.entity),
+                Codec.INT.fieldOf("duration").forGetter(e -> e.duration)
+        ).apply(i, MoveTowardsBBElement::new));
+
         private static final StreamCodec<? super RegistryFriendlyByteBuf, MoveTowardsBBElement> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.INT, e -> e.entity,
                 ByteBufCodecs.INT, e -> e.duration,
@@ -79,8 +87,13 @@ public class MoveTowardsBBElement implements AnimationElement {
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, MoveTowardsBBElement> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, MoveTowardsBBElement> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<MoveTowardsBBElement> codec() {
+            return CODEC;
         }
     }
 }
