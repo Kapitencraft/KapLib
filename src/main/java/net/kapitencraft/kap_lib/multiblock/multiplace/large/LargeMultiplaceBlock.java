@@ -133,6 +133,10 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         return current.subtract(orientation.getPos(part));
     }
 
+    protected BlockPos getOriginPositionFromState(BlockState state, BlockPos pos) {
+        return getOriginPosition(state.getValue(getOrientationProperty()), state.getValue(getPartProperty()), pos);
+    }
+
     protected boolean isOrigin(BlockState state) {
         return state.getValue(getPartProperty()) == origin;
     }

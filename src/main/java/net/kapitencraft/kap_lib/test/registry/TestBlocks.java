@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.registry;
+package net.kapitencraft.kap_lib.test.registry;
 
 import net.kapitencraft.kap_lib.test.multiblock.*;
 import net.minecraft.world.item.BlockItem;

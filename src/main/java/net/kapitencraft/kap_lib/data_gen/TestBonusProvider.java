@@ -4,8 +4,6 @@ import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.bonus.datagen.BonusProvider;
 import net.kapitencraft.kap_lib.bonus.type.AttributeModifiersBonus;
 import net.kapitencraft.kap_lib.bonus.type.EffectsBonus;
-import net.kapitencraft.kap_lib.registry.TestItems;
-import net.kapitencraft.kap_lib.inventory_page.registry.WearableSlots;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.effect.MobEffectInstance;

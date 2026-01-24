@@ -40,9 +40,10 @@ import net.kapitencraft.kap_lib.particle.registry.ExtraParticleTypes;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.*;
 import net.kapitencraft.kap_lib.recipe.registry.ExtraRecipeSerializers;
 import net.kapitencraft.kap_lib.recipe.registry.ExtraRecipeTypes;
-import net.kapitencraft.kap_lib.registry.TestBlocks;
-import net.kapitencraft.kap_lib.registry.TestCooldowns;
-import net.kapitencraft.kap_lib.registry.TestItems;
+import net.kapitencraft.kap_lib.test.registry.TestBlockEntityTypes;
+import net.kapitencraft.kap_lib.test.registry.TestBlocks;
+import net.kapitencraft.kap_lib.test.registry.TestCooldowns;
+import net.kapitencraft.kap_lib.test.registry.TestItems;
 import net.kapitencraft.kap_lib.requirement.registry.RequirementConditionTypes;
 import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
 import net.kapitencraft.kap_lib.spawn_table.SpawnTableServerTestCommand;
@@ -128,6 +129,7 @@ public class KapLibMod {
             TestBlocks.REGISTRY.register(modEventBus);
             TestItems.REGISTRY.register(modEventBus);
             TestCooldowns.REGISTRY.register(modEventBus);
+            TestBlockEntityTypes.REGISTRY.register(modEventBus);
         }
 
         container.registerConfig(ModConfig.Type.CLIENT, CoreClientModConfig.SPEC);
