@@ -7,7 +7,7 @@ import net.kapitencraft.kap_lib.inventory_page.registry.WearableSlots;
 import net.kapitencraft.kap_lib.inventory_page.wearable.WearableItem;
 import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.item.ExtendedItem;
-import net.kapitencraft.kap_lib.registry.TestCooldowns;
+import net.kapitencraft.kap_lib.test.registry.TestCooldowns;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
