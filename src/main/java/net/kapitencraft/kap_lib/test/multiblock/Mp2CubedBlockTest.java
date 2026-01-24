@@ -1,12 +1,16 @@
 package net.kapitencraft.kap_lib.test.multiblock;
 
+import net.kapitencraft.kap_lib.multiblock.multiplace.large.LargeBEMultiplaceBlock;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.LargeMultiplaceBlock;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.orientation.HorizontalOrientation;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.part.Part2Cubed;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.part.Part2x3;
+import net.kapitencraft.kap_lib.test.multiblock.entity.TestBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 
-public class Mp2CubedBlockTest extends LargeMultiplaceBlock<HorizontalOrientation, Part2Cubed> {
+public class Mp2CubedBlockTest extends LargeBEMultiplaceBlock<HorizontalOrientation, Part2Cubed, TestBlockEntity> {
     public Mp2CubedBlockTest(Properties properties) {
         super(properties, Part2Cubed.FRONT_TOP_LEFT);
     }
@@ -24,5 +28,10 @@ public class Mp2CubedBlockTest extends LargeMultiplaceBlock<HorizontalOrientatio
     @Override
     protected Part2Cubed[] getPartValues() {
         return Part2Cubed.values();
+    }
+
+    @Override
+    protected TestBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        return new TestBlockEntity(pos, state);
     }
 }

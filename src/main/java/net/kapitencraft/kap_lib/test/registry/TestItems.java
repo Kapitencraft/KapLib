@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.registry;
+package net.kapitencraft.kap_lib.test.registry;
 
 import net.kapitencraft.kap_lib.test.CooldownTestItem;
 import net.kapitencraft.kap_lib.test.TestSwordItem;
