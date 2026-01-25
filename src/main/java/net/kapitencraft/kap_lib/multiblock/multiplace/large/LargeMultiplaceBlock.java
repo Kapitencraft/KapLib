@@ -140,5 +140,4 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
     protected boolean isOrigin(BlockState state) {
         return state.getValue(getPartProperty()) == origin;
     }
-
 }
