@@ -3,6 +3,8 @@ package net.kapitencraft.kap_lib.multiblock.multiplace.large.orientation;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.BlockPosRotation;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.part.MultiplaceBlockPart;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,5 +41,84 @@ public enum Orientation implements MultiblockOrientation<Orientation> {
 
     public BlockPos rotate(BlockPos offset) {
         return rotMat.rotate(offset);
+    }
+
+    @Override
+    public Orientation rotate(Rotation rot) {
+        return switch (rot) {
+            case NONE -> this;
+            case CLOCKWISE_90 -> switch (this) {
+                case DOWN_NORTH -> DOWN_EAST;
+                case DOWN_SOUTH -> DOWN_WEST;
+                case DOWN_WEST -> DOWN_NORTH;
+                case DOWN_EAST -> DOWN_SOUTH;
+                case UP_NORTH -> UP_EAST;
+                case UP_SOUTH -> UP_WEST;
+                case UP_WEST -> UP_NORTH;
+                case UP_EAST -> UP_SOUTH;
+                case NORTH_EAST -> SOUTH_EAST;
+                case NORTH_WEST -> NORTH_EAST;
+                case SOUTH_EAST -> SOUTH_WEST;
+                case SOUTH_WEST -> NORTH_WEST;
+            };
+            case CLOCKWISE_180 -> switch (this) {
+                case DOWN_NORTH -> DOWN_SOUTH;
+                case DOWN_SOUTH -> DOWN_NORTH;
+                case DOWN_WEST -> DOWN_EAST;
+                case DOWN_EAST -> DOWN_WEST;
+                case UP_NORTH -> UP_SOUTH;
+                case UP_SOUTH -> UP_NORTH;
+                case UP_WEST -> UP_EAST;
+                case UP_EAST -> UP_WEST;
+                case NORTH_EAST -> SOUTH_WEST;
+                case NORTH_WEST -> SOUTH_EAST;
+                case SOUTH_EAST -> NORTH_WEST;
+                case SOUTH_WEST -> NORTH_EAST;
+            };
+            case COUNTERCLOCKWISE_90 -> switch (this) {
+                case DOWN_NORTH -> DOWN_WEST;
+                case DOWN_SOUTH -> DOWN_EAST;
+                case DOWN_WEST -> DOWN_SOUTH;
+                case DOWN_EAST -> DOWN_NORTH;
+                case UP_NORTH -> UP_WEST;
+                case UP_SOUTH -> UP_EAST;
+                case UP_WEST -> UP_SOUTH;
+                case UP_EAST -> UP_NORTH;
+                case NORTH_EAST -> NORTH_WEST;
+                case NORTH_WEST -> SOUTH_WEST;
+                case SOUTH_EAST -> NORTH_EAST;
+                case SOUTH_WEST -> SOUTH_EAST;
+            };
+        };
+    }
+
+    //NORTH & SOUTH = Z = LEFT_RIGHT
+    @Override
+    public Orientation mirror(Mirror mirror) {
+        return switch (mirror) {
+            case NONE -> this;
+            case LEFT_RIGHT -> switch (this) {
+                case DOWN_NORTH -> DOWN_SOUTH;
+                case DOWN_SOUTH -> DOWN_NORTH;
+                case DOWN_WEST, UP_WEST, DOWN_EAST, UP_EAST -> this;
+                case UP_NORTH -> UP_SOUTH;
+                case UP_SOUTH -> UP_NORTH;
+                case NORTH_WEST -> SOUTH_WEST;
+                case NORTH_EAST -> SOUTH_EAST;
+                case SOUTH_WEST -> NORTH_WEST;
+                case SOUTH_EAST -> NORTH_EAST;
+            };
+            case FRONT_BACK -> switch (this) {
+                case DOWN_NORTH, UP_NORTH, DOWN_SOUTH, UP_SOUTH -> this;
+                case DOWN_WEST -> DOWN_EAST;
+                case DOWN_EAST -> DOWN_WEST;
+                case UP_WEST -> UP_EAST;
+                case UP_EAST -> UP_WEST;
+                case NORTH_WEST -> NORTH_EAST;
+                case NORTH_EAST -> NORTH_WEST;
+                case SOUTH_WEST -> SOUTH_EAST;
+                case SOUTH_EAST -> SOUTH_WEST;
+            };
+        };
     }
 }
