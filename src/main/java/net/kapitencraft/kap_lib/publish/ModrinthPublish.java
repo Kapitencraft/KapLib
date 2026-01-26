@@ -2,12 +2,17 @@ package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import net.kapitencraft.kap_lib.core.io.ByteAccumulator;
 import net.kapitencraft.kap_lib.core.util.ModrinthUtils;
 import net.minecraft.util.GsonHelper;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.MessageDigest;
@@ -18,55 +23,44 @@ import java.util.stream.Stream;
 public class ModrinthPublish {
     private static final String API_URL = "https://api.modrinth.com/v2/version";
 
-    static boolean publish(AutoPublisher.Config config, List<AutoPublisher.Source> sources) {
+    static boolean publish(AutoPublisher.Config config, HttpClient client, List<AutoPublisher.Source> sources) {
         String modName = config.modInfo().name();
         String modVersion = config.modInfo().version();
         String mcVersion = config.mcVersion();
         String loaderVersion = config.loaderVersion();
         try {
-            URL url = new URL(API_URL);
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             String boundary = "----Boundary" + UUID.randomUUID();
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(URI.create(API_URL));
+            builder.header("Content-Type", "multipart/form-data; boundary=" + boundary);
+            builder.header("User-Agent", String.format(config.authorInfo().name() + "/%s/%s (%s)", modName, modVersion, config.authorInfo().email()));
+            builder.header("Authorization", AutoPublisher.getAuth(true));
 
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-            connection.setRequestProperty("User-Agent", String.format(config.authorInfo().name() + "/%s/%s (%s)", modName, modVersion, config.authorInfo().email()));
-            connection.setRequestProperty("Authorization", AutoPublisher.getAuth(true));
+            ByteAccumulator accumulator = new ByteAccumulator();
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(accumulator, StandardCharsets.UTF_8), true);
+            // Add text part
+            addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.modrinthId(), fillModules(config.modules(), config.withSources()), config.dependencies());
 
-            try (OutputStream outputStream = connection.getOutputStream();
-                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true)) {
-
-                // Add text part
-                addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.modrinthId(), fillModules(config.modules(), config.withSources()), config.dependencies());
-
-                // Add file part
-                for (AutoPublisher.Source source : sources) {
-                    addFilePart(writer, outputStream, boundary, source.moduleName(), source.obj());
-                }
-                // Write the final boundary directly to OutputStream
-                outputStream.write(("--" + boundary + "--\r\n").getBytes());
-                outputStream.flush();
+            // Add file part
+            for (AutoPublisher.Source source : sources) {
+                addFilePart(writer, accumulator, boundary, source.moduleName(), source.obj());
             }
+            // Write the final boundary directly to OutputStream
+            accumulator.write(("--" + boundary + "--\r\n").getBytes());
+            accumulator.flush();
 
-            //response
-            int response = connection.getResponseCode();
+            byte[] requestData = accumulator.output();
 
-            InputStream dataStream;
-            if (response != HttpsURLConnection.HTTP_OK) {
+            HttpResponse<String> response = client.send(builder.POST(HttpRequest.BodyPublishers.ofByteArray(requestData)).build(), HttpResponse.BodyHandlers.ofString());
+
+            int responseCode = response.statusCode();
+            if (responseCode != HttpsURLConnection.HTTP_OK) {
                 System.err.println("failed: " + response);
-                dataStream = connection.getErrorStream();
-            } else {
-                dataStream = connection.getInputStream();
             }
 
-            JsonReader reader = new JsonReader(new InputStreamReader(dataStream));
+            Map<String, Object> data = AutoPublisher.GSON.fromJson(response.body(), Map.class);
 
-            Map<String, Object> data = AutoPublisher.GSON.fromJson(reader, Map.class);
-
-            reader.close();
-
-            if (response == HttpsURLConnection.HTTP_OK) {
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
                 System.out.println("successfully created new version with id '" + data.get("id") + "'");
                 return true;
             } else {
@@ -105,19 +99,22 @@ public class ModrinthPublish {
 
     // Helper method to add a text field
     private static void addData(PrintWriter writer, String boundary, String modName, String modVersion, String mcVersion, String loaderVersion, String projectId, String[] modules, AutoPublisher.DependencyInfo[] dependencies) throws IOException {
-        writer.append("--").append(boundary).append("\r\n");
-        writer.append("Content-Disposition: form-data; name=\"data\"\r\n");
-        writer.append("Content-Type: application/json; charset=UTF-8\r\n\r\n");
+        writer.append("""
+                --%s
+                Content-Disposition: form-data; name="data"
+                Content-Type: application/json; charset=UTF-8
+                """).format(boundary);
         writer.append(addVersionData(modName, modVersion, mcVersion, projectId, dependencies, modules)).append("\r\n");
         writer.flush();
     }
 
     // Helper method to add a file field
     private static void addFilePart(PrintWriter writer, OutputStream outputStream, String boundary, String fieldName, File file) throws IOException {
-        writer.append("--").append(boundary).append("\r\n");
-        writer.append("Content-Disposition: form-data; name=\"").append(fieldName)
-                .append("\"; filename=\"").append(file.getName()).append("\"\r\n");
-        writer.append("Content-Type: application/java-archive\r\n\r\n");
+        writer.append("""
+                --%s
+                Content-Disposition: form-data; name="%s"; filename="%s"
+                Content-Type: application/java-archive
+                """).format(boundary, fieldName, file.getName());
         writer.flush();
 
         Files.copy(file.toPath(), outputStream);
