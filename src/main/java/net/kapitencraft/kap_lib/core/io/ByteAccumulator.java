@@ -12,7 +12,7 @@ public class ByteAccumulator extends OutputStream {
     @Override
     public void write(int b) throws IOException {
         data[index] = (byte) b;
-        if (index++ >= data.length) {
+        if (++index >= data.length) {
             reallocate();
         }
     }
@@ -29,11 +29,17 @@ public class ByteAccumulator extends OutputStream {
             reallocate();
         }
         System.arraycopy(b, 0, data, index, b.length);
+        index += b.length;
     }
 
     public byte[] output() {
         byte[] output = new byte[index];
         System.arraycopy(data, 0, output, 0, index);
         return output;
+    }
+
+    @Override
+    public String toString() {
+        return "ByteAccumulator{size=" + this.data.length + ", index=" + this.index + "}";
     }
 }

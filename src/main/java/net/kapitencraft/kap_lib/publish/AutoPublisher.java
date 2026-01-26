@@ -337,7 +337,7 @@ public class AutoPublisher {
     static String getAuth(boolean modrinth) {
         if (authString == null) {
             try {
-                authString = Files.readString(Path.of(AUTHENTICATION_PATH)).split("\n");
+                authString = Files.readString(Path.of(AUTHENTICATION_PATH)).split("\r\n");
             } catch (IOException e) {
                 throw new IllegalStateException("could not load authentication", e);
             }

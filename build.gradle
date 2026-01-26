@@ -257,30 +257,6 @@ static def convertModuleNameSmall(String moduleName) {
     return strings
 }
 
-//don't show this to neoforge devs
-def createJarJarMetadata(String module) {
-    return """    {
-      "identifier": {
-        "group": "maven.modrinth",
-        "artifact": "kap_lib_${module}"
-      },
-      "version": {
-        "range": "[v${mod_version}-mc${mc_version},)",
-        "artifactVersion": "v${mod_version}-mc${mc_version}"
-      },
-      "path": "META-INF/jarjar/kap_lib-v${mod_version}-mc${mc_version}-${module}.jar",
-      "isObfuscated": false
-    }"""
-}
-
-def writeFullJarJarMetadata(FileWriter writer, List<String> modules) {
-    writer.write('{\n')
-    writer.write('  "jars": [\n')
-    writer.write(modules.stream().map {s -> createJarJarMetadata(s)} .collect(Collectors.joining(',\n')))
-    writer.write('  ]\n')
-    writer.write('}')
-    writer.close() //close to flush changes
-}
 //endregion
 
 neoForge {
@@ -463,7 +439,6 @@ moduleFilters.each { String moduleId, moduleData ->
             File file = new File("${buildDir}/resources/metadata/${moduleId}.json")
             file.getParentFile().mkdirs()
             file.createNewFile()
-            writeFullJarJarMetadata(new FileWriter(file), deps)
             from (file) {
                 into 'META-INF/jarjar'
                 rename '.+', 'metadata.json'
