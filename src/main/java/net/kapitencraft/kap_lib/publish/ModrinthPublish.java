@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
 import net.kapitencraft.kap_lib.core.io.ByteAccumulator;
 import net.kapitencraft.kap_lib.core.util.ModrinthUtils;
 import net.minecraft.util.GsonHelper;
@@ -9,14 +8,11 @@ import net.minecraft.util.GsonHelper;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -154,18 +150,6 @@ public class ModrinthPublish {
         }
 
         data.put("dependencies", dependencyData);
-    }
-
-    private static String getFileSHA512(File file) {
-        try {
-            byte[] fileData = Files.readAllBytes(file.toPath());
-            MessageDigest md = MessageDigest.getInstance("SHA-512");
-            byte[] hash = md.digest(fileData);
-            return Base64.getEncoder().encodeToString(hash);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            e.printStackTrace(System.err);
-            return null;
-        }
     }
 
     static String getDependencyVersionId(String modId, String gameVersion, String name, int ordinal) throws IOException {

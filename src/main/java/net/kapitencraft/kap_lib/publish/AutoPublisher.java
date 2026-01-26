@@ -276,7 +276,7 @@ public class AutoPublisher {
                     .build()) {
                 if (
                       //  (config.curseforgeId == null || CurseforgePublish.publish(config, client, source)) &&
-                                (config.modrinthId == null || ModrinthPublish.publish(config, source))) {
+                                (config.modrinthId == null || ModrinthPublish.publish(config, client, source))) {
                     saveDataCache(modVersion);
                     clearChangelog();
                 }
