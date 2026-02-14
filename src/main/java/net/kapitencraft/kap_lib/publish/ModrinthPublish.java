@@ -47,21 +47,22 @@ public class ModrinthPublish {
 
             byte[] requestData = accumulator.output();
 
-            Files.write(new File("publish-output.txt").toPath(), requestData);
-
             HttpResponse<String> response = client.send(builder.POST(HttpRequest.BodyPublishers.ofByteArray(requestData)).build(), HttpResponse.BodyHandlers.ofString());
 
             int responseCode = response.statusCode();
             if (responseCode != HttpsURLConnection.HTTP_OK) {
-                System.err.println("failed: " + response);
+                System.err.println("failed: " + responseCode);
             }
 
-            Map<String, Object> data = AutoPublisher.GSON.fromJson(response.body(), Map.class);
-
             if (responseCode == HttpsURLConnection.HTTP_OK) {
+                Map<String, Object> data = AutoPublisher.GSON.fromJson(response.body(), Map.class);
+
                 System.out.println("successfully created new version with id '" + data.get("id") + "'");
                 return true;
             } else {
+                System.err.println("error raw: " + response.body());
+
+                Map<String, Object> data = AutoPublisher.GSON.fromJson(response.body(), Map.class);
                 System.err.println("error: " + data.get("error"));
                 System.err.println("description: " + data.get("description"));
             }
