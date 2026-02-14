@@ -25,7 +25,7 @@ public abstract class GameRendererMixin {
             }
         }
 
-        instance.setup(level, entity, detached, pThirdPersonReverse, pPartialTicks);
+        original.call(instance, level, entity, detached, pThirdPersonReverse, pPartialTicks);
     }
 
     @Redirect(method = "renderItemInHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/CameraType;isFirstPerson()Z"))

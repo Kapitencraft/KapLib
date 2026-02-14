@@ -6,7 +6,6 @@ import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +27,7 @@ public abstract class SelectRegistryElementWidget<T> extends PositionedWidget {
     protected T selected;
     private final Consumer<T> valueSink;
 
-    protected SelectRegistryElementWidget(int x, int y, int width, int height, Component title, Font font, Registry<T> registry, Consumer<T> valueSink) {
+    protected SelectRegistryElementWidget(int x, int y, int width, int height, Component title, Font font, Iterable<T> registry, Consumer<T> valueSink) {
         super(x, y, width, height);
         this.allElements = new ArrayList<>();
         for (T element : registry) allElements.add(element);
@@ -61,9 +60,8 @@ public abstract class SelectRegistryElementWidget<T> extends PositionedWidget {
 
     @Override
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
-        int widgetMiddle = this.x + this.width / 2;
         int selectPos = this.getMaxX() - (titleWidth + 2);
-        if (MathHelper.is2dBetween(pMouseX, pMouseY, this.getMaxX() - 7, this.y + 11, this.getMaxX() -1, getMaxY() - 11)) {
+        if (MathHelper.is2dBetween(pMouseX, pMouseY, this.getMaxX() - 7, this.y + 11, this.getMaxX() - 1, getMaxY() - 11)) {
             if (sliderHovered(pMouseY)) {
                 scrolling = true;
             } else {

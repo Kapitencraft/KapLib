@@ -26,6 +26,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -242,7 +243,6 @@ public class MiscHelper {
         }.start(delayTicks);
     }
 
-
     /**
      * method to teleport entity maxRange blocks forward, checking block hits
      *
@@ -261,7 +261,6 @@ public class MiscHelper {
         }
         return true;
     }
-
 
     /**
      * method to directly teleport a player to the target location
@@ -288,46 +287,14 @@ public class MiscHelper {
         return empty;
     }
 
-
     /**
      * method to simply get the attacker from a {@link DamageSource}
      *
      * @param source {@link DamageSource} to get attacker from
-     * @return the {@link Nullable} {@link LivingEntity} to get from the damagesource
+     * @return the {@link Nullable} {@link LivingEntity} to get from the DamageSource
      */
     public static @Nullable LivingEntity getAttacker(@NotNull DamageSource source) {
         return source.getEntity() instanceof LivingEntity living ? living : null;
-    }
-
-    /**
-     * {@link DamageType} to get from a DamageSource
-     * used for Enchantments
-     *
-     * @param source source to get DamageType from
-     * @return DamageType from the source
-     */
-    @Contract(value = "null -> fail", pure = true)
-    public static DamageType getDamageType(DamageSource source) {
-        if (source.is(ExtraTags.DamageTypes.MAGIC)) {
-            return DamageType.MAGIC;
-        }
-        if (source.getEntity() != null) {
-            if (source.getDirectEntity() == source.getEntity()) {
-                return DamageType.MELEE;
-            }
-            return DamageType.RANGED;
-        }
-        return DamageType.MISC;
-    }
-
-    /**
-     * the damage types for enchantment calculation
-     */
-    public enum DamageType {
-        RANGED,
-        MELEE,
-        MAGIC,
-        MISC
     }
 
     /**
@@ -344,14 +311,6 @@ public class MiscHelper {
         return stand;
     }
 
-    /**
-     * @deprecated use {@link net.minecraft.Util#make(Supplier) Util#make} instead
-     */
-    @Deprecated
-    public static <T> T of(Supplier<T> sup) {
-        return sup.get();
-    }
-
     @Nullable
     public static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_, BlockEntityType<E> p_152134_, BlockEntityTicker<? super E> p_152135_) {
         return p_152134_ == p_152133_ ? (BlockEntityTicker<A>) p_152135_ : null;
@@ -363,7 +322,7 @@ public class MiscHelper {
         return MathHelper.clampLength(delta, 0.5);
     }
 
-    public static final char HEART = '\u2661';
+    public static final char HEART = '♡';
 
     public static ArmorStand createHealthIndicator(LivingEntity target) {
         ArmorStand marker = createMarker(target.position().add(0, 0.5, 0), target.level(), true);
@@ -421,6 +380,12 @@ public class MiscHelper {
         return copy;
     }
 
+    /**
+     * @param drops the drops to remove from
+     * @param item the item to remove
+     * @param amount the amount of said item to remove
+     * @return the modified list
+     */
     @Contract("_, _, _ -> param1")
     public static List<ItemStack> shrinkDrops(@NotNull List<ItemStack> drops, Item item, final int amount) {
         for (int i = 0; i < drops.size(); i++) {
@@ -441,8 +406,6 @@ public class MiscHelper {
     }
 
     /**
-     * you may ask why.
-     * <br> but I ask <i>why not</i>
      * gets an array of all items in the given tag
      *
      * @param access access to
@@ -455,9 +418,7 @@ public class MiscHelper {
                 .toArray(Item[]::new);
     }
 
-    public static Holder<net.minecraft.world.damagesource.DamageType> lookupDamageTypeHolder(Level level, ResourceKey<net.minecraft.world.damagesource.DamageType> key) {
+    public static Holder<DamageType> lookupDamageTypeHolder(Level level, ResourceKey<DamageType> key) {
         return level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key);
     }
-
-
 }

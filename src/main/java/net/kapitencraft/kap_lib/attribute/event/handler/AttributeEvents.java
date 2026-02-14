@@ -118,7 +118,7 @@ public class AttributeEvents {
         LivingEntity attacked = event.getEntity();
         DamageSource source = event.getSource();
         LivingEntity attacker = MiscHelper.getAttacker(source);
-        if (attacker == null || MiscHelper.getDamageType(source) != MiscHelper.DamageType.MELEE) {
+        if (attacker == null || (source.getDirectEntity() == null && source.getEntity() != source.getDirectEntity())) {
             return;
         }
         if (attacker.getAttribute(ExtraAttributes.FEROCITY) != null) {
@@ -139,7 +139,7 @@ public class AttributeEvents {
     public static void damageAttributeRegister(LivingDamageEvent.Pre event) {
         @Nullable LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
         if (attacker == null) return;
-        if (MiscHelper.getDamageType(event.getSource()) == MiscHelper.DamageType.MELEE && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {
+        if (event.getSource().isDirect() && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {
             double strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH, attacker);
             event.setNewDamage(event.getNewDamage() * (float) (1 + strength / 100));
         }

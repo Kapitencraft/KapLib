@@ -37,7 +37,7 @@ public class BonusEvents {
     public static void miscDamageEvents(LivingDamageEvent.Pre event) {
         LivingEntity attacked = event.getEntity();
         LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
-        event.setNewDamage(BonusManager.attackEvent(attacked, attacker, MiscHelper.getDamageType(event.getSource()), event.getNewDamage()));
+        BonusManager.attackEvent(attacked, attacker, event.getContainer());
     }
 
     @SubscribeEvent

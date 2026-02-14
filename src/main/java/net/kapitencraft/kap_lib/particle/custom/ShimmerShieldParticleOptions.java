@@ -40,7 +40,7 @@ public class ShimmerShieldParticleOptions extends ParticleType<ShimmerShieldPart
             Color.STREAM_CODEC, ShimmerShieldParticleOptions::getMinColor,
             Color.STREAM_CODEC, ShimmerShieldParticleOptions::getMaxColor,
             ByteBufCodecs.FLOAT, ShimmerShieldParticleOptions::getMaxSpeed,
-            ExtraStreamCodecs.UUID, ShimmerShieldParticleOptions::getUUID,
+            UUIDUtil.STREAM_CODEC, ShimmerShieldParticleOptions::getUUID,
             ShimmerShieldParticleOptions::new
     );
 

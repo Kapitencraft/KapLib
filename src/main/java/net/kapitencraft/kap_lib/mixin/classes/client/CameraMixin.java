@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class CameraMixin {
 
     @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V"))
-    private void overrideSetupWhenControllerActive(Camera instance, double x, double y, double z, Operation<Void> original, @Local(name = "partialTick") float partialTick) {
+    private void overrideSetupWhenControllerActive(Camera instance, double x, double y, double z, Operation<Void> original, @Local(argsOnly = true) float partialTick) {
         Vec3 position = CameraController.INSTANCE.getCamPosition(partialTick, new Vec3(x, y, z));
         original.call(instance, position.x, position.y, position.z);
     }

@@ -10,6 +10,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.bonus.compat.InventoryPageCompat;
+import net.kapitencraft.kap_lib.bonus.event.custom.RegisterBonusProvidersEvent;
 import net.kapitencraft.kap_lib.bonus.requirement.BonusRequirementType;
 import net.kapitencraft.kap_lib.core.util.Modules;
 import net.kapitencraft.kap_lib.core.collection.DoubleMap;
@@ -18,7 +19,6 @@ import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
-import net.kapitencraft.kap_lib.bonus.event.custom.RegisterBonusProvidersEvent;
 import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
 import net.kapitencraft.kap_lib.bonus.network.S2C.UpdateBonusDataPacket;
@@ -54,6 +54,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -65,6 +66,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * manages bonus related stuff like ticking active bonuses or listening to equipment changes and stores the registered bonuses
@@ -84,32 +86,38 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     }
 
     @ApiStatus.Internal
-    public static float attackEvent(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
-        float[] damageWrapper = new float[] {damage};
+    public static void attackEvent(LivingEntity attacked, LivingEntity attacker, DamageContainer damage) {
         instance.getLookup(attacked).ifPresent(
-                bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(
-                        abstractBonusElement -> damageWrapper[0] = abstractBonusElement.getBonus()
-                                .onTakeDamage(attacked, attacker, type, damageWrapper[0])
-                )
+                bonusLookup -> {
+                    bonusLookup.activeBonuses.keySet().forEach(
+                            abstractBonusElement -> abstractBonusElement.getBonus()
+                                    .onTakeDamage(attacked, attacker, damage)
+                    );
+                    bonusLookup.getEntityBound().forEach(b -> b.onTakeDamage(attacked, attacker, damage));
+                }
         );
         if (attacker != null) instance.getLookup(attacker).ifPresent(
-                bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(
-                        abstractBonusElement -> damageWrapper[0] = abstractBonusElement.getBonus()
-                                .onEntityHurt(attacked, attacker, type, damageWrapper[0])
-                )
+                bonusLookup -> {
+                    bonusLookup.activeBonuses.keySet().forEach(
+                            abstractBonusElement -> abstractBonusElement.getBonus()
+                                    .onEntityHurt(attacked, attacker, damage)
+                    );
+                    bonusLookup.getEntityBound().forEach(b -> b.onEntityHurt(attacked, attacker, damage));
+                }
         );
-        return damageWrapper[0];
     }
 
     @ApiStatus.Internal
     public static void deathEvent(LivingEntity toDie, DamageSource source) {
         LivingEntity attacker = MiscHelper.getAttacker(source);
-        MiscHelper.DamageType type = MiscHelper.getDamageType(source);
         if (attacker != null) instance.getLookup(attacker).ifPresent(
-                bonusLookup -> bonusLookup.activeBonuses.keySet().forEach(
-                        abstractBonusElement -> abstractBonusElement.getBonus()
-                                .onEntityKilled(toDie, attacker, type)
-                )
+                bonusLookup -> {
+                    bonusLookup.activeBonuses.keySet().forEach(
+                            abstractBonusElement -> abstractBonusElement.getBonus()
+                                    .onEntityKilled(toDie, attacker, source)
+                    );
+                    bonusLookup.getEntityBound().forEach(b -> b.onEntityKilled(toDie, attacker, source));
+                }
         );
     }
 
@@ -158,7 +166,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
             getLookup(l).ifPresent(BonusLookup::tick); //only tick when necessary
     }
 
-    private final Map<ResourceLocation, Function<ItemStack, AbstractBonusElement>> providers;
+    private final Map<ResourceLocation, Function<ItemStack, AbstractBonusElement>> itemBoundProviders;
+    private final Map<ResourceLocation, Function<LivingEntity, Bonus<?>>> entityBoundProviders;
 
     private final Map<ResourceLocation, SetBonusElement> sets = new HashMap<>();
     private final Map<ResourceLocation, BonusElement> bonusData = new HashMap<>();
@@ -249,6 +258,12 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         private final LivingEntity target;
         private final Map<AbstractBonusElement, Reference<Integer>> activeBonuses = new HashMap<>();
         private final Map<SetBonusElement, SetData> setData = new HashMap<>();
+
+        private Stream<? extends Bonus<?>> getEntityBound() {
+            return BonusManager.this.entityBoundProviders.values().stream()
+                    .map(f -> f.apply(target))
+                    .filter(Objects::nonNull);
+        }
 
         private BonusLookup(LivingEntity target) {
             getActiveBonuses(target).values().forEach(element -> {
@@ -390,10 +405,14 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         if (Modules.isInventoryPageActive()) {
             NeoForge.EVENT_BUS.addListener(InventoryPageCompat::onWearableSlotChange);
         }
-        Map<ResourceLocation, Function<ItemStack, AbstractBonusElement>> providers = new HashMap<>();
-        var event = new RegisterBonusProvidersEvent(providers);
-        NeoForge.EVENT_BUS.post(event);
-        this.providers = ImmutableMap.copyOf(providers);
+        Map<ResourceLocation, Function<ItemStack, AbstractBonusElement>> itemProviders = new HashMap<>();
+        var itemEvent = new RegisterBonusProvidersEvent.ItemBound(itemProviders);
+        NeoForge.EVENT_BUS.post(itemEvent);
+        this.itemBoundProviders = ImmutableMap.copyOf(itemProviders);
+        Map<ResourceLocation, Function<LivingEntity, Bonus<?>>> entityProviders = new HashMap<>();
+        var entityEvent = new RegisterBonusProvidersEvent.EntityBound(entityProviders);
+        NeoForge.EVENT_BUS.post(entityEvent);
+        this.entityBoundProviders = ImmutableMap.copyOf(entityProviders);
     }
 
     //region load
@@ -508,7 +527,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     private Map<ResourceLocation, AbstractBonusElement> getAllExtended(ItemStack stack) {
         Map<ResourceLocation, AbstractBonusElement> extended = new HashMap<>();
-        this.providers.forEach((location, provider) -> {
+        this.itemBoundProviders.forEach((location, provider) -> {
             AbstractBonusElement e = provider.apply(stack);
             if (e != null) extended.put(location, e);
         });

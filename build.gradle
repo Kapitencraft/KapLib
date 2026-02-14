@@ -154,7 +154,6 @@ println "Discovered Modules: " + moduleFilters.keySet()
 sourceSets.main {
     resources {
         srcDir 'src/generated/resources'
-        exclude 'META-INF/jarjar/**'
         exclude 'META-INF/dev-neoforge.mods.toml'
         exclude 'META-INF/ee-neoforge.mods.toml'
         exclude 'META-INF/nat-neoforge.mods.toml'
@@ -376,6 +375,8 @@ moduleFilters.each { String moduleId, moduleData ->
         duplicatesStrategy = DuplicatesStrategy.FAIL
 
         from (['src/main/resources', 'src/generated/resources']) {
+            include 'this_does_not_exist.json' //prevent everything to be included when nothing is specified
+
             if (moduleData.assets != null) {
                 moduleData.assets.each { String aName ->
                     include "assets/${aName}"
@@ -427,24 +428,6 @@ moduleFilters.each { String moduleId, moduleData ->
         exclude 'assets/test'
         exclude 'data/neoforge/loot_modifiers'
 
-        if (moduleData.asMod && moduleId != 'core') {
-            def deps = (moduleData.dependencies ?: []) + 'core'
-
-            deps.forEach {
-                from (tasks."jar${convertModuleNameSmall(it)}".archiveFile) {
-                    into 'META-INF/jarjar'
-                }
-            }
-
-            File file = new File("${buildDir}/resources/metadata/${moduleId}.json")
-            file.getParentFile().mkdirs()
-            file.createNewFile()
-            from (file) {
-                into 'META-INF/jarjar'
-                rename '.+', 'metadata.json'
-            }
-        }
-
         archiveClassifier = moduleId
     }
 
@@ -467,7 +450,7 @@ tasks.named('assemble').configure {
 tasks.named('jar') {
     moduleFilters.keySet().forEach { String moduleId ->
 
-        it.exclude "net/kapitencraft/kap_lib/${moduleId}/mixin/**" //exclude all module mixins
+        it.exclude "net/kapitencraft/kap_lib/${moduleId}/mixin/classes/**" //exclude all module mixins
         it.exclude "net/kapitencraft/kap_lib/${moduleId}/event/handler/**"
         it.exclude 'net/kapitencraft/kap_lib/' + convertModuleNameSmall(moduleId) + 'Module.class'
 

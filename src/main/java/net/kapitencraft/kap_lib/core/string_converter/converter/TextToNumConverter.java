@@ -9,11 +9,11 @@ public abstract class TextToNumConverter<T extends Number> extends TextConverter
         super(function, args);
     }
 
-
     @Override
     protected boolean isArg(String s) {
         return PREFERRED_ARGS.contains(s) || OTHER_ARGS.contains(s);
     }
+
     public static final List<String> PREFERRED_ARGS = List.of("*", "/", "%");
     public static final List<String> OTHER_ARGS = List.of("+", "-");
 }

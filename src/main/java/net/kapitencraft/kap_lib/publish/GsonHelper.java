@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.core.helpers;
+package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

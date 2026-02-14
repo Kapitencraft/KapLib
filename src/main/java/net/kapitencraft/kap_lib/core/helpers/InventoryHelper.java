@@ -91,7 +91,6 @@ public interface InventoryHelper {
         return -1;
     }
 
-
     /**
      * @return the ItemStack inside the first slot matching the given item in the given player's inventory
      */

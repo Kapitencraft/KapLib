@@ -255,21 +255,13 @@ public class TextHelper {
         return i;
     }
 
-    private static final List<String> NUMBERS = List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
-    private static final List<String> LETTERS_SMALL = List.of("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z");
-    private static final List<String> LETTERS_BIG = LETTERS_SMALL.stream().map(String::toUpperCase).toList();
-
     /**
      * creates a String with the given length consisting of random latin characters
      */
     public static String createRandom(int length) {
         StringBuilder s = new StringBuilder();
-        final List<String> ALL_DEFAULT = new ArrayList<>();
-        ALL_DEFAULT.addAll(NUMBERS);
-        ALL_DEFAULT.addAll(LETTERS_SMALL);
-        ALL_DEFAULT.addAll(LETTERS_BIG);
         for (int i = 0; i < length; i++) {
-            s.append(MathHelper.pickRandom(ALL_DEFAULT));
+            s.append((char) MathHelper.RANDOM_SOURCE.nextInt());
         }
         return s.toString();
     }

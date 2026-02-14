@@ -214,8 +214,6 @@ public class ExtraStreamCodecs {
 
     public static final StreamCodec<? super ByteBuf, EquipmentSlot> EQUIPMENT_SLOT = ByteBufCodecs.STRING_UTF8.map(EquipmentSlot::byName, EquipmentSlot::getName);
 
-    public static final StreamCodec<ByteBuf, UUID> UUID = ByteBufCodecs.STRING_UTF8.map(java.util.UUID::fromString, java.util.UUID::toString);
-
     public static <R> StreamCodec<ByteBuf, TagKey<R>> tagKey(ResourceKey<Registry<R>> key) {
         return ResourceLocation.STREAM_CODEC.map(r -> TagKey.create(key, r), TagKey::location);
     }

@@ -10,9 +10,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -67,9 +69,9 @@ public interface Bonus<T extends Bonus<T>> {
     /**
      * @param killed the entity that has been killed
      * @param user the entity that killed the target and owner of this bonus
-     * @param type the damage type that was used to kill this entity
+     * @param source the damage source that was used to kill this entity
      */
-    default void onEntityKilled(LivingEntity killed, LivingEntity user, MiscHelper.DamageType type) {
+    default void onEntityKilled(LivingEntity killed, LivingEntity user, DamageSource source) {
     }
 
     /**
@@ -81,23 +83,15 @@ public interface Bonus<T extends Bonus<T>> {
     /**
      * @param attacked the attack target
      * @param attacker the attacker and source entity of this bonus
-     * @param type damage type of the attack
-     * @param damage amount of damage dealt
-     * @return the (potentially) modified damage value
+     * @param container damage container handling modification
      */
-    default float onEntityHurt(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
-        return damage;
-    }
+    default void onEntityHurt(LivingEntity attacked, LivingEntity attacker, DamageContainer container) {}
 
 
     /**
      * @param attacked the attack target and source entity of this bonus
      * @param attacker the attacker
-     * @param type damage type of the attack
-     * @param damage amount of damage dealt
-     * @return the (potentially) modified damage value
+     * @param container damage container handling modification
      */
-    default float onTakeDamage(LivingEntity attacked, LivingEntity attacker, MiscHelper.DamageType type, float damage) {
-        return damage;
-    }
+    default void onTakeDamage(LivingEntity attacked, LivingEntity attacker, DamageContainer container) {}
 }

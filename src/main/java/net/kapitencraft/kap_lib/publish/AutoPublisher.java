@@ -6,7 +6,6 @@ import com.google.common.collect.Multimap;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.mojang.logging.LogUtils;
-import net.kapitencraft.kap_lib.core.helpers.GsonHelper;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -201,10 +200,11 @@ public class AutoPublisher {
             public DependencyType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
                 if (!json.isJsonPrimitive() || !json.getAsJsonPrimitive().isString())
                     throw new JsonParseException("dependency type must be string");
-                DependencyType dependencyType = DependencyType.valueOf(json.getAsJsonPrimitive().getAsString().toUpperCase());
-                if (dependencyType == null)
+                try {
+                    return DependencyType.valueOf(json.getAsJsonPrimitive().getAsString().toUpperCase());
+                } catch (IllegalArgumentException e) {
                     throw new JsonParseException("unknown dependency type: " + json.getAsJsonPrimitive().getAsString());
-                return dependencyType;
+                }
             }
         }
     }
@@ -503,30 +503,26 @@ public class AutoPublisher {
     }
 
     private static final class PlainChangelog implements Changelog {
-        private String content;
+        private String[] content;
 
         @Override
         public String toHtml() {
-            return content;
+            return String.join("<br>\n", content);
         }
 
         @Override
         public String toMd() {
-            return content;
+            return String.join("<br>\n", content);
         }
 
         @Override
         public String toPlainText() {
-            return content;
+            return String.join("\n", content);
         }
 
         @Override
         public void parse(BufferedReader reader) {
-            content = reader.lines().collect(Collectors.joining("\n"));
-        }
-
-        public String content() {
-            return content;
+            content = reader.lines().toArray(String[]::new); //add HTML / MD line feed character
         }
 
         @Override
@@ -534,18 +530,18 @@ public class AutoPublisher {
             if (obj == this) return true;
             if (obj == null || obj.getClass() != this.getClass()) return false;
             var that = (PlainChangelog) obj;
-            return Objects.equals(this.content, that.content);
+            return Arrays.equals(this.content, that.content);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(content);
+            return Arrays.hashCode(content);
         }
 
         @Override
         public String toString() {
             return "PlainChangelog[" +
-                    "content=" + content + ']';
+                    "content=" + Arrays.toString(content) + ']';
         }
 
     }
