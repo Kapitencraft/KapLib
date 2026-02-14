@@ -52,6 +52,11 @@ public class ModrinthPublish {
             int responseCode = response.statusCode();
             if (responseCode != HttpsURLConnection.HTTP_OK) {
                 System.err.println("failed: " + responseCode);
+
+                if (responseCode > 500) {
+                    System.err.println("server side error. try again later!");
+                    return false;
+                }
             }
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
