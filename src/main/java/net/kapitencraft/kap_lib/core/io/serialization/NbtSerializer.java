@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 /**
  * a simple serializer saving data in NBT
+ * @param <T> type to serialize
  */
 public class NbtSerializer<T> extends Serializer<Tag, NbtOps, T> {
     public NbtSerializer(Codec<T> codec, Supplier<T> defaulted) {

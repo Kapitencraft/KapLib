@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements;
 
-import net.kapitencraft.kap_lib.core.client.menu.widget.IValueModifierElement;
 import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.DropDownMenu;
 import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.Validate;
@@ -12,9 +11,10 @@ import java.util.function.Function;
 
 /**
  * an element that allows to select from a set of different values
+ *
  * @param <T> the type of the element
  */
-public class EnumElement<T> extends ListElement implements IValueModifierElement<T> {
+public class EnumElement<T> extends ListElement {
     private T selected;
     private final Function<T, Component> nameMapper;
     private final Consumer<T> onChange;
@@ -37,9 +37,9 @@ public class EnumElement<T> extends ListElement implements IValueModifierElement
 
     /**
      * sets the value of this element and notifies the change listener on changes
+     *
      * @param value the value to set
      */
-    @Override
     public void setValue(T value) {
         this.selected = value;
         this.onChange.accept(value);

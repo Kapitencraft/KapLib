@@ -28,5 +28,8 @@ public interface AbstractBonusElement {
      */
     MutableComponent getTitle();
 
+    /**
+     * @return the name ID of this element. used translations
+     */
     String getNameId();
 }

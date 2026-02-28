@@ -116,7 +116,7 @@ public class TextHelper {
     }
 
     /**
-     * returns the description in format {@code <name>.desc<n>} or {@code <name>.description<n>} where name is the given name and <n> is the index of the translation
+     * returns the description in format {@code <name>.desc<n>} or {@code <name>.description<n>} where name is the given name and {@code <n>} is the index of the translation
      */
     public static List<Component> getDescriptionList(String name, @Nullable UnaryOperator<MutableComponent> styleMods, Object... args) {
         return getAllMatchingFilter(integer -> {

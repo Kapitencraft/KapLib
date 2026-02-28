@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 
 /**
  * The SerializerType for {@link SpawnEntityFunction}.
+ * @param codec the codec of the function type
  */
 public record SpawnEntityFunctionType<T extends SpawnEntityFunction>(Supplier<MapCodec<T>> codec) {
 }

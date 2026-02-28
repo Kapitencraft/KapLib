@@ -9,10 +9,22 @@ import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+/**
+ * activation trigger for particle animation
+ * @param <T> instance type
+ */
 public interface ActivationTrigger<T extends TriggerInstance> {
 
+    /**
+     * adds the given listener to this trigger
+     * @param instance the instance to add
+     */
     void addListener(Listener<T> instance);
 
+    /**
+     * removes the given listener from this trigger
+     * @param instance the instance to remove
+     */
     void removeListener(Listener<T> instance);
 
     boolean active(Listener<T> instance);

@@ -49,6 +49,7 @@ public abstract class AbstractArmorItem extends ArmorItem {
 
     //region display / model
     /**
+     *
      * @return the model provider to use
      * no need to cache, this implementation does that already
      */
@@ -65,9 +66,12 @@ public abstract class AbstractArmorItem extends ArmorItem {
     //endregion
 
     /**
+     * creates a type mapped registry entry for the given armor
      * @param registry the Register to add to
      * @param baseName the base name of the armor
      * @param creator a lambda function to create an instance of the armor, mostly a method reference to the constructor
+     * @param group the tab group to register there
+     * @param <T> armor item class type
      * @return a Map mapping the ArmorType to the RegObj for the slot
      */
     public static <T extends AbstractArmorItem> Map<Type, DeferredItem<T>> createRegistry(DeferredRegister.Items registry, String baseName, Function<Type, T> creator, @Nullable TabGroup group) {

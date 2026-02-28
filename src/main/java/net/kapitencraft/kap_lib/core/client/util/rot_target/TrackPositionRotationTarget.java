@@ -8,6 +8,8 @@ import net.minecraft.world.phys.Vec2;
 
 /**
  * a rotation target that tracks a position from a source position (like Aim-Bot)
+ * @param source the source to track the rotation from
+ * @param target the target to track the rotation to
  */
 public record TrackPositionRotationTarget(PositionTarget source, PositionTarget target) implements RotationTarget {
     @Override

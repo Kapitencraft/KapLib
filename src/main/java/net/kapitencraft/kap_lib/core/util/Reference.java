@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * type of variable able to be used from inside lambda
+ *
  */
 public class Reference<T> {
 

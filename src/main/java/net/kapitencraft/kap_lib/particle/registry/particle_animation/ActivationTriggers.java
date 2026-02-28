@@ -5,9 +5,14 @@ import net.kapitencraft.kap_lib.particle.animation.activation_triggers.EntityAdd
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Supplier;
 
+/**
+ * mod activation triggers
+ */
+@ApiStatus.Internal
 public interface ActivationTriggers {
 
     DeferredRegister<ActivationTrigger<?>> REGISTRY = LibConstants.registry(ParticleAnimationRegistries.Keys.ACTIVATION_TRIGGERS);

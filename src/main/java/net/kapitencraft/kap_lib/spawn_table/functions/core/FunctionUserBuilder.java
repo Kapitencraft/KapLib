@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 /**
  * Base interface for builders that accept loot functions.
- * 
  * @see LootItemFunction
  */
 public interface FunctionUserBuilder<T extends FunctionUserBuilder<T>> {

@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements;
 
 import net.kapitencraft.kap_lib.core.client.UsefulTextures;
-import net.kapitencraft.kap_lib.core.client.menu.widget.IValueModifierElement;
 import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.DropDownMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -13,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * a simple element that stores a boolean and can be toggled on click
  */
-public class BooleanElement extends Element implements IValueModifierElement<Boolean> {
+public class BooleanElement extends Element {
 
     private final Consumer<Boolean> onChange;
     private boolean selected = false;
@@ -51,7 +50,6 @@ public class BooleanElement extends Element implements IValueModifierElement<Boo
         }
     }
 
-    @Override
     public void setValue(Boolean value) {
         this.selected = value;
     }

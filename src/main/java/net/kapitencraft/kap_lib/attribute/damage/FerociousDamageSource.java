@@ -5,11 +5,13 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * damage source for ferocity
  */
+@ApiStatus.Internal
 public class FerociousDamageSource extends DamageSource {
     public static FerociousDamageSource create(Entity causer, double ferocity, float ferocityDamage) {
         return new FerociousDamageSource(

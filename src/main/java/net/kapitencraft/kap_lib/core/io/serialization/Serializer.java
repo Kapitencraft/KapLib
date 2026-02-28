@@ -11,6 +11,9 @@ import java.util.function.Supplier;
 
 /**
  * base serializer class
+ * @param <T> type format to serialize to
+ * @param <K> Ops for type format
+ * @param <L> type to serialize
  */
 public abstract class Serializer<T, K extends DynamicOps<T>, L> {
 

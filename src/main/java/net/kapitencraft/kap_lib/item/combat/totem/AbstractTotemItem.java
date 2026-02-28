@@ -14,6 +14,7 @@ public abstract class AbstractTotemItem extends Item {
     }
 
     /**
+     * method called whenever the player holding this totem dies
      * @param living the entity dying
      * @param source the source that caused the death
      * @return whether this totem saves the entity

@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 /**
  * serializer for both network and disc
+ * @param <T> type to serialize
  */
 public class DataPackSerializer<T> extends JsonSerializer<T> {
     private final StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec;

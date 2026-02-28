@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 /**
  * a simple serializer storing data in JSON
+ * @param <T> type to serialize
  */
 public class JsonSerializer<T> extends Serializer<JsonElement, JsonOps, T> {
     public JsonSerializer(Codec<T> codec, Supplier<T> defaulted) {

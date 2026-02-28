@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 /**
  * a stream for a map (how obvious)
+ * @param <K> map key type
+ * @param <V> map value type
  */
 public class MapStream<K, V> {
     private final Map<K, V> map = new HashMap<>();
@@ -114,7 +116,7 @@ public class MapStream<K, V> {
     private static <T, K> MapStream<T, K> of(List<StreamEntry<T, K>> list) {
         Map<T, K> map = new HashMap<>();
         list.forEach(entry -> {
-            map.put(entry.t(), entry.k());
+            map.put(entry.k(), entry.v());
         });
         return of(map);
     }

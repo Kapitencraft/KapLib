@@ -7,6 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.function.Function;
 
 /**
+ * serializer for json-based registry content. see parameters for more info
  * @param codec the codec. use inside {@link com.mojang.serialization.Codec#dispatch Codec#dispatch}
  * @param streamCodec the stream codec. use inside {@link StreamCodec#dispatch(Function, Function) }
  * @param <L> the type of the serializer

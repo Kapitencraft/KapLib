@@ -25,7 +25,8 @@ public interface Spawner {
     @NotNull VisibleSpawner.Type<? extends Spawner> getType();
 
     /**
-     * the type of the spawner
+     * the type of the spawner containing the serializer
+     * @param <T> the class type of the spawner
      */
     interface Type<T extends Spawner> {
         StreamCodec<? super RegistryFriendlyByteBuf, T> codec();

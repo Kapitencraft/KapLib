@@ -332,17 +332,8 @@ public class AutoPublisher {
         return String.format("v%s-mc%s", modVersion, mcVersion);
     }
 
-    static String[] authString;
-
     static String getAuth(boolean modrinth) {
-        if (authString == null) {
-            try {
-                authString = Files.readString(Path.of(AUTHENTICATION_PATH)).split("\r\n");
-            } catch (IOException e) {
-                throw new IllegalStateException("could not load authentication", e);
-            }
-        }
-        return authString[modrinth ? 0 : 1];
+        return modrinth ? System.getProperty("modrinthAuth") : System.getProperty("curseforgeAuth");
     }
 
     //region changelog
@@ -503,26 +494,26 @@ public class AutoPublisher {
     }
 
     private static final class PlainChangelog implements Changelog {
-        private String[] content;
+        private String content;
 
         @Override
         public String toHtml() {
-            return String.join("<br>\n", content);
+            return content;
         }
 
         @Override
         public String toMd() {
-            return String.join("<br>\n", content);
+            return content;
         }
 
         @Override
         public String toPlainText() {
-            return String.join("\n", content);
+            return content;
         }
 
         @Override
         public void parse(BufferedReader reader) {
-            content = reader.lines().toArray(String[]::new); //add HTML / MD line feed character
+            content = reader.lines().collect(Collectors.joining("\n")); //add HTML / MD line feed character
         }
 
         @Override
@@ -530,18 +521,18 @@ public class AutoPublisher {
             if (obj == this) return true;
             if (obj == null || obj.getClass() != this.getClass()) return false;
             var that = (PlainChangelog) obj;
-            return Arrays.equals(this.content, that.content);
+            return Objects.equals(this.content, that.content);
         }
 
         @Override
         public int hashCode() {
-            return Arrays.hashCode(content);
+            return content.hashCode();
         }
 
         @Override
         public String toString() {
             return "PlainChangelog[" +
-                    "content=" + Arrays.toString(content) + ']';
+                    "content=" + content + ']';
         }
 
     }

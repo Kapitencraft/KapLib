@@ -16,6 +16,9 @@ import java.util.function.Function;
 
 /**
  * class that contains a map of a map making it able to contain 3 different types
+ * @param <MK> main key type
+ * @param <K> secondary key type
+ * @param <V> value type
  */
 public class DoubleMap<MK, K, V> extends HashMap<MK, Map<K, V>> {
     public static <MK, K, V> Codec<DoubleMap<MK, K, V>> createCodec(Codec<MK> mKeyCodec, Codec<K> keyCodec, Codec<V> valueCodec) {

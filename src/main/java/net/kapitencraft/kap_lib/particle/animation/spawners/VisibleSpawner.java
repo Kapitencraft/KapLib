@@ -15,6 +15,7 @@ public abstract class VisibleSpawner implements Spawner {
     /**
      * a builder for the Spawner.<br>
      * required due to access of {@link ParticleAnimation.Builder#spawn(Spawner.Builder) ParticleAnimation$Builder#spawn} taking a Builder
+     * @param <T> subtype of the builder
      */
     public static abstract class Builder<T extends Builder<T>> implements Spawner.Builder {
         protected ParticleOptions particle;

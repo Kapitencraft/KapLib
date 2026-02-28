@@ -9,6 +9,10 @@ import java.util.function.Supplier;
  * collector for MapStreams.<br>
  * does not (yet) allow for parallel processing
  * @see java.util.stream.Collector Collector
+ * @param <K> MapStream key type
+ * @param <V> MapStream value type
+ * @param <A> accumulator type
+ * @param <R> result type
  */
 public interface BiCollector<K, V, A, R> {
 
