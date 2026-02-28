@@ -3,10 +3,6 @@
 import groovy.json.JsonSlurper
 
 //region helper
-static def mergeClassName(String moduleName, String postfix) {
-    return moduleName + postfix + '.class'
-}
-
 static def convertModuleName(String moduleName) {
     String strings = ""
     for (final def mE in moduleName.split("_")) {
@@ -334,11 +330,13 @@ def registerPublishedModule(String id, Object moduleData) {
         source = ss.allJava
         classpath = ss.compileClasspath
         failOnError = false
+
+        setDestinationDir(layout.buildDirectory.dir("docs/javadoc/${id}").get().asFile)
     }
 
     def javadocJar = tasks.register("${moduleCamelCase}JavadocJar", Jar) {
         dependsOn javadoc
-        archiveClassifier.set("javadoc")
+        archiveClassifier.set("${id}-javadoc")
         from javadoc.map { it.destinationDir }
     }
     //endregion javadoc
@@ -508,8 +506,8 @@ tasks.named('assemble').configure {
 }
 //endregion
 
-tasks.named('jar') {
-    enabled = false
+tasks.named('jar', Jar) {
+    exclude("**/*") //keep empty
 }
 
 java {
@@ -524,10 +522,19 @@ tasks.withType(JavaCompile).configureEach {
 publishing {
     publications {
         kapLib(MavenPublication) {
+            artifactId = "kap_lib"
+            artifact(tasks.jar)
 
-            groupId = project.group
-            artifactId = mod_id
-            version = project.version
+            pom.withXml {
+                def deps = asNode().appendNode("dependencies")
+
+                moduleFilters.keySet().each { String name ->
+                    def dep = deps.appendNode("dependency")
+                    dep.appendNode("groupId", project.group)
+                    dep.appendNode("artifactId", "kap_lib-${name}")
+                    dep.appendNode("version", project.version)
+                }
+            }
         }
     }
 
