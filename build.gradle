@@ -303,7 +303,7 @@ def registerPublishedModule(String id, Object moduleData) {
         duplicatesStrategy = DuplicatesStrategy.FAIL
 
         from ss.output
-        archiveClassifier = id
+        archiveBaseName = "${mod_id}-$id"
 
         exclude 'data/test'
         exclude 'assets/test'
@@ -317,7 +317,8 @@ def registerPublishedModule(String id, Object moduleData) {
         group = "build"
         description = "Assembles a sources jar for ${moduleName}"
 
-        archiveClassifier = "${id}-sources"
+        archiveBaseName = "${mod_id}-$id"
+        archiveClassifier = 'sources'
 
         from ss.allSource
     }
@@ -336,7 +337,8 @@ def registerPublishedModule(String id, Object moduleData) {
 
     def javadocJar = tasks.register("${moduleCamelCase}JavadocJar", Jar) {
         dependsOn javadoc
-        archiveClassifier.set("${id}-javadoc")
+        archiveBaseName = "${mod_id}-$id"
+        archiveClassifier = 'javadoc'
         from javadoc.map { it.destinationDir }
     }
     //endregion javadoc
@@ -346,7 +348,7 @@ def registerPublishedModule(String id, Object moduleData) {
      * ========= PUBLICATION =========
      */
     publishing.publications.register(
-            "central${modulePascalCase}",
+            moduleCamelCase,
             MavenPublication
     ) {
 
@@ -520,30 +522,30 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 publishing {
-    publications {
-        kapLib(MavenPublication) {
-            artifactId = "kap_lib"
-            artifact(tasks.jar)
-
-            pom.withXml {
-                def deps = asNode().appendNode("dependencies")
-
-                moduleFilters.keySet().each { String name ->
-                    def dep = deps.appendNode("dependency")
-                    dep.appendNode("groupId", project.group)
-                    dep.appendNode("artifactId", "kap_lib-${name}")
-                    dep.appendNode("version", project.version)
-                }
-            }
-        }
-    }
+    //publications {
+    //    kapLib(MavenPublication) {
+    //        artifactId = "kap_lib"
+    //        artifact(tasks.jar)
+//
+    //        pom.withXml {
+    //            def deps = asNode().appendNode("dependencies")
+//
+    //            moduleFilters.keySet().each { String name ->
+    //                def dep = deps.appendNode("dependency")
+    //                dep.appendNode("groupId", project.group)
+    //                dep.appendNode("artifactId", "kap_lib-${name}")
+    //                dep.appendNode("version", project.version)
+    //            }
+    //        }
+    //    }
+    //}
 
     repositories {
         maven {
             name = "OSSRH"
             url = version.endsWith("SNAPSHOT") ?
-                    uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") :
-                    uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+                    uri("https://central.sonatype.com/repository/maven-snapshots/") :
+                    uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
 
             credentials {
                 username = project.findProperty("ossrhUsername")
@@ -560,6 +562,6 @@ signing {
     )
 
     moduleFilters.keySet().each { String name ->
-        sign publishing.publications."central${convertModulePascalCase(name)}"
+        sign publishing.publications."${convertModuleCamelCase(name)}"
     }
 }
