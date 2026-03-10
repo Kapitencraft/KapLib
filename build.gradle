@@ -96,12 +96,22 @@ dependencies {
 }
 
 tasks.register('autoPublish', JavaExec) {
-    mainClass = 'net.kapitencraft.kap_lib.publish.AutoPublisher'
+    dependsOn 'assemble', 'processResources'
 
+    mainClass = 'net.kapitencraft.kap_lib.publish.AutoPublisher'
     classpath = sourceSets.main.runtimeClasspath
 
-    systemProperty('modrinthAuth', getProperty('modrinthAuth'))
-    systemProperty('curseforgeAuth', getProperty('curseforgeAuth'))
+    doFirst {
+        def modrinthAuth = findProperty('modrinthAuth')
+        def curseforgeAuth = findProperty('curseforgeAuth')
+
+        if (modrinthAuth != null) {
+            systemProperty('modrinthAuth', modrinthAuth.toString())
+        }
+        if (curseforgeAuth != null) {
+            systemProperty('curseforgeAuth', curseforgeAuth.toString())
+        }
+    }
 }
 
 tasks.register('gitUpdate', Task) {
@@ -556,12 +566,19 @@ publishing {
 }
 
 signing {
-    useInMemoryPgpKeys(
-            new String(Base64.decoder.decode((String) findProperty("signingKey"))),
-            findProperty("signingPassword")
-    )
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
 
-    moduleFilters.keySet().each { String name ->
-        sign publishing.publications."${convertModuleCamelCase(name)}"
+    if (signingKey != null && signingPassword != null) {
+        useInMemoryPgpKeys(
+                new String(Base64.decoder.decode(signingKey.toString())),
+                signingPassword.toString()
+        )
+
+        moduleFilters.keySet().each { String name ->
+            sign publishing.publications."${convertModuleCamelCase(name)}"
+        }
+    } else {
+        logger.lifecycle("Signing disabled: missing signingKey/signingPassword Gradle properties")
     }
 }
