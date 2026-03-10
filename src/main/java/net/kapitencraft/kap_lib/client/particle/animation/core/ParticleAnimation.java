@@ -212,6 +212,11 @@ public class ParticleAnimation {
             ModMessages.sendToAllConnectedPlayers(filter, sp -> new SendParticleAnimationPacket(animation), level);
         }
 
+        public <MSG> void sendToAllPlayers(ServerLevel level, Predicate<ServerPlayer> filter, java.util.function.Function<ParticleAnimation, MSG> provider) {
+            ParticleAnimation animation = this.build();
+            ModMessages.sendToAllConnectedPlayers(filter, sp -> provider.apply(animation), level);
+        }
+
         /**
          * used to directly register the animation of this builder to the manager. only call clientside!
          */

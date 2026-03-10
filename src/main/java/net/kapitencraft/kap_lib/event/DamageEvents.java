@@ -13,6 +13,7 @@ import net.kapitencraft.kap_lib.enchantments.abstracts.ModBowEnchantment;
 import net.kapitencraft.kap_lib.helpers.*;
 import net.kapitencraft.kap_lib.io.network.ModMessages;
 import net.kapitencraft.kap_lib.io.network.S2C.DisplayTotemActivationPacket;
+import net.kapitencraft.kap_lib.io.network.S2C.SendLifeStealParticleAnimationPacket;
 import net.kapitencraft.kap_lib.item.bonus.BonusManager;
 import net.kapitencraft.kap_lib.item.combat.totem.AbstractTotemItem;
 import net.kapitencraft.kap_lib.registry.ExtraAttributes;
@@ -173,7 +174,7 @@ public class DamageEvents {
                         .terminatedWhen(TimedTerminator.ticks(20))
                         .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacked))
                         .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacker))
-                        .sendToAllPlayers(sL, player -> player.distanceToSqr(attacked) < 32*32);
+                        .sendToAllPlayers(sL, player -> player.distanceToSqr(attacked) < 32*32, SendLifeStealParticleAnimationPacket::new);
             }
             attacker.heal(Math.min((float) liveSteal, event.getAmount()));
         }

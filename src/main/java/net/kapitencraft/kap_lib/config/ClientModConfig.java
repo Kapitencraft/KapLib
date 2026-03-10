@@ -95,7 +95,6 @@ public class ClientModConfig {
         return PING_COLOR.get();
     }
 
-    //TODO implement
     public static boolean lifeStealParticleEnabled() {
         return SHOW_LIFE_STEAL_PARTICLE.get();
     }

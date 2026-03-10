@@ -54,6 +54,7 @@ public class ModMessages {
         addMessage(SyncBonusesPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncBonusesPacket::new);
         addMessage(DisplayTotemActivationPacket.class, NetworkDirection.PLAY_TO_CLIENT, DisplayTotemActivationPacket::new);
         addMessage(SendParticleAnimationPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendParticleAnimationPacket::new);
+        addMessage(SendLifeStealParticleAnimationPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendLifeStealParticleAnimationPacket::new);
         addMessage(SendTrackingShotPacket.class, NetworkDirection.PLAY_TO_CLIENT, SendTrackingShotPacket::new);
         addMessage(ActivateShakePacket.class, NetworkDirection.PLAY_TO_CLIENT, ActivateShakePacket::new);
         addMessage(SyncWearablesToPlayerPacket.class, NetworkDirection.PLAY_TO_CLIENT, SyncWearablesToPlayerPacket::new);
