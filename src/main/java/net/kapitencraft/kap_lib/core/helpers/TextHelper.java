@@ -293,6 +293,10 @@ public class TextHelper {
         return new String(chars);
     }
 
+    public static String convertId(String name) {
+        return name.replace(' ', '_').toLowerCase();
+    }
+
     /**
      * reads a Vec3 directly from a StringReader
      */

@@ -2,9 +2,9 @@ package net.kapitencraft.kap_lib.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.component.registry.custom.ComponentRegistries;
 import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,7 +26,7 @@ public interface StyleCodecs {
             Codec.BOOL.optionalFieldOf("obfuscated", false).forGetter(Style::isObfuscated),
             Codec.STRING.optionalFieldOf("insertion").forGetter((p_237269_) -> Optional.ofNullable(p_237269_.getInsertion())),
             ResourceLocation.CODEC.optionalFieldOf("font", Style.DEFAULT_FONT).forGetter(Style::getFont),
-            ComponentRegistries.GLYPH_EFFECTS.byNameCodec().listOf().optionalFieldOf("effects", List.of()).forGetter(style -> List.of(EffectsStyle.of(style).getEffects()))
+            GlyphEffects.CODEC.listOf().optionalFieldOf("effects", List.of()).forGetter(style -> List.of(EffectsStyle.of(style).getEffects()))
     ).apply(styleInstance, StyleCodecs::createStyleFromCodec));
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")

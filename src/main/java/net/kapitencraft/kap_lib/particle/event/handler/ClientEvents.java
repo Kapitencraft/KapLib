@@ -13,5 +13,4 @@ public class ClientEvents {
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         ActivationTriggers.ENTITY_ADDED.get().trigger(event.getEntity().getId());
     }
-
 }

@@ -33,7 +33,6 @@ public class ParticleClientModConfig {
         return DAMAGE_INDICATOR_LIFETIME.get();
     }
 
-    //TODO implement
     public static boolean lifeStealParticleEnabled() {
         return SHOW_LIFE_STEAL_PARTICLE.get();
     }

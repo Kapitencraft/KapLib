@@ -96,12 +96,9 @@ public class MultiLineTextBox extends ScrollableWidget {
      * Called to check if the text is valid
      */
     private Predicate<String> filter = Objects::nonNull;
-    private Consumer<Integer> lineCreationConsumer = i -> {
-    };
-    private Consumer<Integer> lineRemovedConsumer = i -> {
-    };
-    private BiConsumer<Integer, String> lineModificationConsumer = (integer, string) -> {
-    };
+    private Consumer<Integer> lineCreationConsumer = i -> {};
+    private Consumer<Integer> lineRemovedConsumer = i -> {};
+    private BiConsumer<Integer, String> lineModificationConsumer = (integer, string) -> {};
     /**
      * formatter formatting line text with color;
      * <br> {@code string}: text content
@@ -111,11 +108,11 @@ public class MultiLineTextBox extends ScrollableWidget {
     @Nullable
     private Component hint;
 
-    public MultiLineTextBox(Font pFont, int pX, int pY, int pWidth, int pHeight, Component pMessage) {
+    public MultiLineTextBox(Font pFont, int pX, int pY, int pWidth, int pHeight, @NotNull Component pMessage) {
         this(pFont, pX, pY, pWidth, pHeight, null, pMessage);
     }
 
-    public MultiLineTextBox(Font pFont, int pX, int pY, int pWidth, int pHeight, @Nullable MultiLineTextBox pEditBox, Component pMessage) {
+    public MultiLineTextBox(Font pFont, int pX, int pY, int pWidth, int pHeight, @Nullable MultiLineTextBox pEditBox, @NotNull Component pMessage) {
         super(pX, pY, pWidth, pHeight, pMessage);
         this.font = pFont;
         if (pEditBox != null) {
@@ -602,6 +599,7 @@ public class MultiLineTextBox extends ScrollableWidget {
     private void enterSuggestion() {
         Suggestion suggestion = this.suggestions.get(suggestionSelectIndex);
         suggestion.insertString(this::insertText);
+        this.suggestions.clear();
     }
 
 
@@ -791,8 +789,6 @@ public class MultiLineTextBox extends ScrollableWidget {
             if (this.isEditable) {
                 this.insertText(Character.toString(pCodePoint));
             }
-
-
             return true;
         } else {
             return false;

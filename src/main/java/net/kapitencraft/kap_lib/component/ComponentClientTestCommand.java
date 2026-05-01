@@ -2,8 +2,8 @@ package net.kapitencraft.kap_lib.component;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
 import net.kapitencraft.kap_lib.component.player_head.PlayerHeadAllocator;
-import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -41,7 +41,7 @@ public class ComponentClientTestCommand {
 
     private static int testChroma(CommandContext<CommandSourceStack> commandContext) {
         for (int i = 0; i < 10; i++)
-            commandContext.getSource().sendSystemMessage(Component.literal("EEEEEEEEEEEEEEEEEE").setStyle(GlyphEffects.RAINBOW.get().apply(Style.EMPTY)));
+            commandContext.getSource().sendSystemMessage(Component.literal("EEEEEEEEEEEEEEEEEE").setStyle(GlyphEffects.RAINBOW.apply(Style.EMPTY)));
         return 1;
     }
 }

@@ -17,7 +17,10 @@ import net.minecraft.CrashReport;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -27,6 +30,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * static data container for animations. use {@link ParticleAnimator} for dynamic information such as tick count
@@ -209,14 +213,30 @@ public class ParticleAnimation {
          * @param player the player to send the animation to
          */
         public void sendToPlayer(ServerPlayer player) {
-            PacketDistributor.sendToPlayer(player, new SendParticleAnimationPacket(this.build()));
+            sendToPlayer(player, SendParticleAnimationPacket::new);
+        }
+
+        public <MSG extends CustomPacketPayload> void sendToPlayer(ServerPlayer player, Function<ParticleAnimation, MSG> constructor) {
+            PacketDistributor.sendToPlayer(player, constructor.apply(this.build()));
         }
 
         /**
          * used to register the animation of this builder to all players inside the given level
          */
         public void sendToAllPlayers() {
-            PacketDistributor.sendToAllPlayers(new SendParticleAnimationPacket(this.build()));
+            sendToAllPlayers(SendParticleAnimationPacket::new);
+        }
+
+        public <MSG extends CustomPacketPayload> void sendToAllPlayers(Function<ParticleAnimation, MSG> constructor) {
+            PacketDistributor.sendToAllPlayers(constructor.apply(this.build()));
+        }
+
+        public void sendToPlayersInLevel(ServerLevel level) {
+            sendToPlayersInLevel(level, SendParticleAnimationPacket::new);
+        }
+
+        public <MSG extends CustomPacketPayload> void sendToPlayersInLevel(ServerLevel level, Function<ParticleAnimation, MSG> constructor) {
+            PacketDistributor.sendToPlayersInDimension(level, constructor.apply(this.build()));
         }
 
         /**

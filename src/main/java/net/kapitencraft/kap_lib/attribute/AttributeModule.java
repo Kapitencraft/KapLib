@@ -1,7 +1,9 @@
 package net.kapitencraft.kap_lib.attribute;
 
 import com.mojang.brigadier.CommandDispatcher;
+import net.kapitencraft.kap_lib.attribute.compat.ParticleCompat;
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.core.util.Modules;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -20,6 +22,9 @@ public class AttributeModule {
         AttributeAttachmentTypes.REGISTRY.register(modEventBus);
 
         NeoForge.EVENT_BUS.addListener(AttributeModule::registerServer);
+
+        if (Modules.isParticleActive())
+            modEventBus.addListener(ParticleCompat::register);
     }
 
     @ApiStatus.Internal

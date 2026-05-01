@@ -12,7 +12,6 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Internal
 public class TestScreen extends Screen {
-    private static final ResourceLocation BACKGROUND = ResourceLocation.withDefaultNamespace("textures/block/diamond_block.png");
     private MultiLineTextBox textBox;
 
     public TestScreen() {
@@ -22,7 +21,7 @@ public class TestScreen extends Screen {
     @Override
     protected void init() {
         textBox = new MultiLineTextBox(this.font, 10, 10, width - 20, height - 20, textBox, Component.empty());
-        textBox.setTextureBackground(ResourceLocation.withDefaultNamespace("block/orange_glazed_terracotta"));
+        textBox.setTextureBackground(ResourceLocation.withDefaultNamespace("block/black_wool"));
         textBox.setLineRenderType(MultiLineTextBox.LineRenderType.EVERY);
         this.addRenderableWidget(textBox);
     }

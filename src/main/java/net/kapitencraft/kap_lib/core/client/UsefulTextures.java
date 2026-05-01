@@ -19,7 +19,10 @@ public interface UsefulTextures {
     ResourceLocation CROSS = LibConstants.res("textures/gui/red_cross.png");
     ResourceLocation SLOT = LibConstants.res("textures/gui/slot_background.png");
     ResourceLocation SLIDER = getGuiLocation("container/loom.png");
-    ResourceLocation ARROWS = getGuiLocation("server_selection.png");
+    ResourceLocation ARROW_DOWN = ResourceLocation.withDefaultNamespace("transferable_list/move_down");
+    ResourceLocation ARROW_DOWN_HIGHLIGHT = ResourceLocation.withDefaultNamespace("transferable_list/move_down_highlighted");
+    ResourceLocation ARROW_UP = ResourceLocation.withDefaultNamespace("transferable_list/move_up");
+    ResourceLocation ARROW_UP_HIGHLIGHT = ResourceLocation.withDefaultNamespace("transferable_list/move_up_highlighted");
 
     private static ResourceLocation getGuiLocation(String path) {
         return ResourceLocation.withDefaultNamespace("textures/gui/" + path);
@@ -94,9 +97,9 @@ public interface UsefulTextures {
         float scale = size / 16f;
         graphics.pose().scale(scale, scale, 0);
         if (hovered) {
-            graphics.blit(ARROWS, 0, 0, 96, 32, 32, 32);
+            graphics.blit(ARROW_UP_HIGHLIGHT, 0, 0, 96, 32, 32, 32);
         } else {
-            graphics.blit(ARROWS, 0, 0, 96, 0, 32, 32);
+            graphics.blit(ARROW_UP, 0, 0, 96, 0, 32, 32);
         }
         graphics.pose().popPose();
     }
@@ -112,11 +115,10 @@ public interface UsefulTextures {
         graphics.pose().pushPose();
         graphics.pose().translate(pLeft, pTop - size, 0);
         graphics.pose().scale(size / 16f, size / 16f, 0);
-        RenderSystem.setShaderTexture(0, ARROWS);
         if (hovered) {
-            graphics.blit(ARROWS, 0, 0, 64, 32, 32, 32);
+            graphics.blit(ARROW_DOWN_HIGHLIGHT, 0, 0, 64, 32, 32, 32);
         } else {
-            graphics.blit(ARROWS, 0, 0, 64, 0, 32, 32);
+            graphics.blit(ARROW_DOWN, 0, 0, 64, 0, 32, 32);
         }
         graphics.pose().popPose();
     }

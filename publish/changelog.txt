@@ -1,0 +1,5 @@
+added `array` ExtraStreamCodec operation
+
+fixed MultiLineTextBoxes suggestions not disappearing when inserting
+removed GlyphEffects registry in favor of event based system to fix possible crash stacking
+fixed life steal particle animation disable config not working

@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public class ExtraStreamCodecs {
 
@@ -220,6 +221,21 @@ public class ExtraStreamCodecs {
 
     public static <B extends ByteBuf, V, K> StreamCodec.CodecOperation<B, V, Map<K, V>> map(StreamCodec<? super B, K> keyCodec) {
         return p_320272_ -> ByteBufCodecs.map(HashMap::new, keyCodec, p_320272_);
+    }
+
+    public static <T, B extends ByteBuf> StreamCodec.CodecOperation<B, T, T[]> array(IntFunction<T[]> constructor) {
+        return codec -> StreamCodec.of((buffer, value) -> {
+            buffer.writeInt(value.length);
+            for (T t : value) {
+                codec.encode(buffer, t);
+            }
+        }, buffer -> {
+            T[] data = constructor.apply(buffer.readInt());
+            for (int i = 0; i < data.length; i++) {
+                data[i] = codec.decode(buffer);
+            }
+            return data;
+        });
     }
 
     /**
