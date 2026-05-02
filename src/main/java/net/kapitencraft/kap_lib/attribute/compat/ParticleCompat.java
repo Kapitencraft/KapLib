@@ -30,7 +30,7 @@ public class ParticleCompat {
                 .terminatedWhen(TimedTerminator.ticks(20))
                 .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacked))
                 .terminatedWhen(EntityRemovedTerminatorTrigger.create(attacker))
-                .sendToAllPlayers();
+                .sendToAllPlayers(SendLifeStealAnimationPacket::new);
     }
 
     public static void register(RegisterPayloadHandlersEvent event) {

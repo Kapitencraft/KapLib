@@ -10,7 +10,6 @@ import net.kapitencraft.kap_lib.camera.CameraClientTestCommand;
 import net.kapitencraft.kap_lib.camera.registry.CameraModifiers;
 import net.kapitencraft.kap_lib.component.ComponentClientTestCommand;
 import net.kapitencraft.kap_lib.component.config.ComponentClientModConfig;
-import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
 import net.kapitencraft.kap_lib.cooldown.registry.CooldownAttachmentTypes;
 import net.kapitencraft.kap_lib.cooldown.registry.CooldownAttributes;
 import net.kapitencraft.kap_lib.cooldown.registry.CooldownLootItemConditions;
@@ -97,8 +96,6 @@ public class KapLibMod {
         RequirementConditionTypes.REGISTRY.register(modEventBus);
 
         BonusTypes.REGISTRY.register(modEventBus);
-
-        GlyphEffects.REGISTRY.register(modEventBus);
 
         WearableSlots.REGISTRY.register(modEventBus);
 

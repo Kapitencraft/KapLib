@@ -182,7 +182,7 @@ modulesDir.eachFileMatch(~/.*\.json/) { file ->
     ext.moduleFilters[moduleName] = config
 }
 
-println "Discovered Modules: " + moduleFilters.keySet()
+println "Discovered ${moduleFilters.size()} Modules: ${moduleFilters.keySet()}"
 //endregion discovery
 
 // remove all main dependencies.
@@ -539,6 +539,18 @@ publishing {
     //        }
     //    }
     //}
+
+    repositories {
+        maven {
+            name = 'Central'
+            url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
+
+            credentials {
+                username = project.findProperty("ossrhUsername")
+                password = project.findProperty("ossrhPassword")
+            }
+        }
+    }
 }
 
 signing {

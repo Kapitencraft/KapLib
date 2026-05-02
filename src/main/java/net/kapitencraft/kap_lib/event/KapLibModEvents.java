@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.event;
 
-import net.kapitencraft.kap_lib.component.registry.custom.ComponentRegistries;
 import net.kapitencraft.kap_lib.cooldown.registry.CooldownRegistries;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.inventory_page.registry.custom.InventoryPageRegistries;
@@ -45,7 +44,6 @@ public class KapLibModEvents {
         EnchantmentEffectRegistries.registerAll(event::register);
         BonusRegistries.registerAll(event::register);
         SpawnTableRegistries.registerAll(event::register);
-        ComponentRegistries.registerAll(event::register);
         CameraRegistries.registerAll(event::register);
         OverlayRegistries.registerAll(event::register);
         CooldownRegistries.registerAll(event::register);

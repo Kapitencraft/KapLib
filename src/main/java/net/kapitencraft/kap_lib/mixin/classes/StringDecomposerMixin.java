@@ -1,8 +1,7 @@
 package net.kapitencraft.kap_lib.mixin.classes;
 
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
-import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
-import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
+import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
@@ -26,7 +25,7 @@ public class StringDecomposerMixin {
 
         TextColor nonPingColor = null;
         boolean pinged = false;
-        for(int j = length; j < i; ++j) {
+        for (int j = length; j < i; ++j) {
 
             char c0 = s.charAt(j);
             if (c0 == 167) { //167 = §
@@ -39,8 +38,8 @@ public class StringDecomposerMixin {
                 ChatFormatting format = ChatFormatting.getByCode(c1);
                 if (format != null) {
                     formattedStyle = format == ChatFormatting.RESET ? style2 : formattedStyle.applyLegacyFormat(format);
-                } else if (GlyphEffects.effectsForKey().containsKey(c1)) {
-                    GlyphEffect effect = GlyphEffects.effectsForKey().get(c1);
+                } else if (GlyphEffects.exists(c1)) {
+                    GlyphEffect effect = GlyphEffects.getForKey(c1);
                     formattedStyle = effect.apply(formattedStyle);
                 }
             } else if (Character.isHighSurrogate(c0)) {
@@ -70,5 +69,7 @@ public class StringDecomposerMixin {
     }
 
     @Shadow
-    private static boolean feedChar(Style style, FormattedCharSink sink, int j, char c) {return false;}
+    private static boolean feedChar(Style style, FormattedCharSink sink, int j, char c) {
+        return false;
+    }
 }

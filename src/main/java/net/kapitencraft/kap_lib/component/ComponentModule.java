@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.component;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.kapitencraft.kap_lib.component.config.ComponentClientModConfig;
-import net.kapitencraft.kap_lib.component.registry.GlyphEffects;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.IEventBus;
@@ -19,8 +18,6 @@ public class ComponentModule {
     public static final String MODULE_ID = LibConstants.MOD_ID + "_component";
 
     public ComponentModule(IEventBus modEventBus, ModContainer container) {
-
-        GlyphEffects.REGISTRY.register(modEventBus);
 
         NeoForge.EVENT_BUS.addListener(ComponentModule::registerClient);
 

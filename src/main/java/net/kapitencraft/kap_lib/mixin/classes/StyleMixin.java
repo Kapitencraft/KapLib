@@ -2,9 +2,9 @@ package net.kapitencraft.kap_lib.mixin.classes;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.kapitencraft.kap_lib.component.registry.custom.ComponentRegistries;
 import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
+import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -18,41 +18,64 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Mixin(Style.class)
 public abstract class StyleMixin implements EffectsStyle {
-    @Shadow @Nullable public TextColor color;
+    @Shadow
+    @Nullable
+    public TextColor color;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     Boolean bold;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     Boolean italic;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     Boolean underlined;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     Boolean strikethrough;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     HoverEvent hoverEvent;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     Boolean obfuscated;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     ClickEvent clickEvent;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     String insertion;
 
-    @Shadow @Final @Nullable
+    @Shadow
+    @Final
+    @Nullable
     ResourceLocation font;
 
-    @Shadow @Final public static ResourceLocation DEFAULT_FONT;
+    @Shadow
+    @Final
+    public static ResourceLocation DEFAULT_FONT;
 
     private Style self() {
         return (Style) (Object) this;
@@ -85,7 +108,8 @@ public abstract class StyleMixin implements EffectsStyle {
     @WrapOperation(method = "toString", at = @At(value = "INVOKE", target = "Ljava/lang/StringBuilder;append(Ljava/lang/String;)Ljava/lang/StringBuilder;"))
     public StringBuilder toString(StringBuilder instance, String str, Operation<StringBuilder> original) {
         original.call(instance, str);
-        if (this.effects.length > 0) instance.append("{special: ").append(Arrays.stream(this.effects).map(ComponentRegistries.GLYPH_EFFECTS::getKey).filter(Objects::nonNull).map(ResourceLocation::toString).collect(Collectors.joining(", "))).append("}");
+        if (this.effects.length > 0)
+            instance.append("{special: ").append(Arrays.stream(this.effects).map(GlyphEffects::getKey).filter(Objects::nonNull).map(ResourceLocation::toString).collect(Collectors.joining(", "))).append("}");
         return instance;
     }
 

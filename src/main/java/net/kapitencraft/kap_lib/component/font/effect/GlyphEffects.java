@@ -8,6 +8,8 @@ import net.kapitencraft.kap_lib.component.font.effect.effects.WaveEffect;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModLoader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.function.Supplier;
 public class GlyphEffects {
     private static final Map<ResourceLocation, GlyphEffect> EFFECT_BY_NAME_MAP = new HashMap<>();
     private static final Map<GlyphEffect, ResourceLocation> NAME_BY_EFFECT_MAP = new HashMap<>();
+    private static final Map<Character, GlyphEffect> EFFECT_BY_KEY_MAP = new HashMap<>();
     public static final Codec<GlyphEffect> CODEC = ResourceLocation.CODEC.xmap(EFFECT_BY_NAME_MAP::get, NAME_BY_EFFECT_MAP::get);
 
     public static final RainbowEffect RAINBOW = register("rainbow", RainbowEffect::new);
@@ -32,6 +35,19 @@ public class GlyphEffects {
         ResourceLocation location = LibConstants.res(name);
         EFFECT_BY_NAME_MAP.put(location, value);
         NAME_BY_EFFECT_MAP.put(value, location);
+        EFFECT_BY_KEY_MAP.put(value.getKey(), value);
         return value;
+    }
+
+    public static @Nullable ResourceLocation getKey(@NotNull GlyphEffect effect) {
+        return NAME_BY_EFFECT_MAP.get(effect);
+    }
+
+    public static boolean exists(char key) {
+        return EFFECT_BY_KEY_MAP.containsKey(key);
+    }
+
+    public static GlyphEffect getForKey(char key) {
+        return EFFECT_BY_KEY_MAP.get(key);
     }
 }
