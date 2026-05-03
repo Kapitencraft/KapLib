@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 
 /**
  * container of a particle, containing all important information of a particle like <br>
- * x, y & z coordinates, r, g,b & a color values, lifetime & age values
+ * x, y and z coordinates, r, g, b and a color values, lifetime and age values
  */
 public class ParticleConfig {
     public double x, y, z;

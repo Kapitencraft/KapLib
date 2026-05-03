@@ -3,7 +3,6 @@ package net.kapitencraft.kap_lib.loot.conditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.util.Reference;
 import net.kapitencraft.kap_lib.loot.registry.ExtraLootItemConditions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -72,7 +71,6 @@ public class TagKeyCondition implements LootItemCondition {
     @Override
     public boolean test(LootContext context) {
         if (this == EMPTY) return false;
-        Reference<Boolean> reference = Reference.of(false);
         switch (this.type) {
             case ENTITY, ITEM -> {
                 Entity entity = context.getParam(target.getParam());
@@ -87,7 +85,7 @@ public class TagKeyCondition implements LootItemCondition {
                 return state != null && state.is(TagKey.create(Registries.BLOCK, ResourceLocation.parse(id)));
             }
         }
-        return reference.getValue();
+        return false;
     }
 
     public enum Type implements StringRepresentable {

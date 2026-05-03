@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.attribute;
 
-import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
@@ -21,10 +20,10 @@ import java.util.function.Predicate;
  */
 @ApiStatus.Internal
 @EventBusSubscriber
-public class AttributeAdder {
+class AttributeAdder {
 
     @SubscribeEvent
-    public static void modifyAttributes(EntityAttributeModificationEvent event) {
+    private static void modifyAttributes(EntityAttributeModificationEvent event) {
         addAll(event, ExtraAttributes.STRENGTH, ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.CRIT_DAMAGE, ONLY_WITH_BRAIN);
         addAll(event, ExtraAttributes.RANGED_DAMAGE, ONLY_WITH_BRAIN);
@@ -50,7 +49,7 @@ public class AttributeAdder {
 
     }
 
-    private static final Predicate<EntityType<? extends LivingEntity>> ONLY_WITH_BRAIN = (entityType)-> (entityType.getCategory() != MobCategory.MISC) || entityType == EntityType.PLAYER;
+    private static final Predicate<EntityType<? extends LivingEntity>> ONLY_WITH_BRAIN = (entityType) -> (entityType.getCategory() != MobCategory.MISC) || entityType == EntityType.PLAYER;
     private static final Predicate<EntityType<? extends LivingEntity>> LIVINGS = entityType -> true;
 
     @SafeVarargs

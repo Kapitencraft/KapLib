@@ -176,7 +176,7 @@ public class OverlayManager {
 
     /**
      * reset given Overlay to it's default location
-     * <br> provided from inside {@link OverlayLocation}
+     * <br> provided by the registered {@link OverlayProperties}
      */
     @SuppressWarnings("all")
     public void reset(Overlay dedicatedHolder) {

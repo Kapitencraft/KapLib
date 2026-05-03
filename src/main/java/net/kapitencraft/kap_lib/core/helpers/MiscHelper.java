@@ -93,30 +93,6 @@ public class MiscHelper {
     }
 
     /**
-     * method to get the Rarity of an {@link ItemStack}
-     *
-     * @param rarity the stack's item's base rarity
-     * @param stack  the stack to check the rarity on
-     * @return the rarity after calculation enchantment mods
-     */
-    @Contract("null, _ -> fail; _, null -> fail")
-    public static Rarity getFinalRarity(Rarity rarity, ItemStack stack) {
-        if (!stack.isEnchanted()) {
-            return rarity;
-        } else {
-            return switch (rarity) {
-                case COMMON -> Rarity.UNCOMMON;
-                case UNCOMMON -> Rarity.RARE;
-                case RARE -> Rarity.EPIC;
-                case EPIC -> ExtraRarities.LEGENDARY;
-                default ->
-                        rarity == ExtraRarities.LEGENDARY ? ExtraRarities.MYTHIC : rarity == ExtraRarities.MYTHIC ? ExtraRarities.DIVINE : Rarity.COMMON;
-            };
-        }
-    }
-
-
-    /**
      * a simple method to get a difficulty sensitive value
      *
      * @param difficulty the difficulty to scan for

@@ -15,6 +15,7 @@ import java.util.function.BiPredicate;
 public class RegisterAnvilUsesEvent extends Event implements IModBusEvent {
 
     /**
+     * registers an anvil use.
      * @param bothPredicate predicate for both anvil inputs
      * @param resultConsumer results. modify the left stack
      * @param xpCost the amount of XP this anvil use should take

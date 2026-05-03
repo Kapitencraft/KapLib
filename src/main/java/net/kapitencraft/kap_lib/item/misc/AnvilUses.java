@@ -23,7 +23,7 @@ public class AnvilUses {
     private static final List<AnvilUse> uses = new ArrayList<>();
 
     @SubscribeEvent
-    public static void anvilEvent(AnvilUpdateEvent event) {
+    private static void anvilEvent(AnvilUpdateEvent event) {
         ItemStack left = event.getLeft();
         ItemStack right = event.getRight();
         for (AnvilUse use : uses) {
@@ -48,6 +48,9 @@ public class AnvilUses {
         uses.add(new AnvilUse(bothPredicate, resultConsumer, xpCost));
     }
 
+    /**
+     * initializes uses. use the event instead
+     */
     @ApiStatus.Internal
     public static void registerUses() {
         ModLoader.postEvent(new RegisterAnvilUsesEvent());

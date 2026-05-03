@@ -22,15 +22,26 @@ import java.util.function.Function;
  */
 public abstract class AbstractArmorItem extends ArmorItem {
 
-    public AbstractArmorItem(Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties) {
+    protected AbstractArmorItem(Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties) {
         super(pMaterial, pType, pProperties);
     }
 
+    /**
+     * checks if the given entity has a fullset of this item
+     * @param living the given entity
+     * @return whether there is a fullset or not
+     */
     public boolean isFullSetActive(LivingEntity living) {
         return isFullSetActive(living, this.getMaterial());
     }
 
-    public static boolean isFullSetActive(LivingEntity living, Holder<ArmorMaterial> materials) {
+    /**
+     * checks if the given entity has a fullset of the given material
+     * @param living the given entity
+     * @param material the material to check for
+     * @return whether the given entity has a fullset or not
+     */
+    public static boolean isFullSetActive(LivingEntity living, Holder<ArmorMaterial> material) {
         if (living == null) {
             return false;
         }
@@ -44,7 +55,7 @@ public abstract class AbstractArmorItem extends ArmorItem {
         }
         ArmorItem legs = living.getItemBySlot(EquipmentSlot.LEGS).getItem() instanceof ArmorItem armorItem ? armorItem : null;
         ArmorItem feet = living.getItemBySlot(EquipmentSlot.FEET).getItem() instanceof ArmorItem armorItem ? armorItem : null;
-        return (head != null && legs != null && feet != null) && (head.getMaterial() == materials && chest.getMaterial() == materials && legs.getMaterial() == materials && feet.getMaterial() == materials);
+        return (head != null && legs != null && feet != null) && (head.getMaterial() == material && chest.getMaterial() == material && legs.getMaterial() == material && feet.getMaterial() == material);
     }
 
     //region display / model

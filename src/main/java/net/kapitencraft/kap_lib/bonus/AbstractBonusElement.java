@@ -9,16 +9,19 @@ import net.minecraft.resources.ResourceLocation;
 public interface AbstractBonusElement {
 
     /**
+     * determines whether this bonus should be visible in tooltips
      * @return whether this bonus should be visible in tooltips
      */
     boolean isHidden();
 
     /**
+     * supplies the bonus
      * @return the bonus this element contains
      */
     Bonus<?> getBonus();
 
     /**
+     * supplies the location of this element, useful for identifying the element
      * @return the location of this element
      */
     ResourceLocation getId();

@@ -19,7 +19,7 @@ import java.util.function.Function;
  * <p>This event is fired on the  mod-specific event bus,
  * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
  *
- * @apiNote registered modifiers will not automatically register to be used in the item modifiers.
+ * //@apiNote registered modifiers will not automatically register to be used in the item modifiers.
  * meaning you have to implement that yourself
  */
 public class RegisterItemModifiersDisplayExtensionsEvent extends Event implements IModBusEvent {

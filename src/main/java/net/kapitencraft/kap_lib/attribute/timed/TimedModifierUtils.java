@@ -8,6 +8,9 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
+/**
+ * utilities to create timed modifiers
+ */
 public class TimedModifierUtils {
 
     /**

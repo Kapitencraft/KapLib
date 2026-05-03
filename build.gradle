@@ -35,7 +35,7 @@ static def convertModulePascalCase(String moduleName) {
 
 plugins {
     id 'idea'
-    id 'maven-publish'
+    id 'com.vanniktech.maven.publish' version '0.33.0'
     id 'signing'
     id 'net.neoforged.moddev' version '2.0.88'
 }
@@ -512,42 +512,42 @@ tasks.named('jar', Jar) {
     exclude("**/*") //keep empty
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
+tasks.named('javadoc') {
+    setDestinationDir(layout.buildDirectory.dir("docs/javadoc/main").get().asFile)
 }
+
+//java {
+//    withSourcesJar()
+//    withJavadocJar()
+//}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
+mavenPublishing {
+    configureBasedOnAppliedPlugins(false, false)
+
+    publishToMavenCentral()
+
+    signAllPublications()
+}
+
 publishing {
-    //publications {
-    //    kapLib(MavenPublication) {
-    //        artifactId = "kap_lib"
-    //        artifact(tasks.jar)
-//
-    //        pom.withXml {
-    //            def deps = asNode().appendNode("dependencies")
-//
-    //            moduleFilters.keySet().each { String name ->
-    //                def dep = deps.appendNode("dependency")
-    //                dep.appendNode("groupId", project.group)
-    //                dep.appendNode("artifactId", "kap_lib-${name}")
-    //                dep.appendNode("version", project.version)
-    //            }
-    //        }
-    //    }
-    //}
+    publications {
+        kapLib(MavenPublication) {
+            artifactId = "kap_lib"
+            artifact(tasks.jar)
 
-    repositories {
-        maven {
-            name = 'Central'
-            url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
+            pom.withXml {
+                def deps = asNode().appendNode("dependencies")
 
-            credentials {
-                username = project.findProperty("ossrhUsername")
-                password = project.findProperty("ossrhPassword")
+                moduleFilters.keySet().each { String name ->
+                    def dep = deps.appendNode("dependency")
+                    dep.appendNode("groupId", project.group)
+                    dep.appendNode("artifactId", "kap_lib-${name}")
+                    dep.appendNode("version", project.version)
+                }
             }
         }
     }
@@ -559,7 +559,7 @@ signing {
             findProperty("signingPassword")
     )
 
-    moduleFilters.keySet().each { String name ->
-        sign publishing.publications."${convertModuleCamelCase(name)}"
-    }
+    //moduleFilters.keySet().each { String name ->
+    //    sign publishing.publications."${convertModuleCamelCase(name)}"
+    //}
 }

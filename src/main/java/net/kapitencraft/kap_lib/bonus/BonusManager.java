@@ -11,22 +11,21 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.bonus.compat.InventoryPageCompat;
 import net.kapitencraft.kap_lib.bonus.event.custom.RegisterBonusProvidersEvent;
+import net.kapitencraft.kap_lib.bonus.network.S2C.UpdateBonusDataPacket;
 import net.kapitencraft.kap_lib.bonus.requirement.BonusRequirementType;
-import net.kapitencraft.kap_lib.core.util.Modules;
 import net.kapitencraft.kap_lib.core.collection.DoubleMap;
 import net.kapitencraft.kap_lib.core.collection.MapStream;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
-import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
-import net.kapitencraft.kap_lib.bonus.network.S2C.UpdateBonusDataPacket;
+import net.kapitencraft.kap_lib.core.util.Color;
+import net.kapitencraft.kap_lib.core.util.Modules;
+import net.kapitencraft.kap_lib.core.util.Vec2i;
+import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
 import net.kapitencraft.kap_lib.requirement.RequirementManager;
-import net.kapitencraft.kap_lib.core.util.Color;
-import net.kapitencraft.kap_lib.core.util.Reference;
-import net.kapitencraft.kap_lib.core.util.Vec2i;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -41,7 +40,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.tags.*;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.damagesource.DamageSource;
@@ -65,6 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -75,6 +75,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LoggerFactory.getLogger("BonusManager");
 
     public static BonusManager instance;
+
     public static BonusManager updateInstance() {
         if (instance != null) NeoForge.EVENT_BUS.unregister(instance);
         return instance = new BonusManager();
@@ -156,7 +157,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         LivingEntity entity = event.getEntity();
         BonusLookup bonusLookup = getOrCreateLookup(entity);
         bonusLookup.equipmentChange(event.getSlot(), event.getFrom(), event.getTo());
-        if (entity instanceof ServerPlayer sP) PacketDistributor.sendToPlayer(sP, new UpdateBonusDataPacket(event.getFrom(), event.getTo(), event.getSlot(), entity.getId()));
+        if (entity instanceof ServerPlayer sP)
+            PacketDistributor.sendToPlayer(sP, new UpdateBonusDataPacket(event.getFrom(), event.getTo(), event.getSlot(), entity.getId()));
     }
 
     @ApiStatus.Internal
@@ -183,6 +185,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     /**
      * gets a Setbonus for the given location or throws a Nullpointer exception if none could be found
+     *
      * @throws NullPointerException if there's no registered set bonus for the given location
      */
     public BonusElement getSetOrThrow(ResourceLocation location) {
@@ -199,6 +202,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     /**
      * gets an item bonus or throws a Nullpointer exception if none could be found
+     *
      * @param location the location of the bonus
      * @return the element
      * @throws NullPointerException if no registered item bonus could be found for the given location
@@ -213,6 +217,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     /**
      * retrieves all (item, set or custom) bonuses that are active for the given entity
+     *
      * @param living the entity to retrieve all active bonuses for
      */
     public List<AbstractBonusElement> getAllActive(LivingEntity living) {
@@ -256,7 +261,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
     @ApiStatus.Internal
     public class BonusLookup {
         private final LivingEntity target;
-        private final Map<AbstractBonusElement, Reference<Integer>> activeBonuses = new HashMap<>();
+        private final Map<AbstractBonusElement, AtomicInteger> activeBonuses = new HashMap<>();
         private final Map<SetBonusElement, SetData> setData = new HashMap<>();
 
         private Stream<? extends Bonus<?>> getEntityBound() {
@@ -267,7 +272,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
         private BonusLookup(LivingEntity target) {
             getActiveBonuses(target).values().forEach(element -> {
-                activeBonuses.put(element, Reference.of(0));
+                activeBonuses.put(element, new AtomicInteger());
             });
             this.target = target;
         }
@@ -275,9 +280,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         public void tick() {
             this.activeBonuses.forEach((element, integer) -> {
                 Bonus<?> bonus = element.getBonus();
-                if (bonus.isEffectTick(integer.getIntValue(), target))
-                    bonus.onTick(integer.getIntValue(), target);
-                integer.setValue(integer.getIntValue() + 1);
+                if (bonus.isEffectTick(integer.get(), target))
+                    bonus.onTick(integer.get(), target);
+                integer.getAndIncrement();
             });
         }
 
@@ -296,9 +301,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     activeBonuses.remove(element);
                     Bonus<?> bonus = element.getBonus();
                     bonus.onRemove(target);
-                    if (this.target.level().isClientSide() && Modules.isParticleActive()) TerminatorTriggers.BONUS_REMOVED.get().trigger(this.target.getId(), element.getId());
+                    if (this.target.level().isClientSide() && Modules.isParticleActive())
+                        TerminatorTriggers.BONUS_REMOVED.get().trigger(this.target.getId(), element.getId());
                     Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(this.target);
-                    if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
+                    if (modifiers != null && !modifiers.isEmpty())
+                        this.target.getAttributes().removeAttributeModifiers(modifiers);
                 }
             }
             for (AbstractBonusElement element : next) {
@@ -315,8 +322,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     Bonus<?> bonus = element.getBonus();
                     bonus.onApply(target);
                     Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(target);
-                    if (modifiers != null && !modifiers.isEmpty()) target.getAttributes().addTransientAttributeModifiers(modifiers);
-                    activeBonuses.put(element, Reference.of(0));
+                    if (modifiers != null && !modifiers.isEmpty())
+                        target.getAttributes().addTransientAttributeModifiers(modifiers);
+                    activeBonuses.put(element, new AtomicInteger());
                 }
             }
         }
@@ -337,9 +345,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     activeBonuses.remove(element);
                     Bonus<?> bonus = element.getBonus();
                     bonus.onRemove(target);
-                    if (this.target.level().isClientSide()) TerminatorTriggers.BONUS_REMOVED.get().trigger(this.target.getId(), element.getId());
+                    if (this.target.level().isClientSide())
+                        TerminatorTriggers.BONUS_REMOVED.get().trigger(this.target.getId(), element.getId());
                     Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(this.target);
-                    if (modifiers != null && !modifiers.isEmpty()) this.target.getAttributes().removeAttributeModifiers(modifiers);
+                    if (modifiers != null && !modifiers.isEmpty())
+                        this.target.getAttributes().removeAttributeModifiers(modifiers);
                 }
             }
             for (AbstractBonusElement element : next) {
@@ -357,8 +367,9 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                     Bonus<?> bonus = element.getBonus();
                     bonus.onApply(target);
                     Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(target);
-                    if (modifiers != null && !modifiers.isEmpty()) target.getAttributes().addTransientAttributeModifiers(modifiers);
-                    activeBonuses.put(element, Reference.of(0));
+                    if (modifiers != null && !modifiers.isEmpty())
+                        target.getAttributes().addTransientAttributeModifiers(modifiers);
+                    activeBonuses.put(element, new AtomicInteger());
                 }
             }
         }
@@ -515,7 +526,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                 .filterValues(bonusElement -> !bonusElement.hidden || ignoreHidden, null)
                 .toMap();
         Map<ResourceLocation, SetBonusElement> setBonuses = MapStream.of(this.sets).filter((location, setBonusElement) ->
-            setBonusElement.itemsForEquipmentSlot.values().stream().anyMatch(stack::is) //|| setBonusElement.itemsForWearableSlot.values().stream().anyMatch(stack::is)
+                setBonusElement.itemsForEquipmentSlot.values().stream().anyMatch(stack::is) //|| setBonusElement.itemsForWearableSlot.values().stream().anyMatch(stack::is)
         ).toMap();
         Map<ResourceLocation, AbstractBonusElement> extended = getAllExtended(stack);
         ImmutableMap.Builder<ResourceLocation, AbstractBonusElement> allBonuses = new ImmutableMap.Builder<>();
@@ -573,7 +584,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         String nameKey = element.getNameId();
         decoration.add(getBonusTitle(enabled, living, nameKey, element));
         decoration.addAll(TextHelper.getDescriptionOrEmpty(nameKey, null));
-        if (!enabled && Modules.isRequirementsActive()) RequirementManager.addReqContent(decoration::add, BonusRequirementType.INSTANCE, element, living);
+        if (!enabled && Modules.isRequirementsActive())
+            RequirementManager.addReqContent(decoration::add, BonusRequirementType.INSTANCE, element, living);
         return decoration;
     }
 
@@ -601,7 +613,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     /**
      * gets the amount of equipment pieces active and required for the given set bonus and entity
-     * @param living the entity to check
+     *
+     * @param living  the entity to check
      * @param element the element to check
      * @return a 2d integer vector containing 1. the amount of equipped and 2. the required amount of pieces
      */
@@ -702,7 +715,8 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         }
     }
 
-    public record Data(Map<ResourceLocation, SetBonusElement> sets, DoubleMap<Item, ResourceLocation, BonusElement> itemBonuses) {
+    public record Data(Map<ResourceLocation, SetBonusElement> sets,
+                       DoubleMap<Item, ResourceLocation, BonusElement> itemBonuses) {
         public static final StreamCodec<RegistryFriendlyByteBuf, Data> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, SetBonusElement.STREAM_CODEC), d -> d.sets,
                 ExtraStreamCodecs.doubleMap(ByteBufCodecs.registry(Registries.ITEM), ResourceLocation.STREAM_CODEC, BonusElement.CODEC), Data::itemBonuses,

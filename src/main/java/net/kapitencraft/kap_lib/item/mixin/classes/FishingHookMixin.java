@@ -93,7 +93,7 @@ public abstract class FishingHookMixin extends Projectile implements IFishingHoo
 
     @WrapOperation(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;nextInt(Lnet/minecraft/util/RandomSource;II)I", ordinal = 1))
     public int getRandom(RandomSource random, int minimum, int maximum, Operation<Integer> original) {
-        return original.call(random, Math.max(1, minimum - getHookSpeedModifier() * 5), Math.max(1, maximum - getHookSpeedModifier() * 15));
+        return original.call(random, Math.max(1, minimum - getHookSpeedModifier()), Math.max(1, maximum - getHookSpeedModifier() * 3));
     }
 
     @WrapOperation(method = "catchingFish", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"))

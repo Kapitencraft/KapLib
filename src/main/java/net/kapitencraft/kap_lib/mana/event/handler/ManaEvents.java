@@ -16,14 +16,14 @@ import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 public class ManaEvents {
 
     @SubscribeEvent
-    public static void onEntityAttributeModification(EntityAttributeModificationEvent event) {
+    private static void onEntityAttributeModification(EntityAttributeModificationEvent event) {
         event.add(EntityType.PLAYER, ManaAttributes.MANA_COST);
         event.add(EntityType.PLAYER, ManaAttributes.MANA_REGEN);
         event.add(EntityType.PLAYER, ManaAttributes.MAX_MANA);
     }
 
     @SubscribeEvent
-    public static void leaveLevelEvent(EntityLeaveLevelEvent event) {
+    private static void leaveLevelEvent(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof Player player) {
             //save mana to reset back to when re-joining
             player.getPersistentData().putDouble("Mana", player.getData(ManaAttachmentTypes.MANA));
@@ -31,7 +31,7 @@ public class ManaEvents {
     }
 
     @SubscribeEvent
-    public static void joinLevelEvent(EntityJoinLevelEvent event) {
+    private static void joinLevelEvent(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof Player player) {
             CompoundTag tag = player.getPersistentData();
             double mana; //upload lost mana

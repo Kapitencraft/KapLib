@@ -13,6 +13,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * abstraction layer for custom FishingHooks
+ */
 public abstract class AbstractFishingHook extends FishingHook implements IFishingHook {
     private TagKey<Fluid> fluidType;
     private int hookSpeedModifier;

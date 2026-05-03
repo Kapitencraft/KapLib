@@ -36,7 +36,7 @@ public record EnchantmentColor(String name, List<Holder<Enchantment>> elements, 
      *
      * @param enchantment the enchantment to query
      * @param level       the level to query
-     * @return the target style, or null, if the enchantment \& level do not match
+     * @return the target style, or null, if the enchantment and level do not match
      */
     public Style getStyleForEnchantment(Holder<Enchantment> enchantment, int level) {
         if (!this.groups.isEmpty() && this.groups.stream().noneMatch(g -> g.is(enchantment)))

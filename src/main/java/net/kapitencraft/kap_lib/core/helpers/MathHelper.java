@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.core.helpers;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
-import net.kapitencraft.kap_lib.core.util.Reference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -49,7 +48,7 @@ public interface MathHelper {
     static IntSet intSetRange(int min, int max) {
         int[] range = new int[max - min + 1];
         for (int i = min; i <= max; i++) {
-            range[i-min] = min + i;
+            range[i - min] = min + i;
         }
         return IntSet.of(range);
     }
@@ -63,7 +62,8 @@ public interface MathHelper {
 
     /**
      * round the given number to the given number of decimal digits
-     * @param no the given number
+     *
+     * @param no  the given number
      * @param num the number of decimal digits
      * @return the rounded number
      */
@@ -73,7 +73,8 @@ public interface MathHelper {
 
     /**
      * default rounding, using 2 decimal digits
-     * @see MathHelper#round(double, int) 
+     *
+     * @see MathHelper#round(double, int)
      */
     static double defRound(double no) {
         return round(no, 2);
@@ -96,7 +97,7 @@ public interface MathHelper {
      * gives the 3d location for the given arm and entity
      */
     static Vec3 getHandHoldingItemAngle(HumanoidArm arm, @NotNull Entity entity) {
-        return entity.position().add(entity.calculateViewVector(0.0F, entity.getYRot() + (float)(arm == HumanoidArm.RIGHT ? 80 : -80)).scale(0.5D));
+        return entity.position().add(entity.calculateViewVector(0.0F, entity.getYRot() + (float) (arm == HumanoidArm.RIGHT ? 80 : -80)).scale(0.5D));
     }
 
     /**
@@ -128,10 +129,11 @@ public interface MathHelper {
 
     /**
      * rotates the given angle around the given axis
+     *
      * @param source the source Vec to rotate
-     * @param pivot the rotation pivot
-     * @param angle the angle in degree
-     * @param axis the axis to rotate around
+     * @param pivot  the rotation pivot
+     * @param angle  the angle in degree
+     * @param axis   the axis to rotate around
      * @return the rotated angle
      */
     static Vec3 rotateAroundAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle, @NotNull Direction.Axis axis) {
@@ -221,7 +223,7 @@ public interface MathHelper {
     static ArrayList<Vec3> lineOfSight(Vec2 vec, Vec3 pos, double range, double scaling) {
         ArrayList<Vec3> line = new ArrayList<>();
         Vec3 vec3;
-        for (double i = 0; i <= range; i+=scaling) {
+        for (double i = 0; i <= range; i += scaling) {
             vec3 = calculateViewVector(vec.x, vec.y).scale(i).add(pos.x, pos.y, pos.z);
             line.add(vec3);
         }
@@ -355,6 +357,7 @@ public interface MathHelper {
 
     /**
      * gets the closest living entity
+     *
      * @see MathHelper#getClosestEntity(Class, Entity, double)
      */
     static LivingEntity getClosestLiving(Entity source, double range) {
@@ -363,7 +366,8 @@ public interface MathHelper {
 
     /**
      * get Living entities around the given source
-     * @see MathHelper#getEntitiesAround(Class, Entity, double) 
+     *
+     * @see MathHelper#getEntitiesAround(Class, Entity, double)
      */
 
     static List<LivingEntity> getLivingAround(Entity source, double range) {
@@ -374,8 +378,8 @@ public interface MathHelper {
      * calculates the view vector of the given x and y rotation
      */
     static Vec3 calculateViewVector(float horizontalHeightXAxis, float verticalYAxis) {
-        float f = horizontalHeightXAxis * ((float)Math.PI / 180F);
-        float f1 = -verticalYAxis * ((float)Math.PI / 180F);
+        float f = horizontalHeightXAxis * ((float) Math.PI / 180F);
+        float f1 = -verticalYAxis * ((float) Math.PI / 180F);
         float f2 = Mth.cos(f1);
         float f3 = Mth.sin(f1);
         float f4 = Mth.cos(f);
@@ -398,7 +402,8 @@ public interface MathHelper {
 
     /**
      * gets all entities within a cube around the middle point and range
-     * @param loc the middle point of the area
+     *
+     * @param loc   the middle point of the area
      * @param range the radius of the cube
      */
     static <T extends Entity> List<T> getEntitiesAround(Class<T> tClass, Level level, Vec3 loc, double range) {
@@ -407,10 +412,11 @@ public interface MathHelper {
 
     /**
      * gets all entities within a cylinder
-     * @param radius the radius of the cylinder
+     *
+     * @param radius    the radius of the cylinder
      * @param sourcePos the bottom center of the cylinder
-     * @param rot the rotation of the cylinder
-     * @param height the height of the cylinder
+     * @param rot       the rotation of the cylinder
+     * @param height    the height of the cylinder
      */
     static List<Entity> getAllEntitiesInsideCylinder(float radius, Vec3 sourcePos, Vec2 rot, double height, Level level) {
         List<Entity> toReturn = new ArrayList<>();
@@ -437,7 +443,7 @@ public interface MathHelper {
         double dY = target.y - source.y;
         double dZ = target.z - source.z;
         double d3 = Math.sqrt(dX * dX + dZ * dZ);
-        return new Vec2(Mth.wrapDegrees((float)(-(Mth.atan2(dY, d3) * (double)(180F / (float)Math.PI)))), Mth.wrapDegrees((float)(Mth.atan2(dZ, dX) * (double)(180F / (float)Math.PI)) - 90.0F));
+        return new Vec2(Mth.wrapDegrees((float) (-(Mth.atan2(dY, d3) * (double) (180F / (float) Math.PI)))), Mth.wrapDegrees((float) (Mth.atan2(dZ, dX) * (double) (180F / (float) Math.PI)) - 90.0F));
     }
 
     /**
@@ -486,7 +492,7 @@ public interface MathHelper {
     }
 
     static Vec3 getRandomOffsetForPos(Entity target, double dist, double maxOffset) {
-        maxOffset *=2;
+        maxOffset *= 2;
         RandomSource source = RandomSource.create();
         Vec2 rot = target.getRotationVector();
         Vec3 targetPos = calculateViewVector(rot.x, rot.y).scale(dist);

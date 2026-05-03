@@ -11,8 +11,22 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Useful for quick animations
+ * Feel free to suggest more animations on the discord or on github
+ */
 public interface AnimationUtils {
 
+    /**
+     * generates a flat star spawner for animation
+     * @param tips the amount of tips the star has
+     * @param starType what particle the star should use
+     * @param ringType if there should be a ring around the star and if so, which particle should be used
+     * @param spacing the distance between each particle spawn.
+     * @param radius the radius of the star
+     * @param origin the origin (center) position of the star
+     * @return the animation builder setup to spawn a star
+     */
     static ParticleAnimation.Builder star(int tips, ParticleOptions starType, @Nullable ParticleOptions ringType, float spacing, float radius, PositionTarget origin) {
         float angleBetweenTips = 360f / tips * 2;
 

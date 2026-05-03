@@ -17,74 +17,73 @@ import java.util.function.Function;
 public class AlternativesEntry extends CompositeEntryBase {
     public static final MapCodec<AlternativesEntry> CODEC = createCodec(AlternativesEntry::new);
 
-   public AlternativesEntry(List<SpawnPoolEntryContainer> pChildren, List<LootItemCondition> pConditions) {
-      super(pChildren, pConditions);
-   }
+    public AlternativesEntry(List<SpawnPoolEntryContainer> pChildren, List<LootItemCondition> pConditions) {
+        super(pChildren, pConditions);
+    }
 
-   public SpawnPoolEntryType getType() {
-      return SpawnPoolEntries.ALTERNATIVES.get();
-   }
+    public SpawnPoolEntryType getType() {
+        return SpawnPoolEntries.ALTERNATIVES.get();
+    }
 
-   /**
-    * Compose the given children into one container.
-    */
-   protected ComposableEntryContainer compose(List<? extends ComposableEntryContainer> pEntries) {
-       return switch (pEntries.size()) {
-           case 0 -> ComposableEntryContainer.ALWAYS_FALSE;
-           case 1 -> pEntries.get(0);
-           case 2 -> pEntries.get(0).or(pEntries.get(1));
-           default -> (p_79393_, p_79394_) -> {
-               for (ComposableEntryContainer composableentrycontainer : pEntries) {
-                   if (composableentrycontainer.expand(p_79393_, p_79394_)) {
-                       return true;
-                   }
-               }
+    /**
+     * Compose the given children into one container.
+     */
+    protected ComposableEntryContainer compose(List<? extends ComposableEntryContainer> pEntries) {
+        return switch (pEntries.size()) {
+            case 0 -> ComposableEntryContainer.ALWAYS_FALSE;
+            case 1 -> pEntries.get(0);
+            case 2 -> pEntries.get(0).or(pEntries.get(1));
+            default -> (p_79393_, p_79394_) -> {
+                for (ComposableEntryContainer composableentrycontainer : pEntries) {
+                    if (composableentrycontainer.expand(p_79393_, p_79394_)) {
+                        return true;
+                    }
+                }
 
-               return false;
-           };
-       };
-   }
+                return false;
+            };
+        };
+    }
 
-   public void validate(ValidationContext pValidationContext) {
-      super.validate(pValidationContext);
+    public void validate(ValidationContext pValidationContext) {
+        super.validate(pValidationContext);
 
-      for(int i = 0; i < this.children.size() - 1; ++i) {
-         if (this.children.get(i).conditions.isEmpty()) {
-            pValidationContext.reportProblem("Unreachable entry!");
-         }
-      }
+        for (int i = 0; i < this.children.size() - 1; ++i) {
+            if (this.children.get(i).conditions.isEmpty()) {
+                pValidationContext.reportProblem("Unreachable entry!");
+            }
+        }
 
-   }
+    }
 
-   public static Builder alternatives(SpawnPoolEntryContainer.Builder<?>... pChildren) {
-      return new Builder(pChildren);
-   }
+    public static Builder alternatives(SpawnPoolEntryContainer.Builder<?>... pChildren) {
+        return new Builder(pChildren);
+    }
 
-   public static <E> Builder alternatives(Collection<E> pChildrenSources, Function<E, SpawnPoolEntryContainer.Builder<?>> pToChildrenFunction) {
-      return new Builder(pChildrenSources.stream().map(pToChildrenFunction::apply).toArray(SpawnPoolEntryContainer.Builder[]::new));
-   }
+    public static <E> Builder alternatives(Collection<E> pChildrenSources, Function<E, SpawnPoolEntryContainer.Builder<?>> pToChildrenFunction) {
+        return new Builder(pChildrenSources.stream().map(pToChildrenFunction::apply).toArray(SpawnPoolEntryContainer.Builder[]::new));
+    }
 
-   public static class Builder extends SpawnPoolEntryContainer.Builder<Builder> {
-      private final List<SpawnPoolEntryContainer> entries = Lists.newArrayList();
+    public static class Builder extends SpawnPoolEntryContainer.Builder<Builder> {
+        private final List<SpawnPoolEntryContainer> entries = Lists.newArrayList();
 
-      public Builder(SpawnPoolEntryContainer.Builder<?>... pChildren) {
-         for(SpawnPoolEntryContainer.Builder<?> builder : pChildren) {
-            this.entries.add(builder.build());
-         }
+        public Builder(SpawnPoolEntryContainer.Builder<?>... pChildren) {
+            for (SpawnPoolEntryContainer.Builder<?> builder : pChildren) {
+                this.entries.add(builder.build());
+            }
+        }
 
-      }
+        protected Builder getThis() {
+            return this;
+        }
 
-      protected Builder getThis() {
-         return this;
-      }
+        public Builder otherwise(SpawnPoolEntryContainer.Builder<?> pChildBuilder) {
+            this.entries.add(pChildBuilder.build());
+            return this;
+        }
 
-      public Builder otherwise(SpawnPoolEntryContainer.Builder<?> pChildBuilder) {
-         this.entries.add(pChildBuilder.build());
-         return this;
-      }
-
-      public SpawnPoolEntryContainer build() {
-         return new AlternativesEntry(this.entries, this.getConditions());
-      }
-   }
+        public SpawnPoolEntryContainer build() {
+            return new AlternativesEntry(this.entries, this.getConditions());
+        }
+    }
 }

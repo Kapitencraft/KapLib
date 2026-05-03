@@ -6,8 +6,6 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import net.kapitencraft.kap_lib.core.util.Reference;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
@@ -31,14 +29,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 public class TextHelper {
@@ -56,6 +52,7 @@ public class TextHelper {
 
     /**
      * chains the given list of Components as you'd when enumerating something
+     *
      * @param or whether it is a {@code or} or {@code and} list
      */
     public static Component chain(List<? extends Component> toChain, boolean or) {
@@ -98,9 +95,10 @@ public class TextHelper {
 
     /**
      * scans the translation files for the given keys each line and applies the given modifiers to the Component before adding it to the list to be returned.
+     *
      * @param keyMapper an {@code I -> String} function that converts the list index into a String used for accessing the translation cache
      * @param styleMods nullable style modifiers applied to each Component found by the scanner
-     * @param args optional args applied to each Component
+     * @param args      optional args applied to each Component
      */
     @Contract("null, _, _ -> fail; _, _, _ -> new")
     public static List<Component> getAllMatchingFilter(Function<Integer, String> keyMapper, @Nullable UnaryOperator<MutableComponent> styleMods, Object... args) {
@@ -143,23 +141,22 @@ public class TextHelper {
      * removes empty lines when lines above are already empty
      */
     public static void removeUnnecessaryEmptyLines(List<Component> components) {
-        Reference<Component> reference = Reference.of(null);
+        AtomicReference<Component> previous = new AtomicReference<>();
         components.removeIf(component -> {
             if (component.getString().isEmpty() || component == CommonComponents.EMPTY) {
-                Component value = reference.getValue();
+                Component value = previous.get();
                 if (value != null && value.getString().isEmpty() || value == CommonComponents.EMPTY) {
                     return true;
                 }
             }
-            reference.setValue(component);
+            previous.set(component);
             return false;
         });
     }
 
     /**
-     *
      * @param targetSelector the selector of which entity should get the stack
-     * @param stack the stack to convert into a /give command
+     * @param stack          the stack to convert into a /give command
      * @return the string that gives any selected target the ItemStack serialized
      */
     public static String createGiveFromStack(String targetSelector, ItemStack stack) {
@@ -191,6 +188,7 @@ public class TextHelper {
 
     /**
      * surrounds the given source with a single obfuscated letter on both sides
+     *
      * @param source the component to wrap
      * @return a new component wrapped around the obfuscated letters
      */
@@ -329,14 +327,14 @@ public class TextHelper {
         if (latinCache.containsKey(in)) return latinCache.get(in);
         StringBuilder s = new StringBuilder();
         while (in > 0) {
-            for (int i = latins.size()-1; i >= 0; i--) {
+            for (int i = latins.size() - 1; i >= 0; i--) {
                 Pair<Integer, String> element = latins.get(i);
                 if (element.getFirst() <= in) {
                     s.append(element.getSecond());
                     in -= element.getFirst();
                     break;
                 } else {
-                    for (int i1 = 0; i1 < i; i1+=2) {
+                    for (int i1 = 0; i1 < i; i1 += 2) {
                         Pair<Integer, String> e1 = latins.get(i1);
                         if (element.getFirst() - e1.getFirst() <= in) {
                             s.append(e1.getSecond()).append(element.getSecond());

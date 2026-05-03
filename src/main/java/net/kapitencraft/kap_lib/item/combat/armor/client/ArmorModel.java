@@ -18,15 +18,30 @@ import java.util.function.Function;
  * <br> extend to make custom armors models
  */
 public class ArmorModel extends HumanoidModel<LivingEntity> {
+    /**
+     * left boot model part. extra element that doesn't exist in the humanoid model
+     */
     public final ModelPart leftBoot;
+    /**
+     * right boot model part. extra element that doesn't exist in the humanoid model
+     */
     public final ModelPart rightBoot;
 
+    /**
+     * creates a new ArmorModel with cutout-no-cull rendertype
+     * @param pRoot the model
+     */
     public ArmorModel(ModelPart pRoot) {
         super(pRoot);
         this.leftBoot = pRoot.getChild("left_boot");
         this.rightBoot = pRoot.getChild("right_boot");
     }
 
+    /**
+     * creates a new ArmorModel with the given rendertype
+     * @param pRoot the model
+     * @param pRenderType the rendertype to use
+     */
     public ArmorModel(ModelPart pRoot, Function<ResourceLocation, RenderType> pRenderType) {
         super(pRoot, pRenderType);
         this.leftBoot = pRoot.getChild("left_boot");
@@ -42,6 +57,7 @@ public class ArmorModel extends HumanoidModel<LivingEntity> {
 
     /**
      * makes only one part visible for rendering
+     * @param slot the slot to make visible
      */
     public void partVisible(EquipmentSlot slot) {
         this.setAllVisible(false);

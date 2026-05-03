@@ -9,8 +9,16 @@ import org.jetbrains.annotations.NotNull;
 
 
 public interface AnimationElement {
+    /**
+     * base StreamCodec for animation elements
+     */
     StreamCodec<RegistryFriendlyByteBuf, AnimationElement> CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.MODIFIER_TYPES).dispatch(AnimationElement::getType, Type::codec);
 
+    /**
+     * provides the type of this element. return a value registered to the registry
+     * @return the registered type of this element
+     * @see Type
+     */
     @NotNull Type<? extends AnimationElement> getType();
 
     /**
@@ -19,6 +27,12 @@ public interface AnimationElement {
      */
     int createLength(ParticleConfig config);
 
+    /**
+     * called each tick for every particle config in the animation
+     * @param object the particle to be animated
+     * @param tick the amount of ticks passed for this element
+     * @param percentage the percentage of time passed for this element
+     */
     void tick(ParticleConfig object, int tick, double percentage);
 
     /**
@@ -36,7 +50,6 @@ public interface AnimationElement {
      * @param config the config being finalized
      */
     default void finalize(ParticleConfig config) {
-
     }
 
     /**
@@ -44,10 +57,23 @@ public interface AnimationElement {
      */
     interface Builder {
 
+        /**
+         * builds this element
+         * @return the build element
+         */
         AnimationElement build();
     }
 
+    /**
+     * the type of the element. must be registered to the <br> {@link ParticleAnimationRegistries#ANIMATION_ELEMENT_TYPES} registry in order to work
+     * @param <T> class type of the element
+     */
     interface Type<T extends AnimationElement> {
+
+        /**
+         * StreamCodec supplier to transfer element data to the client for rendering
+         * @return the StreamCodec used to transfer its data to the client
+         */
         StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
     }
 }

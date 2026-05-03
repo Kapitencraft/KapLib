@@ -41,7 +41,7 @@ public class AddEffectsFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.ADD_EFFECTS.get();
     }
 
@@ -56,15 +56,33 @@ public class AddEffectsFunction extends SpawnEntityConditionalFunction {
 
         private List<MobEffectInstance> effects = new ArrayList<>();
 
+        /**
+         * adds the effect to the function
+         * @param instance the effect to add
+         * @return this
+         */
         public Builder withEffect(MobEffectInstance instance) {
             effects.add(instance);
             return this;
         }
 
+        /**
+         * adds the given effect with given duration
+         * @param effect the effect to add
+         * @param duration the duration of that effect
+         * @return this
+         */
         public Builder withEffect(Holder<MobEffect> effect, int duration) {
             return this.withEffect(new MobEffectInstance(effect, duration));
         }
 
+        /**
+         * adds the given effect with given duration and amplifier
+         * @param effect the effect
+         * @param duration the duration
+         * @param amplifier the amplifier
+         * @return this
+         */
         public Builder withEffect(Holder<MobEffect> effect, int duration, int amplifier) {
             return this.withEffect(new MobEffectInstance(effect, duration, amplifier));
         }

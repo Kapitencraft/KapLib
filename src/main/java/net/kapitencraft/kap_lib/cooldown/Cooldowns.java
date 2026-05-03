@@ -5,13 +5,13 @@ import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.cooldown.network.S2C.CooldownStartedPacket;
 import net.kapitencraft.kap_lib.cooldown.network.S2C.SyncCooldownsToPlayerPacket;
 import net.kapitencraft.kap_lib.cooldown.registry.CooldownAttachmentTypes;
-import net.kapitencraft.kap_lib.core.util.IntegerReference;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -20,15 +20,17 @@ import java.util.*;
  */
 @ApiStatus.Internal
 public class Cooldowns {
-    public static final Codec<Cooldowns> CODEC = Codec.unboundedMap(Cooldown.CODEC, IntegerReference.CODEC).xmap(Cooldowns::new, c -> c.active);
+    private static final Codec<AtomicInteger> ATOMIC_INTEGER_CODEC = Codec.INT.xmap(AtomicInteger::new, AtomicInteger::get);
+    public static final Codec<Cooldowns> CODEC = Codec.unboundedMap(Cooldown.CODEC, ATOMIC_INTEGER_CODEC).xmap(Cooldowns::new, c -> c.active);
 
-    private final Map<Cooldown, IntegerReference> active = new HashMap<>();
+    private final Map<Cooldown, AtomicInteger> active = new HashMap<>();
 
-    private Cooldowns(Map<Cooldown, IntegerReference> active) {
+    private Cooldowns(Map<Cooldown, AtomicInteger> active) {
         this.active.putAll(active);
     }
 
-    public Cooldowns() {}
+    public Cooldowns() {
+    }
 
     public boolean isActive(Cooldown cooldown) {
         return active.containsKey(cooldown);
@@ -37,8 +39,8 @@ public class Cooldowns {
     public void tick(LivingEntity entity) {
         List<Cooldown> toRemove = new ArrayList<>();
         active.forEach((cooldown, integerReference) -> {
-            integerReference.decrease();
-            if (integerReference.getIntValue() <= 0) toRemove.add(cooldown);
+            integerReference.decrementAndGet();
+            if (integerReference.get() <= 0) toRemove.add(cooldown);
         });
         toRemove.forEach(c -> {
             c.onDone(entity);
@@ -55,24 +57,24 @@ public class Cooldowns {
     public void applyCooldown(LivingEntity entity, Cooldown cooldown, boolean reduceWithTime) {
         int time = cooldown.getCooldownTime(entity, reduceWithTime);
         if (time > 0) {
-            this.active.put(cooldown, IntegerReference.create(time));
+            this.active.put(cooldown, new AtomicInteger(time));
             PacketDistributor.sendToAllPlayers(new CooldownStartedPacket(cooldown, time, entity.getId()));
         }
     }
 
     public int getCooldownTime(Cooldown cooldown) {
-        IntegerReference reference = this.active.get(cooldown);
-        return reference == null ? 0 : reference.getIntValue();
+        AtomicInteger reference = this.active.get(cooldown);
+        return reference == null ? 0 : reference.get();
     }
 
     public Map<Cooldown, Integer> getData() {
         Map<Cooldown, Integer> map = new HashMap<>();
-        this.active.forEach((cooldown, integerReference) -> map.put(cooldown, integerReference.getIntValue()));
+        this.active.forEach((cooldown, integerReference) -> map.put(cooldown, integerReference.get()));
         return map;
     }
 
     public void loadData(Map<Cooldown, Integer> map) {
-        map.forEach((cooldown, integer) -> this.active.put(cooldown, IntegerReference.create(integer)));
+        map.forEach((cooldown, integer) -> this.active.put(cooldown, new AtomicInteger(integer)));
     }
 
     public static Cooldowns get(LivingEntity living) {
@@ -85,6 +87,6 @@ public class Cooldowns {
     }
 
     public void setCooldownTime(Cooldown cooldown, int duration) {
-        this.active.put(cooldown, IntegerReference.create(duration));
+        this.active.put(cooldown, new AtomicInteger(duration));
     }
 }

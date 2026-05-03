@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractArrow.class)
-public abstract class AbstractArrowMixin extends Projectile {
+abstract class AbstractArrowMixin extends Projectile {
 
     @Shadow private double baseDamage;
 
@@ -23,6 +23,9 @@ public abstract class AbstractArrowMixin extends Projectile {
         super(pEntityType, pLevel);
     }
 
+    /**
+     * fixes a bug where arrows stuck in the air would start locking rotation to 0|0 instead of keeping their rotation
+     */
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/AbstractArrow;position()Lnet/minecraft/world/phys/Vec3;", ordinal = 1), cancellable = true)
     private void fixRotationLock(CallbackInfo ci) {
         if (this.getDeltaMovement().equals(Vec3.ZERO))

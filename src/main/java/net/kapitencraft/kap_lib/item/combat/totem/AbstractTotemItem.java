@@ -9,7 +9,7 @@ import net.minecraft.world.item.Item;
  * overwrite {@link #onUse(LivingEntity, DamageSource)} to enable behaviour
  */
 public abstract class AbstractTotemItem extends Item {
-    public AbstractTotemItem(Properties p_41383_) {
+    protected AbstractTotemItem(Properties p_41383_) {
         super(p_41383_.stacksTo(1));
     }
 
@@ -18,7 +18,7 @@ public abstract class AbstractTotemItem extends Item {
      * @param living the entity dying
      * @param source the source that caused the death
      * @return whether this totem saves the entity
-     * @implNote make sure to set the health of the entity above 0 when you save it, as otherwise the game will crash
+     * //@implNote make sure to set the health of the entity above 0 when you save it, as otherwise the game will crash
      */
     public abstract boolean onUse(LivingEntity living, DamageSource source);
 }
