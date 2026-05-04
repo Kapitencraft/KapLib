@@ -13,6 +13,7 @@ public interface IChromatic {
         return (IChromatic) bakedGlyph;
     }
 
+    //TODO interface injection
     static IChromatic of(FontTexture fontTexture) {
         return (IChromatic) fontTexture;
     }

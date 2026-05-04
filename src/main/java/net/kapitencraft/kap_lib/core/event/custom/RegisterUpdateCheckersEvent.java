@@ -31,7 +31,6 @@ public class RegisterUpdateCheckersEvent extends Event implements IModBusEvent {
     /**
      * normally used for projects using the autoPublish subsystem for publishing
      * @param modId the modId of the project
-     * @see net.kapitencraft.kap_lib.publish.AutoPublisher AutoPublisher
      */
     public void register(String modId) {
         register(modId, modId);

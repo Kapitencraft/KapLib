@@ -36,7 +36,6 @@ static def convertModulePascalCase(String moduleName) {
 plugins {
     id 'idea'
     id 'com.vanniktech.maven.publish' version '0.33.0'
-    id 'signing'
     id 'net.neoforged.moddev' version '2.0.88'
 }
 
@@ -185,33 +184,19 @@ modulesDir.eachFileMatch(~/.*\.json/) { file ->
 println "Discovered ${moduleFilters.size()} Modules: ${moduleFilters.keySet()}"
 //endregion discovery
 
-// remove all main dependencies.
-sourceSets.main {
-    resources {
-        srcDir 'src/generated/resources'
-        exclude 'META-INF/dev-neoforge.mods.toml'
-        exclude 'META-INF/ee-neoforge.mods.toml'
-        exclude 'META-INF/nat-neoforge.mods.toml'
-        exclude '.cache'
-        moduleFilters.each { String name, val ->
-            exclude "kap_lib_${name}.mixins.json"
-            exclude "META-INF/accesstransformer-${name}.cfg"
-        }
-    }
-    java { SourceDirectorySet set ->
-        moduleFilters.each { String name, val ->
-            exclude "net/kapitencraft/kap_lib/${name}/mixin/classes/**"
-            exclude "net/kapitencraft/kap_lib/${name}/event/handler/**"
-            exclude "net/kapitencraft/kap_lib/${name}/${convertModulePascalCase(name)}Module.java"
-            exclude "net/kapitencraft/kap_lib/${name}/network/${convertModulePascalCase(name)}Messages.java"
-        }
-    }
-}
-
 //generate module source sets
 moduleFilters.each { String id, filter ->
     registerPublishedModule(id, filter)
 }
+
+mavenPublishing {
+
+    publishToMavenCentral()
+
+    signAllPublications()
+}
+
+
 
 def registerPublishedModule(String id, Object moduleData) {
 
@@ -525,14 +510,6 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
-mavenPublishing {
-    configureBasedOnAppliedPlugins(false, false)
-
-    publishToMavenCentral()
-
-    signAllPublications()
-}
-
 publishing {
     publications {
         kapLib(MavenPublication) {
@@ -558,8 +535,4 @@ signing {
             new String(Base64.decoder.decode((String) findProperty("signingKey"))),
             findProperty("signingPassword")
     )
-
-    //moduleFilters.keySet().each { String name ->
-    //    sign publishing.publications."${convertModuleCamelCase(name)}"
-    //}
 }
