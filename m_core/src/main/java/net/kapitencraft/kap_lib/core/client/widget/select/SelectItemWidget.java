@@ -1,0 +1,48 @@
+package net.kapitencraft.kap_lib.core.client.widget.select;
+
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
+
+public class SelectItemWidget extends SelectRegistryElementWidget<Item> {
+    private static final int ITEM_WIDTH_WITH_OFFSET = 18;
+    private static final List<ItemStack> itemsCache = StreamSupport.stream(BuiltInRegistries.ITEM.spliterator(), false).map(Item::getDefaultInstance).toList();
+    private final int xOffset = (this.width - 2) % 18 / 2;
+
+    protected SelectItemWidget(int x, int y, int width, int height, Component title, Font font, Consumer<Item> itemSink) {
+        super(x, y, width, height, title, font, BuiltInRegistries.ITEM, itemSink);
+    }
+
+    @Override
+    protected int getHoveredIndex(double pMouseX, double pMouseY) {
+        return 0;
+    }
+
+    @Override
+    protected void renderInternal(GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        int elementsPerRow = getEPR();
+        int minIndex = (int) scroll / ITEM_WIDTH_WITH_OFFSET * elementsPerRow;
+        int maxIndex = ((int) scroll + this.height) / ITEM_WIDTH_WITH_OFFSET * elementsPerRow;
+        for (int i = minIndex; i < maxIndex; i++) {
+            int column = i % elementsPerRow;
+            int row = i / elementsPerRow;
+            graphics.renderItem(itemsCache.get(i), this.xOffset + column * ITEM_WIDTH_WITH_OFFSET, (int) scroll + row * ITEM_WIDTH_WITH_OFFSET);
+        }
+    }
+
+    private int getEPR() {
+        return (this.width - 2 - xOffset * 2) / 18;
+    }
+
+    @Override
+    protected int size() {
+        return allElements.size() / getEPR() * 18;
+    }
+}

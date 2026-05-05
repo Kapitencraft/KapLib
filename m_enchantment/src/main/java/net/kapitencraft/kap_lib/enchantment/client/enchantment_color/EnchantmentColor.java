@@ -1,0 +1,62 @@
+package net.kapitencraft.kap_lib.enchantment.client.enchantment_color;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.core.client.widget.select.SelectChatColorWidget;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Style;
+import net.minecraft.world.item.enchantment.Enchantment;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+public record EnchantmentColor(String name, List<Holder<Enchantment>> elements, List<EnchantmentGroup> groups,
+                               @Nullable LevelRange levelRange, Style targetStyle) {
+    static final Codec<EnchantmentColor> CODEC = RecordCodecBuilder.create(enchantmentColorInstance -> enchantmentColorInstance.group(
+            Codec.STRING.fieldOf("name").forGetter(EnchantmentColor::name),
+            Enchantment.CODEC.listOf().optionalFieldOf("elements", List.of()).forGetter(EnchantmentColor::elements),
+            EnchantmentGroup.CODEC.listOf().optionalFieldOf("groups", List.of()).forGetter(EnchantmentColor::groups),
+            LevelRange.CODEC.optionalFieldOf("levelRange").forGetter(c -> Optional.ofNullable(c.levelRange)),
+            Style.Serializer.CODEC.fieldOf("style").forGetter(EnchantmentColor::targetStyle)
+    ).apply(enchantmentColorInstance, EnchantmentColor::fromCodec));
+
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    private static EnchantmentColor fromCodec(String name, List<Holder<Enchantment>> elements, List<EnchantmentGroup> groups, Optional<LevelRange> levelRange, Style targetStyle) {
+        return EnchantmentColor.create(name, elements, groups, levelRange.orElse(null), targetStyle);
+    }
+
+    public static EnchantmentColor create(String name, List<Holder<Enchantment>> elements, List<EnchantmentGroup> groups, @Nullable LevelRange range, Style targetStyle) {
+        return new EnchantmentColor(name, new ArrayList<>(elements), new ArrayList<>(groups), range, targetStyle);
+    }
+
+    /**
+     * gets the style for this color if both parameters match
+     *
+     * @param enchantment the enchantment to query
+     * @param level       the level to query
+     * @return the target style, or null, if the enchantment and level do not match
+     */
+    public Style getStyleForEnchantment(Holder<Enchantment> enchantment, int level) {
+        if (!this.groups.isEmpty() && this.groups.stream().noneMatch(g -> g.is(enchantment)))
+            return null;
+        if (!this.elements.isEmpty() && !this.elements.contains(enchantment))
+            return null;
+        if (this.levelRange != null && !this.levelRange.test(level, enchantment.value().getMaxLevel()))
+            return null;
+        return this.targetStyle;
+    }
+
+    public SelectChatColorWidget.ColorType toColorType() {
+        Style style = this.targetStyle();
+        //if (Modules.isComponentActive() && ComponentCompat.checkRainbowActive(style)) {
+        //    return SelectChatColorWidget.COLOR_TYPES[16]; //get the rainbow element
+        //}
+        for (int i = 0; i < 16; i++) {
+            if (SelectChatColorWidget.COLOR_LOOKUP[i].equals(style.getColor()))
+                return SelectChatColorWidget.COLOR_TYPES[i];
+        }
+        throw new IllegalArgumentException("could not extract color from style: " + style);
+    }
+}

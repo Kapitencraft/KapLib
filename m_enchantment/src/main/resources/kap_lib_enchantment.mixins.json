@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "compatibilityLevel": "JAVA_21",
+  "package": "net.kapitencraft.kap_lib.enchantment.mixin.classes",
+  "refmap": "kap_lib.mixin-refmap.json",
+  "client": [
+    "client.AddEnchantmentTooltipMixin",
+    "client.EnchantmentFontManagerMixin",
+    "client.EnchantmentMixin"
+  ],
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

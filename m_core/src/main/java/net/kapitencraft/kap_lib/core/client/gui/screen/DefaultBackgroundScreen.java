@@ -1,0 +1,50 @@
+package net.kapitencraft.kap_lib.core.client.gui.screen;
+
+import net.kapitencraft.kap_lib.core.LibConstants;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+
+public class DefaultBackgroundScreen extends Screen implements IBackgroundScreen {
+    private static final ResourceLocation BACKGROUND_TEXTURE = LibConstants.res("textures/gui/background.png");
+
+    /**
+     * the position of the background texture
+     */
+    protected int leftPos;
+    protected int topPos;
+
+
+    protected DefaultBackgroundScreen(Component pTitle) {
+        super(pTitle);
+    }
+
+    @Override
+    protected void init() {
+        this.leftPos = this.leftPos(this.width);
+        this.topPos = this.topPos(this.height);
+    }
+
+    @Override
+    public void render(@NotNull GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(graphics, pMouseX, pMouseY, pPartialTick);
+        super.render(graphics, pMouseX, pMouseY, pPartialTick);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        guiGraphics.blit(BACKGROUND_TEXTURE, this.leftPos, this.topPos, 0, 0, 0, getImageWidth(), getImageHeight(), getImageWidth(), getImageHeight());
+    }
+
+    @Override
+    public int getImageWidth() {
+        return 219;
+    }
+
+    @Override
+    public int getImageHeight() {
+        return 180;
+    }
+}
