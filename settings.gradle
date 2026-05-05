@@ -8,3 +8,12 @@ pluginManagement {
         maven { url = 'https://maven.parchmentmc.org' }
     }
 }
+
+file("./modules").eachFile { File it ->
+    String folderName = it.name.replace(".json", "")
+    include(":${folderName}")
+    project(":${folderName}").projectDir = file("m_${folderName}")
+}
+//include(":aggregate")
+
+rootProject.name = "KapLib"

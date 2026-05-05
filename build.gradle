@@ -45,54 +45,176 @@ base {
     archivesName = mod_id
 }
 
-// Mojang ships Java 21 to end users in 1.21+, so your mod should target Java 21.
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+println("Discovered ${subprojects.size()} modules: ${subprojects.name}")
 
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+subprojects { Project proj ->
 
-repositories {
-    // Put repositories for dependencies here
-    // ForgeGradle automatically adds the Forge maven and Maven Central for you
+    Object data = new JsonSlurper().parse(new File("modules/${name}.json"))
 
-    // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
-    // flatDir {
-    //     dir 'libs'
-    // }
-    maven { url 'https://maven.blamejared.com' }
+    apply plugin: 'idea'
+    apply plugin: 'com.vanniktech.maven.publish'
+    apply plugin: 'net.neoforged.moddev'
 
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = "https://api.modrinth.com/maven"
+    group = rootProject.group
+    version = rootProject.version
+
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    repositories {
+        mavenCentral()
+
+        if (proj.name == 'recipe') {
+            maven { url 'https://maven.blamejared.com' }
+        }
+
+        if (data.asMod) {
+            exclusiveContent {
+                forRepository {
+                    maven {
+                        name = "Modrinth"
+                        url = "https://api.modrinth.com/maven"
+                    }
+                }
+                filter {
+                    includeGroup "maven.modrinth"
+                }
             }
         }
-        filter {
-            includeGroup "maven.modrinth"
+    }
+
+    dependencies {
+        if (name != "core" && data.asMod) {
+            api(project(":core"))
+
+            if (name == 'recipe') {
+                compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
+                compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+                runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+            }
+        }
+
+        if (data.compat != null) {
+            data.compat.each { String dep ->
+                compileOnly(project(":${dep}"))
+            }
+        }
+
+        if (data.dependencies != null) {
+            data.dependencies.each { String dep ->
+                api(project(":${dep}"))
+            }
+        }
+
+        if (data.asMod) {
+            implementation "maven.modrinth:sodium:mc${mc_version}-0.6.13-neoforge"
+        }
+    }
+
+    var metaProperties = [
+            minecraft_version      : mc_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id, mod_name: mod_name,
+            mod_license            : mod_license, mod_version: mod_version,
+            mod_authors            : mod_authors, mod_description: mod_description,
+    ]
+
+    proj.tasks.named('processResources', ProcessResources).configure {
+        inputs.properties metaProperties
+
+        filesMatching(['pack.mcmeta']) {
+            expand metaProperties
+        }
+
+        filesMatching(['META-INF/neoforge.mods.toml']) { FileCopyDetails fCD ->
+            fCD.expand metaProperties
+        }
+
+        var publishProperties = [
+                mod_id     : mod_id, mod_name: mod_name,
+                mod_version: mod_version, minecraft_version: mc_version,
+                neo_version: neo_version
+        ]
+
+        inputs.properties publishProperties
+        filesMatching(['publish_config.json']) {
+            expand publishProperties
+        }
+    }
+
+    if (data.asMod) {
+        neoForge {
+            version = rootProject.neo_version
+
+            parchment {
+                mappingsVersion = rootProject.parchment_version
+                minecraftVersion = rootProject.mc_version
+            }
+
+            mods {
+                "${mod_id}" {
+                    sourceSet(proj.sourceSets.main)
+                }
+            }
+
+            runs {
+                // applies to all the run configs below
+                configureEach {
+
+                    systemProperty 'forge.enabledGameTestNamespaces', mod_id
+                    // Recommended logging data for a userdev environment
+                    // The markers can be added/remove as needed separated by commas.
+                    // "SCAN": For mods scan.
+                    // "REGISTRIES": For firing of registry events.
+                    // "REGISTRYDUMP": For getting the contents of all registries.
+                    systemProperty 'forge.logging.markers', 'REGISTRIES'
+
+                    // Recommended logging level for the console
+                    // You can set various levels here.
+                    // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+                    logLevel = org.slf4j.event.Level.WARN
+                }
+
+                client {
+                    client()
+
+                    programArguments.addAll '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
+                }
+
+                kaupenClient {
+                    client()
+
+                    programArguments.addAll '--username', 'Kaupenjoe', '--uuid', '665ad10f-5548-4985-986b-b642732ddce0'
+                }
+
+                server {
+                    server()
+                    programArgument '--nogui'
+                }
+
+                //data {
+                //    data()
+                //    // example of overriding the workingDirectory set in configureEach above
+//
+                //    sourceSet = proj.sourceSets.main
+//
+                //    // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+                //    programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+                //}
+            }
         }
     }
 }
 
-dependencies {
+// Mojang ships Java 21 to end users in 1.21+, so your mod should target Java 21.
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-    // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-    runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-
-    // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
-    // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
-
-    // For more info:
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
-    implementation "maven.modrinth:sodium:mc${mc_version}-0.6.13-neoforge"
-}
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
 tasks.register('autoPublish', JavaExec) {
     mainClass = 'net.kapitencraft.kap_lib.publish.AutoPublisher'
@@ -122,72 +244,12 @@ tasks.register('gitUpdate', Task) {
     }
 }
 
-var metaProperties = [
-        minecraft_version      : mc_version,
-        minecraft_version_range: minecraft_version_range,
-        neo_version            : neo_version,
-        neo_version_range      : neo_version_range,
-        loader_version_range   : loader_version_range,
-        mod_id                 : mod_id, mod_name: mod_name,
-        mod_license            : mod_license, mod_version: mod_version,
-        mod_authors            : mod_authors, mod_description: mod_description,
-]
-
-tasks.named('processResources', ProcessResources).configure {
-    inputs.properties metaProperties
-
-    filesMatching(['pack.mcmeta']) {
-        expand metaProperties
-    }
-
-    filesMatching(['META-INF/ee-at-neoforge.mods.toml']) { FileCopyDetails fCD ->
-        fCD.expand metaProperties
-        fCD.setName('neoforge.mods.toml')
-    }
-
-    var publishProperties = [
-            mod_id     : mod_id, mod_name: mod_name,
-            mod_version: mod_version, minecraft_version: mc_version,
-            neo_version: neo_version
-    ]
-
-    inputs.properties publishProperties
-    filesMatching(['publish_config.json']) {
-        expand publishProperties
-    }
-}
-
 //region modules
-//region discovery
-ext.moduleFilters = [
-        core: [
-                asMod     : true,
-                extensions: false,
-                at        : true,
-                assets    : [
-                        '*/lang/en_us.json',
-                        'kap_lib/textures/gui/background.png',
-                        'kap_lib/textures/gui/red_cross.png',
-                        'kap_lib/textures/gui/slot_background.png'
-                ]
-        ]
-]
-
-def modulesDir = file("modules")
-modulesDir.eachFileMatch(~/.*\.json/) { file ->
-    def moduleName = file.name.replace(".json", "")
-    def config = new JsonSlurper().parse(file)
-
-    ext.moduleFilters[moduleName] = config
-}
-
-println "Discovered ${moduleFilters.size()} Modules: ${moduleFilters.keySet()}"
-//endregion discovery
 
 //generate module source sets
-moduleFilters.each { String id, filter ->
-    registerPublishedModule(id, filter)
-}
+//moduleFilters.each { String id, filter ->
+//    registerPublishedModule(id, filter)
+//}
 
 mavenPublishing {
 
@@ -196,205 +258,11 @@ mavenPublishing {
     signAllPublications()
 }
 
-
-
-def registerPublishedModule(String id, Object moduleData) {
-
-    def moduleCamelCase = convertModuleCamelCase(id)
-    def modulePascalCase = convertModulePascalCase(id)
-    def moduleName = convertModuleName(id)
-
-    def ss = sourceSets.create(moduleCamelCase) { SourceSet s ->
-        s.java {
-            srcDir 'src/main/java'
-            include "net/kapitencraft/kap_lib/${id}/**"
-        }
-
-        s.resources {
-            srcDirs = []
-        }
-    }
-
-    //region processResources
-    var tomlProperties = [
-            minecraft_version      : mc_version,
-            minecraft_version_range: minecraft_version_range,
-            loader_version_range   : loader_version_range,
-            neo_version            : neo_version,
-            mod_license            : mod_license,
-            mod_id                 : "${mod_id}_${id}",
-            mod_version            : mod_version,
-            mod_name               : "${mod_name} ${moduleName}Module",
-            mod_authors            : mod_authors,
-            mod_description        : "${moduleName}Module of KapLib",
-            neo_version_range      : neo_version_range
-    ]
-
-    tasks.named("process${convertModulePascalCase(id)}Resources").configure {
-        duplicatesStrategy = DuplicatesStrategy.FAIL
-
-        from(['src/main/resources', 'src/generated/resources']) {
-            include 'this_does_not_exist.json' //prevent everything to be included when nothing is specified
-
-            if (moduleData.assets != null) {
-                moduleData.assets.each { String aName ->
-                    include "assets/${aName}"
-                }
-            }
-
-            if (moduleData.data != null) {
-                moduleData.data.each { String dName ->
-                    include "data/${dName}"
-                }
-            }
-
-            if (moduleData.asMod) {
-                if (moduleData.at) {
-                    if (moduleData.extensions) {
-                        include 'META-INF/ee-at-neoforge.mods.toml'
-                    } else {
-                        include 'META-INF/dev-neoforge.mods.toml'
-                    }
-                    include "META-INF/accesstransformer-${id}.cfg"
-                    filesMatching("META-INF/accesstransformer-${id}.cfg") { FileCopyDetails fCD ->
-                        fCD.setName('accesstransformer.cfg')
-                    }
-                } else {
-                    if (moduleData.extensions) {
-                        include 'META-INF/ee-neoforge.mods.toml'
-                    } else {
-                        include 'META-INF/nat-neoforge.mods.toml'
-                    }
-                }
-                filesMatching([
-                        'META-INF/ee-at-neoforge.mods.toml',
-                        'META-INF/dev-neoforge.mods.toml',
-                        'META-INF/ee-neoforge.mods.toml',
-                        'META-INF/nat-neoforge.mods.toml'
-                ]) { FileCopyDetails fCD ->
-                    fCD.expand tomlProperties
-                    fCD.setName('neoforge.mods.toml')
-                }
-                include "${mod_id}_${id}.mixins.json"
-            }
-        }
-    }
-    //endregion
-
-    /*
-     * ========= JAR =========
-     */
-    def jarTask = tasks.register("jar${modulePascalCase}", Jar) {
-        duplicatesStrategy = DuplicatesStrategy.FAIL
-
-        from ss.output
-        archiveBaseName = "${mod_id}-$id"
-
-        exclude 'data/test'
-        exclude 'assets/test'
-        exclude 'data/neoforge/loot_modifiers'
-    }
-
-    /*
-     * ========= SOURCES =========
-     */
-    def sourcesJar = tasks.register("${moduleCamelCase}SourcesJar", Jar) {
-        group = "build"
-        description = "Assembles a sources jar for ${moduleName}"
-
-        archiveBaseName = "${mod_id}-$id"
-        archiveClassifier = 'sources'
-
-        from ss.allSource
-    }
-
-    //region javadoc
-    /*
-     * ========= JAVADOC =========
-     */
-    def javadoc = tasks.register("${moduleCamelCase}Javadoc", Javadoc) {
-        source = ss.allJava
-        classpath = ss.compileClasspath
-        failOnError = false
-
-        setDestinationDir(layout.buildDirectory.dir("docs/javadoc/${id}").get().asFile)
-    }
-
-    def javadocJar = tasks.register("${moduleCamelCase}JavadocJar", Jar) {
-        dependsOn javadoc
-        archiveBaseName = "${mod_id}-$id"
-        archiveClassifier = 'javadoc'
-        from javadoc.map { it.destinationDir }
-    }
-    //endregion javadoc
-
-    //region publish
-    /*
-     * ========= PUBLICATION =========
-     */
-    publishing.publications.register(
-            moduleCamelCase,
-            MavenPublication
-    ) {
-
-        groupId = project.group
-        artifactId = "${mod_id}-${id}"
-        version = project.version
-
-        artifact(jarTask)
-        artifact(sourcesJar)
-        artifact(javadocJar)
-
-        pom {
-            name = "${mod_name} ${moduleName}Module"
-            description = "Library for (almost) any occasion"
-            url = "https://github.com/kapitencraft/kapLib"
-
-            licenses {
-                license {
-                    name = "MIT License"
-                    url = "https://opensource.org/license/mit"
-                }
-            }
-
-            developers {
-                developer {
-                    email = "kapitencraft@gmail.com"
-                    name = "Kapitencraft"
-                }
-            }
-
-            scm {
-                url = "https://github.com/kapitencraft/kapLib"
-            }
-        }
-    }
-    //endregion publish
-}
-
 dependencies {
-    moduleFilters.each { String name, filter ->
-        def mName = convertModuleCamelCase(name)
-
-        if (filter.compat != null) {
-            filter.compat.each { String dep ->
-                "${mName}CompileOnly"(sourceSets[convertModuleCamelCase(dep)].output)
-            }
-        }
-
-        if (filter.dependencies != null) {
-            filter.dependencies.each { String dep ->
-                "${mName}Implementation"(sourceSets[convertModuleCamelCase(dep)].output)
-            }
-        }
-
-        if (name != 'core') {
-            "${mName}Implementation"(sourceSets.core.output)
-        }
-    }
-    recipeCompileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    recipeCompileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-    recipeRuntimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+    implementation(project(":core"))
+    implementation(project(":cooldown"))
+    implementation(project(":inventory_page"))
+    implementation(project(":item"))
 }
 
 neoForge {
@@ -405,21 +273,9 @@ neoForge {
         minecraftVersion = project.mc_version
     }
 
-    moduleFilters.keySet().each { String n ->
-        addModdingDependenciesTo(sourceSets."${convertModuleCamelCase(n)}")
-    }
-
     mods {
         "${mod_id}" {
             sourceSet(sourceSets.main)
-        }
-
-        moduleFilters.each { String mName, module ->
-            if (module.asMod) {
-                it.register("${mod_id}_${mName}") {
-                    sourceSet sourceSets[convertModuleCamelCase(mName)]
-                }
-            }
         }
     }
 
@@ -441,31 +297,15 @@ neoForge {
             logLevel = org.slf4j.event.Level.WARN
         }
 
-        moduleFilters.each { String name, module ->
-            if (module.asMod) {
-                create("client${convertModulePascalCase(name)}") {
-
-                    client()
-
-                    sourceSet = sourceSets[convertModuleCamelCase(name)]
-                    loadedMods = [mods."${mod_id}_${name}", mods."${mod_id}_core"] + (module.dependencies == null ? List.of() :
-                            module.dependencies.stream().map(s -> mods."${mod_id}_${s}").toList())
-                    programArguments.addAll '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
-                }
-            }
-        }
-
         client {
             client()
 
-            loadedMods = [mods."${mod_id}"]
             programArguments.addAll '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
         }
 
         kaupenClient {
             client()
 
-            loadedMods = [mods."${mod_id}"]
             programArguments.addAll '--username', 'Kaupenjoe', '--uuid', '665ad10f-5548-4985-986b-b642732ddce0'
         }
 
@@ -479,7 +319,6 @@ neoForge {
             // example of overriding the workingDirectory set in configureEach above
 
             sourceSet = sourceSets.main
-            loadedMods = [mods."${mod_id}"]
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
@@ -488,8 +327,9 @@ neoForge {
 }
 
 tasks.named('assemble').configure {
-    dependsOn { moduleFilters.keySet().stream().map { "jar${convertModulePascalCase(it)}" }.toList() }
-    dependsOn { moduleFilters.keySet().stream().map { "${convertModuleCamelCase(it)}SourcesJar" }.toList() }
+    dependsOn(subprojects.collect {
+        it.tasks.named("build")
+    })
 }
 //endregion
 
@@ -512,18 +352,34 @@ tasks.withType(JavaCompile).configureEach {
 
 publishing {
     publications {
-        kapLib(MavenPublication) {
+
+        subprojects.each { proj ->
+            if (proj.name != "kap_lib") {
+
+                register(proj.name, MavenPublication) {
+                    from proj.components.java
+                    artifactId = "kap_lib-${proj.name}"
+                }
+            }
+        }
+
+        // aggregator artifact
+        register("kapLib", MavenPublication) {
             artifactId = "kap_lib"
-            artifact(tasks.jar)
 
-            pom.withXml {
-                def deps = asNode().appendNode("dependencies")
+            pom {
+                name = "KapLib"
+                description = "Aggregate artifact"
 
-                moduleFilters.keySet().each { String name ->
-                    def dep = deps.appendNode("dependency")
-                    dep.appendNode("groupId", project.group)
-                    dep.appendNode("artifactId", "kap_lib-${name}")
-                    dep.appendNode("version", project.version)
+                withXml {
+                    def deps = asNode().appendNode("dependencies")
+
+                    ["core", "attribute", "particle"].each {
+                        def dep = deps.appendNode("dependency")
+                        dep.appendNode("groupId", project.group)
+                        dep.appendNode("artifactId", "kap_lib-${it}")
+                        dep.appendNode("version", project.version)
+                    }
                 }
             }
         }
