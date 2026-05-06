@@ -1,12 +1,4 @@
 {
-  "chat.square_brackets": "%s",
-
-
-  "item.nbt_tags": "NBT: %s tag(s), press ALT to see details",
-
-  "best.creeper.1": "Very explosive",
-  "best.enderman.1": "Very sensitive, especially between the eyes",
-
   "enchantment.minecraft.breach.desc": "reduces effectiveness of enemy armor",
   "enchantment.minecraft.density.desc": "increases damage by mace fall attack",
   "enchantment.minecraft.protection.desc":"Reduces damage from most sources.",
@@ -48,6 +40,5 @@
   "enchantment.minecraft.piercing.desc":"Allows projectiles to pierce through mobs.",
   "enchantment.minecraft.soul_speed.desc":"Increases movement speed on soul blocks.",
   "enchantment.minecraft.swift_sneak.desc":"Increases movement speed while sneaking.",
-  "enchantment.minecraft.wind_burst.desc": "flings you into the sky when hitting a mace hit",
-  "inventory.page.crafting": "Crafting"
+  "enchantment.minecraft.wind_burst.desc": "flings you into the sky when hitting a mace hit"
 }

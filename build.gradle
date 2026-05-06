@@ -69,20 +69,6 @@ subprojects { Project proj ->
         if (proj.name == 'recipe') {
             maven { url 'https://maven.blamejared.com' }
         }
-
-        if (data.asMod) {
-            exclusiveContent {
-                forRepository {
-                    maven {
-                        name = "Modrinth"
-                        url = "https://api.modrinth.com/maven"
-                    }
-                }
-                filter {
-                    includeGroup "maven.modrinth"
-                }
-            }
-        }
     }
 
     dependencies {
@@ -96,6 +82,17 @@ subprojects { Project proj ->
             }
         }
 
+        if (name == 'publish') {
+            implementation('com.google.code.gson:gson:2.10.1')
+            implementation('com.google.guava:guava:32.1.2-jre')
+            implementation('com.mojang:logging:1.2.7')
+            implementation('org.slf4j:slf4j-api:2.0.9')
+            implementation('org.jetbrains:annotations:24.1.0')
+            api(project(":core"))
+        } else if (name == 'datagen') {
+            api(project(":core"))
+        }
+
         if (data.compat != null) {
             data.compat.each { String dep ->
                 compileOnly(project(":${dep}"))
@@ -106,10 +103,6 @@ subprojects { Project proj ->
             data.dependencies.each { String dep ->
                 api(project(":${dep}"))
             }
-        }
-
-        if (data.asMod) {
-            implementation "maven.modrinth:sodium:mc${mc_version}-0.6.13-neoforge"
         }
     }
 
@@ -147,7 +140,7 @@ subprojects { Project proj ->
         }
     }
 
-    if (data.asMod) {
+    if (data.asMod || name == 'datagen') {
         neoForge {
             version = rootProject.neo_version
 

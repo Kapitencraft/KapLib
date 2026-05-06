@@ -1,6 +1,12 @@
-added `array` ExtraStreamCodec operation
 
-fixed MultiLineTextBoxes suggestions not disappearing when inserting
-removed GlyphEffects registry in favor of event based system to fix possible crash stacking
-fixed life steal particle animation disable config not working
-removed core.util.Reference and IntegerReference. use Atomic classes instead
+core:
+    added `array` ExtraStreamCodec operation
+    added FontSetsEvent with subclasses $Register and $Update. used to register custom FontSets
+    fixed MultiLineTextBoxes suggestions not disappearing when inserting
+    removed core.util.Reference and IntegerReference. use Atomic classes instead
+
+component:
+    removed GlyphEffects registry in favor of event based system to fix possible crash stacking
+
+attribute:
+    fixed life steal particle animation disable config not working

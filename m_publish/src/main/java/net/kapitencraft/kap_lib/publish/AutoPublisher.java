@@ -12,7 +12,6 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.http.HttpClient;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -275,8 +274,8 @@ public class AutoPublisher {
                     .followRedirects(HttpClient.Redirect.ALWAYS)
                     .build()) {
                 if (
-                      //  (config.curseforgeId == null || CurseforgePublish.publish(config, client, source)) &&
-                                (config.modrinthId == null || ModrinthPublish.publish(config, client, source))) {
+                    //  (config.curseforgeId == null || CurseforgePublish.publish(config, client, source)) &&
+                        (config.modrinthId == null || ModrinthPublish.publish(config, client, source))) {
                     saveDataCache(modVersion);
                     clearChangelog();
                 }

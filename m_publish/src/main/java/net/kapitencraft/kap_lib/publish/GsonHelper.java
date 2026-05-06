@@ -7,7 +7,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 /**
  * helper for gson related code<br>
- * use {@link com.mojang.serialization.Codec Codecs} inside MC code
  */
 @ApiStatus.Internal
 public class GsonHelper {

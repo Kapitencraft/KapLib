@@ -6,12 +6,13 @@
   "refmap": "kap_lib_core.mixin-refmap.json",
   "client": [
     "client.ChatScreenMixin",
-    "client.ClientTooltipPositionerMixin"
+    "client.ClientTooltipPositionerMixin",
+    "client.FontManagerMixin"
   ],
   "mixins": [
-    "AttributeMixin",
     "AbstractArrowMixin",
     "AnvilMenuMixin",
+    "AttributeMixin",
     "CarvedPumpkinMixin",
     "ClientboundAddEntityPacketMixin",
     "ClientboundSetEntityMotionPacketMixin"

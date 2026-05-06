@@ -1,54 +1,4 @@
 {
-  "alignment.x.top": "Left",
-  "alignment.x.middle": "Middle",
-  "alignment.x.bottom": "Right",
-  "alignment.y.top": "Top",
-  "alignment.y.middle": "Middle",
-  "alignment.y.bottom": "Bottom",
-
-  "attribute.name.generic.ability_damage": "§cAbility Damage",
-  "attribute.name.generic.armor_shredder": "Armor Shredding",
-  "attribute.name.generic.projectile_speed": "Projectile Speed",
-  "attribute.name.generic.arrow_count": "Arrow Count",
-  "attribute.name.generic.bonus_attack_speed": "Bonus Attack Speed",
-  "attribute.name.generic.crit_damage": "§1Crit Damage",
-  "attribute.name.generic.dodge": "§0Dodge",
-  "attribute.name.generic.double_jump": "Double Jump",
-  "attribute.name.generic.draw_speed": "§6Draw Speed",
-  "attribute.name.generic.ferocity": "§eFerocity",
-  "attribute.name.generic.fishing_speed": "Fishing Speed",
-  "attribute.name.generic.intelligence": "§5Intelligence",
-  "attribute.name.generic.life_steal": "Life Steal",
-  "attribute.name.generic.mana": "Mana",
-  "attribute.name.generic.mana_cost": "Mana Cost",
-  "attribute.name.generic.mana_regen": "§9Mana Regeneration",
-  "attribute.name.generic.max_mana": "§3Max Mana",
-  "attribute.name.generic.mining_speed": "Mining Speed",
-  "attribute.name.generic.strength": "§gStrength",
-  "attribute.name.generic.vitality": "§4Vitality",
-  "attribute.name.generic.wisdom": "Wisdom",
-
-  "cec.enable_level": "Level Predicate",
-  "cec.max_level": "max",
-  "cec.min_level": "min",
-  "cec.relative": "relative",
-  "cec.select_color": "Select Color",
-  "cec.select_enchantment": "Select Enchantment",
-  "cec.select_level_bound.min": "Select Minimum Level",
-  "cec.select_level_bound.max": "Select Maximum Level",
-  "cec.select_group": "Select Group",
-
-  "cec.style.bold": "Bold",
-  "cec.style.underlined": "Underlined",
-  "cec.style.italic": "Italic",
-  "cec.style.color": "Color",
-
-  "cec.title": "Configure Enchantment Colors",
-
-  "configure_overlays.title": "Configure Overlays",
-
-  "command.cec.reset": "Successfully reset Enchantment Colors",
-  "command.cec.reload": "Successfully reloaded Enchantment Colors",
 
   "command.failed.console": "Can not perform this command from the console",
 
@@ -145,7 +95,7 @@
   "overlay.stats": "Player Stats",
   "overlay.stats.protection": "Protection: %1$s%%",
   "overlay.stats.ehp": "Effective HP: %1$s",
-  "overlay.stats.speed": "Current Speed; %1$sb/s",
+  "overlay.stats.speed": "Current Speed: %1$sb/s",
   "overlay.mana": "Mana",
   "overlay.mana.display": "%1$s §r / §1 %2$s (+%3$s/s)",
 

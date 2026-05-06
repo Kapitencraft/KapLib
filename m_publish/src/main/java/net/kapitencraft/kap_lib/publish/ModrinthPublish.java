@@ -3,7 +3,6 @@ package net.kapitencraft.kap_lib.publish;
 import com.google.gson.JsonObject;
 import net.kapitencraft.kap_lib.core.io.ByteAccumulator;
 import net.kapitencraft.kap_lib.core.util.ModrinthUtils;
-import net.minecraft.util.GsonHelper;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;

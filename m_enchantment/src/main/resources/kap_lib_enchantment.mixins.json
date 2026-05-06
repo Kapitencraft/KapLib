@@ -6,7 +6,6 @@
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
     "client.AddEnchantmentTooltipMixin",
-    "client.EnchantmentFontManagerMixin",
     "client.EnchantmentMixin"
   ],
   "mixins": [],

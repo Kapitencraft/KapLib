@@ -1,0 +1,27 @@
+{
+  "alignment.x.top": "Left",
+  "alignment.x.middle": "Middle",
+  "alignment.x.bottom": "Right",
+  "alignment.y.top": "Top",
+  "alignment.y.middle": "Middle",
+  "alignment.y.bottom": "Bottom",
+
+  "configure_overlays.title": "Configure Overlays",
+
+  "command.overlays.reset.success": "Overlays Reset Successfully",
+
+  "gui.alignment": "Alignment",
+  "gui.alignment.x": "Width Alignment",
+  "gui.alignment.y": "Height Alignment",
+  "gui.hide_overlay": "Hide Overlay",
+  "gui.overlays": "Overlays...",
+  "gui.reset_overlay": "Reset Overlay",
+  "gui.toggle_overlays": "Toggle Overlays",
+
+  "overlay.stats": "Player Stats",
+  "overlay.stats.protection": "Protection: %1$s%%",
+  "overlay.stats.ehp": "Effective HP: %1$s",
+  "overlay.stats.speed": "Current Speed; %1$sb/s",
+  "overlay.mana": "Mana",
+  "overlay.mana.display": "%1$s §r / §1 %2$s (+%3$s/s)"
+}

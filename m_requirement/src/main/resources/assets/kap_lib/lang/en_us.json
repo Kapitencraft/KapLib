@@ -1,0 +1,17 @@
+{
+  "dimension_req.display": "May only be used in %1$s",
+  "dimension_req.display.inverted": "May not be used in %1$s",
+
+  "dimension.minecraft.overworld": "The Overworld",
+  "dimension.minecraft.overworld_caves": "The Overworld Caves",
+  "dimension.minecraft.the_nether": "The Nether",
+  "dimension.minecraft.the_end": "The End",
+
+  "item.requires": "requires %1$s to be used",
+
+  "stat_req.minecraft.mined": "%1$s %2$s mined",
+  "stat_req.minecraft.used": "%1$s %2$s used",
+  "stat_req.minecraft.crafted": "%1$s %2$s crafted",
+  "stat_req.minecraft.picked_up": "%1$s %2$s picked up",
+  "stat_req.minecraft.killed": "%1$s %2$s kills"
+}
