@@ -12,6 +12,10 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * main mod class for Attribute Module.
+ * no need to use this class for development
+ */
 @ApiStatus.Internal
 @Mod(AttributeModule.MODULE_ID)
 public class AttributeModule {

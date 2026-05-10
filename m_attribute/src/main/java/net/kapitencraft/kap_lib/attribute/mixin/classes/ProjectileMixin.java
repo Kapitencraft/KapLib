@@ -14,9 +14,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Projectile.class)
-public abstract class ProjectileMixin extends Entity {
+abstract class ProjectileMixin extends Entity {
 
-    public ProjectileMixin(EntityType<?> p_19870_, Level p_19871_) {
+    private ProjectileMixin(EntityType<?> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
     }
 

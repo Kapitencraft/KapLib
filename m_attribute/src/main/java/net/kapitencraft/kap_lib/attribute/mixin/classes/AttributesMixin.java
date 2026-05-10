@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Attributes.class)
-public class AttributesMixin {
+class AttributesMixin {
 
     @WrapOperation(method = "<clinit>", at = @At(value = "NEW", target = "(Ljava/lang/String;DDD)Lnet/minecraft/world/entity/ai/attributes/RangedAttribute;"))
     private static RangedAttribute change(String descriptionId, double defaultValue, double min, double max, Operation<RangedAttribute> original) {

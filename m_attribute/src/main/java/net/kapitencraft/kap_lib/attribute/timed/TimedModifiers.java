@@ -15,7 +15,8 @@ import java.util.*;
 
 /**
  * class that stores the tick related info of the timed modifiers.
- * <br>handles ticking and removing timed modifiers
+ * <br>handles ticking and removing timed modifiers.
+ * <br> internal. use {@link TimedModifierUtils} instead
  */
 @ApiStatus.Internal
 public class TimedModifiers {

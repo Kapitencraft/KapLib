@@ -30,14 +30,19 @@ import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
 import net.neoforged.neoforge.event.entity.player.CriticalHitEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 
+/**
+ * internal
+ */
+@ApiStatus.Internal
 @EventBusSubscriber
 public class AttributeEvents {
 
     @SubscribeEvent
-    public static void joinLevelEvent(EntityJoinLevelEvent event) {
+    private static void joinLevelEvent(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof Player player) {
             CompoundTag tag = player.getPersistentData();
             if (tag.contains("Health", Tag.TAG_FLOAT)) {
@@ -47,12 +52,12 @@ public class AttributeEvents {
     }
 
     @SubscribeEvent
-    public static void modArrowEnchantments(ArrowLooseEvent event) {
+    private static void modArrowEnchantments(ArrowLooseEvent event) {
         event.setCharge((int) (event.getCharge() * event.getEntity().getAttributeValue(ExtraAttributes.DRAW_SPEED) / 100));
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void healthRegenRegister(LivingHealEvent event) {
+    private static void healthRegenRegister(LivingHealEvent event) {
         LivingEntity living = event.getEntity();
         if (living.getAttribute(ExtraAttributes.VITALITY) != null) {
             double vitality = living.getAttributeValue(ExtraAttributes.VITALITY);
@@ -64,10 +69,10 @@ public class AttributeEvents {
         return !player.onGround() && !(player.isPassenger() || player.getAbilities().flying) && !(player.isInWater() || player.isInLava());
     }
 
-    public static final String DOUBLE_JUMP_ID = "currentDoubleJump";
+    private static final String DOUBLE_JUMP_ID = "currentDoubleJump";
 
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent.Post event) {
+    private static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         CompoundTag tag = player.getPersistentData();
         if (!player.onGround()) {
@@ -89,7 +94,7 @@ public class AttributeEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onBlockDrops(BlockDropsEvent event) {
+    private static void onBlockDrops(BlockDropsEvent event) {
         if (event.getBreaker() instanceof Player player) {
             double scale = ExtraAttributes.getExperienceScale(player);
             event.setDroppedExperience((int) (event.getDroppedExperience() * scale));
@@ -97,7 +102,7 @@ public class AttributeEvents {
     }
 
     @SubscribeEvent
-    public static void onLivingExperienceDrop(LivingExperienceDropEvent event) {
+    private static void onLivingExperienceDrop(LivingExperienceDropEvent event) {
         Player player = event.getAttackingPlayer();
         if (player != null) {
             event.setDroppedExperience((int) (event.getDroppedExperience() * ExtraAttributes.getExperienceScale(player)));
@@ -105,7 +110,7 @@ public class AttributeEvents {
     }
 
     @SubscribeEvent
-    public static void critDamageRegister(CriticalHitEvent event) {
+    private static void critDamageRegister(CriticalHitEvent event) {
         Player attacker = event.getEntity();
         if (event.isVanillaCritical() || AttributeHelper.getSaveAttributeValue(ExtraAttributes.CRIT_CHANCE, attacker) / 100 > Math.random()) {
             event.setCriticalHit(true);
@@ -114,7 +119,7 @@ public class AttributeEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    public static void ferocityRegister(LivingDamageEvent.Pre event) {
+    private static void ferocityRegister(LivingDamageEvent.Pre event) {
         LivingEntity attacked = event.getEntity();
         DamageSource source = event.getSource();
         LivingEntity attacker = MiscHelper.getAttacker(source);
@@ -136,7 +141,7 @@ public class AttributeEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void damageAttributeRegister(LivingDamageEvent.Pre event) {
+    private static void damageAttributeRegister(LivingDamageEvent.Pre event) {
         @Nullable LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
         if (attacker == null) return;
         if (event.getSource().isDirect() && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {

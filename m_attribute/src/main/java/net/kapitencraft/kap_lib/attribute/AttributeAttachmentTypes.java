@@ -9,11 +9,21 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Supplier;
 
+/**
+ * registry entry for timed modifiers.
+ * <br> internal. use {@link net.kapitencraft.kap_lib.attribute.timed.TimedModifierUtils TimedModifierUtils} instead
+ */
 @ApiStatus.Internal
 public interface AttributeAttachmentTypes {
 
+    /**
+     * internal
+     */
     DeferredRegister<AttachmentType<?>> REGISTRY = LibConstants.registry(NeoForgeRegistries.Keys.ATTACHMENT_TYPES);
 
+    /**
+     * internal
+     */
     Supplier<AttachmentType<TimedModifiers>> TIMED_MODIFIERS = REGISTRY.register("timed_modifiers", () ->
             AttachmentType.builder(TimedModifiers::new).serialize(TimedModifiers.CODEC).build()
     );

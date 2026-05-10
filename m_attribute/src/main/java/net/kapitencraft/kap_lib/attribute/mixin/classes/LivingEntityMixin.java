@@ -14,14 +14,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
-public class LivingEntityMixin implements MixinSelfProvider<LivingEntity> {
+class LivingEntityMixin implements MixinSelfProvider<LivingEntity> {
 
     /**
      * @reason armor-shredder attribute
      * @author Kapitencraft
      */
     @Inject(method = "getDamageAfterArmorAbsorb", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hurtArmor(Lnet/minecraft/world/damagesource/DamageSource;F)V", shift = At.Shift.AFTER), cancellable = true)
-    public void getDamageAfterArmorAbsorb(DamageSource source, float damage, CallbackInfoReturnable<Float> cir) {
+    private void getDamageAfterArmorAbsorb(DamageSource source, float damage, CallbackInfoReturnable<Float> cir) {
         double armorShredValue = source.getEntity() instanceof LivingEntity living ? AttributeHelper.getSaveAttributeValue(ExtraAttributes.ARMOR_SHREDDER, living) : 0;
         double armorValue = Math.max(0, getArmorValue(source) - armorShredValue);
         cir.setReturnValue(MathHelper.calculateDamage(damage, (float) armorValue, (float) self().getAttributeValue(Attributes.ARMOR_TOUGHNESS)));
@@ -37,7 +37,7 @@ public class LivingEntityMixin implements MixinSelfProvider<LivingEntity> {
     }
 
     @Inject(method = "hurt", at = @At(value = "RETURN", ordinal = 6))
-    public void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
+    private void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
         if (source.getEntity() != null && source.getEntity() instanceof LivingEntity living) {
             double attackSpeed = AttributeHelper.getSaveAttributeValue(ExtraAttributes.BONUS_ATTACK_SPEED, living);
             if (attackSpeed > 0) {

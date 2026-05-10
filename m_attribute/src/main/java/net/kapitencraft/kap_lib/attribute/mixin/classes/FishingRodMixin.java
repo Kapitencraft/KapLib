@@ -13,10 +13,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(FishingRodItem.class)
-public class FishingRodMixin {
+class FishingRodMixin {
 
     @WrapOperation(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
-    public boolean spawnHook(Level level, Entity entity, Operation<Boolean> original, @Local(argsOnly = true) Player player) {
+    private boolean spawnHook(Level level, Entity entity, Operation<Boolean> original, @Local(argsOnly = true) Player player) {
         FishingHook hook = (FishingHook) entity;
         hook.lureSpeed += (int) player.getAttributeValue(ExtraAttributes.FISHING_SPEED);
         return original.call(level, entity);

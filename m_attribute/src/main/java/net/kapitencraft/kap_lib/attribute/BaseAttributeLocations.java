@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * base locations for extra attributes.
- * <br>using these as the location of a modifier on an item will cause the modifier to shown in green
+ * <br>using these as the location of a modifier on an item will cause the modifier to shown in green just like
  */
 public class BaseAttributeLocations {
     public static final ResourceLocation BONUS_ATTACK_SPEED = LibConstants.res("base_bonus_attack_speed");

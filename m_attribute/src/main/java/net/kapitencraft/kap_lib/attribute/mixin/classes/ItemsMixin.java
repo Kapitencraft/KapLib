@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Items.class)
-public class ItemsMixin {
+class ItemsMixin {
 
     @WrapOperation(method = "<clinit>", at = @At(value = "NEW", target = "Lnet/minecraft/world/item/BowItem;"))
     private static BowItem addAttributes(Item.Properties properties, Operation<BowItem> operation) {

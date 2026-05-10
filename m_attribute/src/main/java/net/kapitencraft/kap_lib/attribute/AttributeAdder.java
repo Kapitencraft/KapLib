@@ -17,6 +17,7 @@ import java.util.function.Predicate;
 
 /**
  * adds the attributes to the dedicated entity types
+ * <br> internal class. no need for devs to use it
  */
 @ApiStatus.Internal
 @EventBusSubscriber

@@ -2,41 +2,18 @@
 
 import groovy.json.JsonSlurper
 
-//region helper
-static def convertModuleName(String moduleName) {
-    String strings = ""
-    for (final def mE in moduleName.split("_")) {
-        strings += mE.capitalize()
-        strings += ' '
-    }
-    return strings
-}
-
-static def convertModuleCamelCase(String moduleId) {
-    String strings = ""
-    for (final def mE in moduleId.split("_")) {
-        if (strings.isEmpty())
-            strings += mE
-        else
-            strings += mE.capitalize()
-    }
-    return strings
-}
-
-static def convertModulePascalCase(String moduleName) {
-    String strings = ''
-    for (final def mE in moduleName.split("_")) {
-        strings += mE.capitalize()
-    }
-    return strings
-}
-
-//endregion
-
 plugins {
     id 'idea'
     id 'com.vanniktech.maven.publish' version '0.33.0'
-    id 'net.neoforged.moddev' version '2.0.88'
+    id 'signing'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+ext.convertModuleName = { String moduleName ->
+    moduleName
+            .split("_")
+            .collect { it.capitalize() }
+            .join(" ")
 }
 
 version = "v${mod_version}-mc${mc_version}"
@@ -49,7 +26,7 @@ println("Discovered ${subprojects.size()} modules: ${subprojects.name}")
 
 subprojects { Project proj ->
 
-    Object data = new JsonSlurper().parse(new File("modules/${name}.json"))
+    Object data = name == 'aggregate' ? [] : new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
 
     apply plugin: 'idea'
     apply plugin: 'com.vanniktech.maven.publish'
@@ -60,13 +37,80 @@ subprojects { Project proj ->
 
     java {
         withSourcesJar()
-        withJavadocJar()
+    }
+
+    base {
+        archivesName = mod_id + "-" + name
+    }
+
+    mavenPublishing {
+        signAllPublications()
+        publishToMavenCentral()
+
+        if (name == 'aggregate') {
+            coordinates(group, mod_id, version)
+
+            pom {
+                name = "${mod_name} Aggregate Library"
+
+                withXml {
+                    def deps = asNode().appendNode("dependencies")
+
+                    rootProject.subprojects { Project p ->
+                        def dep = deps.appendNode("dependency")
+                        dep.appendNode("groupId", project.group)
+                        dep.appendNode("artifactId", "kap_lib-${p.name}")
+                        dep.appendNode("version", project.version)
+                        dep.appendNode("scope", "compile")
+                    }
+                }
+            }
+        } else {
+            coordinates(group, mod_id + "-" + name, version)
+
+            pom {
+                name = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
+            }
+        }
+
+        pom {
+            description = "Library for (almost) any occasion"
+            url = "https://github.com/kapitencraft/kapLib"
+
+            licenses {
+                license {
+                    name = "MIT License"
+                    url = "https://opensource.org/license/mit"
+                }
+            }
+
+            developers {
+                developer {
+                    id = "kapitencraft"
+                    name = "Kapitencraft"
+                    url = "https://github.com/Kapitencraft/"
+                }
+            }
+
+            scm {
+                url = "https://github.com/Kapitencraft/kapLib/"
+                connection = "scm:git:git://github.com/Kapitencraft/kapLib.git"
+                developerConnection = "scm:git:ssh://git@github.com/Kapitencraft/kapLib.git"
+            }
+        }
+    }
+
+    signing {
+        useInMemoryPgpKeys(
+                new String(Base64.decoder.decode((String) findProperty("signingKey"))),
+                findProperty("signingPassword")
+        )
     }
 
     repositories {
         mavenCentral()
 
-        if (proj.name == 'recipe') {
+        if (name == 'recipe' || name == 'aggregate') {
             maven { url 'https://maven.blamejared.com' }
         }
     }
@@ -74,15 +118,13 @@ subprojects { Project proj ->
     dependencies {
         if (name != "core" && data.asMod) {
             api(project(":core"))
-
-            if (name == 'recipe') {
-                compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-                compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-                runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-            }
         }
 
-        if (name == 'publish') {
+        if (name == 'recipe') {
+            compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
+            compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+            runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+        } else if (name == 'publish') {
             implementation('com.google.code.gson:gson:2.10.1')
             implementation('com.google.guava:guava:32.1.2-jre')
             implementation('com.mojang:logging:1.2.7')
@@ -91,6 +133,11 @@ subprojects { Project proj ->
             api(project(":core"))
         } else if (name == 'datagen') {
             api(project(":core"))
+        } else if (name == 'aggregate') {
+            subprojects.each { Project project ->
+                if (project.name != 'aggregate')
+                    api(project)
+            }
         }
 
         if (data.compat != null) {
@@ -237,25 +284,22 @@ tasks.register('gitUpdate', Task) {
     }
 }
 
-//region modules
-
-//generate module source sets
-//moduleFilters.each { String id, filter ->
-//    registerPublishedModule(id, filter)
-//}
-
-mavenPublishing {
-
-    publishToMavenCentral()
-
-    signAllPublications()
+repositories {
+    maven { url 'https://maven.blamejared.com' }
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":cooldown"))
-    implementation(project(":inventory_page"))
-    implementation(project(":item"))
+    subprojects.each {
+        api(it)
+    }
+
+    compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+    runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+    //implementation(project(":core"))
+    //implementation(project(":cooldown"))
+    //implementation(project(":inventory_page"))
+    //implementation(project(":item"))
 }
 
 neoForge {
@@ -324,59 +368,13 @@ tasks.named('assemble').configure {
         it.tasks.named("build")
     })
 }
-//endregion
 
 tasks.named('jar', Jar) {
     exclude("**/*") //keep empty
 }
 
-tasks.named('javadoc') {
-    setDestinationDir(layout.buildDirectory.dir("docs/javadoc/main").get().asFile)
-}
-
-//java {
-//    withSourcesJar()
-//    withJavadocJar()
-//}
-
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
-
-publishing {
-    publications {
-
-        subprojects.each { proj ->
-            if (proj.name != "kap_lib") {
-
-                register(proj.name, MavenPublication) {
-                    from proj.components.java
-                    artifactId = "kap_lib-${proj.name}"
-                }
-            }
-        }
-
-        // aggregator artifact
-        register("kapLib", MavenPublication) {
-            artifactId = "kap_lib"
-
-            pom {
-                name = "KapLib"
-                description = "Aggregate artifact"
-
-                withXml {
-                    def deps = asNode().appendNode("dependencies")
-
-                    ["core", "attribute", "particle"].each {
-                        def dep = deps.appendNode("dependency")
-                        dep.appendNode("groupId", project.group)
-                        dep.appendNode("artifactId", "kap_lib-${it}")
-                        dep.appendNode("version", project.version)
-                    }
-                }
-            }
-        }
-    }
 }
 
 signing {

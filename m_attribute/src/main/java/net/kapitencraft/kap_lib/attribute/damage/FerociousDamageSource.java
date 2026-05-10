@@ -13,6 +13,15 @@ import org.jetbrains.annotations.Nullable;
  */
 @ApiStatus.Internal
 public class FerociousDamageSource extends DamageSource {
+
+    /**
+     * creates a new FerociousDamage source.
+     * @param causer the entity that is hitting with ferocity
+     * @param ferocity the amount of ferocity
+     * @param ferocityDamage the damage dealt by the hit that triggered ferocity
+     * @return a new FerociousDamageSource
+     */
+    @ApiStatus.Internal
     public static FerociousDamageSource create(Entity causer, double ferocity, float ferocityDamage) {
         return new FerociousDamageSource(
                 MiscHelper.lookupDamageTypeHolder(causer.level(), AttributeDamageTypes.FEROCITY),
