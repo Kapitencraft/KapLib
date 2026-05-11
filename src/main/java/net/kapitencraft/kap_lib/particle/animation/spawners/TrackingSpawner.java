@@ -9,7 +9,11 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+import org.openjdk.nashorn.api.scripting.AbstractJSObject;
+
+import java.util.Map;
 
 /**
  * spawns particles exactly at the given point
@@ -38,10 +42,7 @@ public class TrackingSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<TrackingSpawner> {
-        private static final MapCodec<TrackingSpawner> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
-                PositionTarget.CODEC.fieldOf("position").forGetter(s -> s.target)
-        ).apply(i, TrackingSpawner::new));
+
 
         private static final StreamCodec<? super RegistryFriendlyByteBuf, TrackingSpawner> STREAM_CODEC = StreamCodec.composite(
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
@@ -55,22 +56,37 @@ public class TrackingSpawner extends VisibleSpawner {
         }
 
         @Override
-        public MapCodec<TrackingSpawner> codec() {
-            return CODEC;
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder extends VisibleSpawner.Builder<Builder> {
-        private PositionTarget target;
+    public static class Builder extends VisibleSpawner.Builder<Builder, TrackingSpawner> {
+        private static final MapCodec<Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                PositionTarget.CODEC.fieldOf("position").forGetter(s -> s.target)
+        ).apply(i, Builder::fromCodec));
 
-        public Builder target(PositionTarget target) {
+        private static Builder fromCodec(ParticleOptions options, PositionTarget.Builder<?> positionTarget) {
+            return new Builder().setParticle(options).target(positionTarget);
+        }
+
+
+        private PositionTarget.Builder<?> target;
+
+        public Builder target(PositionTarget.Builder<?> target) {
             this.target = target;
             return this;
         }
 
         @Override
-        public VisibleSpawner build() {
-            return new TrackingSpawner(particle, target);
+        public TrackingSpawner build(Map<String, Entity> context) {
+            return new TrackingSpawner(particle, target.build(context));
+        }
+
+        @Override
+        public Spawner.Type<TrackingSpawner> type() {
+            return SpawnerTypes.TRACKING.get();
         }
     }
 }

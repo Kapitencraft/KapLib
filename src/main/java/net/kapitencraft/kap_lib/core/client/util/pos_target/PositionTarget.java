@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.core.client.util.pos_target;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -10,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -17,7 +19,7 @@ import java.util.function.Supplier;
  * provides positions for spawning / moving particles
  */
 public interface PositionTarget extends Supplier<Vec3> {
-    Codec<PositionTarget> CODEC = Types.CODEC.dispatch(PositionTarget::getType, types -> types.type.codec());
+    Codec<PositionTarget.Builder<?>> CODEC = Types.CODEC.dispatch(PositionTarget.Builder::getType, types -> types.type.codec());
     StreamCodec<? super RegistryFriendlyByteBuf, PositionTarget> STREAM_CODEC = StreamCodec.of(Types::toNw, PositionTarget::fromNw);
 
     static PositionTarget fromNw(RegistryFriendlyByteBuf buf) {
@@ -39,16 +41,28 @@ public interface PositionTarget extends Supplier<Vec3> {
     /**
      * @return a position target tracking the entity's position
      */
-    static PositionTarget entity(Entity entity) {
-        return new EntityPositionTarget(entity.getId(), EntityAnchorArgument.Anchor.FEET);
+    static PositionTarget.Builder<EntityPositionTarget> entity(Entity entity) {
+        return new EntityPositionTarget.Builder().setTarget(EntityAccessor.direct(entity));
     }
 
-    static PositionTarget entityEyes(Entity entity) {
-        return new EntityPositionTarget(entity.getId(), EntityAnchorArgument.Anchor.EYES);
+    static PositionTarget.Builder<EntityPositionTarget> entity(String name) {
+        return new EntityPositionTarget.Builder().setTarget(EntityAccessor.reference(name));
     }
 
-    static PositionTarget entityBB(Entity entity) {
-        return new EntityBBPositionTarget(entity.getId());
+    static PositionTarget.Builder<EntityPositionTarget> entityEyes(Entity entity) {
+        return new EntityPositionTarget.Builder().setTarget(EntityAccessor.direct(entity)).eyes();
+    }
+
+    static PositionTarget.Builder<EntityPositionTarget> entityEyes(String name) {
+        return new EntityPositionTarget.Builder().setTarget(EntityAccessor.reference(name)).eyes();
+    }
+
+    static PositionTarget.Builder<EntityBBPositionTarget> entityBB(Entity entity) {
+        return EntityBBPositionTarget.builder(EntityAccessor.direct(entity));
+    }
+
+    static PositionTarget.Builder<EntityBBPositionTarget> entityBB(String name) {
+        return EntityBBPositionTarget.builder(EntityAccessor.reference(name));
     }
 
     /**
@@ -86,7 +100,14 @@ public interface PositionTarget extends Supplier<Vec3> {
 
     interface Type<T extends PositionTarget> {
 
-        MapCodec<T> codec();
+        MapCodec<? extends Builder<T>> codec();
         StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
+    }
+
+    interface Builder<T extends PositionTarget> {
+
+        T build(Map<String, Entity> context);
+
+        Types getType();
     }
 }

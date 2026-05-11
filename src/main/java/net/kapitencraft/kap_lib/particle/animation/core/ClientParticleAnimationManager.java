@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.particle.animation.core;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.TriggerInstance;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
@@ -42,9 +43,9 @@ public final class ClientParticleAnimationManager {
     }
 
     /**
-     * use {@link ParticleAnimation.Builder#register()}<br>
-     * or {@link ParticleAnimation.Builder#sendToPlayer(ServerPlayer)}<br>
-     * or {@link  ParticleAnimation.Builder#sendToAllPlayers()} to add animations
+     * use {@link ParticleAnimation.ParticleAnimationBuilder#register()}<br>
+     * or {@link ParticleAnimation.ParticleAnimationBuilder#sendToPlayer(ServerPlayer)}<br>
+     * or {@link  ParticleAnimation.ParticleAnimationBuilder#sendToAllPlayers()} to add animations
      */
     @ApiStatus.Internal
     public void accept(ParticleAnimation animation) {

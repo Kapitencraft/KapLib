@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
 import net.kapitencraft.kap_lib.particle.network.S2C.ActivateParticleAnimationsPacket;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;

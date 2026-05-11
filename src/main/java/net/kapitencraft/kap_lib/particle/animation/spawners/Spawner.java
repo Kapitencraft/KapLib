@@ -8,11 +8,14 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public interface Spawner {
-    Codec<Spawner> CODEC = ParticleAnimationRegistries.SPAWN_ELEMENT_TYPES.byNameCodec().dispatch(Spawner::getType, Type::codec);
+    Codec<SpawnerBuilder<?>> CODEC = ParticleAnimationRegistries.SPAWNER_TYPES.byNameCodec().dispatch(SpawnerBuilder::type, Type::codec);
     StreamCodec<RegistryFriendlyByteBuf, Spawner> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.SPAWNER_TYPES).dispatch(Spawner::getType, Type::streamCodec);
 
     /**
@@ -31,11 +34,14 @@ public interface Spawner {
      * the type of the spawner
      */
     interface Type<T extends Spawner> {
-        MapCodec<T> codec();
         StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
+
+        MapCodec<? extends SpawnerBuilder<T>> codec();
     }
 
-    interface Builder {
-        Spawner build();
+    interface SpawnerBuilder<T extends Spawner> {
+        T build(Map<String, Entity> context);
+
+        Type<T> type();
     }
 }

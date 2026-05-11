@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface AnimationUtils {
 
-    static ParticleAnimation.Builder star(int tips, ParticleOptions starType, @Nullable ParticleOptions ringType, float spacing, float radius, PositionTarget origin) {
+    static ParticleAnimation.ParticleAnimationBuilder star(int tips, ParticleOptions starType, @Nullable ParticleOptions ringType, float spacing, float radius, PositionTarget origin) {
         float angleBetweenTips = 360f / tips * 2;
 
         GroupSpawner.Builder spawner = GroupSpawner.builder();

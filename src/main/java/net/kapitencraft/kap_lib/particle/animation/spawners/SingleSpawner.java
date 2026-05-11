@@ -19,7 +19,7 @@ public class SingleSpawner extends VisibleSpawner {
         this.positionTarget = positionTarget;
     }
 
-    public static Spawner.Builder at(ParticleOptions options, PositionTarget fixed) {
+    public static SpawnerBuilder at(ParticleOptions options, PositionTarget fixed) {
         return () -> new SingleSpawner(options, fixed);
     }
 

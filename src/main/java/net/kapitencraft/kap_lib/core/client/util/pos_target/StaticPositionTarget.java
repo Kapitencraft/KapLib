@@ -5,7 +5,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Map;
 
 /**
  * a position target that always returns the same location (hence being static)
@@ -19,7 +22,6 @@ public record StaticPositionTarget(Vec3 get) implements PositionTarget {
     }
 
     public static class Type implements PositionTarget.Type<StaticPositionTarget> {
-        private static final MapCodec<StaticPositionTarget> CODEC = Vec3.CODEC.xmap(StaticPositionTarget::new, StaticPositionTarget::get).fieldOf("position");
         private static final StreamCodec<? super RegistryFriendlyByteBuf, StaticPositionTarget> STREAM_CODEC = ExtraStreamCodecs.VEC_3.map(StaticPositionTarget::new, StaticPositionTarget::get);
 
         @Override
@@ -28,13 +30,33 @@ public record StaticPositionTarget(Vec3 get) implements PositionTarget {
         }
 
         @Override
-        public MapCodec<StaticPositionTarget> codec() {
-            return CODEC;
+        public MapCodec<StaticPositionTarget.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
     @Override
     public String toString() {
         return "StaticPositionTarget@" + get;
+    }
+
+    public static class Builder implements PositionTarget.Builder<StaticPositionTarget> {
+        private static final MapCodec<StaticPositionTarget.Builder> CODEC = Vec3.CODEC.xmap(b -> new Builder().setPos(b), b -> b.pos).fieldOf("position");
+        private Vec3 pos;
+
+        public Builder setPos(Vec3 pos) {
+            this.pos = pos;
+            return this;
+        }
+
+        @Override
+        public StaticPositionTarget build(Map<String, Entity> context) {
+            return new StaticPositionTarget(this.pos);
+        }
+
+        @Override
+        public Types getType() {
+            return Types.POS;
+        }
     }
 }

@@ -6,10 +6,12 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerType
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public record GroupSpawner(List<Spawner> spawners) implements Spawner {
 
@@ -27,22 +29,38 @@ public record GroupSpawner(List<Spawner> spawners) implements Spawner {
         return SpawnerTypes.GROUP.get();
     }
 
-    public static class Builder implements Spawner.Builder {
-        private final List<Spawner> spawners = new ArrayList<>();
+    public static class Builder implements SpawnerBuilder<GroupSpawner> {
+        private static final MapCodec<GroupSpawner.Builder> CODEC = Spawner.CODEC.listOf().xmap(GroupSpawner.Builder::new, GroupSpawner.Builder::spawners).fieldOf("entries");
 
-        public Builder addSpawner(Spawner.Builder spawner) {
-            spawners.add(spawner.build());
+        private final List<Spawner.SpawnerBuilder<?>> spawners = new ArrayList<>();
+
+        private Builder() {}
+
+        private Builder(List<SpawnerBuilder<?>> builders) {
+            this.spawners.addAll(builders);
+        }
+
+        public Builder addSpawner(SpawnerBuilder<?> spawner) {
+            spawners.add(spawner);
             return this;
         }
 
+        private List<SpawnerBuilder<?>> spawners() {
+            return spawners;
+        }
+
         @Override
-        public Spawner build() {
-            return new GroupSpawner(spawners);
+        public GroupSpawner build(Map<String, Entity> context) {
+            return new GroupSpawner(spawners.stream().map(b -> (Spawner) b.build(context)).toList());
+        }
+
+        @Override
+        public Type type() {
+            return SpawnerTypes.GROUP.get();
         }
     }
 
     public static class Type implements VisibleSpawner.Type<GroupSpawner> {
-        private static final MapCodec<GroupSpawner> CODEC = Spawner.CODEC.listOf().xmap(GroupSpawner::new, GroupSpawner::spawners).fieldOf("entries");
         private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupSpawner> STREAM_CODEC = Spawner.STREAM_CODEC.apply(ByteBufCodecs.list()).map(GroupSpawner::new, GroupSpawner::spawners);
 
         @Override
@@ -51,8 +69,8 @@ public record GroupSpawner(List<Spawner> spawners) implements Spawner {
         }
 
         @Override
-        public MapCodec<GroupSpawner> codec() {
-            return CODEC;
+        public MapCodec<? extends SpawnerBuilder<GroupSpawner>> codec() {
+            return Builder.CODEC;
         }
     }
 }

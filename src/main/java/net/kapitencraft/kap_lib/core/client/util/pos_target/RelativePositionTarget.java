@@ -5,7 +5,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Map;
 
 /**
  * a position target that has a static offset
@@ -25,10 +28,6 @@ public record RelativePositionTarget(PositionTarget target, Vec3 offset) impleme
     }
 
     public static class Type implements PositionTarget.Type<RelativePositionTarget> {
-        private static final MapCodec<RelativePositionTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                PositionTarget.CODEC.fieldOf("target").forGetter(RelativePositionTarget::target),
-                Vec3.CODEC.fieldOf("offset").forGetter(RelativePositionTarget::offset)
-        ).apply(i, RelativePositionTarget::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, RelativePositionTarget> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, RelativePositionTarget::target,
                 ExtraStreamCodecs.VEC_3, RelativePositionTarget::offset,
@@ -41,13 +40,48 @@ public record RelativePositionTarget(PositionTarget target, Vec3 offset) impleme
         }
 
         @Override
-        public MapCodec<RelativePositionTarget> codec() {
-            return CODEC;
+        public MapCodec<RelativePositionTarget.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
     @Override
     public String toString() {
         return "RelativePositionTarget[" + target + "], offset=" + this.offset;
+    }
+
+    public static class Builder implements PositionTarget.Builder<RelativePositionTarget> {
+        private static final MapCodec<RelativePositionTarget.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("target").forGetter(b -> b.target),
+                Vec3.CODEC.fieldOf("offset").forGetter(b -> b.offset)
+        ).apply(i, RelativePositionTarget.Builder::fromCodec));
+
+        private static Builder fromCodec(PositionTarget.Builder<?> builder, Vec3 vec3) {
+            return new Builder().setTarget(builder).setOffset(vec3);
+        }
+
+
+        private PositionTarget.Builder<?> target;
+        private Vec3 offset;
+
+        public Builder setTarget(PositionTarget.Builder<?> target) {
+            this.target = target;
+            return this;
+        }
+
+        public Builder setOffset(Vec3 offset) {
+            this.offset = offset;
+            return this;
+        }
+
+        @Override
+        public RelativePositionTarget build(Map<String, Entity> context) {
+            return new RelativePositionTarget(target.build(context), offset);
+        }
+
+        @Override
+        public Types getType() {
+            return Types.RELATIVE;
+        }
     }
 }

@@ -6,12 +6,15 @@ import com.mojang.brigadier.context.CommandContext;
 import net.kapitencraft.kap_lib.camera.core.CameraController;
 import net.kapitencraft.kap_lib.camera.core.TrackingShot;
 import net.kapitencraft.kap_lib.camera.modifiers.GlideTowardsModifier;
+import net.kapitencraft.kap_lib.core.client.util.pos_target.EntityPositionTarget;
 import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.world.entity.player.Player;
+
+import java.util.Map;
 
 public class CameraClientTestCommand {
 
@@ -32,7 +35,7 @@ public class CameraClientTestCommand {
         if (player == null) return 0;
         CameraController.INSTANCE.activate(TrackingShot.builder()
                 .addModifier(
-                        new GlideTowardsModifier(PositionTarget.entityEyes(player), PositionTarget.fixed(player.getViewVector(0).scale(20).add(EntityAnchorArgument.Anchor.EYES.apply(player)))), 40)
+                        new GlideTowardsModifier(new EntityPositionTarget(player.getId(), EntityAnchorArgument.Anchor.EYES), PositionTarget.fixed(player.getViewVector(0).scale(20).add(EntityAnchorArgument.Anchor.EYES.apply(player)))), 40)
                 .build()
         );
         return 1;

@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -20,6 +21,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -74,14 +76,6 @@ public class EntityBBSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<EntityBBSpawner> {
-        private static final MapCodec<EntityBBSpawner> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
-                Codec.INT.fieldOf("target").forGetter(s -> s.targetId),
-                Codec.BOOL.optionalFieldOf("outline", false).forGetter(s -> s.onlyOutline),
-                Codec.FLOAT.optionalFieldOf("size_x_scale", 1f).forGetter(s -> s.sizeXScale),
-                Codec.FLOAT.optionalFieldOf("size_y_scale", 1f).forGetter(s -> s.sizeYScale),
-                Codec.INT.fieldOf("per_tick").forGetter(s -> s.perTick)
-        ).apply(i, EntityBBSpawner::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, EntityBBSpawner> STREAM_CODEC = StreamCodec.composite(
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
                 ByteBufCodecs.INT, s -> s.targetId,
@@ -98,24 +92,47 @@ public class EntityBBSpawner extends VisibleSpawner {
         }
 
         @Override
-        public MapCodec<EntityBBSpawner> codec() {
-            return CODEC;
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder extends VisibleSpawner.Builder<Builder> {
-        private Entity target;
+    public static class Builder extends VisibleSpawner.Builder<Builder, EntityBBSpawner> {
+        private static final MapCodec<Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                EntityAccessor.CODEC.fieldOf("target").forGetter(s -> s.target),
+                Codec.BOOL.optionalFieldOf("outline", false).forGetter(s -> s.onlyOutline),
+                Codec.FLOAT.optionalFieldOf("size_x_scale", 1f).forGetter(s -> s.xScale),
+                Codec.FLOAT.optionalFieldOf("size_y_scale", 1f).forGetter(s -> s.yScale),
+                Codec.INT.fieldOf("per_tick").forGetter(s -> s.perTick)
+        ).apply(i, EntityBBSpawner.Builder::fromCodec));
+
+        private static Builder fromCodec(ParticleOptions options, EntityAccessor entityAccessor, Boolean aBoolean, Float scaleX, Float scaleY, Integer countPerTick) {
+            return new Builder().setParticle(options).target(entityAccessor).scaleX(scaleX).onlyOutline(aBoolean).scaleY(scaleY).perTick(countPerTick);
+        }
+
+        private EntityAccessor target;
         private boolean onlyOutline = false;
         private float xScale = 1, yScale = 1;
         private int perTick;
 
         public Builder target(Entity target) {
-            this.target = target;
+            this.target = EntityAccessor.direct(target);
+            return this;
+        }
+
+        private Builder target(EntityAccessor accessor) {
+            this.target = accessor;
             return this;
         }
 
         public Builder onlyOutline() {
             this.onlyOutline = true;
+            return this;
+        }
+
+        private Builder onlyOutline(Boolean onlyOutline) {
+            this.onlyOutline = onlyOutline;
             return this;
         }
 
@@ -130,8 +147,13 @@ public class EntityBBSpawner extends VisibleSpawner {
         }
 
         @Override
-        public VisibleSpawner build() {
-            return new EntityBBSpawner(particle, target.getId(), onlyOutline, xScale, yScale, perTick);
+        public EntityBBSpawner build(Map<String, Entity> context) {
+            return new EntityBBSpawner(particle, target.get(context).getId(), onlyOutline, xScale, yScale, perTick);
+        }
+
+        @Override
+        public Spawner.Type<EntityBBSpawner> type() {
+            return SpawnerTypes.ENTITY_BB.get();
         }
 
         public Builder perTick(int perTick) {
