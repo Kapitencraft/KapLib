@@ -7,7 +7,10 @@ import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
+
+import java.util.Map;
 
 /**
  * a rotation target that tracks a position from a source position (like Aim-Bot)
@@ -24,10 +27,6 @@ public record TrackPositionRotationTarget(PositionTarget source, PositionTarget 
     }
 
     public static class Type implements RotationTarget.Type<TrackPositionRotationTarget> {
-        private static final MapCodec<TrackPositionRotationTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                PositionTarget.CODEC.fieldOf("source").forGetter(TrackPositionRotationTarget::source),
-                PositionTarget.CODEC.fieldOf("target").forGetter(TrackPositionRotationTarget::target)
-        ).apply(i, TrackPositionRotationTarget::new));
 
         private static final StreamCodec<? super RegistryFriendlyByteBuf, TrackPositionRotationTarget> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, TrackPositionRotationTarget::source,
@@ -41,8 +40,42 @@ public record TrackPositionRotationTarget(PositionTarget source, PositionTarget 
         }
 
         @Override
-        public MapCodec<TrackPositionRotationTarget> codec() {
-            return CODEC;
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
+        }
+    }
+
+    public static class Builder implements RotationTarget.Builder<TrackPositionRotationTarget> {
+        private static final MapCodec<Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("source").forGetter(b -> b.source),
+                PositionTarget.CODEC.fieldOf("target").forGetter(b -> b.target)
+        ).apply(i, Builder::fromCodec));
+
+        private static Builder fromCodec(PositionTarget.Builder<?> source, PositionTarget.Builder<?> target) {
+            return new Builder().setSource(source).setTarget(target);
+        }
+
+
+        PositionTarget.Builder<?> source, target;
+
+        public Builder setSource(PositionTarget.Builder<?> source) {
+            this.source = source;
+            return this;
+        }
+
+        public Builder setTarget(PositionTarget.Builder<?> target) {
+            this.target = target;
+            return this;
+        }
+
+        @Override
+        public TrackPositionRotationTarget build(Map<String, Entity> context) {
+            return new TrackPositionRotationTarget(source.build(context), target.build(context));
+        }
+
+        @Override
+        public Types type() {
+            return Types.TRACK_POSITION;
         }
     }
 }

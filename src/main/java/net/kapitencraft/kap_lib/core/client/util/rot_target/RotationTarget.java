@@ -8,7 +8,9 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -16,7 +18,7 @@ import java.util.function.Supplier;
  * provides rotations for spawning / moving particles
  */
 public interface RotationTarget extends Supplier<Vec2> {
-    Codec<RotationTarget> CODEC = Types.CODEC.dispatch(RotationTarget::getType, types -> types.type.codec());
+    Codec<RotationTarget.Builder<?>> CODEC = Types.CODEC.dispatch(RotationTarget.Builder::type, types -> types.type.codec());
     StreamCodec<RegistryFriendlyByteBuf, RotationTarget> STREAM_CODEC = StreamCodec.of(Types::toNw, RotationTarget::fromNw);
 
     static RotationTarget fromNw(RegistryFriendlyByteBuf buf) {
@@ -60,12 +62,19 @@ public interface RotationTarget extends Supplier<Vec2> {
         }
 
         @Override
-        public String getSerializedName() {
+        public @NotNull String getSerializedName() {
             return name().toLowerCase();
         }
     }
     interface Type<T extends RotationTarget> {
-        MapCodec<T> codec();
+        MapCodec<? extends Builder<T>> codec();
         StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
+    }
+
+    interface Builder<T extends RotationTarget> {
+
+        T build(Map<String, Entity> context);
+
+        Types type();
     }
 }

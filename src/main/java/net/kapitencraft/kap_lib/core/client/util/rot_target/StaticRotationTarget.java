@@ -6,7 +6,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
+
+import java.util.Map;
 
 /**
  * provides a static rotation
@@ -33,10 +36,6 @@ public class StaticRotationTarget implements RotationTarget {
     }
 
     public static class Type implements RotationTarget.Type<StaticRotationTarget> {
-        private static final MapCodec<StaticRotationTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                Codec.FLOAT.fieldOf("x").forGetter(t -> t.rot.x),
-                Codec.FLOAT.fieldOf("y").forGetter(t -> t.rot.y)
-        ).apply(i, StaticRotationTarget::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, StaticRotationTarget> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.FLOAT, t -> t.rot.x,
                 ByteBufCodecs.FLOAT, t -> t.rot.y,
@@ -49,8 +48,36 @@ public class StaticRotationTarget implements RotationTarget {
         }
 
         @Override
-        public MapCodec<StaticRotationTarget> codec() {
-            return CODEC;
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
+        }
+    }
+
+    public static class Builder implements RotationTarget.Builder<StaticRotationTarget> {
+        private static final MapCodec<Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.FLOAT.fieldOf("x").forGetter(t -> t.rot.x),
+                Codec.FLOAT.fieldOf("y").forGetter(t -> t.rot.y)
+        ).apply(i, Builder::fromCodec));
+
+        private static Builder fromCodec(Float x, Float y) {
+            return new Builder().setRot(new Vec2(x, y));
+        }
+
+        private Vec2 rot;
+
+        public Builder setRot(Vec2 rot) {
+            this.rot = rot;
+            return this;
+        }
+
+        @Override
+        public StaticRotationTarget build(Map<String, Entity> context) {
+            return new StaticRotationTarget(rot);
+        }
+
+        @Override
+        public Types type() {
+            return Types.ABSOLUTE;
         }
     }
 }
