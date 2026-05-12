@@ -12,8 +12,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 /**
  * rotates each applied particle around the provided pivot
@@ -53,13 +56,24 @@ public class RotateElement implements AnimationElement {
         );
     }
 
-    public static class Builder implements AnimationElement.Builder {
-        private PositionTarget pivot;
+    public static class Builder implements AnimationElement.Builder<RotateElement> {
+        private static final MapCodec<RotateElement.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("pivot").forGetter(e -> e.pivot),
+                Codec.FLOAT.fieldOf("speed").forGetter(e -> e.angle),
+                Codec.INT.fieldOf("duration").forGetter(e -> e.duration),
+                Direction.Axis.CODEC.fieldOf("axis").forGetter(e -> e.axis)
+        ).apply(i, Builder::fromCodec));
+
+        private static Builder fromCodec(PositionTarget.Builder<?> builder, Float aFloat, Integer integer, Direction.Axis axis) {
+            return new Builder().pivot(builder).angle(aFloat).duration(integer).axis(axis);
+        }
+
+        private PositionTarget.Builder<?> pivot;
         private float angle;
         private int duration;
         private Direction.Axis axis;
 
-        public Builder pivot(PositionTarget target) {
+        public Builder pivot(PositionTarget.Builder<?> target) {
             this.pivot = target;
             return this;
         }
@@ -80,19 +94,17 @@ public class RotateElement implements AnimationElement {
         }
 
         @Override
-        public AnimationElement build() {
-            return new RotateElement(pivot, angle, duration, axis);
+        public RotateElement build(Map<String, Entity> context) {
+            return new RotateElement(pivot.build(context), angle, duration, axis);
+        }
+
+        @Override
+        public AnimationElement.Type<RotateElement> type() {
+            return ElementTypes.ROTATE.get();
         }
     }
 
     public static class Type implements AnimationElement.Type<RotateElement> {
-        private static final MapCodec<RotateElement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                PositionTarget.CODEC.fieldOf("pivot").forGetter(e -> e.pivot),
-                Codec.FLOAT.fieldOf("speed").forGetter(e -> e.degreePerTick),
-                Codec.INT.fieldOf("duration").forGetter(e -> e.duration),
-                Direction.Axis.CODEC.fieldOf("axis").forGetter(e -> e.axis)
-        ).apply(i, RotateElement::new));
-
         private static final StreamCodec<? super RegistryFriendlyByteBuf, RotateElement> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, e -> e.pivot,
                 ByteBufCodecs.FLOAT, e -> e.degreePerTick,
@@ -107,8 +119,8 @@ public class RotateElement implements AnimationElement {
         }
 
         @Override
-        public MapCodec<RotateElement> codec() {
-            return CODEC;
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
         }
     }
 }

@@ -9,8 +9,11 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementType
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class MoveTowardsElement implements AnimationElement {
     private final PositionTarget targetLoc;
@@ -45,11 +48,20 @@ public class MoveTowardsElement implements AnimationElement {
         object.setPos(object.<Vec3>getProperty("origin").lerp(targetLoc.get(), percentage));
     }
 
-    public static class Builder implements AnimationElement.Builder {
-        private PositionTarget targetLoc;
+    public static class Builder implements AnimationElement.Builder<MoveTowardsElement> {
+        private static final MapCodec<MoveTowardsElement.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("target").forGetter(e -> e.targetLoc),
+                Codec.INT.fieldOf("duration").forGetter(e -> e.duration)
+        ).apply(i, Builder::fromCodec));
+
+        private static Builder fromCodec(PositionTarget.Builder<?> builder, Integer integer) {
+            return new Builder().target(builder).duration(integer);
+        }
+
+        private PositionTarget.Builder<?> targetLoc;
         private int duration;
 
-        public Builder target(PositionTarget pos) {
+        public Builder target(PositionTarget.Builder<?> pos) {
             targetLoc = pos;
             return this;
         }
@@ -59,18 +71,18 @@ public class MoveTowardsElement implements AnimationElement {
             return this;
         }
 
+        @Override
+        public MoveTowardsElement build(Map<String, Entity> context) {
+            return new MoveTowardsElement(targetLoc.build(context), duration);
+        }
 
         @Override
-        public AnimationElement build() {
-            return new MoveTowardsElement(targetLoc, duration);
+        public AnimationElement.Type<MoveTowardsElement> type() {
+            return ElementTypes.MOVE_TOWARDS.get();
         }
     }
 
     public static class Type implements AnimationElement.Type<MoveTowardsElement> {
-        private static final MapCodec<MoveTowardsElement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                PositionTarget.CODEC.fieldOf("target").forGetter(e -> e.targetLoc),
-                Codec.INT.fieldOf("duration").forGetter(e -> e.duration)
-        ).apply(i, MoveTowardsElement::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, MoveTowardsElement> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, e -> e.targetLoc,
                 ByteBufCodecs.INT, e -> e.duration,
@@ -83,8 +95,8 @@ public class MoveTowardsElement implements AnimationElement {
         }
 
         @Override
-        public MapCodec<MoveTowardsElement> codec() {
-            return CODEC;
+        public MapCodec<MoveTowardsElement.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 }

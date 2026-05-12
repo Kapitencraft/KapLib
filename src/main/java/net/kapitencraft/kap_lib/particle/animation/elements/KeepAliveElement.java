@@ -7,7 +7,10 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementType
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class KeepAliveElement implements AnimationElement {
     private final int duration;
@@ -36,7 +39,6 @@ public class KeepAliveElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<KeepAliveElement> {
-        private static final MapCodec<KeepAliveElement> CODEC = Codec.INT.xmap(KeepAliveElement::new, e -> e.duration).fieldOf("duration");
         private static final StreamCodec<? super RegistryFriendlyByteBuf, KeepAliveElement> STREAM_CODEC = ByteBufCodecs.INT.map(KeepAliveElement::new, e -> e.duration);
 
         @Override
@@ -45,12 +47,14 @@ public class KeepAliveElement implements AnimationElement {
         }
 
         @Override
-        public MapCodec<KeepAliveElement> codec() {
-            return CODEC;
+        public MapCodec<KeepAliveElement.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder implements AnimationElement.Builder {
+    public static class Builder implements AnimationElement.Builder<KeepAliveElement> {
+        private static final MapCodec<KeepAliveElement.Builder> CODEC = Codec.INT.xmap(KeepAliveElement::forDuration, e -> e.duration).fieldOf("duration");
+
         private int duration;
 
         public Builder duration(int duration) {
@@ -59,8 +63,13 @@ public class KeepAliveElement implements AnimationElement {
         }
 
         @Override
-        public AnimationElement build() {
+        public KeepAliveElement build(Map<String, Entity> context) {
             return new KeepAliveElement(duration);
+        }
+
+        @Override
+        public Type type() {
+            return ElementTypes.KEEP_ALIVE.get();
         }
     }
 }

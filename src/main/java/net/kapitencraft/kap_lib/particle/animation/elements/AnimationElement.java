@@ -7,11 +7,14 @@ import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 
 public interface AnimationElement {
-    Codec<AnimationElement> CODEC = ParticleAnimationRegistries.ANIMATION_ELEMENT_TYPES.byNameCodec().dispatch(AnimationElement::getType, Type::codec);
+    Codec<AnimationElement.Builder<?>> CODEC = ParticleAnimationRegistries.ANIMATION_ELEMENT_TYPES.byNameCodec().dispatch(AnimationElement.Builder::type, Type::codec);
     StreamCodec<RegistryFriendlyByteBuf, AnimationElement> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.MODIFIER_TYPES).dispatch(AnimationElement::getType, Type::streamCodec);
 
     @NotNull Type<? extends AnimationElement> getType();
@@ -45,13 +48,15 @@ public interface AnimationElement {
     /**
      * builder for Animation elements. override in your own animation elements to use them in animations
      */
-    interface Builder {
+    interface Builder<T extends AnimationElement> {
 
-        AnimationElement build();
+        T build(Map<String, Entity> context);
+
+        Type<T> type();
     }
 
     interface Type<T extends AnimationElement> {
         StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
-        MapCodec<T> codec();
+        MapCodec<? extends Builder<T>> codec();
     }
 }

@@ -10,8 +10,11 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementType
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class MoveAwayElement implements AnimationElement {
     private final PositionTarget target;
@@ -47,11 +50,6 @@ public class MoveAwayElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<MoveAwayElement> {
-        private static final MapCodec<MoveAwayElement> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                PositionTarget.CODEC.fieldOf("target").forGetter(e -> e.target),
-                Codec.FLOAT.fieldOf("speed").forGetter(e -> e.speed),
-                Codec.INT.fieldOf("duration").forGetter(e -> e.duration)
-        ).apply(i, MoveAwayElement::new));
         private static final StreamCodec<? super RegistryFriendlyByteBuf, MoveAwayElement> STREAM_CODEC = StreamCodec.composite(
                 PositionTarget.STREAM_CODEC, e -> e.target,
                 ByteBufCodecs.FLOAT, e -> e.speed,
@@ -65,17 +63,27 @@ public class MoveAwayElement implements AnimationElement {
         }
 
         @Override
-        public MapCodec<MoveAwayElement> codec() {
-            return CODEC;
+        public MapCodec<MoveAwayElement.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder implements AnimationElement.Builder {
-        private PositionTarget target;
-        private float speed;
-        private int time;
+    public static class Builder implements AnimationElement.Builder<MoveAwayElement> {
+        private static final MapCodec<MoveAwayElement.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("target").forGetter(e -> e.target),
+                Codec.FLOAT.fieldOf("speed").forGetter(e -> e.speed),
+                Codec.INT.fieldOf("duration").forGetter(e -> e.duration)
+        ).apply(i, MoveAwayElement.Builder::fromCodec));
 
-        public Builder target(PositionTarget target) {
+        private static Builder fromCodec(PositionTarget.Builder<?> builder, Float speed, Integer time) {
+            return new Builder().target(builder).speed(speed).time(time);
+        }
+
+        private PositionTarget.Builder<?> target;
+        private float speed;
+        private int duration;
+
+        public Builder target(PositionTarget.Builder<?> target) {
             this.target = target;
             return this;
         }
@@ -86,14 +94,19 @@ public class MoveAwayElement implements AnimationElement {
         }
 
         public Builder time(int time) {
-            this.time = time;
+            this.duration = time;
             return this;
         }
 
         @Override
-        public AnimationElement build() {
-            if (time < 1) throw new IllegalStateException("time must be > 0");
-            return new MoveAwayElement(target, speed, time);
+        public MoveAwayElement build(Map<String, Entity> context) {
+            if (duration < 1) throw new IllegalStateException("time must be > 0");
+            return new MoveAwayElement(target.build(context), speed, duration);
+        }
+
+        @Override
+        public AnimationElement.Type<MoveAwayElement> type() {
+            return null;
         }
     }
 }

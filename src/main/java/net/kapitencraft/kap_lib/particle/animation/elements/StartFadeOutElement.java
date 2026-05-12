@@ -7,7 +7,10 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementType
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class StartFadeOutElement implements AnimationElement {
     private final float rate;
@@ -32,7 +35,6 @@ public class StartFadeOutElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<StartFadeOutElement> {
-        private static final MapCodec<StartFadeOutElement> CODEC = Codec.FLOAT.xmap(StartFadeOutElement::new, e -> e.rate).fieldOf("rate");
         private static final StreamCodec<? super RegistryFriendlyByteBuf, StartFadeOutElement> STREAM_CODEC = ByteBufCodecs.FLOAT.map(StartFadeOutElement::new, e -> e.rate);
 
         @Override
@@ -41,12 +43,14 @@ public class StartFadeOutElement implements AnimationElement {
         }
 
         @Override
-        public MapCodec<StartFadeOutElement> codec() {
-            return CODEC;
+        public MapCodec<StartFadeOutElement.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder implements AnimationElement.Builder {
+    public static class Builder implements AnimationElement.Builder<StartFadeOutElement> {
+        private static final MapCodec<StartFadeOutElement.Builder> CODEC = Codec.FLOAT.xmap(f -> new Builder().rate(f), e -> e.rate).fieldOf("rate");
+
         private float rate;
 
         public Builder rate(float rate) {
@@ -55,8 +59,13 @@ public class StartFadeOutElement implements AnimationElement {
         }
 
         @Override
-        public AnimationElement build() {
+        public StartFadeOutElement build(Map<String, Entity> context) {
             return new StartFadeOutElement(rate);
+        }
+
+        @Override
+        public AnimationElement.Type<StartFadeOutElement> type() {
+            return ElementTypes.START_FADE_OUT.get();
         }
     }
 }

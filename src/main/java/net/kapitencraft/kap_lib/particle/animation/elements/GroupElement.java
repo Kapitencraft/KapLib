@@ -6,10 +6,13 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementType
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class GroupElement implements AnimationElement {
     private final List<AnimationElement> elements;
@@ -42,7 +45,6 @@ public class GroupElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<GroupElement> {
-        private static final MapCodec<GroupElement> CODEC = AnimationElement.CODEC.listOf().xmap(GroupElement::new, e -> e.elements).fieldOf("elements");
         private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> STREAM_CODEC = AnimationElement.STREAM_CODEC.apply(ByteBufCodecs.list()).map(GroupElement::new, e -> e.elements);
 
         @Override
@@ -51,21 +53,37 @@ public class GroupElement implements AnimationElement {
         }
 
         @Override
-        public MapCodec<GroupElement> codec() {
-            return CODEC;
+        public MapCodec<GroupElement.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder implements AnimationElement.Builder {
-        private final AnimationElement.Builder[] builders;
+    public static class Builder implements AnimationElement.Builder<GroupElement> {
+        private static final MapCodec<Builder> CODEC = AnimationElement.CODEC.listOf().xmap(Builder::new, b -> b.builders).fieldOf("elements");
 
-        public Builder(AnimationElement.Builder... builders) {
-            this.builders = builders;
+        private final List<AnimationElement.Builder<?>> builders;
+
+        public Builder(AnimationElement.Builder<?>... builders) {
+            this.builders = Arrays.asList(builders);
+        }
+
+        private Builder(List<AnimationElement.Builder<?>> builders) {
+            this.builders = new ArrayList<>(builders);
+        }
+
+        public Builder add(AnimationElement.Builder<?> builder) {
+            this.builders.add(builder);
+            return this;
         }
 
         @Override
-        public AnimationElement build() {
-            return new GroupElement(Arrays.stream(builders).map(AnimationElement.Builder::build).toList());
+        public GroupElement build(Map<String, Entity> context) {
+            return new GroupElement(builders.stream().map(b -> (AnimationElement) b.build(context)).toList());
+        }
+
+        @Override
+        public Type type() {
+            return ElementTypes.GROUP.get();
         }
     }
 }
