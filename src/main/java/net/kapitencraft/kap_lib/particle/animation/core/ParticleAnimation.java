@@ -1,13 +1,16 @@
 package net.kapitencraft.kap_lib.particle.animation.core;
 
 import com.google.common.base.Preconditions;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.EntityAddedTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
-import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.TriggerInstance;
+import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTriggerInstance;
 import net.kapitencraft.kap_lib.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.ParticleFinalizer;
 import net.kapitencraft.kap_lib.particle.animation.spawners.Spawner;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
 import net.kapitencraft.kap_lib.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
@@ -25,6 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -45,18 +49,18 @@ public class ParticleAnimation {
     private final List<AnimationElement> elements;
     private final ParticleFinalizer finalizer;
     private final List<TerminationTriggerInstance> terminators;
-    private final List<TriggerInstance> activationTriggers;
+    private final List<ActivationTriggerInstance> activationTriggers;
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
 
-    private ParticleAnimation(ParticleAnimationBuilder builder) {
+    private ParticleAnimation(ParticleAnimationBuilder builder, Map<String, Entity> context) {
         if (builder.minSpawnDelay > builder.maxSpawnDelay)
             throw new IllegalStateException("minimum spawn delay must be smaller than maximum spawn delay");
         if (builder.minSpawnDelay < -1 || builder.minSpawnDelay == 0)
             throw new IllegalStateException("minimum spawn delay must be above 0 or -1");
-        this.elements = builder.elements;
-        this.finalizer = Objects.requireNonNull(builder.finalizer, "animations must have a finalizer");
-        this.spawner = Objects.requireNonNull(builder.spawner, "animations must have a spawner");
+        this.elements = builder.elements.stream().map(b -> (AnimationElement) b.build(context)).toList();
+        this.finalizer = Objects.requireNonNull(builder.finalizer.build(context), "animations must have a finalizer");
+        this.spawner = Objects.requireNonNull(builder.spawner.build(context), "animations must have a spawner");
         this.terminators = builder.terminators;
         if (this.terminators.isEmpty()) throw new IllegalStateException("particle animation must have a terminator");
         this.maxSpawnDelay = builder.maxSpawnDelay;
@@ -64,7 +68,7 @@ public class ParticleAnimation {
         this.activationTriggers = builder.activationTriggers;
     }
 
-    private ParticleAnimation(List<AnimationElement> elements, ParticleFinalizer finalizer, List<TerminationTriggerInstance> terminators, List<TriggerInstance> activationTriggers, Spawner spawner, int minSpawnDelay, int maxSpawnDelay) {
+    public ParticleAnimation(List<AnimationElement> elements, ParticleFinalizer finalizer, List<TerminationTriggerInstance> terminators, List<ActivationTriggerInstance> activationTriggers, Spawner spawner, int minSpawnDelay, int maxSpawnDelay) {
         this.elements = elements;
         this.finalizer = finalizer;
         this.terminators = terminators;
@@ -90,7 +94,7 @@ public class ParticleAnimation {
         this.spawner.spawn(sink);
     }
 
-    public List<TriggerInstance> getTriggers() {
+    public List<ActivationTriggerInstance> getTriggers() {
         return activationTriggers;
     }
 
@@ -122,12 +126,13 @@ public class ParticleAnimation {
      * particle animation builder. create using {@link #builder()}
      */
     public static class ParticleAnimationBuilder {
-        private final List<AnimationElement> elements = new ArrayList<>();
-        private Spawner spawner;
-        private ParticleFinalizer finalizer;
+
+        private final List<AnimationElement.Builder<?>> elements = new ArrayList<>();
+        private Spawner.SpawnerBuilder<?> spawner;
+        private ParticleFinalizer.Builder<?> finalizer;
         private final List<TerminationTriggerInstance> terminators = new ArrayList<>();
         private int minSpawnDelay, maxSpawnDelay;
-        private final List<TriggerInstance> activationTriggers = new ArrayList<>();
+        private final List<ActivationTriggerInstance> activationTriggers = new ArrayList<>();
 
         private ParticleAnimationBuilder() {
         }
@@ -137,9 +142,9 @@ public class ParticleAnimation {
          *
          * @param spawn the spawner to use
          */
-        public ParticleAnimationBuilder spawn(Spawner.SpawnerBuilder spawn) {
-            spawner = spawn.build();
-            Preconditions.checkNotNull(spawner.getType(), "Spawner without Type detected!");
+        public ParticleAnimationBuilder spawn(Spawner.SpawnerBuilder<?> spawn) {
+            spawner = spawn;
+            Preconditions.checkNotNull(spawn.type(), "Spawner without Type detected!");
             return this;
         }
 
@@ -168,9 +173,9 @@ public class ParticleAnimation {
         /**
          * sets the particles finalizer
          */
-        public ParticleAnimationBuilder finalizes(ParticleFinalizer.Builder finalizerBuilder) {
-            this.finalizer = finalizerBuilder.build();
-            Preconditions.checkNotNull(finalizer.getType(), "Finalizer without type detected!");
+        public ParticleAnimationBuilder finalizes(ParticleFinalizer.Builder<?> finalizerBuilder) {
+            this.finalizer = finalizerBuilder;
+            Preconditions.checkNotNull(finalizerBuilder.type(), "Finalizer without type detected!");
             return this;
         }
 
@@ -183,7 +188,7 @@ public class ParticleAnimation {
             return this;
         }
 
-        public ParticleAnimationBuilder activatedOn(TriggerInstance activationListener) {
+        public ParticleAnimationBuilder activatedOn(ActivationTriggerInstance activationListener) {
             Preconditions.checkNotNull(activationListener.getTrigger(), "Activation Listener without trigger detected!");
             this.activationTriggers.add(activationListener);
             return this;
@@ -192,14 +197,14 @@ public class ParticleAnimation {
         /**
          * adds a new animation element to this animation
          */
-        public ParticleAnimationBuilder then(AnimationElement.Builder builder) {
-            elements.add(builder.build());
+        public ParticleAnimationBuilder then(AnimationElement.Builder<?> builder) {
+            elements.add(builder);
             return this;
         }
 
         @ApiStatus.Internal
         private ParticleAnimation build() {
-            return new ParticleAnimation(this);
+            return new ParticleAnimation(this, Map.of());
         }
 
         /**

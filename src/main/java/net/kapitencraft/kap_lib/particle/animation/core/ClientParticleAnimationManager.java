@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.particle.animation.core;
 
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
-import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.TriggerInstance;
+import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTriggerInstance;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
 import net.minecraft.CrashReport;
@@ -36,7 +36,7 @@ public final class ClientParticleAnimationManager {
     /**
      * animations waiting for their activation
      */
-    private final Map<ParticleAnimator, List<TriggerInstance>> onHold = new HashMap<>();
+    private final Map<ParticleAnimator, List<ActivationTriggerInstance>> onHold = new HashMap<>();
 
     public static void activate(List<ParticleAnimation> animations) {
         animations.forEach(INSTANCE::accept);
@@ -49,12 +49,12 @@ public final class ClientParticleAnimationManager {
      */
     @ApiStatus.Internal
     public void accept(ParticleAnimation animation) {
-        List<TriggerInstance> triggers = animation.getTriggers();
+        List<ActivationTriggerInstance> triggers = animation.getTriggers();
         if (!triggers.isEmpty()) {
             ParticleAnimator animator = new ParticleAnimator(animation);
-            List<TriggerInstance> remaining = new ArrayList<>();
-            for (TriggerInstance instance : triggers) {
-                ActivationTrigger.Listener<TriggerInstance> listener = new ActivationTrigger.Listener<>(instance, animator);
+            List<ActivationTriggerInstance> remaining = new ArrayList<>();
+            for (ActivationTriggerInstance instance : triggers) {
+                ActivationTrigger.Listener<ActivationTriggerInstance> listener = new ActivationTrigger.Listener<>(instance, animator);
                 addListener(listener, remaining);
             }
             if (!remaining.isEmpty()) {
@@ -67,7 +67,7 @@ public final class ClientParticleAnimationManager {
     }
 
     @ApiStatus.Internal
-    private <T extends TriggerInstance> void addListener(ActivationTrigger.Listener<T> instance, List<TriggerInstance> target) {
+    private <T extends ActivationTriggerInstance> void addListener(ActivationTrigger.Listener<T> instance, List<ActivationTriggerInstance> target) {
         ActivationTrigger<T> trigger = (ActivationTrigger<T>) instance.getTrigger().getTrigger();
         if (!trigger.active(instance)) {
             trigger.addListener(instance);
@@ -97,8 +97,8 @@ public final class ClientParticleAnimationManager {
 
     }
 
-    public void triggerComplete(ParticleAnimator animator, TriggerInstance trigger) {
-        List<TriggerInstance> triggers = onHold.get(animator);
+    public void triggerComplete(ParticleAnimator animator, ActivationTriggerInstance trigger) {
+        List<ActivationTriggerInstance> triggers = onHold.get(animator);
         triggers.remove(trigger);
         if (triggers.isEmpty()) {
             onHold.remove(animator);

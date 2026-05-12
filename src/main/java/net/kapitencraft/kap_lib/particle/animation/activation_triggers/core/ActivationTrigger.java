@@ -11,9 +11,9 @@ import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-public interface ActivationTrigger<T extends TriggerInstance> {
-    Codec<TriggerInstance> CODEC = ParticleAnimationRegistries.ACTIVATION_TRIGGERS.byNameCodec().dispatch(TriggerInstance::getTrigger, ActivationTrigger::codec);
-    StreamCodec<RegistryFriendlyByteBuf, TriggerInstance> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.ACTIVATION_TRIGGERS).dispatch(TriggerInstance::getTrigger, ActivationTrigger::streamCodec);
+public interface ActivationTrigger<T extends ActivationTriggerInstance> {
+    Codec<ActivationTriggerInstance> CODEC = ParticleAnimationRegistries.ACTIVATION_TRIGGERS.byNameCodec().dispatch(ActivationTriggerInstance::getTrigger, ActivationTrigger::codec);
+    StreamCodec<RegistryFriendlyByteBuf, ActivationTriggerInstance> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.ACTIVATION_TRIGGERS).dispatch(ActivationTriggerInstance::getTrigger, ActivationTrigger::streamCodec);
 
 
     void addListener(Listener<T> instance);
@@ -26,7 +26,7 @@ public interface ActivationTrigger<T extends TriggerInstance> {
     StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
 
     @OnlyIn(Dist.CLIENT)
-    class Listener<T extends TriggerInstance> {
+    class Listener<T extends ActivationTriggerInstance> {
         private final T trigger;
         private final ParticleAnimator animator;
 

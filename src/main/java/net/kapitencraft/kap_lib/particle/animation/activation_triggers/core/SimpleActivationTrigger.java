@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.particle.animation.activation_triggers.core;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SimpleActivationTrigger<T extends TriggerInstance> implements ActivationTrigger<T> {
+public abstract class SimpleActivationTrigger<T extends ActivationTriggerInstance> implements ActivationTrigger<T> {
     private final List<T> listeners = new ArrayList<>();
 
     @Override

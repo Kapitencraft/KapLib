@@ -1,8 +1,11 @@
 package net.kapitencraft.kap_lib.particle.animation.core;
 
 import com.google.gson.JsonElement;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
@@ -72,7 +75,8 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
         object.forEach((resourceLocation, jsonElement) -> {
             if (jsonElement.isJsonObject()) {
                 try {
-                    this.presets.put(resourceLocation, ParticleAnimationPreset.fromJson(jsonElement.getAsJsonObject()));
+                    DataResult<Pair<ParticleAnimationPreset, JsonElement>> result = ParticleAnimationPreset.CODEC.decode(JsonOps.INSTANCE, jsonElement);
+                    this.presets.put(resourceLocation, result.getOrThrow().getFirst());
                 } catch (Exception e) {
                     LOGGER.warn("unable to load preset {}: {}", resourceLocation, e.getMessage());
                 }
@@ -90,10 +94,10 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
         PacketDistributor.sendToPlayer(player, new ActivateParticleAnimationsPacket(toActivate));
     }
 
-    private record Entry(Set<UUID> targets, ParticleAnimation animation) {
+    private record Entry(Set<UUID> targets, ParticleAnimationPreset animation) {
         private static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
                 UUIDUtil.STRING_CODEC.listOf().xmap(Set::copyOf, List::copyOf).fieldOf("targets").forGetter(Entry::targets),
-                ParticleAnimation.CODEC.fieldOf("animation").forGetter(Entry::animation)
+                ParticleAnimationPreset.CODEC.fieldOf("animation").forGetter(Entry::animation)
         ).apply(i, Entry::new));
 
         public static Entry single(ParticleAnimation animation, ServerPlayer target) {
