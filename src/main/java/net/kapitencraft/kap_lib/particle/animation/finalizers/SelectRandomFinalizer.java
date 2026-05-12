@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -9,7 +10,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.random.Weight;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class SelectRandomFinalizer implements ParticleFinalizer {
     private final WeightedRandomList<WeightedEntry.Wrapper<ParticleFinalizer>> entries;
@@ -20,7 +26,7 @@ public class SelectRandomFinalizer implements ParticleFinalizer {
 
     @Override
     public @NotNull Type getType() {
-        return null;
+        return FinalizerTypes.SELECT_RANDOM.get();
     }
 
     @Override
@@ -46,8 +52,27 @@ public class SelectRandomFinalizer implements ParticleFinalizer {
         }
 
         @Override
-        public MapCodec<SelectRandomFinalizer> codec() {
+        public MapCodec<Builder> codec() {
             return null;
+        }
+    }
+
+    public static class Builder implements ParticleFinalizer.Builder<SelectRandomFinalizer> {
+        private final List<WeightedEntry.Wrapper<ParticleFinalizer.Builder<?>>> entries = new ArrayList<>();
+
+        public Builder addEntry(int weight, ParticleFinalizer.Builder<?> entry) {
+            this.entries.add(new WeightedEntry.Wrapper<>(entry, Weight.of(weight)));
+            return this;
+        }
+
+        @Override
+        public SelectRandomFinalizer build(Map<String, Entity> context) {
+            return new SelectRandomFinalizer(entries);
+        }
+
+        @Override
+        public ParticleFinalizer.Type<SelectRandomFinalizer> type() {
+            return FinalizerTypes.SELECT_RANDOM.get();
         }
     }
 }

@@ -8,7 +8,10 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTy
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
 
 public class SetLifeTimeFinalizer implements ParticleFinalizer {
     private final int lifeTime;
@@ -40,10 +43,6 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
                 ByteBufCodecs.BOOL, f -> f.resetAge,
                 SetLifeTimeFinalizer::new
         );
-        private static final MapCodec<SetLifeTimeFinalizer> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                Codec.INT.fieldOf("lifeTime").forGetter(f -> f.lifeTime),
-                Codec.BOOL.optionalFieldOf("resetAge", false).forGetter(f -> f.resetAge)
-        ).apply(i, SetLifeTimeFinalizer::new));
 
         @Override
         public StreamCodec<? super RegistryFriendlyByteBuf, SetLifeTimeFinalizer> streamCodec() {
@@ -51,17 +50,31 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
         }
 
         @Override
-        public MapCodec<SetLifeTimeFinalizer> codec() {
-            return CODEC;
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder implements ParticleFinalizer.Builder {
+    public static class Builder implements ParticleFinalizer.Builder<SetLifeTimeFinalizer> {
+        private static final MapCodec<Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.INT.fieldOf("lifeTime").forGetter(f -> f.lifeTime),
+                Codec.BOOL.optionalFieldOf("resetAge", false).forGetter(f -> f.resetAge)
+        ).apply(i, Builder::fromCodec));
+
+        private static Builder fromCodec(Integer integer, Boolean aBoolean) {
+            return new Builder().lifeTime(integer).resetAge(aBoolean);
+        }
+
         private int lifeTime;
         private boolean resetAge = false;
 
         public Builder resetAge() {
             this.resetAge = true;
+            return this;
+        }
+
+        private Builder resetAge(boolean resetAge) {
+            this.resetAge = resetAge;
             return this;
         }
 
@@ -71,8 +84,13 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
         }
 
         @Override
-        public ParticleFinalizer build() {
+        public SetLifeTimeFinalizer build(Map<String, Entity> context) {
             return new SetLifeTimeFinalizer(lifeTime, resetAge);
+        }
+
+        @Override
+        public ParticleFinalizer.Type<SetLifeTimeFinalizer> type() {
+            return FinalizerTypes.SET_LIFE_TIME.get();
         }
     }
 
