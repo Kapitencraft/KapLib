@@ -100,11 +100,13 @@ subprojects { Project proj ->
         }
     }
 
-    signing {
-        useInMemoryPgpKeys(
-                new String(Base64.decoder.decode((String) findProperty("signingKey"))),
-                findProperty("signingPassword")
-        )
+    if (hasProperty("signingKey")) {
+        signing {
+            useInMemoryPgpKeys(
+                    new String(Base64.decoder.decode((String) findProperty("signingKey"))),
+                    findProperty("signingPassword")
+            )
+        }
     }
 
     repositories {
@@ -377,9 +379,11 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
-signing {
-    useInMemoryPgpKeys(
-            new String(Base64.decoder.decode((String) findProperty("signingKey"))),
-            findProperty("signingPassword")
-    )
+if (hasProperty("signingKey")) {
+    signing {
+        useInMemoryPgpKeys(
+                new String(Base64.decoder.decode((String) findProperty("signingKey"))),
+                findProperty("signingPassword")
+        )
+    }
 }
