@@ -1,6 +1,9 @@
 package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.client.Minecraft;
@@ -53,11 +56,34 @@ public class SelectRandomFinalizer implements ParticleFinalizer {
 
         @Override
         public MapCodec<Builder> codec() {
-            return null;
+            return Builder.CODEC;
         }
     }
 
     public static class Builder implements ParticleFinalizer.Builder<SelectRandomFinalizer> {
+        private static final Codec<Pair<Integer, ParticleFinalizer.Builder<?>>> ENTRY_CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.INT.fieldOf("weight").forGetter(Pair::getFirst),
+                ParticleFinalizer.CODEC.fieldOf("value").forGetter(Pair::getSecond)
+        ).apply(i, Pair::new));
+
+        private static final MapCodec<Builder> CODEC = ENTRY_CODEC.listOf().xmap(Builder::fromCodec, Builder::toCodec).fieldOf("entries");
+
+        private List<Pair<Integer, ParticleFinalizer.Builder<?>>> toCodec() {
+            List<Pair<Integer, ParticleFinalizer.Builder<?>>> list = new ArrayList<>();
+            for (WeightedEntry.Wrapper<ParticleFinalizer.Builder<?>> entry : this.entries) {
+                list.add(new Pair<>(entry.weight().asInt(), entry.data()));
+            }
+            return list;
+        }
+
+        private static Builder fromCodec(List<Pair<Integer, ParticleFinalizer.Builder<?>>> list) {
+            Builder builder = new Builder();
+            for (Pair<Integer, ParticleFinalizer.Builder<?>> pair : list) {
+                builder.addEntry(pair.getFirst(), pair.getSecond());
+            }
+            return builder;
+        }
+
         private final List<WeightedEntry.Wrapper<ParticleFinalizer.Builder<?>>> entries = new ArrayList<>();
 
         public Builder addEntry(int weight, ParticleFinalizer.Builder<?> entry) {
@@ -67,7 +93,7 @@ public class SelectRandomFinalizer implements ParticleFinalizer {
 
         @Override
         public SelectRandomFinalizer build(Map<String, Entity> context) {
-            return new SelectRandomFinalizer(entries);
+            return new SelectRandomFinalizer(WeightedRandomList.create(entries.stream().map(w -> new WeightedEntry.Wrapper<>((ParticleFinalizer) w.data().build(context), w.getWeight())).toList()));
         }
 
         @Override
