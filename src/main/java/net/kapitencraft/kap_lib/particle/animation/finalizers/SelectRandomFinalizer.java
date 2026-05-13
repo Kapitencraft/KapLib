@@ -67,7 +67,7 @@ public class SelectRandomFinalizer implements ParticleFinalizer {
 
         @Override
         public SelectRandomFinalizer build(Map<String, Entity> context) {
-            return new SelectRandomFinalizer(entries);
+            return new SelectRandomFinalizer(WeightedRandomList.create(entries.stream().map(w -> new WeightedEntry.Wrapper<>((ParticleFinalizer) w.data().build(context), w.getWeight())).toList()));
         }
 
         @Override
