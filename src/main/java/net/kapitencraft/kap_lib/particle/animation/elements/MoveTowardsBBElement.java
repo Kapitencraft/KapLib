@@ -8,20 +8,22 @@ import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class MoveTowardsBBElement implements AnimationElement {
-    private final int entity, duration;
+    private final UUID entity;
+    private final int duration;
 
-    public MoveTowardsBBElement(int entity, int duration) {
+    public MoveTowardsBBElement(UUID entity, int duration) {
         this.entity = entity;
         this.duration = duration;
     }
@@ -80,9 +82,9 @@ public class MoveTowardsBBElement implements AnimationElement {
         }
 
         @Override
-        public MoveTowardsBBElement build(Map<String, Entity> context) {
+        public MoveTowardsBBElement build(Map<String, UUID> context) {
             if (duration < 1) throw new IllegalStateException("MoveTowardsBB duration must be larger than 0");
-            return new MoveTowardsBBElement(Objects.requireNonNull(entity.get(context), "MoveTowardsBB without entity found!").getId(), duration);
+            return new MoveTowardsBBElement(Objects.requireNonNull(entity.get(context), "MoveTowardsBB without entity found!"), duration);
         }
 
         @Override
@@ -94,7 +96,7 @@ public class MoveTowardsBBElement implements AnimationElement {
     public static class Type implements AnimationElement.Type<MoveTowardsBBElement> {
 
         private static final StreamCodec<? super RegistryFriendlyByteBuf, MoveTowardsBBElement> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.INT, e -> e.entity,
+                UUIDUtil.STREAM_CODEC, e -> e.entity,
                 ByteBufCodecs.INT, e -> e.duration,
                 MoveTowardsBBElement::new
         );

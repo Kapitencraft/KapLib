@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public interface Spawner {
     Codec<SpawnerBuilder<?>> CODEC = ParticleAnimationRegistries.SPAWNER_TYPES.byNameCodec().dispatch(SpawnerBuilder::type, Type::codec);
@@ -40,7 +41,7 @@ public interface Spawner {
     }
 
     interface SpawnerBuilder<T extends Spawner> {
-        T build(Map<String, Entity> context);
+        T build(Map<String, UUID> context);
 
         Type<T> type();
     }

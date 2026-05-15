@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class LineSpawner extends VisibleSpawner {
     private final PositionTarget start, end;
@@ -53,19 +54,19 @@ public class LineSpawner extends VisibleSpawner {
                 Codec.FLOAT.fieldOf("spacing").forGetter(s -> s.spacing)
         ).apply(i, LineSpawner.Builder::fromCodec));
 
-        private static Builder fromCodec(ParticleOptions options, PositionTarget start, PositionTarget end, Float spacing) {
+        private static Builder fromCodec(ParticleOptions options, PositionTarget.Builder<?> start, PositionTarget.Builder<?> end, float spacing) {
             return new Builder().setParticle(options).start(start).end(end).spacing(spacing);
         }
 
-        private PositionTarget start, end;
+        private PositionTarget.Builder<?> start, end;
         private float spacing;
 
-        public Builder start(PositionTarget start) {
+        public Builder start(PositionTarget.Builder<?> start) {
             this.start = start;
             return this;
         }
 
-        public Builder end(PositionTarget end) {
+        public Builder end(PositionTarget.Builder<?> end) {
             this.end = end;
             return this;
         }
@@ -76,8 +77,8 @@ public class LineSpawner extends VisibleSpawner {
         }
 
         @Override
-        public LineSpawner build(Map<String, Entity> context) {
-            return new LineSpawner(particle, start, end, spacing);
+        public LineSpawner build(Map<String, UUID> context) {
+            return new LineSpawner(particle, start.build(context), end.build(context), spacing);
         }
 
         @Override
@@ -102,7 +103,7 @@ public class LineSpawner extends VisibleSpawner {
         }
 
         @Override
-        public MapCodec<Builder> getCodec() {
+        public MapCodec<Builder> codec() {
             return Builder.CODEC;
         }
     }

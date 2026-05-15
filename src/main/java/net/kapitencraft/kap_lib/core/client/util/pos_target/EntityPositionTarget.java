@@ -7,6 +7,7 @@ import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,13 +16,14 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * a position target returns the position of an entity. the anchor can be used to specify whether to return the feet position or the head position
  * @param target the target entity, as its entity id
  * @param anchor the anchor of the position. either feet or head
  */
-public record EntityPositionTarget(int target, EntityAnchorArgument.Anchor anchor) implements PositionTarget {
+public record EntityPositionTarget(UUID target, EntityAnchorArgument.Anchor anchor) implements PositionTarget {
 
     @Override
     public Vec3 get() {
@@ -35,7 +37,7 @@ public record EntityPositionTarget(int target, EntityAnchorArgument.Anchor ancho
 
     public static class Type implements PositionTarget.Type<EntityPositionTarget> {
         private static final StreamCodec<? super RegistryFriendlyByteBuf, EntityPositionTarget> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.INT, t -> t.target,
+                UUIDUtil.STREAM_CODEC, t -> t.target,
                 ExtraStreamCodecs.enumCodec(EntityAnchorArgument.Anchor.values()), t -> t.anchor,
                 EntityPositionTarget::new
         );
@@ -86,8 +88,8 @@ public record EntityPositionTarget(int target, EntityAnchorArgument.Anchor ancho
         }
 
         @Override
-        public EntityPositionTarget build(Map<String, Entity> context) {
-            return new EntityPositionTarget(target.get(context).getId(), this.anchor);
+        public EntityPositionTarget build(Map<String, UUID> context) {
+            return new EntityPositionTarget(target.get(context), this.anchor);
         }
 
         @Override

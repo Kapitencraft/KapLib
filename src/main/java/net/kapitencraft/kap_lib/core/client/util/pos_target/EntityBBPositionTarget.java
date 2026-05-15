@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,14 +12,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * gets a random position in the target entities bounding box
  */
 public class EntityBBPositionTarget implements PositionTarget {
-    private final int entity;
+    private final UUID entity;
 
-    public EntityBBPositionTarget(int entity) {
+    public EntityBBPositionTarget(UUID entity) {
         this.entity = entity;
     }
 
@@ -38,7 +40,7 @@ public class EntityBBPositionTarget implements PositionTarget {
 
     public static class Type implements PositionTarget.Type<EntityBBPositionTarget> {
         private static final MapCodec<EntityBBPositionTarget.Builder> CODEC = EntityAccessor.CODEC.xmap(Builder::new, b -> b.owner).fieldOf("owner");
-        private static final StreamCodec<? super RegistryFriendlyByteBuf, EntityBBPositionTarget> STREAM_CODEC = ByteBufCodecs.INT.map(EntityBBPositionTarget::new, t -> t.entity);
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, EntityBBPositionTarget> STREAM_CODEC = UUIDUtil.STREAM_CODEC.map(EntityBBPositionTarget::new, t -> t.entity);
 
         @Override
         public StreamCodec<? super RegistryFriendlyByteBuf, EntityBBPositionTarget> streamCodec() {
@@ -60,8 +62,8 @@ public class EntityBBPositionTarget implements PositionTarget {
         }
 
         @Override
-        public EntityBBPositionTarget build(Map<String, Entity> context) {
-            return new EntityBBPositionTarget(this.owner.get(context).getId());
+        public EntityBBPositionTarget build(Map<String, UUID> context) {
+            return new EntityBBPositionTarget(this.owner.get(context));
         }
 
         @Override

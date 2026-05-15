@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class SelectRandomFinalizer implements ParticleFinalizer {
     private final WeightedRandomList<WeightedEntry.Wrapper<ParticleFinalizer>> entries;
@@ -92,7 +93,7 @@ public class SelectRandomFinalizer implements ParticleFinalizer {
         }
 
         @Override
-        public SelectRandomFinalizer build(Map<String, Entity> context) {
+        public SelectRandomFinalizer build(Map<String, UUID> context) {
             return new SelectRandomFinalizer(WeightedRandomList.create(entries.stream().map(w -> new WeightedEntry.Wrapper<>((ParticleFinalizer) w.data().build(context), w.getWeight())).toList()));
         }
 

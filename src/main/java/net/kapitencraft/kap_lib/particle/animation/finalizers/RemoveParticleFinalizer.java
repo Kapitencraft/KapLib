@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class RemoveParticleFinalizer implements ParticleFinalizer {
     private static final RemoveParticleFinalizer INSTANCE = new RemoveParticleFinalizer();
@@ -45,7 +46,7 @@ public class RemoveParticleFinalizer implements ParticleFinalizer {
         private static final MapCodec<Builder> CODEC = MapCodec.unit(new Builder());
 
         @Override
-        public RemoveParticleFinalizer build(Map<String, Entity> context) {
+        public RemoveParticleFinalizer build(Map<String, UUID> context) {
             return INSTANCE;
         }
 

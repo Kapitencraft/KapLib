@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class MoveAwayElement implements AnimationElement {
     private final PositionTarget target;
@@ -99,7 +100,7 @@ public class MoveAwayElement implements AnimationElement {
         }
 
         @Override
-        public MoveAwayElement build(Map<String, Entity> context) {
+        public MoveAwayElement build(Map<String, UUID> context) {
             if (duration < 1) throw new IllegalStateException("time must be > 0");
             return new MoveAwayElement(target.build(context), speed, duration);
         }

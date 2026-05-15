@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Map;
+import java.util.UUID;
 
 public interface EntityAccessor {
     Codec<EntityAccessor> CODEC = Codec.STRING.flatXmap(
@@ -16,37 +17,27 @@ public interface EntityAccessor {
             });
 
     static EntityAccessor direct(Entity target) {
-        return new Direct(target);
+        return new Direct(target.getUUID());
     }
 
     static EntityAccessor reference(String name) {
         return new Reference(name);
     }
 
-    Entity get(Map<String, Entity> context);
+    UUID get(Map<String, UUID> context);
 
-    class Direct implements EntityAccessor {
-        private final Entity entity;
-
-        public Direct(Entity entity) {
-            this.entity = entity;
-        }
+    record Direct(UUID entity) implements EntityAccessor {
 
         @Override
-        public Entity get(Map<String, Entity> context) {
+        public UUID get(Map<String, UUID> context) {
             return entity;
         }
     }
 
-    class Reference implements EntityAccessor {
-        private final String name;
-
-        public Reference(String name) {
-            this.name = name;
-        }
+    record Reference(String name) implements EntityAccessor {
 
         @Override
-        public Entity get(Map<String, Entity> context) {
+        public UUID get(Map<String, UUID> context) {
             return context.get(name);
         }
     }

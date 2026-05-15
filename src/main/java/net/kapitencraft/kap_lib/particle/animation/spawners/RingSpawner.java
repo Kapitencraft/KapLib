@@ -19,12 +19,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class RingSpawner extends VisibleSpawner {
     private final PositionTarget target;
@@ -156,7 +156,13 @@ public class RingSpawner extends VisibleSpawner {
      */
     public static Builder entityWithBBSize(Entity entity, float xScale, float yScale) {
         float bbRadius = entity.getBbWidth() / 2;
-        return builder().setTarget(PositionTarget.entity(entity)).axis(Direction.Axis.Y).maxHeight(entity.getBbHeight() * yScale).radius(bbRadius * xScale);
+        return builder().setTarget(PositionTarget.entity(entity)).axis(Direction.Axis.Y)
+                .maxHeight(entity.getBbHeight() * yScale).radius(bbRadius * xScale);
+    }
+
+    public static Builder entityWithBBSize(String entityKey, float width, float height) {
+        return builder().setTarget(PositionTarget.entity(entityKey)).axis(Direction.Axis.Y)
+                .maxHeight(height).radius(width / 2);
     }
 
     /**
@@ -175,7 +181,7 @@ public class RingSpawner extends VisibleSpawner {
                 Codec.INT.fieldOf("count").forGetter(s -> s.spawnCount)
         ).apply(i, RingSpawner.Builder::fromCodec));
 
-        private static Builder fromCodec(PositionTarget.Builder<?> builder, ParticleOptions options, RotationTarget rotationTarget, Direction.Axis axis, Float rotPerTick, Float maxHeight, Float heightPerTick, Float radius, Integer spawnCount) {
+        private static Builder fromCodec(PositionTarget.Builder<?> builder, ParticleOptions options, RotationTarget.Builder<?> rotationTarget, Direction.Axis axis, Float rotPerTick, Float maxHeight, Float heightPerTick, Float radius, Integer spawnCount) {
             return new Builder()
                     .setTarget(builder).setParticle(options).rotation(rotationTarget).axis(axis)
                     .rotPerTick(rotPerTick).maxHeight(maxHeight).heightPerTick(heightPerTick)
@@ -187,7 +193,7 @@ public class RingSpawner extends VisibleSpawner {
         private float rotPerTick, maxHeight, heightChangePerTick, radius;
         private int spawnCount = 1;
         private Direction.Axis axis;
-        private RotationTarget rotationTarget = RotationTarget.absolute(Vec2.ZERO);
+        private RotationTarget.Builder<?> rotationTarget = RotationTarget.absolute(Vec2.ZERO);
 
         /**
          * @param rotPerTick Developer Note: do I need to explain this?
@@ -245,14 +251,14 @@ public class RingSpawner extends VisibleSpawner {
             return this;
         }
 
-        public Builder rotation(RotationTarget target) {
+        public Builder rotation(RotationTarget.Builder<?> target) {
             this.rotationTarget = target;
             return this;
         }
 
         @Override
-        public RingSpawner build(Map<String, Entity> context) {
-            return new RingSpawner(target.build(context), particle, rotationTarget, axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
+        public RingSpawner build(Map<String, UUID> context) {
+            return new RingSpawner(target.build(context), particle, rotationTarget.build(context), axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
         }
 
         @Override

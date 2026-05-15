@@ -45,12 +45,12 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
         NeoForge.EVENT_BUS.addListener(this::handlePlayerJoin);
     }
 
-    public static void accept(ParticleAnimation animation, ServerPlayer target) {
-        INSTANCE.animations.add(Entry.single(animation, target));
+    public static void accept(ParticleAnimationPreset animation, ServerPlayer target, Map<String, UUID> context) {
+        INSTANCE.animations.add(Entry.single(animation, target, context));
     }
 
-    public static void accept(ParticleAnimation animation) {
-        INSTANCE.animations.add(Entry.all(animation));
+    public static void accept(ParticleAnimationPreset animation, Map<String, UUID> context) {
+        INSTANCE.animations.add(Entry.all(animation, context));
     }
 
     private void store() {
@@ -89,23 +89,24 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
         List<ParticleAnimation> toActivate = new ArrayList<>();
         for (Entry animationEntry : this.animations) {
             if (animationEntry.targets.isEmpty() || animationEntry.targets.contains(player.getUUID()))
-                toActivate.add(animationEntry.animation);
+                toActivate.add(animationEntry.animation.build(Map.of()));
         }
         PacketDistributor.sendToPlayer(player, new ActivateParticleAnimationsPacket(toActivate));
     }
 
-    private record Entry(Set<UUID> targets, ParticleAnimationPreset animation) {
+    private record Entry(Set<UUID> targets, ParticleAnimationPreset animation, Map<String, UUID> context) {
         private static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
                 UUIDUtil.STRING_CODEC.listOf().xmap(Set::copyOf, List::copyOf).fieldOf("targets").forGetter(Entry::targets),
-                ParticleAnimationPreset.CODEC.fieldOf("animation").forGetter(Entry::animation)
+                ParticleAnimationPreset.CODEC.fieldOf("animation").forGetter(Entry::animation),
+                Codec.unboundedMap(Codec.STRING, UUIDUtil.STRING_CODEC).fieldOf("context").forGetter(Entry::context)
         ).apply(i, Entry::new));
 
-        public static Entry single(ParticleAnimation animation, ServerPlayer target) {
-            return new Entry(Set.of(target.getUUID()), animation);
+        public static Entry single(ParticleAnimationPreset animation, ServerPlayer target, Map<String, UUID> params) {
+            return new Entry(Set.of(target.getUUID()), animation, params);
         }
 
-        public static Entry all(ParticleAnimation animation) {
-            return new Entry(Set.of(), animation);
+        public static Entry all(ParticleAnimationPreset animation, Map<String, UUID> params) {
+            return new Entry(Set.of(), animation, params);
         }
     }
 }

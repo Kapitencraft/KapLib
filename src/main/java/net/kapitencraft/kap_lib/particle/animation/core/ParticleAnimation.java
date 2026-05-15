@@ -26,10 +26,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * static data container for animations. created from presets or with a builder. use {@link ParticleAnimator} for dynamic information such as tick count
@@ -53,7 +50,7 @@ public class ParticleAnimation {
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
 
-    private ParticleAnimation(ParticleAnimationBuilder builder, Map<String, Entity> context) {
+    private ParticleAnimation(ParticleAnimationBuilder builder, Map<String, UUID> context) {
         if (builder.minSpawnDelay > builder.maxSpawnDelay)
             throw new IllegalStateException("minimum spawn delay must be smaller than maximum spawn delay");
         if (builder.minSpawnDelay < -1 || builder.minSpawnDelay == 0)
@@ -214,7 +211,7 @@ public class ParticleAnimation {
          */
         public void sendToPlayer(ServerPlayer player) {
             ParticleAnimation animation = this.build();
-            ServerParticleAnimationManager.accept(animation);
+            //ServerParticleAnimationManager.accept(animation); TODO
             PacketDistributor.sendToPlayer(player, new SendParticleAnimationPacket(animation));
         }
 
@@ -223,7 +220,7 @@ public class ParticleAnimation {
          */
         public void sendToAllPlayers() {
             ParticleAnimation animation = this.build();
-            ServerParticleAnimationManager.accept(animation);
+            //ServerParticleAnimationManager.accept(animation); TODO
             PacketDistributor.sendToAllPlayers(new SendParticleAnimationPacket(animation));
         }
 
@@ -233,6 +230,18 @@ public class ParticleAnimation {
         @OnlyIn(Dist.CLIENT)
         public void register() {
             ClientParticleAnimationManager.INSTANCE.accept(this.build());
+        }
+
+        public ParticleAnimationPreset toPreset() {
+            return new ParticleAnimationPreset(
+                    this.elements,
+                    this.finalizer,
+                    this.terminators,
+                    this.activationTriggers,
+                    this.spawner,
+                    this.minSpawnDelay,
+                    this.maxSpawnDelay
+            );
         }
     }
 

@@ -3,7 +3,6 @@ package net.kapitencraft.kap_lib.core.client.util.pos_target;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
-import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
@@ -12,6 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -30,12 +30,12 @@ public interface PositionTarget extends Supplier<Vec3> {
     /**
      * @return a position target for the given position
      */
-    static PositionTarget fixed(Vec3 pos) {
-        return new StaticPositionTarget(pos);
+    static PositionTarget.Builder<?> fixed(Vec3 pos) {
+        return new StaticPositionTarget.Builder().setPos(pos);
     }
 
-    static PositionTarget relative(PositionTarget pos, Vec3 offset) {
-        return new RelativePositionTarget(pos, offset);
+    static PositionTarget.Builder<?> relative(PositionTarget.Builder<?> pos, Vec3 offset) {
+        return new RelativePositionTarget.Builder().setTarget(pos).setOffset(offset);
     }
 
     /**
@@ -101,12 +101,13 @@ public interface PositionTarget extends Supplier<Vec3> {
     interface Type<T extends PositionTarget> {
 
         MapCodec<? extends Builder<T>> codec();
+
         StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
     }
 
     interface Builder<T extends PositionTarget> {
 
-        T build(Map<String, Entity> context);
+        T build(Map<String, UUID> context);
 
         Types getType();
     }

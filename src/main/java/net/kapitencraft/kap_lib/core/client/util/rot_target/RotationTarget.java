@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.core.client.util.rot_target;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
@@ -11,6 +12,7 @@ import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -26,16 +28,16 @@ public interface RotationTarget extends Supplier<Vec2> {
         return t.type.streamCodec().decode(buf);
     }
 
-    static RotationTarget absolute(float x, float y) {
-        return new StaticRotationTarget(new Vec2(x, y));
+    static RotationTarget.Builder<?> absolute(float x, float y) {
+        return new StaticRotationTarget.Builder().setRot(new Vec2(x, y));
     }
 
-    static RotationTarget absolute(Vec2 rot) {
-        return new StaticRotationTarget(rot);
+    static RotationTarget.Builder<?> absolute(Vec2 rot) {
+        return new StaticRotationTarget.Builder().setRot(rot);
     }
 
-    static RotationTarget forEntity(Entity entity) {
-        return new FromEntityRotationTarget(entity.getId());
+    static RotationTarget.Builder<?> forEntity(Entity entity) {
+        return new FromEntityRotationTarget.Builder().setAccessor(EntityAccessor.direct(entity));
     }
 
     Vec2 get();
@@ -73,7 +75,7 @@ public interface RotationTarget extends Supplier<Vec2> {
 
     interface Builder<T extends RotationTarget> {
 
-        T build(Map<String, Entity> context);
+        T build(Map<String, UUID> context);
 
         Types type();
     }

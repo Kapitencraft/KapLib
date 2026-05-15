@@ -9,6 +9,7 @@ import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.Direction;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
@@ -22,18 +23,19 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 /**
  * spawns particles inside the Bounding Box of an entity
  */
 public class EntityBBSpawner extends VisibleSpawner {
-    private final int targetId;
+    private final UUID targetId;
     private final boolean onlyOutline;
     private final float sizeXScale, sizeYScale;
     private final int perTick;
 
-    protected EntityBBSpawner(ParticleOptions particle, int targetId, boolean onlyOutline, float sizeXScale, float sizeYScale, int perTick) {
+    protected EntityBBSpawner(ParticleOptions particle, UUID targetId, boolean onlyOutline, float sizeXScale, float sizeYScale, int perTick) {
         super(particle);
         this.targetId = targetId;
         this.onlyOutline = onlyOutline;
@@ -78,7 +80,7 @@ public class EntityBBSpawner extends VisibleSpawner {
     public static class Type implements VisibleSpawner.Type<EntityBBSpawner> {
         private static final StreamCodec<? super RegistryFriendlyByteBuf, EntityBBSpawner> STREAM_CODEC = StreamCodec.composite(
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
-                ByteBufCodecs.INT, s -> s.targetId,
+                UUIDUtil.STREAM_CODEC, s -> s.targetId,
                 ByteBufCodecs.BOOL, s -> s.onlyOutline,
                 ByteBufCodecs.FLOAT, s -> s.sizeXScale,
                 ByteBufCodecs.FLOAT, s -> s.sizeYScale,
@@ -147,8 +149,8 @@ public class EntityBBSpawner extends VisibleSpawner {
         }
 
         @Override
-        public EntityBBSpawner build(Map<String, Entity> context) {
-            return new EntityBBSpawner(particle, target.get(context).getId(), onlyOutline, xScale, yScale, perTick);
+        public EntityBBSpawner build(Map<String, UUID> context) {
+            return new EntityBBSpawner(particle, target.get(context), onlyOutline, xScale, yScale, perTick);
         }
 
         @Override

@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class KeepAliveElement implements AnimationElement {
     private final int duration;
@@ -63,7 +64,7 @@ public class KeepAliveElement implements AnimationElement {
         }
 
         @Override
-        public KeepAliveElement build(Map<String, Entity> context) {
+        public KeepAliveElement build(Map<String, UUID> context) {
             return new KeepAliveElement(duration);
         }
 

@@ -52,7 +52,7 @@ public class ParticleServerTestCommand {
 
     private static int testStar(CommandContext<CommandSourceStack> context) {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
-            PositionTarget center = PositionTarget.fixed(player.position());
+            PositionTarget.Builder<?> center = PositionTarget.fixed(player.position());
             AnimationUtils.star(5, ParticleTypes.SOUL_FIRE_FLAME, ParticleTypes.FLAME, .25f, 5f, center)
                     .terminatedWhen(TimedTerminator.ticks(600))
                     .finalizes(RemoveParticleFinalizer.builder())

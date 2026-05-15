@@ -7,10 +7,10 @@ import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public interface ParticleFinalizer {
     Codec<ParticleFinalizer.Builder<?>> CODEC = ParticleAnimationRegistries.PARTICLE_FINALIZER_TYPES.byNameCodec().dispatch(ParticleFinalizer.Builder::type, Type::codec);
@@ -22,12 +22,13 @@ public interface ParticleFinalizer {
 
     interface Type<T extends ParticleFinalizer> {
         StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
+
         MapCodec<? extends Builder<T>> codec();
     }
 
     interface Builder<T extends ParticleFinalizer> {
 
-        T build(Map<String, Entity> context);
+        T build(Map<String, UUID> context);
 
         Type<T> type();
     }

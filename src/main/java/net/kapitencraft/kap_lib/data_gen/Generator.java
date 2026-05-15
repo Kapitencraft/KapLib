@@ -36,5 +36,6 @@ public class Generator {
         generator.addProvider(false, new TestRecipeProvider(output, registries));
         generator.addProvider(true, new TestTextureProvider(helper, output));
         generator.addProvider(true, new TestGlobalLootModifierProvider(output, registries, "test"));
+        generator.addProvider(true, new TestParticlePresetProvider(output));
     }
 }

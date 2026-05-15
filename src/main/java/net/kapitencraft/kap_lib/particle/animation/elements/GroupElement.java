@@ -9,10 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GroupElement implements AnimationElement {
     private final List<AnimationElement> elements;
@@ -77,7 +74,7 @@ public class GroupElement implements AnimationElement {
         }
 
         @Override
-        public GroupElement build(Map<String, Entity> context) {
+        public GroupElement build(Map<String, UUID> context) {
             return new GroupElement(builders.stream().map(b -> (AnimationElement) b.build(context)).toList());
         }
 

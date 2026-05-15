@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class EmptyFinalizer implements ParticleFinalizer {
     private static final EmptyFinalizer INSTANCE = new EmptyFinalizer();
@@ -44,7 +45,7 @@ public class EmptyFinalizer implements ParticleFinalizer {
         private static final MapCodec<Builder> CODEC = MapCodec.unit(new Builder());
 
         @Override
-        public EmptyFinalizer build(Map<String, Entity> context) {
+        public EmptyFinalizer build(Map<String, UUID> context) {
             return INSTANCE;
         }
 

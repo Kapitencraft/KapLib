@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public record GroupSpawner(List<Spawner> spawners) implements Spawner {
 
@@ -50,7 +51,7 @@ public record GroupSpawner(List<Spawner> spawners) implements Spawner {
         }
 
         @Override
-        public GroupSpawner build(Map<String, Entity> context) {
+        public GroupSpawner build(Map<String, UUID> context) {
             return new GroupSpawner(spawners.stream().map(b -> (Spawner) b.build(context)).toList());
         }
 

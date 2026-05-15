@@ -7,10 +7,10 @@ import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 
 public interface AnimationElement {
@@ -50,13 +50,14 @@ public interface AnimationElement {
      */
     interface Builder<T extends AnimationElement> {
 
-        T build(Map<String, Entity> context);
+        T build(Map<String, UUID> context);
 
         Type<T> type();
     }
 
     interface Type<T extends AnimationElement> {
         StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
+
         MapCodec<? extends Builder<T>> codec();
     }
 }

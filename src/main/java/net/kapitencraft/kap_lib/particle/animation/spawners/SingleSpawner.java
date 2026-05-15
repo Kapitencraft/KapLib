@@ -11,6 +11,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class SingleSpawner extends VisibleSpawner {
     private final PositionTarget positionTarget;
 
@@ -19,8 +22,8 @@ public class SingleSpawner extends VisibleSpawner {
         this.positionTarget = positionTarget;
     }
 
-    public static SpawnerBuilder at(ParticleOptions options, PositionTarget fixed) {
-        return () -> new SingleSpawner(options, fixed);
+    public static SpawnerBuilder<SingleSpawner> at(ParticleOptions options, PositionTarget.Builder<?> fixed) {
+        return new SingleSpawner.Builder().setParticle(options).setPos(fixed);
     }
 
     @Override
@@ -34,10 +37,6 @@ public class SingleSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<SingleSpawner> {
-        private static final MapCodec<SingleSpawner> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
-                PositionTarget.CODEC.fieldOf("position").forGetter(s -> s.positionTarget)
-        ).apply(i, SingleSpawner::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, SingleSpawner> STREAM_CODEC = StreamCodec.composite(
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
@@ -51,8 +50,36 @@ public class SingleSpawner extends VisibleSpawner {
         }
 
         @Override
-        public MapCodec<SingleSpawner> codec() {
-            return CODEC;
+        public MapCodec<SingleSpawner.Builder> codec() {
+            return Builder.CODEC;
+        }
+    }
+
+    public static class Builder extends VisibleSpawner.Builder<Builder, SingleSpawner> {
+        private static final MapCodec<SingleSpawner.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                PositionTarget.CODEC.fieldOf("position").forGetter(s -> s.builder)
+        ).apply(i, SingleSpawner.Builder::fromCodec));
+
+        private static Builder fromCodec(ParticleOptions options, PositionTarget.Builder<?> builder) {
+            return new Builder().setParticle(options).setPos(builder);
+        }
+
+        private PositionTarget.Builder<?> builder;
+
+        public Builder setPos(PositionTarget.Builder<?> builder) {
+            this.builder = builder;
+            return this;
+        }
+
+        @Override
+        public SingleSpawner build(Map<String, UUID> context) {
+            return new SingleSpawner(this.particle, this.builder.build(context));
+        }
+
+        @Override
+        public Spawner.Type<SingleSpawner> type() {
+            return null;
         }
     }
 }
