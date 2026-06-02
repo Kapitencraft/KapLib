@@ -1,0 +1,5 @@
+{
+  "net/minecraft/world/item/Item$TooltipContext": [
+    "net/kapitencraft/kap_lib/enchantment/mixin/duck/ItemIsBookAccessor"
+  ]
+}

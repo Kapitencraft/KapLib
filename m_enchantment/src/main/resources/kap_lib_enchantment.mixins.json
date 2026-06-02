@@ -6,9 +6,10 @@
   "refmap": "kap_lib.mixin-refmap.json",
   "client": [
     "client.AddEnchantmentTooltipMixin",
-    "client.EnchantmentMixin"
+    "client.CreateModeInventoryScreenMixin",
+    "client.EnchantmentMixin",
+    "client.ScreenMixin"
   ],
-  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   }

@@ -24,10 +24,4 @@ public class EnchantmentMixin {
         component = original.call(component, MiscHelper.nonNullOr(EnchantmentColorManager.getStyle(enchantment, level), Style.EMPTY.withColor(ChatFormatting.GRAY)));
         return component;
     }
-
-    @ModifyReturnValue(method = "getFullname", at = @At("RETURN"))
-    private static Component appendDisplay(Component original, @Local(argsOnly = true) Holder<Enchantment> enchantment) {
-        EnchantmentDescriptionManager.appendInfoDisplay((MutableComponent) original, enchantment);
-        return original;
-    }
 }
