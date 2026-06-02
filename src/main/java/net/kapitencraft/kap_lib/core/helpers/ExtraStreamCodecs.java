@@ -9,6 +9,7 @@ import com.mojang.datafixers.util.Function9;
 import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.core.collection.DoubleMap;
 import net.minecraft.core.Registry;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -295,4 +296,11 @@ public class ExtraStreamCodecs {
             }
         };
     }
+
+    public static final StreamCodec<ByteBuf, Vec3i> VEC_3I = StreamCodec.composite(
+            ByteBufCodecs.INT, Vec3i::getX,
+            ByteBufCodecs.INT, Vec3i::getY,
+            ByteBufCodecs.INT, Vec3i::getZ,
+            Vec3i::new
+    );
 }
