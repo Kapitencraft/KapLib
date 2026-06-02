@@ -35,7 +35,6 @@ public class MultiblockStructureManager extends SimplePreparableReloadListener<M
     }
 
     protected record Data(Map<ResourceLocation, MultiblockStructure> structures, Map<ResourceLocation, MultiblockStructure.Placed> placedStructures) {
-
     }
 
     @Override
