@@ -22,4 +22,8 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     public Vec3i getStructureSize() {
         return structureSize;
     }
+
+    public void setStructureSize(Vec3i size) {
+        this.structureSize = size;
+    }
 }
