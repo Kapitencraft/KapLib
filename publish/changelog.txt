@@ -10,3 +10,6 @@ component:
 
 attribute:
     fixed life steal particle animation disable config not working
+
+enchantment:
+    fixed enchantment info also being shown on applied items instead of just enchanted books
