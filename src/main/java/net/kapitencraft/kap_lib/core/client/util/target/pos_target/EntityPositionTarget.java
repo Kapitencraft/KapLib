@@ -1,17 +1,15 @@
-package net.kapitencraft.kap_lib.core.client.util.pos_target;
+package net.kapitencraft.kap_lib.core.client.util.target.pos_target;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
-import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
+import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 

@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class SetLifeTimeFinalizer implements ParticleFinalizer {
     private final int lifeTime;
@@ -84,7 +85,7 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
         }
 
         @Override
-        public SetLifeTimeFinalizer build(Map<String, Entity> context) {
+        public SetLifeTimeFinalizer build(Map<String, UUID> context) {
             return new SetLifeTimeFinalizer(lifeTime, resetAge);
         }
 

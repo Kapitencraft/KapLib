@@ -3,17 +3,17 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class MoveTowardsElement implements AnimationElement {
     private final PositionTarget targetLoc;
@@ -72,7 +72,7 @@ public class MoveTowardsElement implements AnimationElement {
         }
 
         @Override
-        public MoveTowardsElement build(Map<String, Entity> context) {
+        public MoveTowardsElement build(Map<String, UUID> context) {
             return new MoveTowardsElement(targetLoc.build(context), duration);
         }
 

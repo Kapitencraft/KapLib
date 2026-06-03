@@ -1,14 +1,14 @@
-package net.kapitencraft.kap_lib.core.client.util.pos_target;
+package net.kapitencraft.kap_lib.core.client.util.target.pos_target;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * a position target that has a static offset
@@ -75,7 +75,7 @@ public record RelativePositionTarget(PositionTarget target, Vec3 offset) impleme
         }
 
         @Override
-        public RelativePositionTarget build(Map<String, Entity> context) {
+        public RelativePositionTarget build(Map<String, UUID> context) {
             return new RelativePositionTarget(target.build(context), offset);
         }
 

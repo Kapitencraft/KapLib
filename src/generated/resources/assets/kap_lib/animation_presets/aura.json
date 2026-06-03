@@ -1,0 +1,39 @@
+{
+  "activator": [],
+  "elements": [],
+  "finalizer": {
+    "type": "kap_lib:set_life_time",
+    "lifeTime": 20,
+    "resetAge": true
+  },
+  "max_delay": 1,
+  "min_delay": 1,
+  "spawner": {
+    "type": "kap_lib:ring",
+    "axis": "y",
+    "count": 1,
+    "height_change": 0.02,
+    "max_height": 1.8,
+    "particle": {
+      "type": "minecraft:flame"
+    },
+    "radius": 0.255,
+    "rot_speed": 5.0,
+    "rotation": {
+      "type": "absolute",
+      "x": 0.0,
+      "y": 0.0
+    },
+    "target": {
+      "type": "entity",
+      "target": "target",
+      "target_head": false
+    }
+  },
+  "terminators": [
+    {
+      "type": "kap_lib:timed",
+      "duration": 600
+    }
+  ]
+}

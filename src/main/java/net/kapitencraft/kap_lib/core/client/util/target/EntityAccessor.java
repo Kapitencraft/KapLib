@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.particle.animation.store;
+package net.kapitencraft.kap_lib.core.client.util.target;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;

@@ -1,13 +1,11 @@
-package net.kapitencraft.kap_lib.core.client.util.rot_target;
+package net.kapitencraft.kap_lib.core.client.util.target.rot_target;
 
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
-import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
+import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 
 import java.util.Map;

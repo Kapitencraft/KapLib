@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.particle.animation;
 
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
 import net.kapitencraft.kap_lib.particle.animation.spawners.GroupSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.LineSpawner;

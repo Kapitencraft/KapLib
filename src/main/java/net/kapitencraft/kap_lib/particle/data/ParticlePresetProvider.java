@@ -29,7 +29,7 @@ public abstract class ParticlePresetProvider implements DataProvider {
         register();
         List<CompletableFuture<?>> tasks = new ArrayList<>();
         for (Pair<ResourceLocation, ParticleAnimationPreset> preset : this.presets) {
-            Path path = this.output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "textures").file(preset.getFirst(), "png");
+            Path path = this.output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "animation_presets").file(preset.getFirst(), "json");
             JsonElement content = ParticleAnimationPreset.CODEC.encodeStart(JsonOps.INSTANCE, preset.getSecond()).getOrThrow();
             tasks.add(DataProvider.saveStable(cachedOutput, content, path));
         }

@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.core.client.util.rot_target;
+package net.kapitencraft.kap_lib.core.client.util.target.rot_target;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -6,10 +6,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * provides a static rotation
@@ -71,7 +71,7 @@ public class StaticRotationTarget implements RotationTarget {
         }
 
         @Override
-        public StaticRotationTarget build(Map<String, Entity> context) {
+        public StaticRotationTarget build(Map<String, UUID> context) {
             return new StaticRotationTarget(rot);
         }
 

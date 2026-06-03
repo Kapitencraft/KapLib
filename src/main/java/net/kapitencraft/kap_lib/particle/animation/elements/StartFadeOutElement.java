@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class StartFadeOutElement implements AnimationElement {
     private final float rate;
@@ -59,7 +60,7 @@ public class StartFadeOutElement implements AnimationElement {
         }
 
         @Override
-        public StartFadeOutElement build(Map<String, Entity> context) {
+        public StartFadeOutElement build(Map<String, UUID> context) {
             return new StartFadeOutElement(rate);
         }
 

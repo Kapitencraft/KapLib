@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.particle.animation.store;
 
-import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
@@ -11,10 +10,10 @@ import net.kapitencraft.kap_lib.particle.animation.finalizers.ParticleFinalizer;
 import net.kapitencraft.kap_lib.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
-import net.minecraft.world.entity.Entity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public record ParticleAnimationPreset(
@@ -37,7 +36,7 @@ public record ParticleAnimationPreset(
 
     //TODO add a builder to the target providers in order to abstract the entities into a form where they can be dynamically created
 
-    public ParticleAnimation build(Map<String, Entity> context) {
+    public ParticleAnimation build(Map<String, UUID> context) {
         return new ParticleAnimation(
                 this.elements.stream().map(b -> b.build(context)).collect(Collectors.toUnmodifiableList()),
                 this.finalizer.build(context),

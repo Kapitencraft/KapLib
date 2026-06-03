@@ -2,8 +2,8 @@ package net.kapitencraft.kap_lib.particle;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
-import net.kapitencraft.kap_lib.core.client.util.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.core.client.util.target.rot_target.RotationTarget;
 import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.particle.animation.AnimationUtils;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;

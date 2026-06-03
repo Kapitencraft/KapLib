@@ -2,18 +2,17 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
-import org.openjdk.nashorn.api.scripting.AbstractJSObject;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * spawns particles exactly at the given point
@@ -80,7 +79,7 @@ public class TrackingSpawner extends VisibleSpawner {
         }
 
         @Override
-        public TrackingSpawner build(Map<String, Entity> context) {
+        public TrackingSpawner build(Map<String, UUID> context) {
             return new TrackingSpawner(particle, target.build(context));
         }
 

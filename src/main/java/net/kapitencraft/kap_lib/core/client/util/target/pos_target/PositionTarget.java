@@ -1,8 +1,8 @@
-package net.kapitencraft.kap_lib.core.client.util.pos_target;
+package net.kapitencraft.kap_lib.core.client.util.target.pos_target;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.particle.animation.store.EntityAccessor;
+import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;

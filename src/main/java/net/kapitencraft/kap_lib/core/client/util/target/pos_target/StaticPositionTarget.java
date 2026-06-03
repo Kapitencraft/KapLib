@@ -1,14 +1,13 @@
-package net.kapitencraft.kap_lib.core.client.util.pos_target;
+package net.kapitencraft.kap_lib.core.client.util.target.pos_target;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * a position target that always returns the same location (hence being static)
@@ -50,7 +49,7 @@ public record StaticPositionTarget(Vec3 get) implements PositionTarget {
         }
 
         @Override
-        public StaticPositionTarget build(Map<String, Entity> context) {
+        public StaticPositionTarget build(Map<String, UUID> context) {
             return new StaticPositionTarget(this.pos);
         }
 

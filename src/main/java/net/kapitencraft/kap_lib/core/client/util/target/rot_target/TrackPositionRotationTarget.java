@@ -1,16 +1,15 @@
-package net.kapitencraft.kap_lib.core.client.util.rot_target;
+package net.kapitencraft.kap_lib.core.client.util.target.rot_target;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * a rotation target that tracks a position from a source position (like Aim-Bot)
@@ -69,7 +68,7 @@ public record TrackPositionRotationTarget(PositionTarget source, PositionTarget 
         }
 
         @Override
-        public TrackPositionRotationTarget build(Map<String, Entity> context) {
+        public TrackPositionRotationTarget build(Map<String, UUID> context) {
             return new TrackPositionRotationTarget(source.build(context), target.build(context));
         }
 
