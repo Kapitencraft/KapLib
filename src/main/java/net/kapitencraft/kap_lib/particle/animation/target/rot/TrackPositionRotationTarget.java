@@ -1,8 +1,9 @@
-package net.kapitencraft.kap_lib.core.client.util.target.rot_target;
+package net.kapitencraft.kap_lib.particle.animation.target.rot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -68,7 +69,7 @@ public record TrackPositionRotationTarget(PositionTarget source, PositionTarget 
         }
 
         @Override
-        public TrackPositionRotationTarget build(Map<String, UUID> context) {
+        public TrackPositionRotationTarget build(ParticleAnimationPresetContext context) {
             return new TrackPositionRotationTarget(source.build(context), target.build(context));
         }
 

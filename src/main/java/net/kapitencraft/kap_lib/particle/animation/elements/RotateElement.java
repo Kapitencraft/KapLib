@@ -3,7 +3,8 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
@@ -16,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -94,7 +96,7 @@ public class RotateElement implements AnimationElement {
         }
 
         @Override
-        public RotateElement build(Map<String, UUID> context) {
+        public RotateElement build(ParticleAnimationPresetContext context) {
             return new RotateElement(pivot.build(context), angle, duration, axis);
         }
 

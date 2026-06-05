@@ -1,15 +1,23 @@
 package net.kapitencraft.kap_lib.particle.animation.core;
 
+import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import net.kapitencraft.kap_lib.core.io.JsonHelper;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTriggerInstance;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
@@ -22,7 +30,7 @@ import java.util.Map;
  * manager of all animations
  */
 //TODO store animations in JSON and load them via reference
-public final class ClientParticleAnimationManager {
+public final class ClientParticleAnimationManager extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final ClientParticleAnimationManager INSTANCE = new ClientParticleAnimationManager();
@@ -37,6 +45,10 @@ public final class ClientParticleAnimationManager {
      * animations waiting for their activation
      */
     private final Map<ParticleAnimator, List<ActivationTriggerInstance>> onHold = new HashMap<>();
+
+    public ClientParticleAnimationManager() {
+        super(JsonHelper.GSON, "animation_presets");
+    }
 
     public static void activate(List<ParticleAnimation> animations) {
         animations.forEach(INSTANCE::accept);
@@ -92,11 +104,6 @@ public final class ClientParticleAnimationManager {
         });
     }
 
-    @ApiStatus.Internal
-    public void updatePresets(Map<ResourceLocation, ParticleAnimationPreset> presets) {
-
-    }
-
     public void triggerComplete(ParticleAnimator animator, ActivationTriggerInstance trigger) {
         List<ActivationTriggerInstance> triggers = onHold.get(animator);
         triggers.remove(trigger);
@@ -108,5 +115,23 @@ public final class ClientParticleAnimationManager {
 
     public void remove(ParticleAnimator animator) {
         activeAnimations.remove(animator);
+    }
+
+    public boolean usePreset(ResourceLocation location, ParticleAnimationPresetContext data) {
+        ParticleAnimationPreset preset = this.presets.get(location);
+        if (preset == null)
+            return false;
+        this.accept(preset.build(data));
+        return true;
+    }
+
+    @Override
+    protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+        this.presets.clear();
+        object.forEach((location, jsonElement) -> {
+            DataResult<ParticleAnimationPreset> result = ParticleAnimationPreset.CODEC.parse(JsonOps.INSTANCE, jsonElement);
+            result.resultOrPartial(s -> LOGGER.warn("error parsing particle animation preset {}: {}", location, s))
+                    .ifPresent(p -> this.presets.put(location, p));
+        });
     }
 }

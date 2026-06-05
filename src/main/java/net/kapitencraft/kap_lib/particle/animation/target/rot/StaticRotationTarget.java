@@ -1,8 +1,9 @@
-package net.kapitencraft.kap_lib.core.client.util.target.rot_target;
+package net.kapitencraft.kap_lib.particle.animation.target.rot;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -71,7 +72,7 @@ public class StaticRotationTarget implements RotationTarget {
         }
 
         @Override
-        public StaticRotationTarget build(Map<String, UUID> context) {
+        public StaticRotationTarget build(ParticleAnimationPresetContext context) {
             return new StaticRotationTarget(rot);
         }
 

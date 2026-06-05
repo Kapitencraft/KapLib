@@ -1,8 +1,9 @@
-package net.kapitencraft.kap_lib.core.client.util.target.rot_target;
+package net.kapitencraft.kap_lib.particle.animation.target.rot;
 
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
-import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.EntityAccessor;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -55,7 +56,7 @@ public class FromEntityRotationTarget implements RotationTarget {
         }
 
         @Override
-        public FromEntityRotationTarget build(Map<String, UUID> context) {
+        public FromEntityRotationTarget build(ParticleAnimationPresetContext context) {
             return new FromEntityRotationTarget(accessor.get(context));
         }
 

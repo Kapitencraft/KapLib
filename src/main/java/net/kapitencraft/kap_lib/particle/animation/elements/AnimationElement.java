@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -50,7 +51,7 @@ public interface AnimationElement {
      */
     interface Builder<T extends AnimationElement> {
 
-        T build(Map<String, UUID> context);
+        T build(ParticleAnimationPresetContext context);
 
         Type<T> type();
     }

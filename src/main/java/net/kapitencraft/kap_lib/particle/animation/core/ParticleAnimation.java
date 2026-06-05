@@ -11,6 +11,7 @@ import net.kapitencraft.kap_lib.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.ParticleFinalizer;
 import net.kapitencraft.kap_lib.particle.animation.spawners.Spawner;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
@@ -50,7 +51,7 @@ public class ParticleAnimation {
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
 
-    private ParticleAnimation(ParticleAnimationBuilder builder, Map<String, UUID> context) {
+    private ParticleAnimation(ParticleAnimationBuilder builder, ParticleAnimationPresetContext context) {
         if (builder.minSpawnDelay > builder.maxSpawnDelay)
             throw new IllegalStateException("minimum spawn delay must be smaller than maximum spawn delay");
         if (builder.minSpawnDelay < -1 || builder.minSpawnDelay == 0)
@@ -201,7 +202,7 @@ public class ParticleAnimation {
 
         @ApiStatus.Internal
         private ParticleAnimation build() {
-            return new ParticleAnimation(this, Map.of());
+            return new ParticleAnimation(this, ParticleAnimationPresetContext.EMPTY);
         }
 
         /**

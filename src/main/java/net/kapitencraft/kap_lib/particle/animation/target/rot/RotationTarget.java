@@ -1,8 +1,9 @@
-package net.kapitencraft.kap_lib.core.client.util.target.rot_target;
+package net.kapitencraft.kap_lib.particle.animation.target.rot;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.EntityAccessor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
@@ -75,7 +76,7 @@ public interface RotationTarget extends Supplier<Vec2> {
 
     interface Builder<T extends RotationTarget> {
 
-        T build(Map<String, UUID> context);
+        T build(ParticleAnimationPresetContext context);
 
         Types type();
     }

@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.particle.animation.finalizers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -28,7 +29,7 @@ public interface ParticleFinalizer {
 
     interface Builder<T extends ParticleFinalizer> {
 
-        T build(Map<String, UUID> context);
+        T build(ParticleAnimationPresetContext context);
 
         Type<T> type();
     }

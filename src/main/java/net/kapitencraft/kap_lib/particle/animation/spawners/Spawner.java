@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -41,7 +42,7 @@ public interface Spawner {
     }
 
     interface SpawnerBuilder<T extends Spawner> {
-        T build(Map<String, UUID> context);
+        T build(ParticleAnimationPresetContext context);
 
         Type<T> type();
     }

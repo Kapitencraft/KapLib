@@ -2,7 +2,8 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.particles.ParticleOptions;
@@ -79,7 +80,7 @@ public class TrackingSpawner extends VisibleSpawner {
         }
 
         @Override
-        public TrackingSpawner build(Map<String, UUID> context) {
+        public TrackingSpawner build(ParticleAnimationPresetContext context) {
             return new TrackingSpawner(particle, target.build(context));
         }
 

@@ -11,6 +11,7 @@ import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.network.S2C.ActivateParticleAnimationsPacket;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -89,7 +90,7 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
         List<ParticleAnimation> toActivate = new ArrayList<>();
         for (Entry animationEntry : this.animations) {
             if (animationEntry.targets.isEmpty() || animationEntry.targets.contains(player.getUUID()))
-                toActivate.add(animationEntry.animation.build(Map.of()));
+                toActivate.add(animationEntry.animation.build(ParticleAnimationPresetContext.EMPTY));
         }
         PacketDistributor.sendToPlayer(player, new ActivateParticleAnimationsPacket(toActivate));
     }

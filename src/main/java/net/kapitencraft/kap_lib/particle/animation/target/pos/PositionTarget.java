@@ -1,8 +1,9 @@
-package net.kapitencraft.kap_lib.core.client.util.target.pos_target;
+package net.kapitencraft.kap_lib.particle.animation.target.pos;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.EntityAccessor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
@@ -32,6 +33,10 @@ public interface PositionTarget extends Supplier<Vec3> {
      */
     static PositionTarget.Builder<?> fixed(Vec3 pos) {
         return new StaticPositionTarget.Builder().setPos(pos);
+    }
+
+    static PositionTarget.Builder<?> fixed(String name) {
+        return new StaticPositionTarget.Builder().setPos(name);
     }
 
     static PositionTarget.Builder<?> relative(PositionTarget.Builder<?> pos, Vec3 offset) {
@@ -107,7 +112,7 @@ public interface PositionTarget extends Supplier<Vec3> {
 
     interface Builder<T extends PositionTarget> {
 
-        T build(Map<String, UUID> context);
+        T build(ParticleAnimationPresetContext context);
 
         Types getType();
     }

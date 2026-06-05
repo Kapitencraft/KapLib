@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -51,7 +52,7 @@ public record GroupSpawner(List<Spawner> spawners) implements Spawner {
         }
 
         @Override
-        public GroupSpawner build(Map<String, UUID> context) {
+        public GroupSpawner build(ParticleAnimationPresetContext context) {
             return new GroupSpawner(spawners.stream().map(b -> (Spawner) b.build(context)).toList());
         }
 

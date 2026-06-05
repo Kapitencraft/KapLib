@@ -6,7 +6,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
-import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.EntityAccessor;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.core.UUIDUtil;
@@ -146,7 +147,7 @@ public class EntityBBSpawner extends VisibleSpawner {
         }
 
         @Override
-        public EntityBBSpawner build(Map<String, UUID> context) {
+        public EntityBBSpawner build(ParticleAnimationPresetContext context) {
             return new EntityBBSpawner(particle, target.get(context), onlyOutline, xScale, yScale, perTick);
         }
 

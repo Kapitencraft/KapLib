@@ -3,8 +3,9 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
-import net.kapitencraft.kap_lib.core.client.util.target.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.target.rot.RotationTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
@@ -257,7 +258,7 @@ public class RingSpawner extends VisibleSpawner {
         }
 
         @Override
-        public RingSpawner build(Map<String, UUID> context) {
+        public RingSpawner build(ParticleAnimationPresetContext context) {
             return new RingSpawner(target.build(context), particle, rotationTarget.build(context), axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
         }
 

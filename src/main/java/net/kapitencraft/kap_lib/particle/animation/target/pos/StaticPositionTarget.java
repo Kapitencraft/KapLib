@@ -1,7 +1,9 @@
-package net.kapitencraft.kap_lib.core.client.util.target.pos_target;
+package net.kapitencraft.kap_lib.particle.animation.target.pos;
 
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.PositionAccessor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
@@ -40,17 +42,27 @@ public record StaticPositionTarget(Vec3 get) implements PositionTarget {
     }
 
     public static class Builder implements PositionTarget.Builder<StaticPositionTarget> {
-        private static final MapCodec<StaticPositionTarget.Builder> CODEC = Vec3.CODEC.xmap(b -> new Builder().setPos(b), b -> b.pos).fieldOf("position");
-        private Vec3 pos;
+        private static final MapCodec<StaticPositionTarget.Builder> CODEC = PositionAccessor.CODEC.xmap(b -> new Builder().setPos(b), b -> b.pos).fieldOf("position");
+        private PositionAccessor pos;
+
+        private Builder setPos(PositionAccessor accessor) {
+            this.pos = accessor;
+            return this;
+        }
 
         public Builder setPos(Vec3 pos) {
-            this.pos = pos;
+            this.pos = PositionAccessor.direct(pos);
+            return this;
+        }
+
+        public Builder setPos(String name) {
+            this.pos = PositionAccessor.reference(name);
             return this;
         }
 
         @Override
-        public StaticPositionTarget build(Map<String, UUID> context) {
-            return new StaticPositionTarget(this.pos);
+        public StaticPositionTarget build(ParticleAnimationPresetContext context) {
+            return new StaticPositionTarget(this.pos.get(context));
         }
 
         @Override

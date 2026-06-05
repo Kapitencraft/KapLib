@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -64,7 +65,7 @@ public class KeepAliveElement implements AnimationElement {
         }
 
         @Override
-        public KeepAliveElement build(Map<String, UUID> context) {
+        public KeepAliveElement build(ParticleAnimationPresetContext context) {
             return new KeepAliveElement(duration);
         }
 

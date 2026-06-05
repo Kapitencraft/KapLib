@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -60,7 +61,7 @@ public class StartFadeOutElement implements AnimationElement {
         }
 
         @Override
-        public StartFadeOutElement build(Map<String, UUID> context) {
+        public StartFadeOutElement build(ParticleAnimationPresetContext context) {
             return new StartFadeOutElement(rate);
         }
 

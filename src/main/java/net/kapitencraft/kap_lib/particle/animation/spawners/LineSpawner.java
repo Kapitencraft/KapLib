@@ -3,7 +3,8 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
@@ -76,7 +77,7 @@ public class LineSpawner extends VisibleSpawner {
         }
 
         @Override
-        public LineSpawner build(Map<String, UUID> context) {
+        public LineSpawner build(ParticleAnimationPresetContext context) {
             return new LineSpawner(particle, start.build(context), end.build(context), spacing);
         }
 

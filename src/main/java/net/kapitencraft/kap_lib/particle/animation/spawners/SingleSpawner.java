@@ -2,7 +2,8 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.particles.ParticleOptions;
@@ -73,7 +74,7 @@ public class SingleSpawner extends VisibleSpawner {
         }
 
         @Override
-        public SingleSpawner build(Map<String, UUID> context) {
+        public SingleSpawner build(ParticleAnimationPresetContext context) {
             return new SingleSpawner(this.particle, this.builder.build(context));
         }
 

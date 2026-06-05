@@ -3,7 +3,8 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -72,7 +73,7 @@ public class MoveTowardsElement implements AnimationElement {
         }
 
         @Override
-        public MoveTowardsElement build(Map<String, UUID> context) {
+        public MoveTowardsElement build(ParticleAnimationPresetContext context) {
             return new MoveTowardsElement(targetLoc.build(context), duration);
         }
 

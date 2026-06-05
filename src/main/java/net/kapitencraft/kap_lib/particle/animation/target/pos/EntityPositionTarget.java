@@ -1,11 +1,12 @@
-package net.kapitencraft.kap_lib.core.client.util.target.pos_target;
+package net.kapitencraft.kap_lib.particle.animation.target.pos;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
-import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.EntityAccessor;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -86,7 +87,7 @@ public record EntityPositionTarget(UUID target, EntityAnchorArgument.Anchor anch
         }
 
         @Override
-        public EntityPositionTarget build(Map<String, UUID> context) {
+        public EntityPositionTarget build(ParticleAnimationPresetContext context) {
             return new EntityPositionTarget(target.get(context), this.anchor);
         }
 

@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -93,7 +94,7 @@ public class SelectRandomFinalizer implements ParticleFinalizer {
         }
 
         @Override
-        public SelectRandomFinalizer build(Map<String, UUID> context) {
+        public SelectRandomFinalizer build(ParticleAnimationPresetContext context) {
             return new SelectRandomFinalizer(WeightedRandomList.create(entries.stream().map(w -> new WeightedEntry.Wrapper<>((ParticleFinalizer) w.data().build(context), w.getWeight())).toList()));
         }
 

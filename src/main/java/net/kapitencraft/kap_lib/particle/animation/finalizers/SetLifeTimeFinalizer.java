@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -85,7 +86,7 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
         }
 
         @Override
-        public SetLifeTimeFinalizer build(Map<String, UUID> context) {
+        public SetLifeTimeFinalizer build(ParticleAnimationPresetContext context) {
             return new SetLifeTimeFinalizer(lifeTime, resetAge);
         }
 

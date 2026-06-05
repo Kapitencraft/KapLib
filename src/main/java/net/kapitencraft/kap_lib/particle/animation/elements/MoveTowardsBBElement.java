@@ -6,7 +6,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
-import net.kapitencraft.kap_lib.core.client.util.target.EntityAccessor;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.EntityAccessor;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -88,7 +89,7 @@ public class MoveTowardsBBElement implements AnimationElement {
         }
 
         @Override
-        public MoveTowardsBBElement build(Map<String, UUID> context) {
+        public MoveTowardsBBElement build(ParticleAnimationPresetContext context) {
             if (duration < 1) throw new IllegalStateException("MoveTowardsBB duration must be larger than 0");
             return new MoveTowardsBBElement(Objects.requireNonNull(entity.get(context), "MoveTowardsBB without entity found!"), duration);
         }

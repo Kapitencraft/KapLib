@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -46,7 +47,7 @@ public class RemoveParticleFinalizer implements ParticleFinalizer {
         private static final MapCodec<Builder> CODEC = MapCodec.unit(new Builder());
 
         @Override
-        public RemoveParticleFinalizer build(Map<String, UUID> context) {
+        public RemoveParticleFinalizer build(ParticleAnimationPresetContext context) {
             return INSTANCE;
         }
 

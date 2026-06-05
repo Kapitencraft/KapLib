@@ -1,7 +1,8 @@
-package net.kapitencraft.kap_lib.core.client.util.target;
+package net.kapitencraft.kap_lib.particle.animation.target;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Map;
@@ -24,12 +25,12 @@ public interface EntityAccessor {
         return new Reference(name);
     }
 
-    UUID get(Map<String, UUID> context);
+    UUID get(ParticleAnimationPresetContext context);
 
     record Direct(UUID entity) implements EntityAccessor {
 
         @Override
-        public UUID get(Map<String, UUID> context) {
+        public UUID get(ParticleAnimationPresetContext context) {
             return entity;
         }
     }
@@ -37,8 +38,8 @@ public interface EntityAccessor {
     record Reference(String name) implements EntityAccessor {
 
         @Override
-        public UUID get(Map<String, UUID> context) {
-            return context.get(name);
+        public UUID get(ParticleAnimationPresetContext context) {
+            return context.getEntityParam(name);
         }
     }
 }

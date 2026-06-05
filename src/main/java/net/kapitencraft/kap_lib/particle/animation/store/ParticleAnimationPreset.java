@@ -36,7 +36,7 @@ public record ParticleAnimationPreset(
 
     //TODO add a builder to the target providers in order to abstract the entities into a form where they can be dynamically created
 
-    public ParticleAnimation build(Map<String, UUID> context) {
+    public ParticleAnimation build(ParticleAnimationPresetContext context) {
         return new ParticleAnimation(
                 this.elements.stream().map(b -> b.build(context)).collect(Collectors.toUnmodifiableList()),
                 this.finalizer.build(context),

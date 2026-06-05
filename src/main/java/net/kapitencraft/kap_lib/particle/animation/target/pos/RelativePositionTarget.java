@@ -1,8 +1,9 @@
-package net.kapitencraft.kap_lib.core.client.util.target.pos_target;
+package net.kapitencraft.kap_lib.particle.animation.target.pos;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
@@ -75,7 +76,7 @@ public record RelativePositionTarget(PositionTarget target, Vec3 offset) impleme
         }
 
         @Override
-        public RelativePositionTarget build(Map<String, UUID> context) {
+        public RelativePositionTarget build(ParticleAnimationPresetContext context) {
             return new RelativePositionTarget(target.build(context), offset);
         }
 

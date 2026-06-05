@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.attribute.ExtendedItemProperties;
 import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
 import net.kapitencraft.kap_lib.shader.event.custom.client.RegisterUniformsEvent;
 import net.kapitencraft.kap_lib.inventory_page.page_renderer.InventoryPageRenderers;
@@ -17,6 +18,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
 @EventBusSubscriber(Dist.CLIENT)
@@ -49,5 +51,10 @@ public class KapLibModClientEvents {
     @SubscribeEvent
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
         InventoryPageRenderers.init();
+    }
+
+    @SubscribeEvent
+    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(ClientParticleAnimationManager.INSTANCE);
     }
 }

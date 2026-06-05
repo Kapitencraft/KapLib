@@ -3,7 +3,8 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.core.client.util.target.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
@@ -99,7 +100,7 @@ public class MoveAwayElement implements AnimationElement {
         }
 
         @Override
-        public MoveAwayElement build(Map<String, UUID> context) {
+        public MoveAwayElement build(ParticleAnimationPresetContext context) {
             if (duration < 1) throw new IllegalStateException("time must be > 0");
             return new MoveAwayElement(target.build(context), speed, duration);
         }
