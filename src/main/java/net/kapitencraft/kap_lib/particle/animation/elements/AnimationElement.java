@@ -10,9 +10,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.UUID;
-
 
 public interface AnimationElement {
     Codec<AnimationElement.Builder<?>> CODEC = ParticleAnimationRegistries.ANIMATION_ELEMENT_TYPES.byNameCodec().dispatch(AnimationElement.Builder::type, Type::codec);

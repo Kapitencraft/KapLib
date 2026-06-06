@@ -18,9 +18,11 @@ import java.util.concurrent.CompletableFuture;
 public abstract class ParticlePresetProvider implements DataProvider {
     private final List<Pair<ResourceLocation, ParticleAnimationPreset>> presets = new ArrayList<>();
     private final PackOutput output;
+    private final PackOutput.Target dist;
 
-    public ParticlePresetProvider(PackOutput output) {
+    public ParticlePresetProvider(PackOutput output, PackOutput.Target dist) {
         this.output = output;
+        this.dist = dist;
     }
 
     @Override
@@ -29,7 +31,7 @@ public abstract class ParticlePresetProvider implements DataProvider {
         register();
         List<CompletableFuture<?>> tasks = new ArrayList<>();
         for (Pair<ResourceLocation, ParticleAnimationPreset> preset : this.presets) {
-            Path path = this.output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "animation_presets").file(preset.getFirst(), "json");
+            Path path = this.output.createPathProvider(dist, "animation_presets").file(preset.getFirst(), "json");
             JsonElement content = ParticleAnimationPreset.CODEC.encodeStart(JsonOps.INSTANCE, preset.getSecond()).getOrThrow();
             tasks.add(DataProvider.saveStable(cachedOutput, content, path));
         }
@@ -44,6 +46,6 @@ public abstract class ParticlePresetProvider implements DataProvider {
 
     @Override
     public String getName() {
-        return "Particle Preset Provider";
+        return "Particle Preset Provider " + dist.name();
     }
 }

@@ -13,6 +13,7 @@ import net.kapitencraft.kap_lib.core.io.JsonHelper;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.network.S2C.ActivateParticleAnimationsPacket;
+import net.kapitencraft.kap_lib.particle.network.S2C.SendParticleAnimationPacket;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -72,17 +73,11 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
-        presets.clear();
-        object.forEach((resourceLocation, jsonElement) -> {
-            if (jsonElement.isJsonObject()) {
-                try {
-                    DataResult<Pair<ParticleAnimationPreset, JsonElement>> result = ParticleAnimationPreset.CODEC.decode(JsonOps.INSTANCE, jsonElement);
-                    this.presets.put(resourceLocation, result.getOrThrow().getFirst());
-                } catch (Exception e) {
-                    LOGGER.warn("unable to load preset {}: {}", resourceLocation, e.getMessage());
-                }
-            }
-            LOGGER.warn("unable to load preset {}: not a json object", resourceLocation);
+        this.presets.clear();
+        object.forEach((location, jsonElement) -> {
+            DataResult<ParticleAnimationPreset> result = ParticleAnimationPreset.CODEC.parse(JsonOps.INSTANCE, jsonElement);
+            result.resultOrPartial(s -> LOGGER.warn("error parsing particle animation preset {}: {}", location, s))
+                    .ifPresent(p -> this.presets.put(location, p));
         });
     }
 
@@ -109,5 +104,23 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
         public static Entry all(ParticleAnimationPreset animation, Map<String, UUID> params) {
             return new Entry(Set.of(), animation, params);
         }
+    }
+
+    public void usePresetOnPlayer(ResourceLocation location, ParticleAnimationPresetContext context, ServerPlayer target) {
+        ParticleAnimationPreset preset = this.presets.get(location);
+        if (preset == null)
+            return;
+
+        ParticleAnimation build = preset.build(context);
+        PacketDistributor.sendToPlayer(target, new SendParticleAnimationPacket(build));
+    }
+
+    public void usePreset(ResourceLocation location, ParticleAnimationPresetContext context) {
+        ParticleAnimationPreset preset = this.presets.get(location);
+        if (preset == null)
+            return;
+
+        ParticleAnimation build = preset.build(context);
+        PacketDistributor.sendToAllPlayers(new SendParticleAnimationPacket(build));
     }
 }

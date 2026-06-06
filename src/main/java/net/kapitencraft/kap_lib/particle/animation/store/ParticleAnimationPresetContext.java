@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.particle.animation.store;
 
-import com.google.common.collect.Maps;
 import net.kapitencraft.kap_lib.core.helpers.CollectionHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -37,6 +36,7 @@ public class ParticleAnimationPresetContext {
             default -> throw new IllegalStateException("unknown object type");
         };
     }
+
     //endregion
     private static final StreamCodec<FriendlyByteBuf, Map<String, Object>> DATA_MAP_CODEC = ByteBufCodecs.map(CollectionHelper::map, ByteBufCodecs.STRING_UTF8, DATA_OBJECT_CODEC);
 

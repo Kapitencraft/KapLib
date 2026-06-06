@@ -1,8 +1,6 @@
 package net.kapitencraft.kap_lib.particle.animation.core;
 
 import com.google.common.base.Preconditions;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.EntityAddedTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
@@ -27,7 +25,9 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * static data container for animations. created from presets or with a builder. use {@link ParticleAnimator} for dynamic information such as tick count

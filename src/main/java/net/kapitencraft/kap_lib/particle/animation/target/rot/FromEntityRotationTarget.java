@@ -9,7 +9,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec2;
 
-import java.util.Map;
 import java.util.UUID;
 
 /**

@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.particle;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.particle.animation.core.ServerParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.target.rot.RotationTarget;
@@ -144,19 +145,9 @@ public class ParticleServerTestCommand {
     private static int testRotation(CommandContext<CommandSourceStack> context) {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
             Vec3 playerPos = player.position();
-            ParticleAnimation.builder()
-                    .spawnTime(ParticleAnimation.SpawnTime.absolute(1))
-                    .finalizes(RemoveParticleFinalizer.builder())
-                    .spawn(RingSpawner
-                            .noHeight()
-                            .axis(Direction.Axis.Y)
-                            .radius(.1f)
-                            .rotPerTick(1)
-                            .setTarget(PositionTarget.fixed(playerPos))
-                            .setParticle(ParticleTypes.FLAME)
-                    ).terminatedWhen(TimedTerminator.ticks(600))
-                    .then(MoveAwayElement.builder().speed(.01f).time(20).target(PositionTarget.fixed(playerPos)))
-                    .sendToPlayer(player);
+            ParticleAnimationPresetContext context1 = new ParticleAnimationPresetContext();
+            context1.setParam("pos", playerPos);
+            ServerParticleAnimationManager.INSTANCE.usePreset(KapLibMod.res("rotation"), context1);
             return 1;
         });
     }

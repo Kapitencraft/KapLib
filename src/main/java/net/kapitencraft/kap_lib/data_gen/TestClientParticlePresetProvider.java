@@ -14,10 +14,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.PackOutput;
 
-public class TestParticlePresetProvider extends ParticlePresetProvider {
+public class TestClientParticlePresetProvider extends ParticlePresetProvider {
 
-    public TestParticlePresetProvider(PackOutput output) {
-        super(output);
+    public TestClientParticlePresetProvider(PackOutput output) {
+        super(output, PackOutput.Target.RESOURCE_PACK);
     }
 
     @Override

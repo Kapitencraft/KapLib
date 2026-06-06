@@ -1,16 +1,15 @@
 package net.kapitencraft.kap_lib.event;
 
 import net.kapitencraft.kap_lib.attribute.ExtendedItemProperties;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
-import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
-import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
-import net.kapitencraft.kap_lib.shader.event.custom.client.RegisterUniformsEvent;
 import net.kapitencraft.kap_lib.inventory_page.page_renderer.InventoryPageRenderers;
 import net.kapitencraft.kap_lib.item.modifier_display.ModifierDisplayManager;
+import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.custom.DamageIndicatorParticle;
 import net.kapitencraft.kap_lib.particle.custom.LightningParticle;
 import net.kapitencraft.kap_lib.particle.custom.ShimmerShieldParticle;
 import net.kapitencraft.kap_lib.particle.registry.ExtraParticleTypes;
+import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
+import net.kapitencraft.kap_lib.shader.event.custom.client.RegisterUniformsEvent;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;

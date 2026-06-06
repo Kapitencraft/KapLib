@@ -2,15 +2,12 @@ package net.kapitencraft.kap_lib.particle.animation.target.rot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
-import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec2;
-
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * a rotation target that tracks a position from a source position (like Aim-Bot)

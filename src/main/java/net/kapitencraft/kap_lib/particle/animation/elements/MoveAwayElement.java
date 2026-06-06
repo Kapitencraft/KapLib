@@ -107,7 +107,7 @@ public class MoveAwayElement implements AnimationElement {
 
         @Override
         public AnimationElement.Type<MoveAwayElement> type() {
-            return null;
+            return ElementTypes.MOVE_AWAY.get();
         }
     }
 }
