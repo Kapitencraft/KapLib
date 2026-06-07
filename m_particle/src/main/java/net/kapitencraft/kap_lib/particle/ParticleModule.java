@@ -45,7 +45,9 @@ public class ParticleModule {
 
     @ApiStatus.Internal
     static void registerServer(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        ParticleServerTestCommand.register(dispatcher);
+        if (LibConstants.gameTestEnabled()) {
+            CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+            ParticleServerTestCommand.register(dispatcher);
+        }
     }
 }

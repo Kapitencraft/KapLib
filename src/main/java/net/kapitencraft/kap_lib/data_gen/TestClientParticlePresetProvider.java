@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.particle.animation.AnimationUtils;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
 import net.kapitencraft.kap_lib.particle.animation.elements.RotateElement;
@@ -22,7 +22,7 @@ public class TestClientParticlePresetProvider extends ParticlePresetProvider {
 
     @Override
     public void register() {
-        this.add(KapLibMod.res("aura"), ParticleAnimation.builder()
+        this.add(LibConstants.res("aura"), ParticleAnimation.builder()
                 .spawnTime(ParticleAnimation.SpawnTime.absolute(1))
                 .finalizes(SetLifeTimeFinalizer.builder().resetAge().lifeTime(20))
                 .spawn(RingSpawner.entityWithBBSize("target", 0.51f, 1.8f)
@@ -32,7 +32,7 @@ public class TestClientParticlePresetProvider extends ParticlePresetProvider {
                 )
                 .terminatedWhen(TimedTerminator.ticks(600))
         );
-        this.add(KapLibMod.res("star"), AnimationUtils.star(
+        this.add(LibConstants.res("star"), AnimationUtils.star(
                 5, ParticleTypes.SOUL_FIRE_FLAME, ParticleTypes.FLAME, .25f, 5f, PositionTarget.fixed("origin")
                 ).terminatedWhen(TimedTerminator.ticks(600))
                 .finalizes(RemoveParticleFinalizer.builder())

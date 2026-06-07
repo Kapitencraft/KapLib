@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.particle.network.S2C;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,7 +18,7 @@ public record UseParticleAnimationPresetPacket(ResourceLocation location,
             UseParticleAnimationPresetPacket::new
     );
 
-    public static final Type<UseParticleAnimationPresetPacket> TYPE = new Type<>(KapLibMod.res("use_particle_animation_preset"));
+    public static final Type<UseParticleAnimationPresetPacket> TYPE = new Type<>(LibConstants.res("use_particle_animation_preset"));
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

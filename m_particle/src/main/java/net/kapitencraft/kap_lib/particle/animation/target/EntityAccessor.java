@@ -5,7 +5,6 @@ import com.mojang.serialization.DataResult;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.minecraft.world.entity.Entity;
 
-import java.util.Map;
 import java.util.UUID;
 
 public interface EntityAccessor {

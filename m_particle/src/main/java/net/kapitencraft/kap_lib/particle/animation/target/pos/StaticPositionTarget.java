@@ -8,9 +8,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Map;
-import java.util.UUID;
-
 /**
  * a position target that always returns the same location (hence being static)
  * @param get the position of the target

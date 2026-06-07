@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.data_gen;
 
-import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
 import net.kapitencraft.kap_lib.particle.animation.elements.MoveAwayElement;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.RemoveParticleFinalizer;
@@ -19,7 +19,7 @@ public class TestServerParticlePresetProvider extends ParticlePresetProvider {
 
     @Override
     public void register() {
-        add(KapLibMod.res("rotation"), ParticleAnimation.builder()
+        add(LibConstants.res("rotation"), ParticleAnimation.builder()
                 .spawnTime(ParticleAnimation.SpawnTime.absolute(1))
                 .finalizes(RemoveParticleFinalizer.builder())
                 .spawn(RingSpawner

@@ -2,16 +2,11 @@ package net.kapitencraft.kap_lib.particle;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.kapitencraft.kap_lib.KapLibMod;
-import net.kapitencraft.kap_lib.particle.animation.core.ServerParticleAnimationManager;
-import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
-import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
-import net.kapitencraft.kap_lib.particle.animation.target.rot.RotationTarget;
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
-import net.kapitencraft.kap_lib.particle.animation.AnimationUtils;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
+import net.kapitencraft.kap_lib.particle.animation.core.ServerParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.elements.KeepAliveElement;
-import net.kapitencraft.kap_lib.particle.animation.elements.MoveAwayElement;
 import net.kapitencraft.kap_lib.particle.animation.elements.RotateElement;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.RemoveParticleFinalizer;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.SetLifeTimeFinalizer;
@@ -19,6 +14,9 @@ import net.kapitencraft.kap_lib.particle.animation.spawners.GroupSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.LineSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.RingSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.SingleSpawner;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.target.rot.RotationTarget;
 import net.kapitencraft.kap_lib.particle.animation.terminators.TimedTerminator;
 import net.kapitencraft.kap_lib.particle.network.S2C.UseParticleAnimationPresetPacket;
 import net.minecraft.commands.CommandSourceStack;
@@ -59,7 +57,7 @@ public class ParticleServerTestCommand {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
             ParticleAnimationPresetContext presetContext = new ParticleAnimationPresetContext();
             presetContext.setParam("origin", player.position());
-            PacketDistributor.sendToPlayer(player, new UseParticleAnimationPresetPacket(KapLibMod.res("star"), presetContext));
+            PacketDistributor.sendToPlayer(player, new UseParticleAnimationPresetPacket(LibConstants.res("star"), presetContext));
             //PositionTarget.Builder<?> center = PositionTarget.fixed(player.position());
             //AnimationUtils.star(5, ParticleTypes.SOUL_FIRE_FLAME, ParticleTypes.FLAME, .25f, 5f, center)
             //        .terminatedWhen(TimedTerminator.ticks(600))
@@ -147,7 +145,7 @@ public class ParticleServerTestCommand {
             Vec3 playerPos = player.position();
             ParticleAnimationPresetContext context1 = new ParticleAnimationPresetContext();
             context1.setParam("pos", playerPos);
-            ServerParticleAnimationManager.INSTANCE.usePreset(KapLibMod.res("rotation"), context1);
+            ServerParticleAnimationManager.INSTANCE.usePreset(LibConstants.res("rotation"), context1);
             return 1;
         });
     }

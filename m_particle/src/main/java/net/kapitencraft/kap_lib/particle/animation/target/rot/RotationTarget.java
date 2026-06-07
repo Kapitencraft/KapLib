@@ -12,8 +12,6 @@ import net.minecraft.world.phys.Vec2;
 import net.neoforged.fml.common.asm.enumextension.IExtensibleEnum;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 /**

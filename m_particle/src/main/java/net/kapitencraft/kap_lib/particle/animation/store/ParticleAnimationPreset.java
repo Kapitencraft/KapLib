@@ -12,8 +12,6 @@ import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationT
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public record ParticleAnimationPreset(

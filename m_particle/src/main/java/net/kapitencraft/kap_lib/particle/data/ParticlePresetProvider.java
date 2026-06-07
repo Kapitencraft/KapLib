@@ -9,6 +9,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public abstract class ParticlePresetProvider implements DataProvider {
     }
 
     @Override
-    public CompletableFuture<?> run(CachedOutput cachedOutput) {
+    public @NotNull CompletableFuture<?> run(CachedOutput cachedOutput) {
         this.presets.clear();
         register();
         List<CompletableFuture<?>> tasks = new ArrayList<>();

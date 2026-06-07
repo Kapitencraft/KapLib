@@ -5,8 +5,6 @@ import com.mojang.serialization.DataResult;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Map;
-
 public interface PositionAccessor {
     Codec<PositionAccessor> CODEC = Codec.STRING.flatXmap(
             s -> DataResult.success(reference(s)),
