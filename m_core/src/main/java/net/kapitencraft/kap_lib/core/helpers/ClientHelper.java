@@ -37,6 +37,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientHelper {
@@ -213,12 +214,12 @@ public class ClientHelper {
         return Objects.requireNonNull(Minecraft.getInstance().screen, "active screen is null!").height;
     }
 
-    public static @NotNull Entity getEntity(int id) {
+    public static @NotNull Entity getEntity(UUID id) {
         return Objects.requireNonNull(
                 Objects.requireNonNull(
                         Minecraft.getInstance().level,
                         "Client Level is null!"
-                ).getEntity(id),
+                ).getEntities().get(id),
                 "missing entity with id " + id
         );
     }

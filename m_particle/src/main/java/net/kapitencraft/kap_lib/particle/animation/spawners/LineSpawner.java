@@ -1,6 +1,10 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
@@ -13,6 +17,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class LineSpawner extends VisibleSpawner {
     private final PositionTarget start, end;
@@ -40,16 +46,27 @@ public class LineSpawner extends VisibleSpawner {
         return SpawnerTypes.LINE.get();
     }
 
-    public static class Builder extends VisibleSpawner.Builder<Builder> {
-        private PositionTarget start, end;
+    public static class Builder extends VisibleSpawner.Builder<Builder, LineSpawner> {
+        private static final MapCodec<LineSpawner.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                PositionTarget.CODEC.fieldOf("start").forGetter(s -> s.start),
+                PositionTarget.CODEC.fieldOf("end").forGetter(s -> s.end),
+                Codec.FLOAT.fieldOf("spacing").forGetter(s -> s.spacing)
+        ).apply(i, LineSpawner.Builder::fromCodec));
+
+        private static Builder fromCodec(ParticleOptions options, PositionTarget.Builder<?> start, PositionTarget.Builder<?> end, float spacing) {
+            return new Builder().setParticle(options).start(start).end(end).spacing(spacing);
+        }
+
+        private PositionTarget.Builder<?> start, end;
         private float spacing;
 
-        public Builder start(PositionTarget start) {
+        public Builder start(PositionTarget.Builder<?> start) {
             this.start = start;
             return this;
         }
 
-        public Builder end(PositionTarget end) {
+        public Builder end(PositionTarget.Builder<?> end) {
             this.end = end;
             return this;
         }
@@ -60,12 +77,18 @@ public class LineSpawner extends VisibleSpawner {
         }
 
         @Override
-        public VisibleSpawner build() {
-            return new LineSpawner(particle, start, end, spacing);
+        public LineSpawner build(ParticleAnimationPresetContext context) {
+            return new LineSpawner(particle, start.build(context), end.build(context), spacing);
+        }
+
+        @Override
+        public Spawner.Type<LineSpawner> type() {
+            return SpawnerTypes.LINE.get();
         }
     }
 
     public static class Type implements VisibleSpawner.Type<LineSpawner> {
+
         private static final StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> STREAM_CODEC = StreamCodec.composite(
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
                 PositionTarget.STREAM_CODEC, s -> s.start,
@@ -75,8 +98,13 @@ public class LineSpawner extends VisibleSpawner {
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
         }
     }
 

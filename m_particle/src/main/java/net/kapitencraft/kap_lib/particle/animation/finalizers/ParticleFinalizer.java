@@ -1,25 +1,36 @@
 package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.UUID;
+
 public interface ParticleFinalizer {
-    StreamCodec<RegistryFriendlyByteBuf, ParticleFinalizer> CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.FINALIZER_TYPES).dispatch(ParticleFinalizer::getType, Type::codec);
+    Codec<ParticleFinalizer.Builder<?>> CODEC = ParticleAnimationRegistries.PARTICLE_FINALIZER_TYPES.byNameCodec().dispatch(ParticleFinalizer.Builder::type, Type::codec);
+    StreamCodec<RegistryFriendlyByteBuf, ParticleFinalizer> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.FINALIZER_TYPES).dispatch(ParticleFinalizer::getType, Type::streamCodec);
 
     @NotNull Type<? extends ParticleFinalizer> getType();
 
     void finalize(ParticleConfig config);
 
     interface Type<T extends ParticleFinalizer> {
-        StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
+        StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
+
+        MapCodec<? extends Builder<T>> codec();
     }
 
-    interface Builder {
+    interface Builder<T extends ParticleFinalizer> {
 
-        ParticleFinalizer build();
+        T build(ParticleAnimationPresetContext context);
+
+        Type<T> type();
     }
 }

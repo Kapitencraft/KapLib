@@ -18,6 +18,10 @@ import java.util.stream.Stream;
 
 public interface CollectionHelper {
 
+    static <K, V> Map<K, V> map(int size) {
+        return new HashMap<>(size);
+    }
+
     /**
      * @return the first key in the given map
      */

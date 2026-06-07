@@ -21,7 +21,7 @@ public interface ParticleAnimationRegistries {
     List<Registry<?>> registries = new ArrayList<>();
 
     Registry<AnimationElement.Type<?>> ANIMATION_ELEMENT_TYPES = syncReg(Keys.MODIFIER_TYPES);
-    Registry<Spawner.Type<?>> SPAWN_ELEMENT_TYPES = syncReg(Keys.SPAWNER_TYPES);
+    Registry<Spawner.Type<?>> SPAWNER_TYPES = syncReg(Keys.SPAWNER_TYPES);
     Registry<ParticleFinalizer.Type<?>> PARTICLE_FINALIZER_TYPES = syncReg(Keys.FINALIZER_TYPES);
     Registry<TerminationTrigger<?>> TERMINATION_TRIGGERS = syncReg(Keys.TERMINATOR_TYPES);
     Registry<ActivationTrigger<?>> ACTIVATION_TRIGGERS = syncReg(Keys.ACTIVATION_TRIGGERS);

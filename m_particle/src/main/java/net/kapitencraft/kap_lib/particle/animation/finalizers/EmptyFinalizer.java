@@ -1,10 +1,16 @@
 package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class EmptyFinalizer implements ParticleFinalizer {
     private static final EmptyFinalizer INSTANCE = new EmptyFinalizer();
@@ -26,16 +32,27 @@ public class EmptyFinalizer implements ParticleFinalizer {
         private static final StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> STREAM_CODEC = StreamCodec.unit(INSTANCE);
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, EmptyFinalizer> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<EmptyFinalizer.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder implements ParticleFinalizer.Builder {
+    public static class Builder implements ParticleFinalizer.Builder<EmptyFinalizer> {
+        private static final MapCodec<Builder> CODEC = MapCodec.unit(new Builder());
 
         @Override
-        public ParticleFinalizer build() {
+        public EmptyFinalizer build(ParticleAnimationPresetContext context) {
             return INSTANCE;
+        }
+
+        @Override
+        public Type type() {
+            return FinalizerTypes.EMPTY.get();
         }
     }
 

@@ -1,14 +1,16 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class GroupElement implements AnimationElement {
     private final List<AnimationElement> elements;
@@ -41,24 +43,45 @@ public class GroupElement implements AnimationElement {
     }
 
     public static class Type implements AnimationElement.Type<GroupElement> {
-        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> STREAM_CODEC = AnimationElement.CODEC.apply(ByteBufCodecs.list()).map(GroupElement::new, e -> e.elements);
+        private static final StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> STREAM_CODEC = AnimationElement.STREAM_CODEC.apply(ByteBufCodecs.list()).map(GroupElement::new, e -> e.elements);
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, GroupElement> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<GroupElement.Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
-    public static class Builder implements AnimationElement.Builder {
-        private final AnimationElement.Builder[] builders;
+    public static class Builder implements AnimationElement.Builder<GroupElement> {
+        private static final MapCodec<Builder> CODEC = AnimationElement.CODEC.listOf().xmap(Builder::new, b -> b.builders).fieldOf("elements");
 
-        public Builder(AnimationElement.Builder... builders) {
-            this.builders = builders;
+        private final List<AnimationElement.Builder<?>> builders;
+
+        public Builder(AnimationElement.Builder<?>... builders) {
+            this.builders = Arrays.asList(builders);
+        }
+
+        private Builder(List<AnimationElement.Builder<?>> builders) {
+            this.builders = new ArrayList<>(builders);
+        }
+
+        public Builder add(AnimationElement.Builder<?> builder) {
+            this.builders.add(builder);
+            return this;
         }
 
         @Override
-        public AnimationElement build() {
-            return new GroupElement(Arrays.stream(builders).map(AnimationElement.Builder::build).toList());
+        public GroupElement build(ParticleAnimationPresetContext context) {
+            return new GroupElement(builders.stream().map(b -> (AnimationElement) b.build(context)).toList());
+        }
+
+        @Override
+        public Type type() {
+            return ElementTypes.GROUP.get();
         }
     }
 }

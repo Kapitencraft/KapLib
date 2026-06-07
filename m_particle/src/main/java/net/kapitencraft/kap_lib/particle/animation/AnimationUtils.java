@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.particle.animation;
 
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
 import net.kapitencraft.kap_lib.particle.animation.spawners.GroupSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.LineSpawner;
@@ -27,7 +27,7 @@ public interface AnimationUtils {
      * @param origin the origin (center) position of the star
      * @return the animation builder setup to spawn a star
      */
-    static ParticleAnimation.Builder star(int tips, ParticleOptions starType, @Nullable ParticleOptions ringType, float spacing, float radius, PositionTarget origin) {
+    static ParticleAnimation.ParticleAnimationBuilder star(int tips, ParticleOptions starType, @Nullable ParticleOptions ringType, float spacing, float radius, PositionTarget.Builder<?> origin) {
         float angleBetweenTips = 360f / tips * 2;
 
         GroupSpawner.Builder spawner = GroupSpawner.builder();

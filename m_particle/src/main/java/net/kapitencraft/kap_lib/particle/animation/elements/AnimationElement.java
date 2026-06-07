@@ -1,6 +1,9 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -12,7 +15,8 @@ public interface AnimationElement {
     /**
      * base StreamCodec for animation elements
      */
-    StreamCodec<RegistryFriendlyByteBuf, AnimationElement> CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.MODIFIER_TYPES).dispatch(AnimationElement::getType, Type::codec);
+    StreamCodec<RegistryFriendlyByteBuf, AnimationElement> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.MODIFIER_TYPES).dispatch(AnimationElement::getType, Type::streamCodec);
+    Codec<AnimationElement.Builder<?>> CODEC = ParticleAnimationRegistries.ANIMATION_ELEMENT_TYPES.byNameCodec().dispatch(AnimationElement.Builder::type, Type::codec);
 
     /**
      * provides the type of this element. return a value registered to the registry
@@ -55,13 +59,11 @@ public interface AnimationElement {
     /**
      * builder for Animation elements. override in your own animation elements to use them in animations
      */
-    interface Builder {
+    interface Builder<T extends AnimationElement> {
 
-        /**
-         * builds this element
-         * @return the build element
-         */
-        AnimationElement build();
+        T build(ParticleAnimationPresetContext context);
+
+        Type<T> type();
     }
 
     /**
@@ -69,11 +71,8 @@ public interface AnimationElement {
      * @param <T> class type of the element
      */
     interface Type<T extends AnimationElement> {
+        StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
 
-        /**
-         * StreamCodec supplier to transfer element data to the client for rendering
-         * @return the StreamCodec used to transfer its data to the client
-         */
-        StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
+        MapCodec<? extends Builder<T>> codec();
     }
 }

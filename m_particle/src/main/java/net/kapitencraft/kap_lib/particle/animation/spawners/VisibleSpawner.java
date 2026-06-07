@@ -14,19 +14,19 @@ public abstract class VisibleSpawner implements Spawner {
 
     /**
      * a builder for the Spawner.<br>
-     * required due to access of {@link ParticleAnimation.Builder#spawn(Spawner.Builder) ParticleAnimation$Builder#spawn} taking a Builder
+     * required due to access of {@link ParticleAnimation.ParticleAnimationBuilder#spawn(SpawnerBuilder) ParticleAnimation$Builder#spawn} taking a Builder
      * @param <T> subtype of the builder
      */
-    public static abstract class Builder<T extends Builder<T>> implements Spawner.Builder {
+    public static abstract class Builder<B extends Builder<B, T>, T extends Spawner> implements SpawnerBuilder<T> {
         protected ParticleOptions particle;
 
-        public T setParticle(ParticleOptions particle) {
+        public B setParticle(ParticleOptions particle) {
             this.particle = particle;
             return self();
         }
 
-        private T self() {
-            return (T) this;
+        private B self() {
+            return (B) this;
         }
     }
 }

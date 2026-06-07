@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.terminators.core;
 
 import com.google.common.collect.Sets;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimationManager;
+import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimator;
 import org.apache.commons.compress.utils.Lists;
 
@@ -43,7 +43,7 @@ public abstract class SimpleTerminationTrigger<T extends TerminationTriggerInsta
         }
         if (list != null) {
             for (Listener<T> listener : list) {
-                listener.run(ParticleAnimationManager.INSTANCE);
+                listener.run(ClientParticleAnimationManager.INSTANCE);
                 this.terminators.remove(listener);
             }
         }

@@ -1,6 +1,10 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
@@ -12,8 +16,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
 /**
- * [WIP] does some weird shenanigans
+ * rotates each applied particle around the provided pivot
  */
 public class RotateElement implements AnimationElement {
     private final PositionTarget pivot;
@@ -42,26 +50,32 @@ public class RotateElement implements AnimationElement {
         return duration;
     }
 
-    //Disproven reasons:
-    //1. multiple configs for the same element
-    //2. decreasing distance by rotation
     @Override
     public void tick(ParticleConfig object, int tick, double percentage) {
         Vec3 pv = pivot.get();
-        //System.out.println("rotate: " + object.hashCode() + ": pos: " + object.pos() + ", o-dist: " + object.pos().distanceTo(pv));
         object.setPos(
                 MathHelper.rotateAroundAxis(object.pos(), pv, degreePerTick, axis)
         );
-        //System.out.println("n-pos: " + object.pos() + ", n-dist: " + object.pos().distanceTo(pv));
     }
 
-    public static class Builder implements AnimationElement.Builder {
-        private PositionTarget pivot;
+    public static class Builder implements AnimationElement.Builder<RotateElement> {
+        private static final MapCodec<RotateElement.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("pivot").forGetter(e -> e.pivot),
+                Codec.FLOAT.fieldOf("speed").forGetter(e -> e.angle),
+                Codec.INT.fieldOf("duration").forGetter(e -> e.duration),
+                Direction.Axis.CODEC.fieldOf("axis").forGetter(e -> e.axis)
+        ).apply(i, Builder::fromCodec));
+
+        private static Builder fromCodec(PositionTarget.Builder<?> builder, Float aFloat, Integer integer, Direction.Axis axis) {
+            return new Builder().pivot(builder).angle(aFloat).duration(integer).axis(axis);
+        }
+
+        private PositionTarget.Builder<?> pivot;
         private float angle;
         private int duration;
         private Direction.Axis axis;
 
-        public Builder pivot(PositionTarget target) {
+        public Builder pivot(PositionTarget.Builder<?> target) {
             this.pivot = target;
             return this;
         }
@@ -82,8 +96,13 @@ public class RotateElement implements AnimationElement {
         }
 
         @Override
-        public AnimationElement build() {
-            return new RotateElement(pivot, angle, duration, axis);
+        public RotateElement build(ParticleAnimationPresetContext context) {
+            return new RotateElement(pivot.build(context), angle, duration, axis);
+        }
+
+        @Override
+        public AnimationElement.Type<RotateElement> type() {
+            return ElementTypes.ROTATE.get();
         }
     }
 
@@ -97,8 +116,13 @@ public class RotateElement implements AnimationElement {
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, RotateElement> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, RotateElement> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
         }
     }
 }

@@ -1,0 +1,46 @@
+{
+  "activator": [],
+  "elements": [
+    {
+      "type": "kap_lib:move_away",
+      "duration": 20,
+      "speed": 0.01,
+      "target": {
+        "type": "pos",
+        "position": "pos"
+      }
+    }
+  ],
+  "finalizer": {
+    "type": "kap_lib:remove_particle"
+  },
+  "max_delay": 1,
+  "min_delay": 1,
+  "spawner": {
+    "type": "kap_lib:ring",
+    "axis": "y",
+    "count": 1,
+    "height_change": 0.0,
+    "max_height": 0.0,
+    "particle": {
+      "type": "minecraft:flame"
+    },
+    "radius": 0.1,
+    "rot_speed": 1.0,
+    "rotation": {
+      "type": "absolute",
+      "x": 0.0,
+      "y": 0.0
+    },
+    "target": {
+      "type": "pos",
+      "position": "pos"
+    }
+  },
+  "terminators": [
+    {
+      "type": "kap_lib:timed",
+      "duration": 600
+    }
+  ]
+}

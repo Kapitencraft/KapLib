@@ -1,6 +1,9 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.particles.ParticleOptions;
@@ -8,6 +11,9 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class SingleSpawner extends VisibleSpawner {
     private final PositionTarget positionTarget;
@@ -17,8 +23,8 @@ public class SingleSpawner extends VisibleSpawner {
         this.positionTarget = positionTarget;
     }
 
-    public static Spawner.Builder at(ParticleOptions options, PositionTarget fixed) {
-        return () -> new SingleSpawner(options, fixed);
+    public static SpawnerBuilder<SingleSpawner> at(ParticleOptions options, PositionTarget.Builder<?> fixed) {
+        return new SingleSpawner.Builder().setParticle(options).setPos(fixed);
     }
 
     @Override
@@ -32,6 +38,7 @@ public class SingleSpawner extends VisibleSpawner {
     }
 
     public static class Type implements VisibleSpawner.Type<SingleSpawner> {
+
         private static final StreamCodec<RegistryFriendlyByteBuf, SingleSpawner> STREAM_CODEC = StreamCodec.composite(
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
                 PositionTarget.STREAM_CODEC, s -> s.positionTarget,
@@ -39,8 +46,41 @@ public class SingleSpawner extends VisibleSpawner {
         );
 
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, SingleSpawner> codec() {
+        public StreamCodec<? super RegistryFriendlyByteBuf, SingleSpawner> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<SingleSpawner.Builder> codec() {
+            return Builder.CODEC;
+        }
+    }
+
+    public static class Builder extends VisibleSpawner.Builder<Builder, SingleSpawner> {
+        private static final MapCodec<SingleSpawner.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                PositionTarget.CODEC.fieldOf("position").forGetter(s -> s.builder)
+        ).apply(i, SingleSpawner.Builder::fromCodec));
+
+        private static Builder fromCodec(ParticleOptions options, PositionTarget.Builder<?> builder) {
+            return new Builder().setParticle(options).setPos(builder);
+        }
+
+        private PositionTarget.Builder<?> builder;
+
+        public Builder setPos(PositionTarget.Builder<?> builder) {
+            this.builder = builder;
+            return this;
+        }
+
+        @Override
+        public SingleSpawner build(ParticleAnimationPresetContext context) {
+            return new SingleSpawner(this.particle, this.builder.build(context));
+        }
+
+        @Override
+        public Spawner.Type<SingleSpawner> type() {
+            return null;
         }
     }
 }

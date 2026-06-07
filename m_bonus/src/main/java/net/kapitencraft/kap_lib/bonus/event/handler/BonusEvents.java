@@ -1,11 +1,8 @@
 package net.kapitencraft.kap_lib.bonus.event.handler;
 
-import net.kapitencraft.kap_lib.bonus.requirement.BonusRequirementType;
 import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.bonus.network.S2C.SyncBonusesPacket;
 import net.kapitencraft.kap_lib.bonus.BonusManager;
-import net.kapitencraft.kap_lib.requirement.event.custom.RegisterRequirementTypesEvent;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,7 +11,6 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber
@@ -29,7 +25,7 @@ public class BonusEvents {
     }
 
     @SubscribeEvent
-    public static void addRequirementListener(AddReloadListenerEvent event) {
+    public static void addBonusListener(AddReloadListenerEvent event) {
         event.addListener(BonusManager.updateInstance());
     }
 

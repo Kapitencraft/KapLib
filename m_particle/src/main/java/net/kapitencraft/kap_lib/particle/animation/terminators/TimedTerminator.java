@@ -1,7 +1,9 @@
 package net.kapitencraft.kap_lib.particle.animation.terminators;
 
 import com.google.common.collect.Sets;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimationManager;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimator;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 public class TimedTerminator implements TerminationTrigger<TimedTerminator.Instance> {
+    private static final MapCodec<Instance> CODEC = Codec.INT.xmap(Instance::new, Instance::duration).fieldOf("duration");
     private static final StreamCodec<? super RegistryFriendlyByteBuf, Instance> STREAM_CODEC = ByteBufCodecs.INT.map(Instance::new, Instance::duration);
 
     private final Set<Listener<TimedTerminator.Instance>> listeners = Sets.newHashSet();
@@ -43,8 +46,13 @@ public class TimedTerminator implements TerminationTrigger<TimedTerminator.Insta
     }
 
     @Override
-    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> codec() {
+    public StreamCodec<? super RegistryFriendlyByteBuf, Instance> streamCodec() {
         return STREAM_CODEC;
+    }
+
+    @Override
+    public MapCodec<Instance> codec() {
+        return CODEC;
     }
 
     public void trigger() {
@@ -56,7 +64,7 @@ public class TimedTerminator implements TerminationTrigger<TimedTerminator.Insta
             }
         }
         if (list != null) for (Listener<TimedTerminator.Instance> listener : list) {
-            listener.run(ParticleAnimationManager.INSTANCE);
+            listener.run(ClientParticleAnimationManager.INSTANCE);
             this.listeners.remove(listener);
         }
     }

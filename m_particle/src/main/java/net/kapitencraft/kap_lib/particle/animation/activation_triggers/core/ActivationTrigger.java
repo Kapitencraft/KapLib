@@ -1,6 +1,8 @@
 package net.kapitencraft.kap_lib.particle.animation.activation_triggers.core;
 
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimationManager;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimator;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -13,7 +15,9 @@ import net.neoforged.api.distmarker.OnlyIn;
  * activation trigger for particle animation
  * @param <T> instance type
  */
-public interface ActivationTrigger<T extends TriggerInstance> {
+public interface ActivationTrigger<T extends ActivationTriggerInstance> {
+    Codec<ActivationTriggerInstance> CODEC = ParticleAnimationRegistries.ACTIVATION_TRIGGERS.byNameCodec().dispatch(ActivationTriggerInstance::getTrigger, ActivationTrigger::codec);
+    StreamCodec<RegistryFriendlyByteBuf, ActivationTriggerInstance> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.ACTIVATION_TRIGGERS).dispatch(ActivationTriggerInstance::getTrigger, ActivationTrigger::streamCodec);
 
     /**
      * adds the given listener to this trigger
@@ -29,12 +33,11 @@ public interface ActivationTrigger<T extends TriggerInstance> {
 
     boolean active(Listener<T> instance);
 
-    StreamCodec<RegistryFriendlyByteBuf, TriggerInstance> CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.ACTIVATION_TRIGGERS).dispatch(TriggerInstance::getTrigger, ActivationTrigger::codec);
-
-    StreamCodec<? super RegistryFriendlyByteBuf, T> codec();
+    MapCodec<T> codec();
+    StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();
 
     @OnlyIn(Dist.CLIENT)
-    class Listener<T extends TriggerInstance> {
+    class Listener<T extends ActivationTriggerInstance> {
         private final T trigger;
         private final ParticleAnimator animator;
 
@@ -44,7 +47,7 @@ public interface ActivationTrigger<T extends TriggerInstance> {
         }
 
         public void run() {
-            ParticleAnimationManager.INSTANCE.triggerComplete(animator, trigger);
+            ClientParticleAnimationManager.INSTANCE.triggerComplete(animator, trigger);
         }
 
         public T getTrigger() {

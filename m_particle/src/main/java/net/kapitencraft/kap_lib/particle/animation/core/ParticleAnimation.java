@@ -4,11 +4,12 @@ import com.google.common.base.Preconditions;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.EntityAddedTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
-import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.TriggerInstance;
+import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTriggerInstance;
 import net.kapitencraft.kap_lib.particle.animation.elements.AnimationElement;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.ParticleFinalizer;
-import net.kapitencraft.kap_lib.particle.animation.spawners.GroupSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.Spawner;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.animation.terminators.EntityRemovedTerminatorTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
@@ -33,15 +34,15 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * static data container for animations. use {@link ParticleAnimator} for dynamic information such as tick count
+ * static data container for animations. created from presets or with a builder. use {@link ParticleAnimator} for dynamic information such as tick count
  */
 public class ParticleAnimation {
-    public static final StreamCodec<RegistryFriendlyByteBuf, ParticleAnimation> CODEC = ExtraStreamCodecs.composite(
-            AnimationElement.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::allElements,
-            ParticleFinalizer.CODEC, p -> p.finalizer,
-            TerminationTrigger.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTerminators,
-            ActivationTrigger.CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTriggers,
-            Spawner.CODEC, p -> p.spawner,
+    public static final StreamCodec<RegistryFriendlyByteBuf, ParticleAnimation> STREAM_CODEC = ExtraStreamCodecs.composite(
+            AnimationElement.STREAM_CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::allElements,
+            ParticleFinalizer.STREAM_CODEC, p -> p.finalizer,
+            TerminationTrigger.STREAM_CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTerminators,
+            ActivationTrigger.STREAM_CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTriggers,
+            Spawner.STREAM_CODEC, p -> p.spawner,
             ByteBufCodecs.INT, p -> p.minSpawnDelay,
             ByteBufCodecs.INT, p -> p.maxSpawnDelay,
             ParticleAnimation::new
@@ -50,18 +51,18 @@ public class ParticleAnimation {
     private final List<AnimationElement> elements;
     private final ParticleFinalizer finalizer;
     private final List<TerminationTriggerInstance> terminators;
-    private final List<TriggerInstance> activationTriggers;
+    private final List<ActivationTriggerInstance> activationTriggers;
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
 
-    private ParticleAnimation(Builder builder) {
+    private ParticleAnimation(ParticleAnimationBuilder builder, ParticleAnimationPresetContext context) {
         if (builder.minSpawnDelay > builder.maxSpawnDelay)
             throw new IllegalStateException("minimum spawn delay must be smaller than maximum spawn delay");
         if (builder.minSpawnDelay < -1 || builder.minSpawnDelay == 0)
             throw new IllegalStateException("minimum spawn delay must be above 0 or -1");
-        this.elements = builder.elements;
-        this.finalizer = Objects.requireNonNull(builder.finalizer, "animations must have a finalizer");
-        this.spawner = Objects.requireNonNull(builder.spawner, "animations must have a spawner");
+        this.elements = builder.elements.stream().map(b -> (AnimationElement) b.build(context)).toList();
+        this.finalizer = Objects.requireNonNull(builder.finalizer.build(context), "animations must have a finalizer");
+        this.spawner = Objects.requireNonNull(builder.spawner.build(context), "animations must have a spawner");
         this.terminators = builder.terminators;
         if (this.terminators.isEmpty()) throw new IllegalStateException("particle animation must have a terminator");
         this.maxSpawnDelay = builder.maxSpawnDelay;
@@ -69,7 +70,7 @@ public class ParticleAnimation {
         this.activationTriggers = builder.activationTriggers;
     }
 
-    private ParticleAnimation(List<AnimationElement> elements, ParticleFinalizer finalizer, List<TerminationTriggerInstance> terminators, List<TriggerInstance> activationTriggers, Spawner spawner, int minSpawnDelay, int maxSpawnDelay) {
+    public ParticleAnimation(List<AnimationElement> elements, ParticleFinalizer finalizer, List<TerminationTriggerInstance> terminators, List<ActivationTriggerInstance> activationTriggers, Spawner spawner, int minSpawnDelay, int maxSpawnDelay) {
         this.elements = elements;
         this.finalizer = finalizer;
         this.terminators = terminators;
@@ -95,7 +96,7 @@ public class ParticleAnimation {
         this.spawner.spawn(sink);
     }
 
-    public List<TriggerInstance> getTriggers() {
+    public List<ActivationTriggerInstance> getTriggers() {
         return activationTriggers;
     }
 
@@ -110,14 +111,14 @@ public class ParticleAnimation {
                 .setDetail("maxSpawnDelay", this.maxSpawnDelay);
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static ParticleAnimationBuilder builder() {
+        return new ParticleAnimationBuilder();
     }
 
     /**
      * creates a new Builder which starts when the given entity is added and ends when the given entity is removed
      */
-    public static Builder requireEntity(Entity target) {
+    public static ParticleAnimationBuilder requireEntity(Entity target) {
         return builder()
                 .activatedOn(EntityAddedTrigger.forEntity(target))
                 .terminatedWhen(EntityRemovedTerminatorTrigger.create(target));
@@ -126,15 +127,16 @@ public class ParticleAnimation {
     /**
      * particle animation builder. create using {@link #builder()}
      */
-    public static class Builder {
-        private final List<AnimationElement> elements = new ArrayList<>();
-        private Spawner spawner;
-        private ParticleFinalizer finalizer;
+    public static class ParticleAnimationBuilder {
+
+        private final List<AnimationElement.Builder<?>> elements = new ArrayList<>();
+        private Spawner.SpawnerBuilder<?> spawner;
+        private ParticleFinalizer.Builder<?> finalizer;
         private final List<TerminationTriggerInstance> terminators = new ArrayList<>();
         private int minSpawnDelay, maxSpawnDelay;
-        private final List<TriggerInstance> activationTriggers = new ArrayList<>();
+        private final List<ActivationTriggerInstance> activationTriggers = new ArrayList<>();
 
-        private Builder() {
+        private ParticleAnimationBuilder() {
         }
 
         /**
@@ -142,9 +144,9 @@ public class ParticleAnimation {
          *
          * @param spawn the spawner to use
          */
-        public Builder spawn(Spawner.Builder spawn) {
-            spawner = spawn.build();
-            Preconditions.checkNotNull(spawner.getType(), "Spawner without Type detected!");
+        public ParticleAnimationBuilder spawn(Spawner.SpawnerBuilder<?> spawn) {
+            spawner = spawn;
+            Preconditions.checkNotNull(spawn.type(), "Spawner without Type detected!");
             return this;
         }
 
@@ -152,7 +154,7 @@ public class ParticleAnimation {
          * sets the minimum amount of ticks between particle spawns
          * use {@link #spawnTime(SpawnTime)}
          */
-        private Builder minSpawnTickTime(int minTickTime) {
+        private ParticleAnimationBuilder minSpawnTickTime(int minTickTime) {
             minSpawnDelay = minTickTime;
             return this;
         }
@@ -161,34 +163,34 @@ public class ParticleAnimation {
          * sets the maximum amount of ticks between particle spawns
          * use {@link #spawnTime(SpawnTime)}
          */
-        private Builder maxSpawnTickTime(int maxSpawnTickTime) {
+        private ParticleAnimationBuilder maxSpawnTickTime(int maxSpawnTickTime) {
             this.maxSpawnDelay = maxSpawnTickTime;
             return this;
         }
 
-        public Builder spawnTime(SpawnTime time) {
+        public ParticleAnimationBuilder spawnTime(SpawnTime time) {
             return minSpawnTickTime(time.min).maxSpawnTickTime(time.max);
         }
 
         /**
          * sets the particles finalizer
          */
-        public Builder finalizes(ParticleFinalizer.Builder finalizerBuilder) {
-            this.finalizer = finalizerBuilder.build();
-            Preconditions.checkNotNull(finalizer.getType(), "Finalizer without type detected!");
+        public ParticleAnimationBuilder finalizes(ParticleFinalizer.Builder<?> finalizerBuilder) {
+            this.finalizer = finalizerBuilder;
+            Preconditions.checkNotNull(finalizerBuilder.type(), "Finalizer without type detected!");
             return this;
         }
 
         /**
          * sets the animation termination predicate
          */
-        public Builder terminatedWhen(TerminationTriggerInstance terminator) {
+        public ParticleAnimationBuilder terminatedWhen(TerminationTriggerInstance terminator) {
             Preconditions.checkNotNull(terminator.getTrigger(), "Terminator without type detected!");
             this.terminators.add(terminator);
             return this;
         }
 
-        public Builder activatedOn(TriggerInstance activationListener) {
+        public ParticleAnimationBuilder activatedOn(ActivationTriggerInstance activationListener) {
             Preconditions.checkNotNull(activationListener.getTrigger(), "Activation Listener without trigger detected!");
             this.activationTriggers.add(activationListener);
             return this;
@@ -197,14 +199,14 @@ public class ParticleAnimation {
         /**
          * adds a new animation element to this animation
          */
-        public Builder then(AnimationElement.Builder builder) {
-            elements.add(builder.build());
+        public ParticleAnimationBuilder then(AnimationElement.Builder<?> builder) {
+            elements.add(builder);
             return this;
         }
 
         @ApiStatus.Internal
         private ParticleAnimation build() {
-            return new ParticleAnimation(this);
+            return new ParticleAnimation(this, ParticleAnimationPresetContext.EMPTY);
         }
 
         /**
@@ -217,7 +219,9 @@ public class ParticleAnimation {
         }
 
         public <MSG extends CustomPacketPayload> void sendToPlayer(ServerPlayer player, Function<ParticleAnimation, MSG> constructor) {
-            PacketDistributor.sendToPlayer(player, constructor.apply(this.build()));
+            ParticleAnimation animation = this.build();
+            //ServerParticleAnimationManager.accept(animation); TODO
+            PacketDistributor.sendToPlayer(player, constructor.apply(animation));
         }
 
         /**
@@ -236,7 +240,9 @@ public class ParticleAnimation {
         }
 
         public <MSG extends CustomPacketPayload> void sendToPlayersInLevel(ServerLevel level, Function<ParticleAnimation, MSG> constructor) {
-            PacketDistributor.sendToPlayersInDimension(level, constructor.apply(this.build()));
+            ParticleAnimation animation = this.build();
+            //ServerParticleAnimationManager.accept(animation); TODO
+            PacketDistributor.sendToAllPlayers(constructor.apply(animation));
         }
 
         /**
@@ -244,7 +250,19 @@ public class ParticleAnimation {
          */
         @OnlyIn(Dist.CLIENT)
         public void register() {
-            ParticleAnimationManager.INSTANCE.accept(this.build());
+            ClientParticleAnimationManager.INSTANCE.accept(this.build());
+        }
+
+        public ParticleAnimationPreset toPreset() {
+            return new ParticleAnimationPreset(
+                    this.elements,
+                    this.finalizer,
+                    this.terminators,
+                    this.activationTriggers,
+                    this.spawner,
+                    this.minSpawnDelay,
+                    this.maxSpawnDelay
+            );
         }
     }
 

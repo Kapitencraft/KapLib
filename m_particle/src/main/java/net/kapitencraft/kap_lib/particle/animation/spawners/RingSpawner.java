@@ -1,7 +1,11 @@
 package net.kapitencraft.kap_lib.particle.animation.spawners;
 
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
-import net.kapitencraft.kap_lib.core.client.util.rot_target.RotationTarget;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.target.rot.RotationTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
@@ -19,7 +23,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class RingSpawner extends VisibleSpawner {
     private final PositionTarget target;
@@ -101,7 +107,7 @@ public class RingSpawner extends VisibleSpawner {
         private static final StreamCodec<RegistryFriendlyByteBuf, RingSpawner> STREAM_CODEC = ExtraStreamCodecs.composite(
                 PositionTarget.STREAM_CODEC, s -> s.target,
                 ParticleTypes.STREAM_CODEC, s -> s.particle,
-                RotationTarget.CODEC, s -> s.rotation,
+                RotationTarget.STREAM_CODEC, s -> s.rotation,
                 ExtraStreamCodecs.enumCodec(Direction.Axis.values()), s -> s.axis,
                 ByteBufCodecs.FLOAT, s -> s.rotPerTick,
                 ByteBufCodecs.FLOAT, s -> s.maxHeight,
@@ -112,8 +118,13 @@ public class RingSpawner extends VisibleSpawner {
         );
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, RingSpawner> codec() {
+        public StreamCodec<RegistryFriendlyByteBuf, RingSpawner> streamCodec() {
             return STREAM_CODEC;
+        }
+
+        @Override
+        public MapCodec<Builder> codec() {
+            return Builder.CODEC;
         }
     }
 
@@ -146,18 +157,44 @@ public class RingSpawner extends VisibleSpawner {
      */
     public static Builder entityWithBBSize(Entity entity, float xScale, float yScale) {
         float bbRadius = entity.getBbWidth() / 2;
-        return builder().setTarget(PositionTarget.entity(entity)).axis(Direction.Axis.Y).maxHeight(entity.getBbHeight() * yScale).radius(bbRadius * xScale);
+        return builder().setTarget(PositionTarget.entity(entity)).axis(Direction.Axis.Y)
+                .maxHeight(entity.getBbHeight() * yScale).radius(bbRadius * xScale);
+    }
+
+    public static Builder entityWithBBSize(String entityKey, float width, float height) {
+        return builder().setTarget(PositionTarget.entity(entityKey)).axis(Direction.Axis.Y)
+                .maxHeight(height).radius(width / 2);
     }
 
     /**
      * a new Builder
      */
-    public static class Builder extends VisibleSpawner.Builder<Builder> {
-        private PositionTarget target;
+    public static class Builder extends VisibleSpawner.Builder<Builder, RingSpawner> {
+        private static final MapCodec<RingSpawner.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                PositionTarget.CODEC.fieldOf("target").forGetter(s -> s.target),
+                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                RotationTarget.CODEC.fieldOf("rotation").forGetter(s -> s.rotationTarget),
+                Direction.Axis.CODEC.fieldOf("axis").forGetter(s -> s.axis),
+                Codec.FLOAT.fieldOf("rot_speed").forGetter(s -> s.rotPerTick),
+                Codec.FLOAT.fieldOf("max_height").forGetter(s -> s.maxHeight),
+                Codec.FLOAT.fieldOf("height_change").forGetter(s -> s.heightChangePerTick),
+                Codec.FLOAT.fieldOf("radius").forGetter(s -> s.radius),
+                Codec.INT.fieldOf("count").forGetter(s -> s.spawnCount)
+        ).apply(i, RingSpawner.Builder::fromCodec));
+
+        private static Builder fromCodec(PositionTarget.Builder<?> builder, ParticleOptions options, RotationTarget.Builder<?> rotationTarget, Direction.Axis axis, Float rotPerTick, Float maxHeight, Float heightPerTick, Float radius, Integer spawnCount) {
+            return new Builder()
+                    .setTarget(builder).setParticle(options).rotation(rotationTarget).axis(axis)
+                    .rotPerTick(rotPerTick).maxHeight(maxHeight).heightPerTick(heightPerTick)
+                    .radius(radius).spawnCount(spawnCount);
+        }
+
+
+        private PositionTarget.Builder<?> target;
         private float rotPerTick, maxHeight, heightChangePerTick, radius;
         private int spawnCount = 1;
         private Direction.Axis axis;
-        private RotationTarget rotationTarget = RotationTarget.absolute(Vec2.ZERO);
+        private RotationTarget.Builder<?> rotationTarget = RotationTarget.absolute(Vec2.ZERO);
 
         /**
          * @param rotPerTick Developer Note: do I need to explain this?
@@ -210,19 +247,24 @@ public class RingSpawner extends VisibleSpawner {
         /**
          * @param target the target, center point of the ring
          */
-        public Builder setTarget(PositionTarget target) {
+        public Builder setTarget(PositionTarget.Builder<?> target) {
             this.target = target;
             return this;
         }
 
-        public Builder rotation(RotationTarget target) {
+        public Builder rotation(RotationTarget.Builder<?> target) {
             this.rotationTarget = target;
             return this;
         }
 
         @Override
-        public VisibleSpawner build() {
-            return new RingSpawner(target, particle, rotationTarget, axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
+        public RingSpawner build(ParticleAnimationPresetContext context) {
+            return new RingSpawner(target.build(context), particle, rotationTarget.build(context), axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
+        }
+
+        @Override
+        public Type type() {
+            return SpawnerTypes.RING.get();
         }
     }
 

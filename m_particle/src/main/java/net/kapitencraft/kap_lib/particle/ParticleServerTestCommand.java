@@ -2,8 +2,11 @@ package net.kapitencraft.kap_lib.particle;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.kapitencraft.kap_lib.core.client.util.pos_target.PositionTarget;
-import net.kapitencraft.kap_lib.core.client.util.rot_target.RotationTarget;
+import net.kapitencraft.kap_lib.KapLibMod;
+import net.kapitencraft.kap_lib.particle.animation.core.ServerParticleAnimationManager;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.target.rot.RotationTarget;
 import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.particle.animation.AnimationUtils;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
@@ -17,6 +20,7 @@ import net.kapitencraft.kap_lib.particle.animation.spawners.LineSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.RingSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.SingleSpawner;
 import net.kapitencraft.kap_lib.particle.animation.terminators.TimedTerminator;
+import net.kapitencraft.kap_lib.particle.network.S2C.UseParticleAnimationPresetPacket;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Direction;
@@ -26,6 +30,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
  * server tests.
@@ -52,18 +57,21 @@ public class ParticleServerTestCommand {
 
     private static int testStar(CommandContext<CommandSourceStack> context) {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
-            PositionTarget center = PositionTarget.fixed(player.position());
-            AnimationUtils.star(5, ParticleTypes.SOUL_FIRE_FLAME, ParticleTypes.FLAME, .25f, 5f, center)
-                    .terminatedWhen(TimedTerminator.ticks(600))
-                    .finalizes(RemoveParticleFinalizer.builder())
-                    //.then(KeepAliveElement.forDuration(200))
-                    .then(RotateElement.builder()
-                            .angle(1)
-                            .axis(Direction.Axis.Y)
-                            .pivot(center)
-                            .duration(600)
-                    )
-                    .sendToPlayer(player);
+            ParticleAnimationPresetContext presetContext = new ParticleAnimationPresetContext();
+            presetContext.setParam("origin", player.position());
+            PacketDistributor.sendToPlayer(player, new UseParticleAnimationPresetPacket(KapLibMod.res("star"), presetContext));
+            //PositionTarget.Builder<?> center = PositionTarget.fixed(player.position());
+            //AnimationUtils.star(5, ParticleTypes.SOUL_FIRE_FLAME, ParticleTypes.FLAME, .25f, 5f, center)
+            //        .terminatedWhen(TimedTerminator.ticks(600))
+            //        .finalizes(RemoveParticleFinalizer.builder())
+            //        //.then(KeepAliveElement.forDuration(200))
+            //        .then(RotateElement.builder()
+            //                .angle(1)
+            //                .axis(Direction.Axis.Y)
+            //                .pivot(center)
+            //                .duration(600)
+            //        )
+            //        .sendToPlayer(player);
             return 1;
         });
     }
@@ -137,19 +145,9 @@ public class ParticleServerTestCommand {
     private static int testRotation(CommandContext<CommandSourceStack> context) {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
             Vec3 playerPos = player.position();
-            ParticleAnimation.builder()
-                    .spawnTime(ParticleAnimation.SpawnTime.absolute(1))
-                    .finalizes(RemoveParticleFinalizer.builder())
-                    .spawn(RingSpawner
-                            .noHeight()
-                            .axis(Direction.Axis.Y)
-                            .radius(.1f)
-                            .rotPerTick(1)
-                            .setTarget(PositionTarget.fixed(playerPos))
-                            .setParticle(ParticleTypes.FLAME)
-                    ).terminatedWhen(TimedTerminator.ticks(600))
-                    .then(MoveAwayElement.builder().speed(.01f).time(20).target(PositionTarget.fixed(playerPos)))
-                    .sendToPlayer(player);
+            ParticleAnimationPresetContext context1 = new ParticleAnimationPresetContext();
+            context1.setParam("pos", playerPos);
+            ServerParticleAnimationManager.INSTANCE.usePreset(KapLibMod.res("rotation"), context1);
             return 1;
         });
     }
