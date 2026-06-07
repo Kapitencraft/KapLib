@@ -10,6 +10,7 @@ component:
 
 attribute:
     fixed life steal particle animation disable config not working
+    bonus attack speed is now implemented via the damage event instead of a mixin, increasing compatibility
 
 enchantment:
     fixed enchantment info also being shown on applied items instead of just enchanted books

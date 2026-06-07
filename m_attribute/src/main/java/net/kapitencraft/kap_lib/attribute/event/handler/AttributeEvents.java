@@ -161,5 +161,9 @@ public class AttributeEvents {
             }
             attacker.heal(Math.min((float) liveSteal, event.getNewDamage()));
         }
+        double attackSpeed = AttributeHelper.getSaveAttributeValue(ExtraAttributes.BONUS_ATTACK_SPEED, attacker);
+        if (attackSpeed > 0) {
+            event.getContainer().setPostAttackInvulnerabilityTicks((int) (event.getContainer().getPostAttackInvulnerabilityTicks() - attackSpeed * .15));
+        }
     }
 }
