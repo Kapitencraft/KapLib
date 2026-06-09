@@ -11,14 +11,14 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public interface ModBlockEntityTypes {
+public interface MBBlockEntityTypes {
     DeferredRegister<BlockEntityType<?>> REGISTRY = LibConstants.registry(Registries.BLOCK_ENTITY_TYPE);
 
     Supplier<BlockEntityType<MultiblockStructureConfigurationBlockEntity>> MULTIBLOCK_STRUCTURE_CONFIG =
             REGISTRY.register("multiblock_structure_config", () ->
                     new BlockEntityType<>(
                             MultiblockStructureConfigurationBlockEntity::new,
-                            Set.of(ModBlocks.MULTIBLOCK_STRUCTURE_CONFIG.get()),
+                            Set.of(MBBlocks.MULTIBLOCK_STRUCTURE_CONFIG.get()),
                             Util.fetchChoiceType(References.BLOCK_ENTITY, "multiblock_structure_config")
                             )
             );

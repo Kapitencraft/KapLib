@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "compatibilityLevel": "JAVA_21",
+  "package": "net.kapitencraft.kap_lib.multiblock.mixin.classes",
+  "refmap": "kap_lib_multiblock.mixin-refmap.json",
+  "client": [
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
