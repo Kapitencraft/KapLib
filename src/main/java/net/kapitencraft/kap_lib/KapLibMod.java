@@ -31,6 +31,9 @@ import net.kapitencraft.kap_lib.mana.ManaAttributes;
 import net.kapitencraft.kap_lib.mana.advancement.ExtraCriterionTriggers;
 import net.kapitencraft.kap_lib.mob_effect.registry.ExtraMobEffects;
 import net.kapitencraft.kap_lib.multiblock.MultiblockServerTestCommand;
+import net.kapitencraft.kap_lib.multiblock.registry.MBBlockEntityTypes;
+import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
+import net.kapitencraft.kap_lib.multiblock.registry.MBItems;
 import net.kapitencraft.kap_lib.overlay.OverlaysCommand;
 import net.kapitencraft.kap_lib.overlay.registry.Overlays;
 import net.kapitencraft.kap_lib.particle.ParticleClientTestCommand;
@@ -76,6 +79,10 @@ public class KapLibMod {
     }
 
     public KapLibMod(IEventBus modEventBus, ModContainer container) {
+
+        MBBlockEntityTypes.REGISTRY.register(modEventBus);
+        MBBlocks.REGISTRY.register(modEventBus);
+        MBItems.REGISTRY.register(modEventBus);
 
         ExtraAttributes.REGISTRY.register(modEventBus);
         ManaAttributes.REGISTRY.register(modEventBus);
