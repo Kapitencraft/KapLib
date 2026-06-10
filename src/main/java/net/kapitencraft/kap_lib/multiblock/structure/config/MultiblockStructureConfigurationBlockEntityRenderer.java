@@ -7,17 +7,22 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MultiblockStructureConfigurationBlockEntityRenderer implements BlockEntityRenderer<MultiblockStructureConfigurationBlockEntity> {
+    public MultiblockStructureConfigurationBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    }
+
     @Override
     public void render(MultiblockStructureConfigurationBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         if (Minecraft.getInstance().player.canUseGameMasterBlocks() || Minecraft.getInstance().player.isSpectator()) {
-            BlockPos blockpos = blockEntity.getBlockPos().offset(1, 1, 1);
+            BlockPos blockpos = blockEntity.getStructurePos();
             Vec3i vec3i = blockEntity.getStructureSize();
             if (vec3i.getX() >= 1 && vec3i.getY() >= 1 && vec3i.getZ() >= 1) {
                 double d0 = blockpos.getX();
@@ -34,7 +39,7 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
 
                 VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
                 LevelRenderer.renderLineBox(poseStack, vertexconsumer, d4, d5, d6, d7, d8, d9, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
-                this.renderInvisibleBlocks(blockEntity, bufferSource, poseStack);
+                //this.renderInvisibleBlocks(blockEntity, bufferSource, poseStack);
             }
         }
     }
@@ -73,4 +78,17 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
         }
     }
 
+    public boolean shouldRenderOffScreen(MultiblockStructureConfigurationBlockEntity blockEntity) {
+        return true;
+    }
+
+    @Override
+    public int getViewDistance() {
+        return 96;
+    }
+
+    @Override
+    public net.minecraft.world.phys.AABB getRenderBoundingBox(MultiblockStructureConfigurationBlockEntity blockEntity) {
+        return net.minecraft.world.phys.AABB.INFINITE;
+    }
 }
