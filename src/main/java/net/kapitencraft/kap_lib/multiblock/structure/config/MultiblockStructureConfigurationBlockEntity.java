@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,9 +38,16 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         this.structureSize = size;
     }
 
-    @Nullable
-    public ResourceLocation getStructureName() {
-        return structureName;
+    public String getStructureName() {
+        return this.structureName == null ? "" : this.structureName.toString();
+    }
+
+    public boolean hasStructureName() {
+        return this.structureName != null;
+    }
+
+    public void setStructureName(@Nullable String structureName) {
+        this.setStructureName(StringUtil.isNullOrEmpty(structureName) ? null : ResourceLocation.tryParse(structureName));
     }
 
     public void setStructureName(@Nullable ResourceLocation structureName) {
@@ -120,10 +128,25 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         this.mode = mode;
     }
 
+    public boolean saveStructure() {
+        return false;
+    }
+
     public enum Mode implements StringRepresentable {
         SAVE,
         CORNER;
 
+        public String getSerializedName() {
+            return this.name().toLowerCase();
+        }
+    }
+
+    public enum UpdateType implements StringRepresentable {
+        UPDATE_DATA,
+        SAVE_CONFIGURATION,
+        SCAN_AREA;
+
+        @Override
         public String getSerializedName() {
             return this.name().toLowerCase();
         }
