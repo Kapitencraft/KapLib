@@ -14,18 +14,21 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.block.state.properties.StructureMode;
 
 public class MultiblockStructureConfigurationEditScreen extends Screen {
     private static final ImmutableList<MultiblockStructureConfigurationBlockEntity.Mode> ALL_MODES = ImmutableList.copyOf(MultiblockStructureConfigurationBlockEntity.Mode.values());
-    private static final ImmutableList<MultiblockStructureConfigurationBlockEntity.Mode> DEFAULT_MODES = ALL_MODES.stream()
-            .filter(p_169859_ -> p_169859_ != MultiblockStructureConfigurationBlockEntity.Mode.SAVE)
-            .collect(ImmutableList.toImmutableList());
 
     private MultiblockStructureConfigurationBlockEntity.Mode initialMode = MultiblockStructureConfigurationBlockEntity.Mode.SAVE;
 
     private final MultiblockStructureConfigurationBlockEntity configuration;
-    private EditBox sizeXEdit, sizeYEdit, sizeZEdit;
     private EditBox nameEdit;
+    private EditBox posXEdit;
+    private EditBox posYEdit;
+    private EditBox posZEdit;
+    private EditBox sizeXEdit, sizeYEdit, sizeZEdit;
+    private Button saveButton;
+    private Button detectButton;
     
     protected MultiblockStructureConfigurationEditScreen(MultiblockStructureConfigurationBlockEntity configuration) {
         super(Component.translatable(MBBlocks.MULTIBLOCK_STRUCTURE_CONFIG.get().getDescriptionId()));
@@ -47,6 +50,19 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
         super.init();
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, p_99460_ -> this.onDone()).bounds(this.width / 2 - 4 - 150, 210, 150, 20).build());
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, p_99457_ -> this.onCancel()).bounds(this.width / 2 + 4, 210, 150, 20).build());
+        BlockPos blockpos = this.configuration.getStructurePos();
+        this.posXEdit = new EditBox(this.font, this.width / 2 - 152, 80, 80, 20, Component.translatable("structure_block.position.x"));
+        this.posXEdit.setMaxLength(15);
+        this.posXEdit.setValue(Integer.toString(blockpos.getX()));
+        this.addWidget(this.posXEdit);
+        this.posYEdit = new EditBox(this.font, this.width / 2 - 72, 80, 80, 20, Component.translatable("structure_block.position.y"));
+        this.posYEdit.setMaxLength(15);
+        this.posYEdit.setValue(Integer.toString(blockpos.getY()));
+        this.addWidget(this.posYEdit);
+        this.posZEdit = new EditBox(this.font, this.width / 2 + 8, 80, 80, 20, Component.translatable("structure_block.position.z"));
+        this.posZEdit.setMaxLength(15);
+        this.posZEdit.setValue(Integer.toString(blockpos.getZ()));
+        this.addWidget(this.posZEdit);
         Vec3i vec3i = this.configuration.getStructureSize();
         this.sizeXEdit = new EditBox(this.font, this.width / 2 - 152, 120, 80, 20, Component.translatable("structure_block.size.x"));
         this.sizeXEdit.setMaxLength(15);
@@ -70,9 +86,10 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
         this.nameEdit.setValue(this.configuration.getStructureName());
         this.addRenderableWidget(this.nameEdit);
 
+        this.initialMode = configuration.getMode();
         this.addRenderableWidget(
                 CycleButton.<MultiblockStructureConfigurationBlockEntity.Mode>builder(p_169852_ -> Component.translatable("structure_block.mode." + p_169852_.getSerializedName()))
-                        .withValues(DEFAULT_MODES, ALL_MODES)
+                        .withValues(ALL_MODES)
                         .displayOnlyValue()
                         .withInitialValue(this.initialMode)
                         .create(this.width / 2 - 4 - 150, 185, 50, 20, Component.literal("MODE"), (p_169846_, mode) -> {
@@ -80,26 +97,56 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
                             this.updateMode(mode);
                         })
         );
+        this.saveButton = this.addRenderableWidget(Button.builder(Component.translatable("structure_block.button.save"), p_280866_ -> {
+            if (this.configuration.getMode() == MultiblockStructureConfigurationBlockEntity.Mode.SAVE) {
+                this.sendToServer(MultiblockStructureConfigurationBlockEntity.UpdateType.SAVE_CONFIGURATION);
+                this.minecraft.setScreen(null);
+            }
+        }).bounds(this.width / 2 + 4 + 100, 185, 50, 20).build());
+        this.detectButton = this.addRenderableWidget(Button.builder(Component.translatable("structure_block.button.detect_size"), p_280865_ -> {
+            if (this.configuration.getMode() == MultiblockStructureConfigurationBlockEntity.Mode.SAVE) {
+                this.sendToServer(MultiblockStructureConfigurationBlockEntity.UpdateType.SCAN_AREA);
+                this.minecraft.setScreen(null);
+            }
+        }).bounds(this.width / 2 + 4 + 100, 120, 50, 20).build());
+
+        this.updateMode(this.initialMode);
+    }
+
+    @Override
+    protected void setInitialFocus() {
+        this.setInitialFocus(this.nameEdit);
     }
 
     private void updateMode(MultiblockStructureConfigurationBlockEntity.Mode structureMode) {
-        this.nameEdit.setVisible(false);
         this.sizeXEdit.setVisible(false);
         this.sizeYEdit.setVisible(false);
         this.sizeZEdit.setVisible(false);
+        this.posXEdit.setVisible(false);
+        this.posYEdit.setVisible(false);
+        this.posZEdit.setVisible(false);
+        this.saveButton.visible = false;
+        this.detectButton.visible = false;
         switch (structureMode) {
             case SAVE:
                 this.sizeXEdit.setVisible(true);
                 this.sizeYEdit.setVisible(true);
                 this.sizeZEdit.setVisible(true);
+                this.posXEdit.setVisible(true);
+                this.posYEdit.setVisible(true);
+                this.posZEdit.setVisible(true);
+                this.saveButton.visible = true;
+                this.detectButton.visible = true;
                 break;
             case CORNER:
-                this.nameEdit.setVisible(true);
                 break;
         }
     }
 
     private boolean sendToServer(MultiblockStructureConfigurationBlockEntity.UpdateType updateType) {
+        BlockPos blockpos = new BlockPos(
+                this.parseCoordinate(this.posXEdit.getValue()), this.parseCoordinate(this.posYEdit.getValue()), this.parseCoordinate(this.posZEdit.getValue())
+        );
         Vec3i vec3i = new Vec3i(
                 this.parseCoordinate(this.sizeXEdit.getValue()), this.parseCoordinate(this.sizeYEdit.getValue()), this.parseCoordinate(this.sizeZEdit.getValue())
         );
@@ -107,7 +154,9 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
                 .getConnection()
                 .send(
                         new SetMultiblockStructureConfigurationBlockDataPacket(
+                                this.configuration.getMode(),
                                 this.configuration.getBlockPos(),
+                                blockpos,
                                 vec3i,
                                 this.nameEdit.getValue(),
                                 updateType
