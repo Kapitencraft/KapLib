@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.multiblock.registry;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfigurationBlockEntity;
+import net.kapitencraft.kap_lib.multiblock.structure.config.builder.MultiblockStructureConfigurationBlockEntity;
 import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.datafix.fixes.References;

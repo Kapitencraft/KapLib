@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.multiblock.structure.config;
+package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -8,11 +8,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MultiblockStructureConfigurationBlockEntityRenderer implements BlockEntityRenderer<MultiblockStructureConfigurationBlockEntity> {
@@ -39,7 +38,7 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
 
                 VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
                 LevelRenderer.renderLineBox(poseStack, vertexconsumer, d4, d5, d6, d7, d8, d9, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
-                //this.renderInvisibleBlocks(blockEntity, bufferSource, poseStack);
+                this.renderInvisibleBlocks(blockEntity, bufferSource, poseStack);
             }
         }
     }
@@ -47,33 +46,15 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
     private void renderInvisibleBlocks(MultiblockStructureConfigurationBlockEntity blockEntity, MultiBufferSource bufferSource, PoseStack poseStack) {
         BlockGetter blockgetter = blockEntity.getLevel();
         VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
-        BlockPos blockpos = blockEntity.getBlockPos();
-        BlockPos blockpos1 = blockEntity.getBlockPos().offset(1, 1, 1);
+        BlockPos blockEntityPos = blockEntity.getBlockPos();
+        BlockPos blockpos1 = blockEntityPos.offset(1, 1, 1);
 
         for (BlockPos blockpos2 : BlockPos.betweenClosed(blockpos1, blockpos1.offset(blockEntity.getStructureSize()).offset(-1, -1, -1))) {
             BlockState blockstate = blockgetter.getBlockState(blockpos2);
-            boolean flag = blockstate.isAir();
-            boolean flag1 = blockstate.is(Blocks.STRUCTURE_VOID);
-            boolean flag2 = blockstate.is(Blocks.BARRIER);
-            boolean flag3 = blockstate.is(Blocks.LIGHT);
-            boolean flag4 = flag1 || flag2 || flag3;
-            if (flag || flag4) {
-                float f = flag ? 0.05F : 0.0F;
-                double d0 = (float) (blockpos2.getX() - blockpos.getX()) + 0.45F - f;
-                double d1 = (float) (blockpos2.getY() - blockpos.getY()) + 0.45F - f;
-                double d2 = (float) (blockpos2.getZ() - blockpos.getZ()) + 0.45F - f;
-                double d3 = (float) (blockpos2.getX() - blockpos.getX()) + 0.55F + f;
-                double d4 = (float) (blockpos2.getY() - blockpos.getY()) + 0.55F + f;
-                double d5 = (float) (blockpos2.getZ() - blockpos.getZ()) + 0.55F + f;
-                if (flag) {
-                    LevelRenderer.renderLineBox(poseStack, vertexconsumer, d0, d1, d2, d3, d4, d5, 0.5F, 0.5F, 1.0F, 1.0F, 0.5F, 0.5F, 1.0F);
-                } else if (flag1) {
-                    LevelRenderer.renderLineBox(poseStack, vertexconsumer, d0, d1, d2, d3, d4, d5, 1.0F, 0.75F, 0.75F, 1.0F, 1.0F, 0.75F, 0.75F);
-                } else if (flag2) {
-                    LevelRenderer.renderLineBox(poseStack, vertexconsumer, d0, d1, d2, d3, d4, d5, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.0F, 0.0F);
-                } else {
-                    LevelRenderer.renderLineBox(poseStack, vertexconsumer, d0, d1, d2, d3, d4, d5, 1.0F, 1.0F, 0.0F, 1.0F, 1.0F, 1.0F, 0.0F);
-                }
+
+            BlockPos relative = blockpos2.subtract(blockEntityPos);
+            if (true) {
+                DebugRenderer.renderFloatingText(poseStack, bufferSource, "test", blockpos2.getX() + .5, blockpos2.getY(), blockpos2.getZ() + .5, -1);
             }
         }
     }
