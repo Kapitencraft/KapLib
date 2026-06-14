@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.multiblock.event.handlers;
 
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlockEntityTypes;
-import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfigurationBlockEntityRenderer;
+import net.kapitencraft.kap_lib.multiblock.structure.config.builder.MultiblockStructureConfigurationBlockEntityRenderer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;

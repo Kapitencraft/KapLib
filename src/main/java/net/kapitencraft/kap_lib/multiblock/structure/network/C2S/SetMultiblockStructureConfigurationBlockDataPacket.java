@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.multiblock.structure.network.C2S;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
-import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfigurationBlockEntity;
+import net.kapitencraft.kap_lib.multiblock.structure.config.builder.MultiblockStructureConfigurationBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.RegistryFriendlyByteBuf;
