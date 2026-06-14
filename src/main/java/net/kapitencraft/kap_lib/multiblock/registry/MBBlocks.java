@@ -1,8 +1,7 @@
 package net.kapitencraft.kap_lib.multiblock.registry;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfigurationBlock;
-import net.minecraft.core.registries.Registries;
+import net.kapitencraft.kap_lib.multiblock.structure.config.builder.MultiblockStructureConfigurationBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.registries.DeferredBlock;
