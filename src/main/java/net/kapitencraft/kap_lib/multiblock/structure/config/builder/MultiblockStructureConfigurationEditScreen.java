@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.multiblock.structure.config;
+package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
 import com.google.common.collect.ImmutableList;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
@@ -7,14 +7,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.StructureBlockEditScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket;
-import net.minecraft.world.level.block.entity.StructureBlockEntity;
-import net.minecraft.world.level.block.state.properties.StructureMode;
 
 public class MultiblockStructureConfigurationEditScreen extends Screen {
     private static final ImmutableList<MultiblockStructureConfigurationBlockEntity.Mode> ALL_MODES = ImmutableList.copyOf(MultiblockStructureConfigurationBlockEntity.Mode.values());
