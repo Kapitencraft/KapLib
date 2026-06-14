@@ -1,7 +1,8 @@
-package net.kapitencraft.kap_lib.multiblock.structure.config;
+package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlockEntityTypes;
+import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -9,23 +10,18 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.StructureBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.StructureMode;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import javax.annotation.Nullable;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
@@ -35,6 +31,8 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     private Vec3i structureSize = Vec3i.ZERO;
     private boolean ignoreEntities = true;
     private Mode mode = Mode.SAVE;
+    private final Map<BlockPos, MultiblockStructureConfiguration.BlockInstance> instances = new HashMap<>();
+    private final List<String> groups = new ArrayList<>();
 
     public MultiblockStructureConfigurationBlockEntity(BlockPos pos, BlockState blockState) {
         super(MBBlockEntityTypes.MULTIBLOCK_STRUCTURE_CONFIG.get(), pos, blockState);
@@ -78,8 +76,8 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         } else {
             BlockPos blockpos = this.getBlockPos();
             int i = 80;
-            BlockPos blockpos1 = new BlockPos(blockpos.getX() - 80, this.level.getMinBuildHeight(), blockpos.getZ() - 80);
-            BlockPos blockpos2 = new BlockPos(blockpos.getX() + 80, this.level.getMaxBuildHeight() - 1, blockpos.getZ() + 80);
+            BlockPos blockpos1 = new BlockPos(blockpos.getX() - i, this.level.getMinBuildHeight(), blockpos.getZ() - i);
+            BlockPos blockpos2 = new BlockPos(blockpos.getX() + i, this.level.getMaxBuildHeight() - 1, blockpos.getZ() + i);
             Stream<BlockPos> stream = this.getRelatedCorners(blockpos1, blockpos2);
             return calculateEnclosingBoundingBox(blockpos, stream)
                     .filter(
@@ -200,6 +198,26 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
 
     public Mode getMode() {
         return this.mode;
+    }
+
+    public boolean withinBounds(BlockPos pos) {
+        BlockPos structureOrigin = this.getBlockPos().offset(this.structurePos);
+        BlockPos end = structureOrigin.offset(this.structureSize);
+        return pos.getX() >= structureOrigin.getX() && pos.getY() <= end.getX() &&
+                pos.getY() >= structureOrigin.getY() && pos.getY() <= end.getY() &&
+                pos.getZ() >= structureOrigin.getZ() && pos.getZ() <= end.getZ();
+    }
+
+    public void cycleState(BlockPos pos) {
+        BlockPos structureOrigin = this.getBlockPos().offset(this.structurePos);
+        BlockPos relative = pos.subtract(structureOrigin);
+        MultiblockStructureConfiguration.BlockInstance instance = this.instances.get(relative);
+        BlockState state = this.level.getBlockState(pos);
+        List<TagKey<Block>> list = state.getBlockHolder().tags().toList();
+        if (instance == null) {
+            this.instances.put(relative, MultiblockStructureConfiguration.BlockInstance.forTag(list.getFirst()));
+        } else
+            instance = instance.cycle(state, list, this.groups);
     }
 
     public enum Mode implements StringRepresentable {
