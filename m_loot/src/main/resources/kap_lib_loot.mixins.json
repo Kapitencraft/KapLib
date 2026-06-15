@@ -2,8 +2,8 @@
   "required": true,
   "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_21",
-  "package": "net.kapitencraft.kap_lib.mixin.classes",
-  "refmap": "kap_lib.mixin-refmap.json",
+  "package": "net.kapitencraft.kap_lib.loot.mixin.classes",
+  "refmap": "kap_lib_loot.mixin-refmap.json",
   "client": [],
   "mixins": [],
   "injectors": {

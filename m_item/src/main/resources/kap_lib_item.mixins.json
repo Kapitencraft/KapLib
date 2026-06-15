@@ -3,7 +3,7 @@
   "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_21",
   "package": "net.kapitencraft.kap_lib.item.mixin.classes",
-  "refmap": "kap_lib.mixin-refmap.json",
+  "refmap": "kap_lib_item.mixin-refmap.json",
   "client": [
     "client.ItemStackMixin"
   ],

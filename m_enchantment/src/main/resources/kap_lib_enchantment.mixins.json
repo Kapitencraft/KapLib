@@ -3,7 +3,7 @@
   "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_21",
   "package": "net.kapitencraft.kap_lib.enchantment.mixin.classes",
-  "refmap": "kap_lib.mixin-refmap.json",
+  "refmap": "kap_lib_enchantment.mixin-refmap.json",
   "client": [
     "client.AddEnchantmentTooltipMixin",
     "client.CreateModeInventoryScreenMixin",
