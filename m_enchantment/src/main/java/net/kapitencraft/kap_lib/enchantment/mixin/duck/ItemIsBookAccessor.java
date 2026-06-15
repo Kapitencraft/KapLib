@@ -11,9 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface ItemIsBookAccessor {
 
-    default boolean isFromBook() {
-        return false;
-    }
+    boolean isFromBook();
 
     static Item.TooltipContext of(Level level, ItemStack stack) {
         return level == null ? Item.TooltipContext.EMPTY : new Item.TooltipContext() {
