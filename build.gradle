@@ -102,11 +102,11 @@ subprojects { Project proj ->
         }
     }
 
-    if (hasProperty("signingKey")) {
+    if (rootProject.hasProperty("signingKey")) {
         signing {
             useInMemoryPgpKeys(
-                    new String(Base64.decoder.decode((String) findProperty("signingKey"))),
-                    findProperty("signingPassword")
+                    new String(Base64.decoder.decode((String) rootProject.findProperty("signingKey"))),
+                    rootProject.findProperty("signingPassword")
             )
         }
     }
@@ -303,10 +303,6 @@ dependencies {
     compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
     runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-    //implementation(project(":core"))
-    //implementation(project(":cooldown"))
-    //implementation(project(":inventory_page"))
-    //implementation(project(":item"))
 }
 
 neoForge {

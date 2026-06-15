@@ -1,5 +1,6 @@
 
 core:
+    added ExtraRenderTypes class exposing a GHOST rendertype
     added `array` ExtraStreamCodec operation
     added FontSetsEvent with subclasses $Register and $Update. used to register custom FontSets
     fixed MultiLineTextBoxes suggestions not disappearing when inserting

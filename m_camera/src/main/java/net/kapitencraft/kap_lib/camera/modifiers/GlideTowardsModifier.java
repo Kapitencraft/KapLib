@@ -1,8 +1,8 @@
 package net.kapitencraft.kap_lib.camera.modifiers;
 
 import net.kapitencraft.kap_lib.camera.core.CameraData;
-import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.camera.registry.CameraModifiers;
+import net.kapitencraft.kap_lib.camera.target.pos.PositionTarget;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
