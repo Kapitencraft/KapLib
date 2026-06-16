@@ -30,6 +30,8 @@ subprojects { Project proj ->
 
     String moduleId = mod_id + "_" + name
 
+    String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
+
     apply plugin: 'idea'
     apply plugin: 'com.vanniktech.maven.publish'
     apply plugin: 'net.neoforged.moddev'
@@ -45,6 +47,52 @@ subprojects { Project proj ->
         archivesName = mod_id + "-" + name
     }
 
+    repositories {
+        mavenCentral()
+
+        if (name == 'recipe' || name == 'aggregate') {
+            maven { url 'https://maven.blamejared.com' }
+        }
+    }
+
+    dependencies {
+        if (name != "core" && data.asMod) {
+            api(project(":core"))
+        }
+
+        if (name == 'recipe') {
+            compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
+            compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+            runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+        } else if (name == 'publish') {
+            implementation('com.google.code.gson:gson:2.10.1')
+            implementation('com.google.guava:guava:32.1.2-jre')
+            implementation('com.mojang:logging:1.2.7')
+            implementation('org.slf4j:slf4j-api:2.0.9')
+            implementation('org.jetbrains:annotations:24.1.0')
+            api(project(":core"))
+        } else if (name == 'datagen') {
+            api(project(":core"))
+        } else if (name == 'aggregate') {
+            rootProject.subprojects.each { Project project ->
+                if (project.name != 'aggregate')
+                    api(project)
+            }
+        }
+
+        if (data.compat != null) {
+            data.compat.each { String dep ->
+                compileOnly(project(":${dep}"))
+            }
+        }
+
+        if (data.dependencies != null) {
+            data.dependencies.each { String dep ->
+                api(project(":${dep}"))
+            }
+        }
+    }
+
     mavenPublishing {
         signAllPublications()
         publishToMavenCentral()
@@ -54,24 +102,26 @@ subprojects { Project proj ->
 
             pom {
                 name = "${mod_name} Aggregate Library"
-
-                withXml {
-                    def deps = asNode().appendNode("dependencies")
-
-                    rootProject.subprojects { Project p ->
-                        def dep = deps.appendNode("dependency")
-                        dep.appendNode("groupId", project.group)
-                        dep.appendNode("artifactId", "kap_lib-${p.name}")
-                        dep.appendNode("version", project.version)
-                        dep.appendNode("scope", "compile")
-                    }
-                }
+//
+            //    withXml {
+            //        def deps = asNode().appendNode("dependencies")
+//
+            //        rootProject.subprojects { Project p ->
+            //            if (p.name != 'aggregate') {
+            //                def dep = deps.appendNode("dependency")
+            //                dep.appendNode("groupId", project.group)
+            //                dep.appendNode("artifactId", "kap_lib-${p.name}")
+            //                dep.appendNode("version", project.version)
+            //                dep.appendNode("scope", "compile")
+            //            }
+            //        }
+            //    }
             }
         } else {
             coordinates(group, mod_id + "-" + name, version)
 
             pom {
-                name = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
+                name = modName
             }
         }
 
@@ -111,59 +161,13 @@ subprojects { Project proj ->
         }
     }
 
-    repositories {
-        mavenCentral()
-
-        if (name == 'recipe' || name == 'aggregate') {
-            maven { url 'https://maven.blamejared.com' }
-        }
-    }
-
-    dependencies {
-        if (name != "core" && data.asMod) {
-            api(project(":core"))
-        }
-
-        if (name == 'recipe') {
-            compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-            compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-            runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-        } else if (name == 'publish') {
-            implementation('com.google.code.gson:gson:2.10.1')
-            implementation('com.google.guava:guava:32.1.2-jre')
-            implementation('com.mojang:logging:1.2.7')
-            implementation('org.slf4j:slf4j-api:2.0.9')
-            implementation('org.jetbrains:annotations:24.1.0')
-            api(project(":core"))
-        } else if (name == 'datagen') {
-            api(project(":core"))
-        } else if (name == 'aggregate') {
-            subprojects.each { Project project ->
-                if (project.name != 'aggregate')
-                    api(project)
-            }
-        }
-
-        if (data.compat != null) {
-            data.compat.each { String dep ->
-                compileOnly(project(":${dep}"))
-            }
-        }
-
-        if (data.dependencies != null) {
-            data.dependencies.each { String dep ->
-                api(project(":${dep}"))
-            }
-        }
-    }
-
     var metaProperties = [
             minecraft_version      : mc_version,
             minecraft_version_range: minecraft_version_range,
             neo_version            : neo_version,
             neo_version_range      : neo_version_range,
             loader_version_range   : loader_version_range,
-            mod_id                 : moduleId, mod_name: mod_name,
+            mod_id                 : moduleId, mod_name: modName,
             mod_license            : mod_license, mod_version: mod_version,
             mod_authors            : mod_authors, mod_description: mod_description,
     ]
