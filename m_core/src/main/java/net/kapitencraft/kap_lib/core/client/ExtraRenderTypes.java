@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL14;
 
 public class ExtraRenderTypes extends RenderType {
@@ -26,8 +27,8 @@ public class ExtraRenderTypes extends RenderType {
                 RenderSystem.defaultBlendFunc();
             });
 
-    public static final RenderType GHOST = RenderType.create(
-            "mysticcraft:ghost",
+    public static final RenderType GHOST_BLOCK = RenderType.create(
+            "kap_lib:ghost_block",
             DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 2097152, true, false,
             RenderType.CompositeState.builder()
                     .setShaderState(RenderType.POSITION_COLOR_TEX_LIGHTMAP_SHADER)
@@ -35,4 +36,16 @@ public class ExtraRenderTypes extends RenderType {
                     .setTransparencyState(GHOST_TRANSPARENCY)
                     .createCompositeState(false)
     );
+
+    public static RenderType ghostEntity(ResourceLocation textureLoc) {
+        return RenderType.create(
+                "kap_lib:ghost_entity",
+                DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 2097152, true, false,
+                RenderType.CompositeState.builder()
+                        .setShaderState(RenderType.RENDERTYPE_ENTITY_SOLID_SHADER)
+                        .setTextureState(new TextureStateShard(textureLoc, false, false))
+                        .setTransparencyState(GHOST_TRANSPARENCY)
+                        .createCompositeState(false)
+        );
+    }
 }
