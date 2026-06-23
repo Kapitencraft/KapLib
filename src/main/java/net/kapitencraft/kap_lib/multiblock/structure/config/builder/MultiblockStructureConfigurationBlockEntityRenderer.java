@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -13,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Matrix4f;
 
 public class MultiblockStructureConfigurationBlockEntityRenderer implements BlockEntityRenderer<MultiblockStructureConfigurationBlockEntity> {
     public MultiblockStructureConfigurationBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -38,25 +40,55 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
 
                 VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
                 LevelRenderer.renderLineBox(poseStack, vertexconsumer, d4, d5, d6, d7, d8, d9, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
+
+                VertexConsumer filledBox = bufferSource.getBuffer(RenderType.debugFilledBox());
+                LevelRenderer.addChainedFilledBoxVertices(poseStack, filledBox, d4 + .5, d5 + .5, d6 + .5, d7 - .5, d8 - .5, d9 - .5, 1, 1, 1, .7f);
+
                 this.renderInvisibleBlocks(blockEntity, bufferSource, poseStack);
             }
         }
     }
 
     private void renderInvisibleBlocks(MultiblockStructureConfigurationBlockEntity blockEntity, MultiBufferSource bufferSource, PoseStack poseStack) {
+        DebugRenderer.renderFloatingText(poseStack, bufferSource, "test", 0, 0, 0, 0xFFFF0000);
         BlockGetter blockgetter = blockEntity.getLevel();
         VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
-        BlockPos blockEntityPos = blockEntity.getBlockPos();
+        BlockPos blockEntityPos = blockEntity.getBlockPos().offset(blockEntity.getStructurePos());
         BlockPos blockpos1 = blockEntityPos.offset(1, 1, 1);
+
 
         for (BlockPos blockpos2 : BlockPos.betweenClosed(blockpos1, blockpos1.offset(blockEntity.getStructureSize()).offset(-1, -1, -1))) {
             BlockState blockstate = blockgetter.getBlockState(blockpos2);
 
             BlockPos relative = blockpos2.subtract(blockEntityPos);
             if (true) {
-                DebugRenderer.renderFloatingText(poseStack, bufferSource, "test", blockpos2.getX() + .5, blockpos2.getY(), blockpos2.getZ() + .5, -1);
+                renderFloatingText(poseStack, bufferSource, "test", relative.getX() + .5f, relative.getY(), relative.getZ() + .5f, .02f, -1, false);
             }
         }
+    }
+
+    private static void renderFloatingText(PoseStack poseStack, MultiBufferSource bufferSource, String text, float x, float y, float z, float scale, int color, boolean transparent) {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        Font font = minecraft.font;
+        poseStack.pushPose();
+        poseStack.translate(x, y + 0.07F, z);
+        poseStack.mulPose(minecraft.gameRenderer.getMainCamera().rotation());
+        poseStack.scale(scale, -scale, scale);
+        float f = (float)(-font.width(text)) / 2.0F;
+        font.drawInBatch(
+                text,
+                f,
+                0.0F,
+                color,
+                false,
+                poseStack.last().pose(),
+                bufferSource,
+                transparent ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL,
+                0,
+                15728880
+        );
+        poseStack.popPose();
     }
 
     public boolean shouldRenderOffScreen(MultiblockStructureConfigurationBlockEntity blockEntity) {
