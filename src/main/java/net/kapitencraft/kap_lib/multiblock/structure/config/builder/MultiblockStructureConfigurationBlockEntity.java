@@ -222,7 +222,8 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
             instance = instance.cycle(state, list, this.groups, player);
             if (instance.isState()) {
                 this.instances.remove(relative);
-            }
+            } else
+                this.instances.put(relative, instance);
         }
     }
 
