@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.multiblock;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlockEntityTypes;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
+import net.kapitencraft.kap_lib.multiblock.registry.MBItemComponentTypes;
 import net.kapitencraft.kap_lib.multiblock.registry.MBItems;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -16,5 +17,6 @@ public class MultiblockModule {
         MBBlockEntityTypes.REGISTRY.register(modEventBus);
         MBBlocks.REGISTRY.register(modEventBus);
         MBItems.REGISTRY.register(modEventBus);
+        MBItemComponentTypes.REGISTRY.register(modEventBus);
     }
 }

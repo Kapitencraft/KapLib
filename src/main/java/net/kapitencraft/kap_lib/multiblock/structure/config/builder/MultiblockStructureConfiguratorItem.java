@@ -20,7 +20,7 @@ public class MultiblockStructureConfiguratorItem extends Item {
         Level level = context.getLevel();
         if (structureConfigurationLocation != null && level.getBlockEntity(structureConfigurationLocation) instanceof MultiblockStructureConfigurationBlockEntity configurationBlockEntity) {
             if (configurationBlockEntity.withinBounds(pos)) {
-                configurationBlockEntity.cycleState(pos);
+                configurationBlockEntity.cycleState(pos, context.getPlayer());
             }
         }
         if (level.getBlockEntity(pos) instanceof MultiblockStructureConfigurationBlockEntity) {
