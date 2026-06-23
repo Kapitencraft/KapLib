@@ -23,7 +23,8 @@ public class DataPackSerializer<T> extends JsonSerializer<T> {
     }
 
     public static <T> DataPackSerializer<T> unit(Supplier<T> sup) {
-        return new DataPackSerializer<>(Codec.unit(sup), sup, StreamCodec.unit(sup.get()));
+        T value = sup.get();
+        return new DataPackSerializer<>(Codec.unit(value), () -> value, StreamCodec.unit(value));
     }
 
     public StreamCodec<? super RegistryFriendlyByteBuf, T> getStreamCodec() {

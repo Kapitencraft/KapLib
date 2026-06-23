@@ -25,6 +25,7 @@ import java.util.Map;
 /**
  * allows to easily scan all files in the given directory and attempt to load each with the given codec,
  * <br>exposing the results for the developer to use
+ *
  * @param <T> the type of the result
  */
 public abstract class CodecJsonReloader<T> extends SimplePreparableReloadListener<Map<ResourceLocation, T>> {
@@ -36,9 +37,10 @@ public abstract class CodecJsonReloader<T> extends SimplePreparableReloadListene
 
     /**
      * creates a new CJR
+     *
      * @param entryCodec the result entry codec
-     * @param gson the gson to parse the files into JSON
-     * @param directory the directory to target
+     * @param gson       the gson to parse the files into JSON
+     * @param directory  the directory to target
      */
     public CodecJsonReloader(Codec<T> entryCodec, Gson gson, String directory) {
         this.entryCodec = entryCodec;
@@ -48,12 +50,13 @@ public abstract class CodecJsonReloader<T> extends SimplePreparableReloadListene
 
     /**
      * scans the given file for json files and attempts to convert them into instances of the given codecs type
+     *
      * @param resourceManager the ResourceManager
-     * @param name the name of the directory to search
-     * @param gson the GSON to convert the resource into JSON
-     * @param entryCodec the codec to convert the JSON into objects
-     * @param output the aggregator to obtain the parsed entries
-     * @param <T> the type of the resulting objects
+     * @param name            the name of the directory to search
+     * @param gson            the GSON to convert the resource into JSON
+     * @param entryCodec      the codec to convert the JSON into objects
+     * @param output          the aggregator to obtain the parsed entries
+     * @param <T>             the type of the resulting objects
      */
     public static <T> void scanDirectory(ResourceManager resourceManager, String name, Gson gson, Codec<T> entryCodec, Map<ResourceLocation, T> output) {
         FileToIdConverter filetoidconverter = FileToIdConverter.json(name);
