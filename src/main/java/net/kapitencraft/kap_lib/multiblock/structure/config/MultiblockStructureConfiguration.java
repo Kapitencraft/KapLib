@@ -2,14 +2,18 @@ package net.kapitencraft.kap_lib.multiblock.structure.config;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.core.IdMap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,10 +21,35 @@ public class MultiblockStructureConfiguration {
     private final Map<String, BlockGroup> groups;
 
     private final List<BlockInstance> blockLookup;
+    private final PalettedContainer<BlockInstance> content;
 
     private MultiblockStructureConfiguration(Map<String, BlockGroup> groups, List<BlockInstance> blockLookup) {
         this.groups = groups;
         this.blockLookup = blockLookup;
+        this.content = new PalettedContainer<>();
+    }
+
+    private final class LookupMap implements IdMap<BlockInstance> {
+
+        @Override
+        public int getId(BlockInstance value) {
+            return blockLookup.indexOf(value);
+        }
+
+        @Override
+        public @Nullable BlockInstance byId(int id) {
+            return blockLookup.get(id);
+        }
+
+        @Override
+        public int size() {
+            return blockLookup.size();
+        }
+
+        @Override
+        public @NotNull Iterator<BlockInstance> iterator() {
+            return blockLookup.listIterator();
+        }
     }
 
     private static class BlockGroup {
@@ -198,4 +227,6 @@ public class MultiblockStructureConfiguration {
             player.displayClientMessage(Component.translatable("mb.structure.configurator.select_group", s), true);
         }
     }
+
+
 }
