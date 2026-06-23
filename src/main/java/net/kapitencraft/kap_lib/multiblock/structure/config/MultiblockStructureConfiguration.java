@@ -3,7 +3,9 @@ package net.kapitencraft.kap_lib.multiblock.structure.config;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +44,11 @@ public class MultiblockStructureConfiguration {
             return new GroupBlockInstance(name);
         }
 
-        public abstract @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups);
+        public abstract @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups, Player player);
+
+        public boolean isState() {
+            return false;
+        }
 
         protected enum Type {
             STATE(StateBlockInstance.CODEC),
@@ -84,13 +90,20 @@ public class MultiblockStructureConfiguration {
             }
 
             @Override
-            public @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups) {
+            public @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups, Player player) {
                 if (tags.isEmpty()) {
                     if (groups.isEmpty())
                         return this;
+                    BlockInstance.displayGroupMessage(player, groups.getFirst());
                     return BlockInstance.forGroup(groups.getFirst());
                 }
+                BlockInstance.displayTagMessage(player, tags.getFirst());
                 return BlockInstance.forTag(tags.getFirst());
+            }
+
+            @Override
+            public boolean isState() {
+                return true;
             }
         }
 
@@ -114,21 +127,29 @@ public class MultiblockStructureConfiguration {
             }
 
             @Override
-            public @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups) {
+            public @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups, Player player) {
                 int i = tags.indexOf(tagKey);
                 if (i == -1) {
                     if (tags.isEmpty()) {
-                        if (groups.isEmpty())
+                        if (groups.isEmpty()) {
+                            BlockInstance.displayStateMessage(player);
                             return BlockInstance.forState(state);
+                        }
+                        BlockInstance.displayGroupMessage(player, groups.getFirst());
                         return BlockInstance.forGroup(groups.getFirst());
                     }
+                    BlockInstance.displayTagMessage(player, tags.getFirst());
                     return BlockInstance.forTag(tags.getFirst());
                 }
                 if (i >= tags.size() - 1) {
-                    if (groups.isEmpty())
+                    if (groups.isEmpty()) {
+                        BlockInstance.displayStateMessage(player);
                         return BlockInstance.forState(state);
+                    }
+                    BlockInstance.displayGroupMessage(player, groups.getFirst());
                     return BlockInstance.forGroup(groups.getFirst());
                 }
+                BlockInstance.displayTagMessage(player, tags.get(i + 1));
                 return BlockInstance.forTag(tags.get(i + 1));
             }
         }
@@ -153,12 +174,28 @@ public class MultiblockStructureConfiguration {
             }
 
             @Override
-            public @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups) {
+            public @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups, Player player) {
                 int i = groups.indexOf(this.groupName);
-                if (i == -1 || i >= groups.size() - 1)
+                if (i == -1 || i >= groups.size() - 1) {
+                    displayStateMessage(player);
                     return BlockInstance.forState(state);
+                }
+                displayGroupMessage(player, groups.get(i + 1));
                 return BlockInstance.forGroup(groups.get(i + 1));
             }
+
+        }
+
+        private static void displayStateMessage(Player player) {
+            player.displayClientMessage(Component.translatable("mb.structure.configurator.select_state"), true);
+        }
+
+        private static void displayTagMessage(Player player, TagKey<Block> key) {
+            player.displayClientMessage(Component.translatable("mb.structure.configurator.select_tag", key.location().toString()), true);
+        }
+
+        private static void displayGroupMessage(Player player, String s) {
+            player.displayClientMessage(Component.translatable("mb.structure.configurator.select_group", s), true);
         }
     }
 }

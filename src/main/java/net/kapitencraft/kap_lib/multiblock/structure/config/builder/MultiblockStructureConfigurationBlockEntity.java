@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -208,16 +209,21 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
                 pos.getZ() >= structureOrigin.getZ() && pos.getZ() <= end.getZ();
     }
 
-    public void cycleState(BlockPos pos) {
+    public void cycleState(BlockPos pos, Player player) {
         BlockPos structureOrigin = this.getBlockPos().offset(this.structurePos);
         BlockPos relative = pos.subtract(structureOrigin);
         MultiblockStructureConfiguration.BlockInstance instance = this.instances.get(relative);
         BlockState state = this.level.getBlockState(pos);
         List<TagKey<Block>> list = state.getBlockHolder().tags().toList();
         if (instance == null) {
+            player.displayClientMessage(Component.translatable("mb.structure.configurator.select_tag", list.getFirst().location().toString()), true);
             this.instances.put(relative, MultiblockStructureConfiguration.BlockInstance.forTag(list.getFirst()));
-        } else
-            instance = instance.cycle(state, list, this.groups);
+        } else {
+            instance = instance.cycle(state, list, this.groups, player);
+            if (instance.isState()) {
+                this.instances.remove(relative);
+            }
+        }
     }
 
     public enum Mode implements StringRepresentable {
