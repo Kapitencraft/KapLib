@@ -54,13 +54,9 @@ public interface ExtraAttributes {
      */
     Holder<Attribute> TRUE_DEFENCE = register0Max("true_defence", 0, null);
     /**
-     * double jump. lets you jump in the air
+     * amount of armor ignored by attacks
      */
-    Holder<Attribute> DOUBLE_JUMP = register("double_jump", 0, 0, 20, null);
-    /**
-     * health regeneration scale
-     */
-    Holder<Attribute> VITALITY = register0Max("vitality", 0, null);
+    Holder<Attribute> ARMOR_SHREDDER = register("armor_shredder", 0, 0, 100, BaseAttributeLocations.ARMOR_SHREDDER);
     //endregion
 
     //region Offensive
@@ -108,9 +104,13 @@ public interface ExtraAttributes {
      */
     Holder<Attribute> LIFE_STEAL = register("life_steal", 0, 0, 10, BaseAttributeLocations.LIVE_STEAL);
     /**
-     * amount of armor ignored by attacks
+     * double jump. lets you jump in the air
      */
-    Holder<Attribute> ARMOR_SHREDDER = register("armor_shredder", 0, 0, 100, BaseAttributeLocations.ARMOR_SHREDDER);
+    Holder<Attribute> DOUBLE_JUMP = register("double_jump", 0, 0, 20, null);
+    /**
+     * health regeneration scale
+     */
+    Holder<Attribute> VITALITY = register0Max("vitality", 0, null);
     /**
      * defines how quick fishing is. values above 600 instantly attract fish
      */
