@@ -34,7 +34,7 @@ public class MultiblockStructureConfiguration {
         this.groups = groups;
         this.blockLookup = blockLookup;
         this.blockLookup.add(BlockInstance.EmptyBlockInstance.INSTANCE);
-        this.content = new PalettedContainer<>(new LookupMap(), BlockInstance.EmptyBlockInstance.INSTANCE, );
+        this.content = new PalettedContainer<>(new LookupMap(), BlockInstance.EmptyBlockInstance.INSTANCE, STRATEGY);
     }
 
     private final class LookupMap implements IdMap<BlockInstance> {
