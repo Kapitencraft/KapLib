@@ -18,6 +18,13 @@ import java.util.List;
 import java.util.Map;
 
 public class MultiblockStructureConfiguration {
+    private static final PalettedContainer.Strategy STRATEGY = new PalettedContainer.Strategy() {
+        @Override
+        public <A> PalettedContainer.Configuration<A> getConfiguration(IdMap<A> registry, int size) {
+            return null;
+        }
+    };
+
     private final Map<String, BlockGroup> groups;
 
     private final List<BlockInstance> blockLookup;
@@ -26,7 +33,8 @@ public class MultiblockStructureConfiguration {
     private MultiblockStructureConfiguration(Map<String, BlockGroup> groups, List<BlockInstance> blockLookup) {
         this.groups = groups;
         this.blockLookup = blockLookup;
-        this.content = new PalettedContainer<>();
+        this.blockLookup.add(BlockInstance.EmptyBlockInstance.INSTANCE);
+        this.content = new PalettedContainer<>(new LookupMap(), BlockInstance.EmptyBlockInstance.INSTANCE, );
     }
 
     private final class LookupMap implements IdMap<BlockInstance> {
@@ -82,7 +90,8 @@ public class MultiblockStructureConfiguration {
         protected enum Type {
             STATE(StateBlockInstance.CODEC),
             TAG(TagBlockInstance.CODEC),
-            GROUP(GroupBlockInstance.CODEC);
+            GROUP(GroupBlockInstance.CODEC),
+            EMPTY(EmptyBlockInstance.CODEC);
 
             private final MapCodec<? extends BlockInstance> codec;
 
@@ -215,6 +224,26 @@ public class MultiblockStructureConfiguration {
 
         }
 
+        private static class EmptyBlockInstance extends BlockInstance {
+            private static final EmptyBlockInstance INSTANCE = new EmptyBlockInstance();
+            public static final MapCodec<? extends BlockInstance> CODEC = MapCodec.unit(INSTANCE);
+
+            @Override
+            public @NotNull BlockInstance cycle(BlockState state, List<TagKey<Block>> tags, List<String> groups, Player player) {
+                return INSTANCE;
+            }
+
+            @Override
+            protected Type getType() {
+                return Type.EMPTY;
+            }
+
+            @Override
+            public boolean isValid(BlockState state) {
+                return false;
+            }
+        }
+
         private static void displayStateMessage(Player player) {
             player.displayClientMessage(Component.translatable("mb.structure.configurator.select_state"), true);
         }
@@ -227,6 +256,4 @@ public class MultiblockStructureConfiguration {
             player.displayClientMessage(Component.translatable("mb.structure.configurator.select_group", s), true);
         }
     }
-
-
 }
