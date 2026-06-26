@@ -2,6 +2,9 @@
 
 import groovy.json.JsonSlurper
 
+import java.nio.file.CopyOption
+import java.nio.file.Files
+
 plugins {
     id 'idea'
     id 'com.vanniktech.maven.publish' version '0.33.0'
@@ -24,9 +27,36 @@ base {
 
 println("Discovered ${subprojects.size()} modules: ${subprojects.name}")
 
+ext.createRequiredClasses = { Project project, String name ->
+    String[] files = [
+            "src/main/java/net/kapitencraft/kap_lib/${name}",
+            "src/main/resources/META-INF"
+    ]
+
+    for (final def s in files) {
+        File f = project.file(s)
+
+        if (!f.exists()) {
+            f.mkdirs()
+        }
+    }
+
+    File source = rootProject.file("src/main/resources/META-INF")
+    File target = project.file("src/main/resources/META-INF")
+
+    source.eachFile {
+        File out = new File(target, it.getName())
+        if (!out.exists())
+            Files.copy(it.toPath(), out.toPath())
+    }
+}
+
 subprojects { Project proj ->
 
     Object data = name == 'aggregate' ? [] : new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
+    if (name != 'aggregate' && data.asMod)
+        rootProject.ext.createRequiredClasses(proj, name)
+
 
     String moduleId = mod_id + "_" + name
 
