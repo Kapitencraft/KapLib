@@ -1,0 +1,5 @@
+{
+  "net/minecraft/world/entity/player/Player": [
+    "net/kapitencraft/kap_lib/two_handed/mixin/duck/OffhandAttackCooldownHolder"
+  ]
+}

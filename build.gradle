@@ -41,10 +41,13 @@ ext.createRequiredClasses = { Project project, String name ->
         }
     }
 
-    File source = rootProject.file("src/main/resources/META-INF")
+    String[] sources = [
+            "neoforge.mods.toml"
+    ]
     File target = project.file("src/main/resources/META-INF")
 
-    source.eachFile {
+    for (final def s in sources) {
+        File it = rootProject.file("src/main/resources/META-INF/${s}")
         File out = new File(target, it.getName())
         if (!out.exists())
             Files.copy(it.toPath(), out.toPath())
@@ -286,8 +289,10 @@ subprojects { Project proj ->
                 //}
             }
 
-            if (name == 'enchantment')
+            if (data.interfaceInjection) {
+                System.out.println(name)
                 interfaceInjectionData.from 'interfaces.json'
+            }
         }
     }
 }

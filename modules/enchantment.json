@@ -5,5 +5,6 @@
     "kap_lib/textures/font/no_trading.png",
     "kap_lib/textures/font/treasure.png"
   ],
-  "compat": ["component", "shader"]
+  "compat": ["component", "shader"],
+  "interfaceInjection": true
 }
