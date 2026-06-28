@@ -5,7 +5,7 @@ core:
     added FontSetsEvent with subclasses $Register and $Update. used to register custom FontSets
     fixed MultiLineTextBoxes suggestions not disappearing when inserting
     removed core.util.Reference and IntegerReference. use Atomic classes instead
-antentCountEffect    fixed UpdateChecker not running
+    fixed UpdateChecker not running
 
 component:
     removed GlyphEffects registry in favor of event based system to fix possible crash stacking
