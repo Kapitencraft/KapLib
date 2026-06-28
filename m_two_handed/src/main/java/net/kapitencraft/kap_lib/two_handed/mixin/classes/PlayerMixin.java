@@ -62,7 +62,8 @@ public abstract class PlayerMixin extends LivingEntity implements OffhandAttackC
 
     @Override
     public boolean shouldAttackOffhand() {
-        return offhandAttackStrengthTicker > attackStrengthTicker;
+        return getAttackStrengthScale(0) != 1 && //priorities main hand item
+                offhandAttackStrengthTicker > attackStrengthTicker;
     }
 
     @Override
@@ -91,12 +92,12 @@ public abstract class PlayerMixin extends LivingEntity implements OffhandAttackC
 
         //disable mainhand modifiers for mainhand item
         mainhandModifiers.forEach(EquipmentSlot.MAINHAND, removeAction);
-        //enable offhand modifiers for mainhand item
-        mainhandModifiers.forEach(EquipmentSlot.OFFHAND, addAction);
         //disable offhand modifiers for offhand item
         offhandModifiers.forEach(EquipmentSlot.OFFHAND, removeAction);
         //enable mainhand modifiers for offhand item
         offhandModifiers.forEach(EquipmentSlot.MAINHAND, addAction);
+        //enable offhand modifiers for mainhand item
+        mainhandModifiers.forEach(EquipmentSlot.OFFHAND, addAction);
     }
 
     @Override
@@ -118,12 +119,12 @@ public abstract class PlayerMixin extends LivingEntity implements OffhandAttackC
             }
         };
 
+        //disable mainhand modifiers for offhand item
+        offhandModifiers.forEach(EquipmentSlot.MAINHAND, removeAction);
         //disable offhand modifiers for mainhand item
         mainhandModifiers.forEach(EquipmentSlot.OFFHAND, removeAction);
         //enable mainhand modifiers for mainhand item
         mainhandModifiers.forEach(EquipmentSlot.MAINHAND, addAction);
-        //disable mainhand modifiers for offhand item
-        offhandModifiers.forEach(EquipmentSlot.MAINHAND, removeAction);
         //enable offhand modifiers for offhand item
         offhandModifiers.forEach(EquipmentSlot.OFFHAND, addAction);
     }
@@ -164,16 +165,13 @@ public abstract class PlayerMixin extends LivingEntity implements OffhandAttackC
     }
 
     @Inject(method = "attack", at = @At("RETURN"))
-    private void swapBackAttributesIfNeccessary(Entity target, CallbackInfo ci) {
+    private void swapBackAttributesIfNecessary(Entity target, CallbackInfo ci) {
         if (shouldAttackOffhand())
             swapToMainhandAttributes();
     }
 
     @WrapOperation(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;resetAttackStrengthTicker()V"))
     private void includeOffhandReset(Player instance, Operation<Void> original) {
-        if (shouldAttackOffhand())
-            resetOffhandAttackStrengthTicker();
-        else
-            original.call(instance);
+        //remove reset in order to swap attributes back correctly
     }
 }
