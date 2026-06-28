@@ -2,14 +2,12 @@ package net.kapitencraft.kap_lib.overlay;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.overlay.registry.Overlays;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.NeoForgeMod;
 import org.jetbrains.annotations.ApiStatus;
 
 @Mod(OverlayModule.MODULE_ID)
@@ -17,8 +15,6 @@ public class OverlayModule {
     public static final String MODULE_ID = LibConstants.MOD_ID + "_overlay";
 
     public OverlayModule(IEventBus modEventBus, ModContainer container) {
-        Overlays.REGISTRY.register(modEventBus);
-
         NeoForge.EVENT_BUS.addListener(OverlayModule::registerCommand);
     }
 

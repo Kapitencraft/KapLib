@@ -1,11 +1,11 @@
 package net.kapitencraft.kap_lib.overlay;
 
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.util.Modules;
 import net.kapitencraft.kap_lib.overlay.holder.MultiLineOverlay;
 import net.kapitencraft.kap_lib.overlay.holder.SimpleOverlay;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.mana.ManaAttributes;
-import net.kapitencraft.kap_lib.overlay.registry.Overlays;
 import net.kapitencraft.kap_lib.mana.ManaHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
@@ -19,7 +19,7 @@ import java.util.List;
 public class OverlaysRegister {
 
     public static void register(OverlayManager manager) {
-        manager.createRenderer(Overlays.STATS, properties -> new MultiLineOverlay(
+        manager.createRenderer(LibConstants.res("stats"), OverlayPositions.STATS, properties -> new MultiLineOverlay(
                 Component.translatable("overlay.stats"),
                 properties,
                 -10,
@@ -30,7 +30,7 @@ public class OverlaysRegister {
                 )
         ));
         if (Modules.isManaActive()) {
-            manager.createRenderer(Overlays.MANA, properties -> new SimpleOverlay(
+            manager.createRenderer(LibConstants.res("mana"), OverlayPositions.MANA, properties -> new SimpleOverlay(
                     Component.translatable("overlay.mana"),
                     properties,
                     player -> Component.translatable(
