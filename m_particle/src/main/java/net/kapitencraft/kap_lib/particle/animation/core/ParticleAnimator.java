@@ -72,4 +72,9 @@ public class ParticleAnimator {
                 .setDetail("Particles", this.particles);
         this.animation.fillCrashReport(report);
     }
+
+    public void removed() {
+        //finalize all remaining particles
+        this.particles.forEach(ParticleConfig::invalidate);
+    }
 }

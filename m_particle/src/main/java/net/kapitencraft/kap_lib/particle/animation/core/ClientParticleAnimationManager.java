@@ -115,6 +115,7 @@ public final class ClientParticleAnimationManager extends SimpleJsonResourceRelo
 
     public void remove(ParticleAnimator animator) {
         activeAnimations.remove(animator);
+        animator.removed();
     }
 
     public boolean usePreset(ResourceLocation location, ParticleAnimationPresetContext data) {
