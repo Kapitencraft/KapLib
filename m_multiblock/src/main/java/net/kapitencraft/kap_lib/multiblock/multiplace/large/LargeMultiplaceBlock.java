@@ -42,6 +42,11 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
      * <br>one of {@link Orientation#PROPERTY}, {@link HorizontalOrientation#PROPERTY}
      */
     protected abstract Property<O> getOrientationProperty();
+
+
+    /**
+     * @return the part property to use. must accept the same values as returned in {@link #getPartValues()}
+     */
     protected abstract Property<P> getPartProperty();
 
     @Override
@@ -96,6 +101,10 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         }
     }
 
+    /**
+     * provides the parts this multiplace block is composed of.
+     * @return all parts the multiplace block is composed of. must always return the same values
+     */
     protected abstract P[] getPartValues();
 
     @Override

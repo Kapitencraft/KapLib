@@ -15,3 +15,6 @@ attribute:
 
 enchantment:
     fixed enchantment info also being shown on applied items instead of just enchanted books
+
+particle:
+    particle animations will now finalize all remaining particles when terminated
