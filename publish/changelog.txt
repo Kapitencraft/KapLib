@@ -20,3 +20,7 @@ bonus attack speed is now implemented via the damage event instead of a mixin, i
 # Enchantment Module
 
 fixed enchantment info also being shown on applied items instead of just enchanted books
+
+# Particle Module
+
+particle animations will now finalize all remaining particles when terminated
