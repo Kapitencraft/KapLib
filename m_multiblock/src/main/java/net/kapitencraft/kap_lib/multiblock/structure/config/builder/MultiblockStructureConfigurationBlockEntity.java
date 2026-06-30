@@ -270,7 +270,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
             player.displayClientMessage(Component.translatable("mb.structure.configurator.select_tag", list.getFirst().location().toString()), true);
             this.instances.put(relative, MultiblockStructureConfiguration.BlockInstance.forTag(list.getFirst()));
         } else {
-            instance = instance.cycle(state, list, this.groups, player);
+            //instance = instance.cycle(state, list, this.groups, player);
             if (instance.isState()) {
                 this.instances.remove(relative);
             } else
