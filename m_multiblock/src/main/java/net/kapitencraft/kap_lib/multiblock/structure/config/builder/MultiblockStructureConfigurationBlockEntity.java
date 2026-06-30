@@ -3,6 +3,8 @@ package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlockEntityTypes;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
+import net.kapitencraft.kap_lib.multiblock.structure.config.SpacialData;
+import net.minecraft.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -11,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
@@ -20,12 +23,17 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.storage.LevelResource;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
 public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
+    private static final LevelResource CONFIGURATION_STORAGE = new LevelResource("generated");
+
     @Nullable
     private ResourceLocation structureName;
     private BlockPos structurePos = new BlockPos(0, 1, 0);
@@ -33,7 +41,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     private boolean ignoreEntities = true;
     private Mode mode = Mode.SAVE;
     private final Map<BlockPos, MultiblockStructureConfiguration.BlockInstance> instances = new HashMap<>();
-    private final List<String> groups = new ArrayList<>();
+    private final Map<String, MultiblockStructureConfiguration.BlockGroup> groups = new HashMap<>();
 
     public MultiblockStructureConfigurationBlockEntity(BlockPos pos, BlockState blockState) {
         super(MBBlockEntityTypes.MULTIBLOCK_STRUCTURE_CONFIG.get(), pos, blockState);
@@ -194,7 +202,50 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     }
 
     public boolean saveStructure() {
+        if (this.structureName != null && this.level instanceof ServerLevel serverLevel) {
+            SpacialData<MultiblockStructureConfiguration.BlockInstance> data = createData();
+            MultiblockStructureConfiguration configuration = new MultiblockStructureConfiguration(this.groups, data);
+            Path dirPath = serverLevel.getServer().getWorldPath(CONFIGURATION_STORAGE)
+                    .resolve(this.structureName.getNamespace())
+                    .resolve("mb_configs");
+            Path resource = FileUtil.createPathToResource(dirPath, this.structureName.getPath(), ".json");
+        }
         return false;
+    }
+
+    private SpacialData<MultiblockStructureConfiguration.BlockInstance> createData() {
+        int[][][] data =
+                new int[this.structureSize.getX()]
+                        [this.structureSize.getY()]
+                        [this.structureSize.getZ()];
+
+        SpacialData<MultiblockStructureConfiguration.BlockInstance> spacialData = new SpacialData<>(
+                data,
+                MultiblockStructureConfiguration.BlockInstance.getEmpty()
+        );
+        BlockPos pos = this.structurePos;
+        Vec3i size = this.structureSize;
+        for (int x = 0; x < size.getX(); x++) {
+            for (int y = 0; y < size.getY(); y++) {
+                for (int z = 0; z < size.getZ(); z++) {
+                    BlockPos blockPos = new BlockPos(pos.getX() + x,
+                            pos.getY() + y,
+                            pos.getZ() + z);
+
+                    if (this.instances.containsKey(blockPos)) {
+                        spacialData.set(x, y, z, this.instances.get(blockPos));
+                    } else {
+                        BlockState state = this.level.getBlockState(blockPos);
+
+                        if (!state.isEmpty()) {
+                            spacialData.set(x, y, z, MultiblockStructureConfiguration.BlockInstance.forState(state));
+                        }
+                    }
+                }
+            }
+        }
+
+        return spacialData;
     }
 
     public Mode getMode() {
@@ -219,7 +270,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
             player.displayClientMessage(Component.translatable("mb.structure.configurator.select_tag", list.getFirst().location().toString()), true);
             this.instances.put(relative, MultiblockStructureConfiguration.BlockInstance.forTag(list.getFirst()));
         } else {
-            instance = instance.cycle(state, list, this.groups, player);
+            //instance = instance.cycle(state, list, this.groups, player);
             if (instance.isState()) {
                 this.instances.remove(relative);
             } else

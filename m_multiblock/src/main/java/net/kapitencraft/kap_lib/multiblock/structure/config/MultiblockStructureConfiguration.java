@@ -2,10 +2,12 @@ package net.kapitencraft.kap_lib.multiblock.structure.config;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.IdMap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,49 +20,21 @@ import java.util.List;
 import java.util.Map;
 
 public class MultiblockStructureConfiguration {
-    private static final PalettedContainer.Strategy STRATEGY = new PalettedContainer.Strategy() {
-        @Override
-        public <A> PalettedContainer.Configuration<A> getConfiguration(IdMap<A> registry, int size) {
-            return null;
-        }
-    };
+    public static final Codec<MultiblockStructureConfiguration> CODEC = RecordCodecBuilder.create(i -> i.group(
+            Codec.unboundedMap(Codec.STRING, BlockGroup.CODEC).fieldOf("groups").forGetter(c -> c.groups),
+            SpacialData.codec(BlockInstance.CODEC, BlockInstance.EmptyBlockInstance.INSTANCE).fieldOf("data").forGetter(c -> c.spacialData)
+    ).apply(i, MultiblockStructureConfiguration::new));
 
     private final Map<String, BlockGroup> groups;
+    private final SpacialData<BlockInstance> spacialData;
 
-    private final List<BlockInstance> blockLookup;
-    private final PalettedContainer<BlockInstance> content;
-
-    private MultiblockStructureConfiguration(Map<String, BlockGroup> groups, List<BlockInstance> blockLookup) {
+    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, SpacialData<BlockInstance> spacialData) {
         this.groups = groups;
-        this.blockLookup = blockLookup;
-        this.blockLookup.add(BlockInstance.EmptyBlockInstance.INSTANCE);
-        this.content = new PalettedContainer<>(new LookupMap(), BlockInstance.EmptyBlockInstance.INSTANCE, STRATEGY);
+        this.spacialData = spacialData;
     }
 
-    private final class LookupMap implements IdMap<BlockInstance> {
-
-        @Override
-        public int getId(BlockInstance value) {
-            return blockLookup.indexOf(value);
-        }
-
-        @Override
-        public @Nullable BlockInstance byId(int id) {
-            return blockLookup.get(id);
-        }
-
-        @Override
-        public int size() {
-            return blockLookup.size();
-        }
-
-        @Override
-        public @NotNull Iterator<BlockInstance> iterator() {
-            return blockLookup.listIterator();
-        }
-    }
-
-    private static class BlockGroup {
+    public static class BlockGroup {
+        private static final Codec<BlockGroup> CODEC = Codec.unit(BlockGroup::new);
 
         public boolean matches(Block block) {
             return true;
@@ -68,6 +42,11 @@ public class MultiblockStructureConfiguration {
     }
 
     public abstract static class BlockInstance {
+        public static BlockInstance getEmpty() {
+            return EmptyBlockInstance.INSTANCE; //must be method due to possible class loading error
+        }
+
+        private static final Codec<BlockInstance> CODEC = Type.CODEC.dispatch(BlockInstance::getType, Type::getCodec);
 
         public static BlockInstance forState(BlockState state) {
             return new StateBlockInstance(state);
@@ -87,11 +66,13 @@ public class MultiblockStructureConfiguration {
             return false;
         }
 
-        protected enum Type {
+        protected enum Type implements StringRepresentable {
             STATE(StateBlockInstance.CODEC),
             TAG(TagBlockInstance.CODEC),
             GROUP(GroupBlockInstance.CODEC),
             EMPTY(EmptyBlockInstance.CODEC);
+
+            public static final Codec<Type> CODEC = StringRepresentable.fromEnum(Type::values);
 
             private final MapCodec<? extends BlockInstance> codec;
 
@@ -101,6 +82,11 @@ public class MultiblockStructureConfiguration {
 
             public MapCodec<? extends BlockInstance> getCodec() {
                 return codec;
+            }
+
+            @Override
+            public String getSerializedName() {
+                return this.name().toLowerCase();
             }
         }
 
