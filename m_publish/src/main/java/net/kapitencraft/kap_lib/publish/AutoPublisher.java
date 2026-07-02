@@ -31,7 +31,6 @@ public class AutoPublisher {
 
     private static final File CONFIG = new File("build/resources/main/publish_config.json");
     static final String SOURCE_PATH = "build/libs";
-    static final String AUTHENTICATION_PATH = "run/AuthCache.txt";
     private static final File DATA_CACHE = new File("run/PublishCache.txt");
     static final String CHANGELOG_PATH = "publish/changelog.txt";
     static final String CATEGORIES_PATH = "publish/categories.json";
@@ -208,8 +207,8 @@ public class AutoPublisher {
         }
     }
 
-    record AssetsInfo(String sourcePath, String authPath, String changelogPath, String categoriesPath) {
-        public static final AssetsInfo DEFAULT = new AssetsInfo(SOURCE_PATH, AUTHENTICATION_PATH, CHANGELOG_PATH, CATEGORIES_PATH);
+    record AssetsInfo(String sourcePath, String changelogPath, String categoriesPath) {
+        public static final AssetsInfo DEFAULT = new AssetsInfo(SOURCE_PATH, CHANGELOG_PATH, CATEGORIES_PATH);
 
         private static class Deserializer implements JsonDeserializer<AssetsInfo> {
 
@@ -218,10 +217,9 @@ public class AutoPublisher {
                 if (!jsonElement.isJsonObject()) throw new JsonParseException("mod info must be object");
                 JsonObject object = jsonElement.getAsJsonObject();
                 String sourcePath = GsonHelper.getOptionalAsString(object, "source", SOURCE_PATH);
-                String authPath = GsonHelper.getOptionalAsString(object, "auth", AUTHENTICATION_PATH);
                 String changelogPath = GsonHelper.getOptionalAsString(object, "changelog", CHANGELOG_PATH);
                 String categoriesPath = GsonHelper.getOptionalAsString(object, "categories", CATEGORIES_PATH);
-                return new AssetsInfo(sourcePath, authPath, changelogPath, categoriesPath);
+                return new AssetsInfo(sourcePath, changelogPath, categoriesPath);
             }
         }
     }
