@@ -53,7 +53,7 @@ public class GsonHelper {
 
     public static boolean getOptionalAsBoolean(JsonObject object, String memberName, boolean fallback) {
         JsonElement element = object.get(memberName);
-        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isBoolean()) return fallback;
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isBoolean()) return fallback;
         return element.getAsJsonPrimitive().getAsBoolean();
     }
 }
