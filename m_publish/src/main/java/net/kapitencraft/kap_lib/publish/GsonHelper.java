@@ -13,7 +13,7 @@ public class GsonHelper {
 
     public static String getAsString(JsonObject object, String memberName) throws JsonParseException {
         JsonElement element = object.get(memberName);
-        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString())
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString())
             throw new JsonParseException("member '" + memberName + "' should be string");
         return element.getAsJsonPrimitive().getAsString();
     }
@@ -39,15 +39,29 @@ public class GsonHelper {
 
     public static int getAsInt(JsonObject object, String memberName) {
         JsonElement element = object.get(memberName);
-        if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber())
-            throw new JsonParseException("member '" + memberName + "' should be string");
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber())
+            throw new JsonParseException("member '" + memberName + "' should be int");
+        return element.getAsJsonPrimitive().getAsInt();
+    }
+
+    public static int getOptionalAsInt(JsonObject object, String memberName) {
+        JsonElement element = object.get(memberName);
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber())
+            return -1;
+        return element.getAsJsonPrimitive().getAsInt();
+    }
+
+    public static int getOptionalAsInt(JsonObject object, String memberName, int fallback) {
+        JsonElement element = object.get(memberName);
+        if (element == null || !element.isJsonPrimitive() || !element.getAsJsonPrimitive().isNumber())
+            return fallback;
         return element.getAsJsonPrimitive().getAsInt();
     }
 
     public static boolean getAsBoolean(JsonObject object, String memberName) {
         JsonElement element = object.get(memberName);
         if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isBoolean())
-            throw new JsonParseException("member '" + memberName + "' should be string");
+            throw new JsonParseException("member '" + memberName + "' should be boolean");
         return element.getAsJsonPrimitive().getAsBoolean();
     }
 
