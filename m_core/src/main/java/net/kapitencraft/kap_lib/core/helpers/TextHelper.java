@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.core.helpers;
 
+import com.electronwill.nightconfig.core.utils.StringUtils;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
@@ -23,6 +24,7 @@ import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 
 public class TextHelper {
     public static final Component EMPTY = Component.literal("");
@@ -275,20 +278,17 @@ public class TextHelper {
         return fromVec3(new Vec3(pos.getX(), pos.getY(), pos.getZ()));
     }
 
+    public static String capitalize(String in) {
+        return Character.toUpperCase(in.charAt(0)) + in.substring(1);
+    }
+
     /**
      * converts the given {@code snake_case} type string into a humanly readable name
      */
-    public static String makeGrammar(String toName) {
-        char[] chars = toName.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            if (i == 0) {
-                chars[0] = Character.toUpperCase(chars[0]);
-            } else if (chars[i] == '_') {
-                chars[i++] = ' ';
-                chars[i] = Character.toUpperCase(chars[i]);
-            }
-        }
-        return new String(chars);
+    public static String langify(final String serializedName) throws IllegalArgumentException {
+        if (serializedName.contains("/"))
+            throw new IllegalArgumentException("Only 'flat' serialized names permitted (no path separators '/'). '" + serializedName + "'");
+        return Arrays.stream(serializedName.split("_")).map(TextHelper::capitalize).collect(Collectors.joining(" "));
     }
 
     public static String convertId(String name) {

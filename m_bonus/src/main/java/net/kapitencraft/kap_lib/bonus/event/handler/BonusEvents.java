@@ -24,7 +24,7 @@ public class BonusEvents {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST) //need to load BonusManager before any other in case of access
     public static void addBonusListener(AddReloadListenerEvent event) {
         event.addListener(BonusManager.updateInstance());
     }
