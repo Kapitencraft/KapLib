@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.multiblock.multiplace.large.orientation.Orientat
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.part.MultiplaceBlockPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.border.WorldBorder;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.*;
 
 public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P extends MultiplaceBlockPart<P>> extends Block {
     //DOWN -> NORTH, WEST
@@ -30,6 +32,10 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
 
     private final P origin;
 
+    /**
+     * @param properties the BlockProperties of the block
+     * @param origin the origin of the multiplace property. must always be ordinal 0 of the available parts
+     */
     public LargeMultiplaceBlock(Properties properties, P origin) {
         super(properties);
         this.origin = origin;
@@ -42,7 +48,6 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
      */
     protected abstract Property<O> getOrientationProperty();
 
-
     /**
      * @return the part property to use. must accept the same values as returned in {@link #getPartValues()}
      */
@@ -53,13 +58,43 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         O orientation = state.getValue(getOrientationProperty());
 
         Property<P> partProperty = getPartProperty();
-        if (isNeighbourDirection(state.getValue(partProperty), orientation, facing)) {
-            return facingState.is(this) && facingState.getValue(partProperty) != state.getValue(partProperty)
+        P part = state.getValue(partProperty);
+        BlockPos origin = currentPos;
+        if (part != this.origin) {
+            origin = origin.subtract(orientation.getPos(part));
+        }
+        P expectedPart = getPartForOffset(orientation, origin, facingPos);
+        if (expectedPart != null) {
+            return facingState.is(this) && facingState.getValue(partProperty) == expectedPart
                     ? state
                     : Blocks.AIR.defaultBlockState();
         } else {
             return super.updateShape(state, facing, facingState, level, currentPos, facingPos);
         }
+    }
+
+    /**
+     * attempts to get the part for the given offset
+     * @param orientation the orientation of the multiplace block instance to query
+     * @param origin the position of the origin block for the multiplace instance
+     * @param offset the offset of the block to check
+     * @return the part for the offset or null, if it isn't part of the multiplace instance
+     */
+    protected @Nullable P getPartForOffset(O orientation, BlockPos origin, BlockPos offset) {
+        BlockPos relativeOffset = offset.subtract(origin);
+        for (P part : this.getPartValues()) {
+            if (orientation.getPos(part).equals(relativeOffset)) {
+                return part;
+            }
+        }
+        return null;
+    }
+
+    private boolean isNeighbourDirection(P part, O orientation, Direction direction) {
+        BlockPos pos = orientation.getPos(part); //relative position to origin
+        int axis = pos.get(direction.getAxis());
+        int step = direction.getAxisDirection().getStep();
+        return axis * -step > 0;
     }
 
     @Nullable
@@ -76,13 +111,6 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
                 return null;
         }
         return this.defaultBlockState().setValue(property, value);
-    }
-
-    private boolean isNeighbourDirection(P part, O orientation, Direction direction) {
-        BlockPos pos = orientation.getPos(part); //relative position to origin
-        int axis = pos.get(direction.getAxis());
-        int step = direction.getAxisDirection().getStep();
-        return axis * -step > 0;
     }
 
     @Override
@@ -103,6 +131,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
 
     /**
      * provides the parts this multiplace block is composed of.
+     * must return the origin as its first value
      * @return all parts the multiplace block is composed of. must always return the same values
      */
     protected abstract P[] getPartValues();
