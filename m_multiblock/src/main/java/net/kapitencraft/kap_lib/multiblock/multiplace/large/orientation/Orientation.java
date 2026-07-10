@@ -30,7 +30,7 @@ public enum Orientation implements MultiblockOrientation<Orientation> {
         this.rotMat = rotMat;
     }
 
-    public BlockPos getPos(MultiplaceBlockPart multiplaceBlockPart) {
+    public BlockPos getPos(MultiplaceBlockPart<?> multiplaceBlockPart) {
         return rotMat.rotate(multiplaceBlockPart.getOffset());
     }
 
