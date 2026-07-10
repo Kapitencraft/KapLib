@@ -104,4 +104,9 @@ public enum HorizontalOrientation implements MultiblockOrientation<HorizontalOri
             };
         };
     }
+
+    @Override
+    public BlockPos rotate(BlockPos offset) {
+        return rotation.rotate(offset);
+    }
 }

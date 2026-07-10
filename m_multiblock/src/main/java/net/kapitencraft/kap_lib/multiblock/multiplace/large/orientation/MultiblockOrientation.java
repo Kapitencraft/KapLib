@@ -25,4 +25,6 @@ public interface MultiblockOrientation<O extends MultiblockOrientation<O>> exten
     O rotate(Rotation rot);
 
     O mirror(Mirror mirror);
+
+    BlockPos rotate(BlockPos offset);
 }
