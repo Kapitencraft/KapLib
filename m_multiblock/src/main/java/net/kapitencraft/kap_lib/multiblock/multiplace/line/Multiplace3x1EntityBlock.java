@@ -8,7 +8,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,8 +24,15 @@ public abstract class Multiplace3x1EntityBlock<B extends BlockEntity> extends Mu
         return null;
     }
 
+    /**
+     * create a new BE to be added to the level at the given block with the given state.
+     * <br> the position will always be the origin of this multiblock
+     *
+     * @param pos   the positon
+     * @param state the state of the block
+     * @return the newly created BE
+     */
     protected abstract B createBlockEntity(BlockPos pos, BlockState state);
-
 
     /**
      * override if the {@code useWithoutItem} method, providing access to the BE of the multiplace block.
