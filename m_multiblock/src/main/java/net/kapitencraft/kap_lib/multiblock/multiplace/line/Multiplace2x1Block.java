@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.multiblock.multiplace.line;
 
+import net.kapitencraft.kap_lib.multiblock.multiplace.MultiplaceBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public abstract class Multiplace2x1Block extends Block {
+public abstract class Multiplace2x1Block extends Block implements MultiplaceBlock {
     private static final Property<Part> PART = EnumProperty.create("part", Part.class);
 
     public Multiplace2x1Block(Properties properties) {
@@ -69,6 +70,15 @@ public abstract class Multiplace2x1Block extends Block {
      */
     private static Direction getNeighbourDirection(Part part, Direction direction) {
         return part == Part.LEFT ? direction : direction.getOpposite();
+    }
+
+    public BlockPos getOriginPositionFromState(BlockState state, BlockPos pos) {
+        return isOrigin(state) ? pos : pos.relative(state.getValue(getDirectionProperty()));
+    }
+
+    @Override
+    public boolean isOrigin(BlockState state) {
+        return state.getValue(PART) == Part.LEFT;
     }
 
     @Override
