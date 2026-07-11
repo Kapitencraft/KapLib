@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class LargeBEMultiplaceBlock<O extends MultiblockOrientation<O>, P extends MultiplaceBlockPart<P>, B extends BlockEntity> extends LargeMultiplaceBlock<O, P> implements EntityBlock {
-    public LargeBEMultiplaceBlock(Properties properties, P origin) {
+public abstract class LargeMultiplaceEntityBlock<O extends MultiblockOrientation<O>, P extends MultiplaceBlockPart<P>, B extends BlockEntity> extends LargeMultiplaceBlock<O, P> implements EntityBlock {
+    public LargeMultiplaceEntityBlock(Properties properties, P origin) {
         super(properties, origin);
     }
 
@@ -27,6 +27,17 @@ public abstract class LargeBEMultiplaceBlock<O extends MultiblockOrientation<O>,
 
     protected abstract B createBlockEntity(BlockPos pos, BlockState state);
 
+    /**
+     * override if the {@code useWithoutItem} method, providing access to the BE of the multiplace block.
+     * do note that the state is not the state of the origin but clicked
+     * @param state the state of the clicked block
+     * @param level the level of the clicked block
+     * @param pos the position of the clicked block
+     * @param player the player clicking the block
+     * @param result the hit result
+     * @param entity the block entity of the clicked multiplace
+     * @return an interaction result
+     */
     protected InteractionResult playerUse(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result, B entity) {
         if (entity instanceof MenuProvider menuProvider) {
             if (level.isClientSide()) return InteractionResult.SUCCESS;

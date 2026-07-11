@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.multiblock.multiplace.line;
 
+import net.kapitencraft.kap_lib.multiblock.multiplace.MultiplaceBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public abstract class Multiplace3x1Block extends Block {
+public abstract class Multiplace3x1Block extends Block implements MultiplaceBlock {
     private static final Property<Part> PART = EnumProperty.create("part", Part.class);
 
     public Multiplace3x1Block(Properties properties) {
@@ -79,6 +80,16 @@ public abstract class Multiplace3x1Block extends Block {
         return part == Part.LEFT ? direction : direction.getOpposite();
     }
 
+    public BlockPos getOriginPositionFromState(BlockState state, BlockPos pos) {
+        Part part = state.getValue(PART);
+        return part == Part.LEFT ? pos : pos.relative(state.getValue(getDirectionProperty()), part == Part.MIDDLE ? 1 : 2);
+    }
+
+    @Override
+    public boolean isOrigin(BlockState state) {
+        return state.getValue(PART) == Part.LEFT;
+    }
+
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
@@ -96,7 +107,6 @@ public abstract class Multiplace3x1Block extends Block {
             state.updateNeighbourShapes(level, pos, 3);
         }
     }
-
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
