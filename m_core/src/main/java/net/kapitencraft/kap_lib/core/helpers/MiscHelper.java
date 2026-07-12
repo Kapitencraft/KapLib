@@ -40,6 +40,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -142,30 +144,6 @@ public class MiscHelper {
     @Contract("_ -> new")
     public static Item.Properties rarity(Rarity rarity) {
         return new Item.Properties().rarity(rarity);
-    }
-
-
-    /**
-     * method to add an achievement to a player
-     *
-     * @param player          player to add achievement to
-     * @param achievementName name of the achievement
-     * @return true if the achievement has been awarded, false otherwise
-     * @deprecated use custom achievement triggers
-     */
-    @Deprecated(forRemoval = true)
-    public static boolean awardAchievement(ServerPlayer player, ResourceLocation achievementName) {
-        ServerAdvancementManager manager = player.server.getAdvancements();
-        AdvancementHolder adv = manager.get(achievementName);
-        PlayerAdvancements advancements = player.getAdvancements();
-        if (adv != null) {
-            AdvancementProgress progress = advancements.getOrStartProgress(adv);
-            if (!progress.isDone()) {
-                for (String s : progress.getRemainingCriteria()) advancements.award(adv, s);
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -395,5 +373,9 @@ public class MiscHelper {
 
     public static Holder<DamageType> lookupDamageTypeHolder(Level level, ResourceKey<DamageType> key) {
         return level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key);
+    }
+
+    public static <C extends Comparable<C>> void updateState(Level level, BlockPos pos, Property<C> property, C value, int flags) {
+        level.setBlock(pos, level.getBlockState(pos).setValue(property, value), flags);
     }
 }
