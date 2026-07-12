@@ -5,8 +5,10 @@ import net.kapitencraft.kap_lib.multiblock.multiplace.large.orientation.Horizont
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.part.Part2Cubed;
 import net.kapitencraft.kap_lib.multiblock.test.multiblock.entity.TestBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+import org.jetbrains.annotations.NotNull;
 
 public class Mp2CubedEntityBlockTest extends LargeMultiplaceEntityBlock<HorizontalOrientation, Part2Cubed, TestBlockEntity> {
     public Mp2CubedEntityBlockTest(Properties properties) {
@@ -14,13 +16,18 @@ public class Mp2CubedEntityBlockTest extends LargeMultiplaceEntityBlock<Horizont
     }
 
     @Override
-    protected Property<HorizontalOrientation> getOrientationProperty() {
-        return HorizontalOrientation.PROPERTY;
+    protected HorizontalOrientation getOrientation(BlockState state) {
+        return HorizontalOrientation.SOUTH_EAST;
     }
 
     @Override
     protected Property<Part2Cubed> getPartProperty() {
         return Part2Cubed.PROPERTY;
+    }
+
+    @Override
+    protected HorizontalOrientation determineOrientation(@NotNull BlockPlaceContext context) {
+        return HorizontalOrientation.SOUTH_EAST;
     }
 
     @Override

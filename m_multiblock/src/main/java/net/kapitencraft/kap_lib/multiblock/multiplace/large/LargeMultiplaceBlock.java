@@ -44,11 +44,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         this.registerDefaultState(this.stateDefinition.any().setValue(getPartProperty(), origin));
     }
 
-    /**
-     * @return the direction property to use. this
-     * <br>one of {@link Orientation#PROPERTY}, {@link HorizontalOrientation#PROPERTY}
-     */
-    protected abstract Property<O> getOrientationProperty();
+    protected abstract O getOrientation(BlockState state);
 
     /**
      * @return the part property to use. must accept the same values as returned in {@link #getPartValues()}
@@ -57,8 +53,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
 
     @Override
     protected @NotNull BlockState updateShape(BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
-        O orientation = state.getValue(getOrientationProperty());
-
+        O orientation = getOrientation(state);
         Property<P> partProperty = getPartProperty();
         P part = state.getValue(partProperty);
         BlockPos origin = currentPos;
@@ -95,8 +90,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
     @Nullable
     @Override
     public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        Property<O> property = getOrientationProperty();
-        O value = MultiblockOrientation.getOrientation(context, property);
+        O value = determineOrientation(context);
         BlockPos blockpos = context.getClickedPos();
         Level level = context.getLevel();
         WorldBorder worldBorder = level.getWorldBorder();
@@ -105,14 +99,26 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
             if (!level.getBlockState(b).canBeReplaced(context) || !worldBorder.isWithinBounds(b))
                 return null;
         }
-        return this.defaultBlockState().setValue(property, value);
+        return applyOrientationToState(this.defaultBlockState(), value);
+    }
+
+    protected abstract O determineOrientation(@NotNull BlockPlaceContext context);
+
+    /**
+     * allows for implementation of direction properties on the Multiplace Block
+     * @param state the state to be applied to
+     * @param direction the direction to be applied
+     * @return the state with applied direction
+     */
+    protected BlockState applyOrientationToState(BlockState state, O direction) {
+        return state;
     }
 
     @Override
     public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide) {
-            O orientation = state.getValue(getOrientationProperty());
+            O orientation = getOrientation(state);
             P[] values = getPartValues();
             for (int i = 1; i < values.length; i++) { //skip origin
                 P part = values[i];
@@ -135,7 +141,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
     public @NotNull BlockState playerWillDestroy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!level.isClientSide && player.isCreative()) {
             P part = state.getValue(getPartProperty());
-            O orientation = state.getValue(getOrientationProperty());
+            O orientation = getOrientation(state);
             if (part != origin) {
                 pos = pos.subtract(orientation.getPos(part));
             }
@@ -155,7 +161,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(getPartProperty(), getOrientationProperty());
+        builder.add(getPartProperty());
         super.createBlockStateDefinition(builder);
     }
 
@@ -167,7 +173,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
     }
 
     public BlockPos getOriginPositionFromState(BlockState state, BlockPos pos) {
-        return getOriginPosition(state.getValue(getOrientationProperty()), state.getValue(getPartProperty()), pos);
+        return getOriginPosition(getOrientation(state), state.getValue(getPartProperty()), pos);
     }
 
     public boolean isOrigin(BlockState state) {
@@ -178,7 +184,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
     public <T extends Comparable<T>> void setProperty(Level level, BlockPos pos, Property<T> property, T value, int flags) {
         BlockState state = level.getBlockState(pos);
         BlockPos origin = getOriginPositionFromState(state, pos);
-        O orientation = state.getValue(getOrientationProperty());
+        O orientation = getOrientation(state);
         for (P p : this.getPartValues()) {
             MiscHelper.updateState(level, origin.offset(orientation.getPos(p)), property, value, flags);
         }
@@ -191,7 +197,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
             return true;
 
         BlockPos origin = getOriginPositionFromState(state, pos);
-        O orientation = state.getValue(getOrientationProperty());
+        O orientation = getOrientation(state);
         for (P value : this.getPartValues()) {
             if (level.hasNeighborSignal(origin.offset(orientation.getPos(value)))) {
                 return true;
@@ -205,7 +211,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         if (state.getValue(getPartProperty()) == part) {
             return level.getSignal(pos.relative(direction), direction);
         }
-        O orientation = state.getValue(getOrientationProperty());
+        O orientation = getOrientation(state);
         BlockPos origin = getOriginPositionFromState(state, pos);
         return level.getSignal(origin.offset(orientation.getPos(part)).relative(direction), direction);
     }
@@ -216,7 +222,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
             return level.getDirectSignal(pos.relative(direction), direction);
         }
 
-        O orientation = state.getValue(getOrientationProperty());
+        O orientation = getOrientation(state);
         BlockPos origin = getOriginPositionFromState(state, pos);
         return level.getDirectSignal(origin.offset(orientation.getPos(part)).relative(direction), direction);
     }
@@ -227,23 +233,9 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
             return level.getDirectSignal(pos.relative(direction), direction);
         }
 
-        O orientation = state.getValue(getOrientationProperty());
+        O orientation = getOrientation(state);
         BlockPos origin = getOriginPositionFromState(state, pos);
         BlockPos targetLoc = origin.offset(orientation.getPos(part)).relative(direction);
         return level.getBlockState(targetLoc).getAnalogOutputSignal(level, targetLoc);
-    }
-
-
-    @Override
-    protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(getOrientationProperty(), state.getValue(getOrientationProperty()).rotate(rot));
-    }
-
-    /**
-     * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed blockstate.
-     */
-    @Override
-    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(getOrientationProperty(), state.getValue(getOrientationProperty()).mirror(mirror));
     }
 }
