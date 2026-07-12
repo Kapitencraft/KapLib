@@ -16,7 +16,8 @@ public class Mp3x1TestBlock extends Multiplace3x1Block {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
     public Mp3x1TestBlock(Properties properties) {
-        super(properties);
+        super(properties.lightLevel(s -> s.getValue(LIT) ? 15 : 0));
+        this.registerDefaultState(this.defaultBlockState().setValue(LIT, false));
     }
 
     @Override
@@ -34,11 +35,11 @@ public class Mp3x1TestBlock extends Multiplace3x1Block {
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         if (!level.isClientSide) {
             boolean flag = state.getValue(LIT);
-            if (flag != level.hasNeighborSignal(pos)) {
+            if (flag != hasNeighbourSignal(level, pos)) {
                 if (flag) {
                     level.scheduleTick(pos, this, 4);
                 } else {
-                    setState(level, pos, state.cycle(LIT), 2);
+                    setProperty(level, pos, LIT, true, 2);
                 }
             }
         }
@@ -46,8 +47,8 @@ public class Mp3x1TestBlock extends Multiplace3x1Block {
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
-            setState(level, pos, state.cycle(LIT), 2);
+        if (state.getValue(LIT) && !hasNeighbourSignal(level, pos)) {
+            setProperty(level, pos, LIT, false, 2);
         }
     }
 }

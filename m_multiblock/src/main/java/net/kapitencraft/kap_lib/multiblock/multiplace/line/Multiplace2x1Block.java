@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.multiblock.multiplace.line;
 
+import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.multiblock.multiplace.MultiplaceBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,7 +17,10 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.*;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -63,6 +67,69 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
         return level.getBlockState(blockpos1).canBeReplaced(context) && level.getWorldBorder().isWithinBounds(blockpos1)
                 ? this.defaultBlockState().setValue(property, direction)
                 : null;
+    }
+
+    @Override
+    public <T extends Comparable<T>> void setProperty(Level level, BlockPos pos, Property<T> property, T value, int flags) {
+        BlockState state = level.getBlockState(pos);
+        Part part = state.getValue(PART);
+        Direction direction = state.getValue(getDirectionProperty());
+        MiscHelper.updateState(level, pos, property, value, flags);
+        switch (part) {
+            case LEFT -> {
+                MiscHelper.updateState(level, pos.relative(direction), property, value, flags);
+            }
+            case RIGHT -> {
+                MiscHelper.updateState(level, pos.relative(direction.getOpposite()), property, value, flags);
+            }
+        }
+    }
+
+    protected boolean hasNeighbourSignal(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+
+        return level.hasNeighborSignal(pos) ||
+                level.hasNeighborSignal(pos.relative(state.getValue(PART) == Part.LEFT ?
+                                state.getValue(getDirectionProperty()) :
+                                state.getValue(getDirectionProperty()).getOpposite()
+                ));
+    }
+
+    protected int getSignal(Level level, BlockPos pos, Part part, Direction direction) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getValue(PART) == part) {
+            return level.getSignal(pos, direction);
+        }
+        BlockPos other = pos.relative(state.getValue(PART) == Part.LEFT ?
+                state.getValue(getDirectionProperty()) :
+                state.getValue(getDirectionProperty()).getOpposite()
+        );
+        return level.getSignal(other, direction);
+    }
+
+    protected int getDirectSignal(Level level, BlockPos pos, Part part, Direction direction) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getValue(PART) == part) {
+            return level.getDirectSignal(pos.relative(direction), direction);
+        }
+        BlockPos other = pos.relative(state.getValue(PART) == Part.LEFT ?
+                state.getValue(getDirectionProperty()) :
+                state.getValue(getDirectionProperty()).getOpposite()
+        );
+        return level.getDirectSignal(other.relative(direction), direction);
+    }
+
+    protected int getAnalogSignal(Level level, BlockPos pos, Part part, Direction direction) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getValue(PART) == part) {
+            BlockPos targetLoc = pos.relative(direction);
+            return level.getBlockState(targetLoc).getAnalogOutputSignal(level, targetLoc);
+        }
+        BlockPos other = pos.relative(state.getValue(PART) == Part.LEFT ?
+                state.getValue(getDirectionProperty()) :
+                state.getValue(getDirectionProperty()).getOpposite()
+        ).relative(direction);
+        return level.getBlockState(other).getAnalogOutputSignal(level, other);
     }
 
     /**

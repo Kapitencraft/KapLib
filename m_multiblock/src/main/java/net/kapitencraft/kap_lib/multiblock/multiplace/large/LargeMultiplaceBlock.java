@@ -1,9 +1,12 @@
 package net.kapitencraft.kap_lib.multiblock.multiplace.large;
 
+import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
+import net.kapitencraft.kap_lib.multiblock.multiplace.MultiplaceBlock;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.orientation.HorizontalOrientation;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.orientation.MultiblockOrientation;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.orientation.Orientation;
 import net.kapitencraft.kap_lib.multiblock.multiplace.large.part.MultiplaceBlockPart;
+import net.kapitencraft.kap_lib.multiblock.multiplace.line.Multiplace3x1Block;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -26,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P extends MultiplaceBlockPart<P>> extends Block {
+public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P extends MultiplaceBlockPart<P>> extends Block implements MultiplaceBlock {
     //DOWN -> NORTH, WEST
     //UP   -> SOUTH, EAST
     //NORTH-> WEST, DOWN
@@ -89,13 +92,6 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
             }
         }
         return null;
-    }
-
-    private boolean isNeighbourDirection(P part, O orientation, Direction direction) {
-        BlockPos pos = orientation.getPos(part); //relative position to origin
-        int axis = pos.get(direction.getAxis());
-        int step = direction.getAxisDirection().getStep();
-        return axis * -step > 0;
     }
 
     @Nullable
@@ -172,13 +168,73 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         return current.subtract(orientation.getPos(part));
     }
 
-    protected BlockPos getOriginPositionFromState(BlockState state, BlockPos pos) {
+    public BlockPos getOriginPositionFromState(BlockState state, BlockPos pos) {
         return getOriginPosition(state.getValue(getOrientationProperty()), state.getValue(getPartProperty()), pos);
     }
 
-    protected boolean isOrigin(BlockState state) {
+    public boolean isOrigin(BlockState state) {
         return state.getValue(getPartProperty()) == origin;
     }
+
+    @Override
+    public <T extends Comparable<T>> void setProperty(Level level, BlockPos pos, Property<T> property, T value, int flags) {
+        BlockState state = level.getBlockState(pos);
+        BlockPos origin = getOriginPositionFromState(state, pos);
+        O orientation = state.getValue(getOrientationProperty());
+        for (P p : this.getPartValues()) {
+            MiscHelper.updateState(level, origin.offset(orientation.getPos(p)), property, value, flags);
+        }
+    }
+
+    protected boolean hasNeighbourSignal(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+
+        if (level.hasNeighborSignal(pos))
+            return true;
+
+        BlockPos origin = getOriginPositionFromState(state, pos);
+        O orientation = state.getValue(getOrientationProperty());
+        for (P value : this.getPartValues()) {
+            if (level.hasNeighborSignal(origin.offset(orientation.getPos(value)))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected int getSignal(Level level, BlockPos pos, P part, Direction direction) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getValue(getPartProperty()) == part) {
+            return level.getSignal(pos.relative(direction), direction);
+        }
+        O orientation = state.getValue(getOrientationProperty());
+        BlockPos origin = getOriginPositionFromState(state, pos);
+        return level.getSignal(origin.offset(orientation.getPos(part)).relative(direction), direction);
+    }
+
+    protected int getDirectSignal(Level level, BlockPos pos, P part, Direction direction) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getValue(getPartProperty()) == part) {
+            return level.getDirectSignal(pos.relative(direction), direction);
+        }
+
+        O orientation = state.getValue(getOrientationProperty());
+        BlockPos origin = getOriginPositionFromState(state, pos);
+        return level.getDirectSignal(origin.offset(orientation.getPos(part)).relative(direction), direction);
+    }
+
+    protected int getAnalogSignal(Level level, BlockPos pos, P part, Direction direction) {
+        BlockState state = level.getBlockState(pos);
+        if (state.getValue(getPartProperty()) == part) {
+            return level.getDirectSignal(pos.relative(direction), direction);
+        }
+
+        O orientation = state.getValue(getOrientationProperty());
+        BlockPos origin = getOriginPositionFromState(state, pos);
+        BlockPos targetLoc = origin.offset(orientation.getPos(part)).relative(direction);
+        return level.getBlockState(targetLoc).getAnalogOutputSignal(level, targetLoc);
+    }
+
 
     @Override
     protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
