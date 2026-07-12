@@ -157,7 +157,6 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
         }
     }
 
-
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide && player.isCreative()) {
@@ -190,18 +189,4 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
         builder.add(PART);
         super.createBlockStateDefinition(builder);
     }
-
-    @Override
-    protected BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(getDirectionProperty(), rot.rotate(state.getValue(getDirectionProperty())));
-    }
-
-    /**
-     * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed blockstate.
-     */
-    @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(getDirectionProperty())));
-    }
-
 }
