@@ -13,12 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.NotNull;
@@ -33,15 +29,13 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
         this.registerDefaultState(this.stateDefinition.any().setValue(PART, Part.LEFT));
     }
 
-    /**
-     * @return the direction property to use.
-     * <br>one of {@link net.minecraft.world.level.block.state.properties.BlockStateProperties#FACING BSP#FACING}, {@link net.minecraft.world.level.block.state.properties.BlockStateProperties#HORIZONTAL_FACING BSP#HORIZONTAL_FACING} or {@link net.minecraft.world.level.block.state.properties.BlockStateProperties#VERTICAL_DIRECTION BSP#VERTICAL_DIRECTION}
-     */
-    protected abstract DirectionProperty getDirectionProperty();
+    protected abstract @NotNull Direction getDirection(BlockState state);
+
+    protected abstract Direction determinPlaceDirection(BlockPlaceContext context);
 
     @Override
     protected BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-        if (facing == getNeighbourDirection(state.getValue(PART), state.getValue(getDirectionProperty()))) {
+        if (facing == getNeighbourDirection(state.getValue(PART), getDirection(state))) {
             return facingState.is(this) && facingState.getValue(PART) != state.getValue(PART)
                     ? state
                     : Blocks.AIR.defaultBlockState();
@@ -50,22 +44,26 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
         }
     }
 
+    /**
+     * allows for implementation of direction properties on the Multiplace Block
+     *
+     * @param state     the state to be applied to
+     * @param direction the direction to be applied
+     * @return the state with applied direction
+     */
+    protected BlockState setDirectionOnState(BlockState state, Direction direction) {
+        return state;
+    }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        DirectionProperty property = getDirectionProperty();
-        Direction direction;
-        if (property == BlockStateProperties.FACING) {
-            direction = context.getNearestLookingDirection();
-        } else if (property == BlockStateProperties.HORIZONTAL_FACING)
-            direction = context.getHorizontalDirection();
-        else
-            direction = context.getNearestLookingVerticalDirection();
+        Direction direction = determinPlaceDirection(context);
         BlockPos blockpos = context.getClickedPos();
         BlockPos blockpos1 = blockpos.relative(direction);
         Level level = context.getLevel();
         return level.getBlockState(blockpos1).canBeReplaced(context) && level.getWorldBorder().isWithinBounds(blockpos1)
-                ? this.defaultBlockState().setValue(property, direction)
+                ? setDirectionOnState(this.defaultBlockState(), direction)
                 : null;
     }
 
@@ -73,7 +71,7 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
     public <T extends Comparable<T>> void setProperty(Level level, BlockPos pos, Property<T> property, T value, int flags) {
         BlockState state = level.getBlockState(pos);
         Part part = state.getValue(PART);
-        Direction direction = state.getValue(getDirectionProperty());
+        Direction direction = getDirection(state);
         MiscHelper.updateState(level, pos, property, value, flags);
         switch (part) {
             case LEFT -> {
@@ -90,8 +88,8 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
 
         return level.hasNeighborSignal(pos) ||
                 level.hasNeighborSignal(pos.relative(state.getValue(PART) == Part.LEFT ?
-                                state.getValue(getDirectionProperty()) :
-                                state.getValue(getDirectionProperty()).getOpposite()
+                        getDirection(state) :
+                        getDirection(state).getOpposite()
                 ));
     }
 
@@ -101,8 +99,8 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
             return level.getSignal(pos, direction);
         }
         BlockPos other = pos.relative(state.getValue(PART) == Part.LEFT ?
-                state.getValue(getDirectionProperty()) :
-                state.getValue(getDirectionProperty()).getOpposite()
+                getDirection(state) :
+                getDirection(state).getOpposite()
         );
         return level.getSignal(other, direction);
     }
@@ -113,8 +111,8 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
             return level.getDirectSignal(pos.relative(direction), direction);
         }
         BlockPos other = pos.relative(state.getValue(PART) == Part.LEFT ?
-                state.getValue(getDirectionProperty()) :
-                state.getValue(getDirectionProperty()).getOpposite()
+                getDirection(state) :
+                getDirection(state).getOpposite()
         );
         return level.getDirectSignal(other.relative(direction), direction);
     }
@@ -126,8 +124,8 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
             return level.getBlockState(targetLoc).getAnalogOutputSignal(level, targetLoc);
         }
         BlockPos other = pos.relative(state.getValue(PART) == Part.LEFT ?
-                state.getValue(getDirectionProperty()) :
-                state.getValue(getDirectionProperty()).getOpposite()
+                getDirection(state) :
+                getDirection(state).getOpposite()
         ).relative(direction);
         return level.getBlockState(other).getAnalogOutputSignal(level, other);
     }
@@ -140,7 +138,7 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
     }
 
     public BlockPos getOriginPositionFromState(BlockState state, BlockPos pos) {
-        return isOrigin(state) ? pos : pos.relative(state.getValue(getDirectionProperty()));
+        return isOrigin(state) ? pos : pos.relative(getDirection(state));
     }
 
     @Override
@@ -152,20 +150,19 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide) {
-            BlockPos blockpos = pos.relative(state.getValue(getDirectionProperty()));
+            BlockPos blockpos = pos.relative(getDirection(state));
             level.setBlock(blockpos, state.setValue(PART, Part.RIGHT), 3);
             level.blockUpdated(pos, Blocks.AIR);
             state.updateNeighbourShapes(level, pos, 3);
         }
     }
 
-
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide && player.isCreative()) {
             Part part = state.getValue(PART);
             if (part == Part.LEFT) {
-                BlockPos blockpos = pos.relative(getNeighbourDirection(part, state.getValue(getDirectionProperty())));
+                BlockPos blockpos = pos.relative(getNeighbourDirection(part, getDirection(state)));
                 BlockState blockstate = level.getBlockState(blockpos);
                 if (blockstate.is(this) && blockstate.getValue(PART) == Part.RIGHT) {
                     level.setBlock(blockpos, Blocks.AIR.defaultBlockState(), 35);
@@ -189,21 +186,7 @@ public abstract class Multiplace2x1Block extends Block implements MultiplaceBloc
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(PART, getDirectionProperty());
+        builder.add(PART);
         super.createBlockStateDefinition(builder);
     }
-
-    @Override
-    protected BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(getDirectionProperty(), rot.rotate(state.getValue(getDirectionProperty())));
-    }
-
-    /**
-     * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed blockstate.
-     */
-    @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(getDirectionProperty())));
-    }
-
 }
