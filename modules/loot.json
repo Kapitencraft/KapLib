@@ -1,5 +1,5 @@
 {
-  "asMod": true,
+  "type": "mod",
   "data": [
     "test/loot_modifiers/**",
     "neoforge/loot_modifiers/**"

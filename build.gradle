@@ -1,8 +1,8 @@
 //file:noinspection GroovyAssignabilityCheck
 
+
 import groovy.json.JsonSlurper
 
-import java.nio.file.CopyOption
 import java.nio.file.Files
 
 plugins {
@@ -57,7 +57,7 @@ ext.createRequiredClasses = { Project project, String name ->
 subprojects { Project proj ->
 
     Object data = name == 'aggregate' ? [] : new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
-    if (name != 'aggregate' && data.asMod)
+    if (name != 'aggregate' && data.type == 'mod')
         rootProject.ext.createRequiredClasses(proj, name)
 
 
@@ -89,7 +89,7 @@ subprojects { Project proj ->
     }
 
     dependencies {
-        if (name != "core" && data.asMod) {
+        if (name != "core" && data.type == 'mod') {
             api(project(":core"))
         }
 
@@ -136,19 +136,19 @@ subprojects { Project proj ->
             pom {
                 name = "${mod_name} Aggregate Library"
 //
-            //    withXml {
-            //        def deps = asNode().appendNode("dependencies")
+                //    withXml {
+                //        def deps = asNode().appendNode("dependencies")
 //
-            //        rootProject.subprojects { Project p ->
-            //            if (p.name != 'aggregate') {
-            //                def dep = deps.appendNode("dependency")
-            //                dep.appendNode("groupId", project.group)
-            //                dep.appendNode("artifactId", "kap_lib-${p.name}")
-            //                dep.appendNode("version", project.version)
-            //                dep.appendNode("scope", "compile")
-            //            }
-            //        }
-            //    }
+                //        rootProject.subprojects { Project p ->
+                //            if (p.name != 'aggregate') {
+                //                def dep = deps.appendNode("dependency")
+                //                dep.appendNode("groupId", project.group)
+                //                dep.appendNode("artifactId", "kap_lib-${p.name}")
+                //                dep.appendNode("version", project.version)
+                //                dep.appendNode("scope", "compile")
+                //            }
+                //        }
+                //    }
             }
         } else {
             coordinates(group, mod_id + "-" + name, version)
@@ -228,7 +228,7 @@ subprojects { Project proj ->
         }
     }
 
-    if (data.asMod || name == 'datagen') {
+    if (data.type == 'mod') {
         neoForge {
             version = rootProject.neo_version
 
@@ -291,6 +291,14 @@ subprojects { Project proj ->
 
             if (name == 'enchantment')
                 interfaceInjectionData.from 'interfaces.json'
+        }
+    } else if (data.type == 'game_lib') {
+        jar {
+            manifest {
+                attributes([
+                        "FMLModType": "GAMELIBRARY"
+                ])
+            }
         }
     }
 }
