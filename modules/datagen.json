@@ -1,5 +1,5 @@
 {
-  "asMod": false,
+  "type": "game_lib",
   "assets": [
     "kap_lib/textures/item/mask/**"
   ]

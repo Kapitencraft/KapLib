@@ -1,5 +1,5 @@
 {
-  "asMod": true,
+  "type": "mod",
   "assets": [
     "kap_lib/font/enchantment_info.json",
     "kap_lib/textures/font/no_trading.png",

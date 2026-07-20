@@ -1,5 +1,5 @@
 {
-  "asMod": true,
+  "type": "mod",
   "extensions": false,
   "data": [
     "c/tags/damage_type/magic.json",
