@@ -128,12 +128,6 @@
   "item.modifiers.wearable.kap_lib.necklace": "When worn as Necklace:",
 
   "item.requires": "requires %1$s to be used",
-  "mb.structure.configurator.not_connected": "Configurator not connected",
-  "mb.structure.configurator.out_of_bounds": "Block out of bounds for connected configuration",
-  "mb.structure.configurator.select_block": "Configurator connected to %s",
-  "mb.structure.configurator.select_group": "Block is now referencing group %s",
-  "mb.structure.configurator.select_state": "Block is now referencing state",
-  "mb.structure.configurator.select_tag": "Block is now referencing tag %s",
   "number_value": "Value: %1$s",
 
   "stat_req.minecraft.mined": "%1$s %2$s mined",
