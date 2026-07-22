@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,10 @@ public class MultiblockStructureConfiguration {
         public boolean isState() {
             return false;
         }
+
+        public abstract @Nullable TagKey<Block> getTag();
+
+        public abstract @Nullable String getGroupId();
 
         protected enum Type implements StringRepresentable {
             STATE(StateBlockInstance.CODEC),
@@ -125,6 +130,16 @@ public class MultiblockStructureConfiguration {
             public boolean isState() {
                 return true;
             }
+
+            @Override
+            public @Nullable String getGroupId() {
+                return null;
+            }
+
+            @Override
+            public @Nullable TagKey<Block> getTag() {
+                return null;
+            }
         }
 
         private static class TagBlockInstance extends BlockInstance {
@@ -172,6 +187,16 @@ public class MultiblockStructureConfiguration {
                 BlockInstance.displayTagMessage(player, tags.get(i + 1));
                 return BlockInstance.forTag(tags.get(i + 1));
             }
+
+            @Override
+            public @Nullable String getGroupId() {
+                return null;
+            }
+
+            @Override
+            public @Nullable TagKey<Block> getTag() {
+                return this.tagKey;
+            }
         }
 
         private static class GroupBlockInstance extends BlockInstance {
@@ -204,6 +229,15 @@ public class MultiblockStructureConfiguration {
                 return BlockInstance.forGroup(groups.get(i + 1));
             }
 
+            @Override
+            public @Nullable String getGroupId() {
+                return this.groupName;
+            }
+
+            @Override
+            public @Nullable TagKey<Block> getTag() {
+                return null;
+            }
         }
 
         private static class EmptyBlockInstance extends BlockInstance {
@@ -223,6 +257,16 @@ public class MultiblockStructureConfiguration {
             @Override
             public boolean isValid(BlockState state) {
                 return false;
+            }
+
+            @Override
+            public @Nullable String getGroupId() {
+                return null;
+            }
+
+            @Override
+            public @Nullable TagKey<Block> getTag() {
+                return null;
             }
         }
 

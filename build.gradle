@@ -60,7 +60,6 @@ subprojects { Project proj ->
     if (name != 'aggregate' && data.type == 'mod')
         rootProject.ext.createRequiredClasses(proj, name)
 
-
     String moduleId = mod_id + "_" + name
 
     String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
@@ -228,7 +227,7 @@ subprojects { Project proj ->
         }
     }
 
-    if (data.type == 'mod') {
+    if (data.type == 'mod' || data.type == 'game_lib') {
         neoForge {
             version = rootProject.neo_version
 
@@ -292,7 +291,8 @@ subprojects { Project proj ->
             if (name == 'enchantment')
                 interfaceInjectionData.from 'interfaces.json'
         }
-    } else if (data.type == 'game_lib') {
+    }
+    if (data.type == 'game_lib') {
         jar {
             manifest {
                 attributes([

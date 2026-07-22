@@ -47,6 +47,10 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         super(MBBlockEntityTypes.MULTIBLOCK_STRUCTURE_CONFIG.get(), pos, blockState);
     }
 
+    public MultiblockStructureConfiguration.BlockInstance getInfo(BlockPos relative) {
+        return instances.get(relative);
+    }
+
     public Vec3i getStructureSize() {
         return structureSize;
     }
@@ -270,7 +274,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
             player.displayClientMessage(Component.translatable("mb.structure.configurator.select_tag", list.getFirst().location().toString()), true);
             this.instances.put(relative, MultiblockStructureConfiguration.BlockInstance.forTag(list.getFirst()));
         } else {
-            //instance = instance.cycle(state, list, this.groups, player);
+            instance = instance.cycle(state, list, this.groups.keySet().stream().toList(), player);
             if (instance.isState()) {
                 this.instances.remove(relative);
             } else

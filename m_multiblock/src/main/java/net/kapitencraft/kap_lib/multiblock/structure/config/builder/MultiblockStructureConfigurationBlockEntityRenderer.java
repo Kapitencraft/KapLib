@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -14,7 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import org.joml.Matrix4f;
+import net.minecraft.world.phys.AABB;
 
 public class MultiblockStructureConfigurationBlockEntityRenderer implements BlockEntityRenderer<MultiblockStructureConfigurationBlockEntity> {
     public MultiblockStructureConfigurationBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -41,28 +42,42 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
                 VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
                 LevelRenderer.renderLineBox(poseStack, vertexconsumer, d4, d5, d6, d7, d8, d9, 0.9F, 0.9F, 0.9F, 1.0F, 0.5F, 0.5F, 0.5F);
 
-                VertexConsumer filledBox = bufferSource.getBuffer(RenderType.debugFilledBox());
-                LevelRenderer.addChainedFilledBoxVertices(poseStack, filledBox, d4 + .5, d5 + .5, d6 + .5, d7 - .5, d8 - .5, d9 - .5, 1, 1, 1, .7f);
-
                 this.renderInvisibleBlocks(blockEntity, bufferSource, poseStack);
             }
         }
     }
 
     private void renderInvisibleBlocks(MultiblockStructureConfigurationBlockEntity blockEntity, MultiBufferSource bufferSource, PoseStack poseStack) {
-        DebugRenderer.renderFloatingText(poseStack, bufferSource, "test", 0, 0, 0, 0xFFFF0000);
+        DebugRenderer.renderFloatingText(poseStack, bufferSource, "test", 0, 5, 0, 0xFFFF0000);
         BlockGetter blockgetter = blockEntity.getLevel();
         VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
-        BlockPos blockEntityPos = blockEntity.getBlockPos().offset(blockEntity.getStructurePos());
-        BlockPos blockpos1 = blockEntityPos.offset(1, 1, 1);
+        BlockPos renderOrigin = blockEntity.getBlockPos().offset(blockEntity.getStructurePos());
 
-
-        for (BlockPos blockpos2 : BlockPos.betweenClosed(blockpos1, blockpos1.offset(blockEntity.getStructureSize()).offset(-1, -1, -1))) {
+        for (BlockPos blockpos2 : BlockPos.betweenClosed(renderOrigin, renderOrigin.offset(blockEntity.getStructureSize()).offset(-1, -1, -1))) {
             BlockState blockstate = blockgetter.getBlockState(blockpos2);
 
-            BlockPos relative = blockpos2.subtract(blockEntityPos);
-            if (true) {
-                renderFloatingText(poseStack, bufferSource, "test", relative.getX() + .5f, relative.getY(), relative.getZ() + .5f, .02f, -1, false);
+            BlockPos relative = blockpos2.subtract(blockEntity.getBlockPos());
+            BlockPos relativeStructure = blockpos2.subtract(renderOrigin);
+            MultiblockStructureConfiguration.BlockInstance instance = blockEntity.getInfo(relativeStructure);
+            if (!blockstate.isAir()) {
+                if (instance == null || instance.isState()) {
+                    AABB pos = AABB.encapsulatingFullBlocks(relative, relative);
+                    DebugRenderer.renderFilledBox(poseStack, bufferSource,
+                            pos,
+                            0,
+                            0,
+                            1,
+                            .5f
+                    );
+                } else if (instance.getTag() != null) {
+                    renderFloatingText(poseStack, bufferSource,
+                            instance.getTag().location().toString(),
+                            relative.getX() + .5f, relative.getY() + .5f, relative.getZ() + .5f,
+                            0.01f,
+                            0xFF00FF00,
+                            false
+                    );
+                }
             }
         }
     }
@@ -71,11 +86,12 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
         Minecraft minecraft = Minecraft.getInstance();
 
         Font font = minecraft.font;
+        int textWidth = font.width(text);
         poseStack.pushPose();
         poseStack.translate(x, y + 0.07F, z);
         poseStack.mulPose(minecraft.gameRenderer.getMainCamera().rotation());
         poseStack.scale(scale, -scale, scale);
-        float f = (float)(-font.width(text)) / 2.0F;
+        float f = (float) (-textWidth) / 2.0F;
         font.drawInBatch(
                 text,
                 f,
