@@ -1,3 +1,8 @@
+# Attribute Module
+
+fixed life steal particle animation disable config not working
+bonus attack speed is now implemented via the damage event instead of a mixin, increasing compatibility
+
 # Core Module
 
 added ExtraRenderTypes class exposing a GHOST rendertype
@@ -12,11 +17,14 @@ removed core.util.Reference and IntegerReference. use Atomic classes instead
 
 removed GlyphEffects registry in favor of event based system to fix possible crash stacking
 
-# Attribute Module
+# Datagen Module
 
-fixed life steal particle animation disable config not working
-bonus attack speed is now implemented via the damage event instead of a mixin, increasing compatibility
+added TextureProvider fields for all KapLib implemented transfer masks
 
 # Enchantment Module
 
 fixed enchantment info also being shown on applied items instead of just enchanted books
+
+# Recipe Module
+
+fixed ExtraRecipeSerializers not being loaded

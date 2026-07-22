@@ -28,6 +28,12 @@ import java.util.function.IntUnaryOperator;
  */
 @SuppressWarnings("UnusedReturnValue")
 public abstract class TextureProvider implements DataProvider {
+    public static final ResourceLocation AXE_MASK = LibConstants.res("item/mask/axe");
+    public static final ResourceLocation HOE_MASK = LibConstants.res("item/mask/hoe");
+    public static final ResourceLocation PICKAXE_MASK = LibConstants.res("item/mask/pickaxe");
+    public static final ResourceLocation SHOVEL_MASK = LibConstants.res("item/mask/shovel");
+    public static final ResourceLocation SWORD_MASK = LibConstants.res("item/mask/sword");
+
     private static final ExistingFileHelper.ResourceType TEXTURE = new ExistingFileHelper.ResourceType(PackType.CLIENT_RESOURCES, ".png", "textures");
 
     private final ExistingFileHelper existingFileHelper;
