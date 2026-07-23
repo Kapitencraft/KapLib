@@ -5,6 +5,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
+import net.kapitencraft.kap_lib.core.io.serialization.CodecJsonReloader;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTriggerInstance;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
@@ -29,7 +30,7 @@ import java.util.Map;
 /**
  * manager of all animations
  */
-public final class ClientParticleAnimationManager extends SimpleJsonResourceReloadListener {
+public final class ClientParticleAnimationManager extends CodecJsonReloader<ParticleAnimationPreset> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final ClientParticleAnimationManager INSTANCE = new ClientParticleAnimationManager();
@@ -46,7 +47,7 @@ public final class ClientParticleAnimationManager extends SimpleJsonResourceRelo
     private final Map<ParticleAnimator.Pending, List<ActivationTriggerInstance>> onHold = new HashMap<>();
 
     public ClientParticleAnimationManager() {
-        super(JsonHelper.GSON, "animation_presets");
+        super(ParticleAnimationPreset.CODEC, JsonHelper.GSON, "animation_presets");
     }
 
     public static void activate(List<ParticleAnimation> animations) {
@@ -130,12 +131,8 @@ public final class ClientParticleAnimationManager extends SimpleJsonResourceRelo
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, ParticleAnimationPreset> presetMap, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
         this.presets.clear();
-        object.forEach((location, jsonElement) -> {
-            DataResult<ParticleAnimationPreset> result = ParticleAnimationPreset.CODEC.parse(JsonOps.INSTANCE, jsonElement);
-            result.resultOrPartial(s -> LOGGER.warn("error parsing particle animation preset {}: {}", location, s))
-                    .ifPresent(p -> this.presets.put(location, p));
-        });
+        this.presets.putAll(presetMap);
     }
 }

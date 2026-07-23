@@ -9,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
+import net.kapitencraft.kap_lib.core.io.serialization.CodecJsonReloader;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.network.S2C.ActivateParticleAnimationsPacket;
@@ -17,7 +18,6 @@ import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.util.*;
 
-public class ServerParticleAnimationManager extends SimpleJsonResourceReloadListener {
+public class ServerParticleAnimationManager extends CodecJsonReloader<ParticleAnimationPreset> {
     private static final File STORAGE = new File(LibConstants.ROOT, "animations.json");
     private static final Codec<List<Entry>> CODEC = Entry.CODEC.listOf();
 
@@ -40,7 +40,7 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
     private final List<Entry> animations = new ArrayList<>();
 
     public ServerParticleAnimationManager() {
-        super(JsonHelper.GSON, "animation_presets");
+        super(ParticleAnimationPreset.CODEC, JsonHelper.GSON, "animation_presets");
         this.load();
         NeoForge.EVENT_BUS.addListener(this::handleServerStop);
         NeoForge.EVENT_BUS.addListener(this::handlePlayerJoin);
@@ -71,13 +71,9 @@ public class ServerParticleAnimationManager extends SimpleJsonResourceReloadList
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, ParticleAnimationPreset> presetMap, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
         this.presets.clear();
-        object.forEach((location, jsonElement) -> {
-            DataResult<ParticleAnimationPreset> result = ParticleAnimationPreset.CODEC.parse(JsonOps.INSTANCE, jsonElement);
-            result.resultOrPartial(s -> LOGGER.warn("error parsing particle animation preset {}: {}", location, s))
-                    .ifPresent(p -> this.presets.put(location, p));
-        });
+        this.presets.putAll(presetMap);
     }
 
     public void activeAnimations(ServerPlayer player) {
