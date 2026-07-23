@@ -1,15 +1,23 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlockEntityTypes;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
 import net.kapitencraft.kap_lib.multiblock.structure.config.SpacialData;
+import net.kapitencraft.kap_lib.multiblock.structure.config.builder.client.MultiblockStructureConfigurationEditScreen;
 import net.minecraft.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -26,13 +34,19 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.LevelResource;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
 public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     private static final LevelResource CONFIGURATION_STORAGE = new LevelResource("generated");
+    private static final Codec<Map<String, MultiblockStructureConfiguration.BlockGroup>> GROUPS_CODEC = Codec.unboundedMap(
+            Codec.STRING, MultiblockStructureConfiguration.BlockGroup.CODEC
+    );
+    private static final Codec<Map<BlockPos, MultiblockStructureConfiguration.BlockInstance>> INSTANCES_CODEC = Codec.unboundedMap(
+            Codec.STRING.xmap(Long::valueOf, String::valueOf).xmap(BlockPos::of, BlockPos::asLong),
+            MultiblockStructureConfiguration.BlockInstance.CODEC
+    );
 
     @Nullable
     private ResourceLocation structureName;
@@ -164,6 +178,10 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         tag.putInt("posZ", this.structurePos.getZ());
         tag.putString("mode", this.mode.toString());
         tag.putBoolean("ignoreEntities", this.ignoreEntities);
+        DataResult<Tag> groupsResult = GROUPS_CODEC.encodeStart(NbtOps.INSTANCE, this.groups);
+        groupsResult.result().ifPresent(t -> tag.put("groups", t));
+        DataResult<Tag> instancesResult = INSTANCES_CODEC.encodeStart(NbtOps.INSTANCE, this.instances);
+        instancesResult.result().ifPresent(t -> tag.put("instances", t));
     }
 
     @Override
@@ -178,7 +196,6 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         int i1 = Mth.clamp(tag.getInt("sizeY"), 0, 48);
         int j1 = Mth.clamp(tag.getInt("sizeZ"), 0, 48);
         this.structureSize = new Vec3i(l, i1, j1);
-
         try {
             this.mode = Mode.valueOf(tag.getString("mode"));
         } catch (IllegalArgumentException illegalargumentexception) {
@@ -186,13 +203,18 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         }
 
         this.ignoreEntities = tag.getBoolean("ignoreEntities");
+
+        DataResult<Pair<Map<String, MultiblockStructureConfiguration.BlockGroup>, Tag>> groupsResult = GROUPS_CODEC.decode(NbtOps.INSTANCE, tag.get("groups"));
+        groupsResult.result().map(Pair::getFirst).ifPresent(this.groups::putAll);
+        DataResult<Pair<Map<BlockPos, MultiblockStructureConfiguration.BlockInstance>, Tag>> instancesResult = INSTANCES_CODEC.decode(NbtOps.INSTANCE, tag.get("instances"));
+        instancesResult.result().map(Pair::getFirst).ifPresent(this.instances::putAll);
     }
 
     public boolean usedBy(Player player) {
         if (!player.canUseGameMasterBlocks()) {
             return false;
         } else {
-            if (player.getCommandSenderWorld().isClientSide) {
+            if (player.level().isClientSide) {
                 //TODO get to a server-save place
                 Minecraft.getInstance().setScreen(new MultiblockStructureConfigurationEditScreen(this));
             }
@@ -280,6 +302,11 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
             } else
                 this.instances.put(relative, instance);
         }
+        this.setChanged();
+    }
+
+    public Map<String, MultiblockStructureConfiguration.BlockGroup> getGroups() {
+        return this.groups;
     }
 
     public enum Mode implements StringRepresentable {
