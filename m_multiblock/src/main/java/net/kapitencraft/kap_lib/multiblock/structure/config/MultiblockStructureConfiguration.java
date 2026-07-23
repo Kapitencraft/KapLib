@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
@@ -31,7 +32,7 @@ public class MultiblockStructureConfiguration {
     }
 
     public static class BlockGroup {
-        private static final Codec<BlockGroup> CODEC = Codec.unit(BlockGroup::new);
+        public static final Codec<BlockGroup> CODEC = Codec.unit(BlockGroup::new);
 
         public boolean matches(Block block) {
             return true;
@@ -43,7 +44,7 @@ public class MultiblockStructureConfiguration {
             return EmptyBlockInstance.INSTANCE; //must be method due to possible class loading error
         }
 
-        private static final Codec<BlockInstance> CODEC = Type.CODEC.dispatch(BlockInstance::getType, Type::getCodec);
+        public static final Codec<BlockInstance> CODEC = Type.CODEC.dispatch(BlockInstance::getType, Type::getCodec);
 
         public static BlockInstance forState(BlockState state) {
             return new StateBlockInstance(state);
@@ -66,6 +67,10 @@ public class MultiblockStructureConfiguration {
         public abstract @Nullable TagKey<Block> getTag();
 
         public abstract @Nullable String getGroupId();
+
+        public Tag toNbt() {
+            return null;
+        }
 
         protected enum Type implements StringRepresentable {
             STATE(StateBlockInstance.CODEC),

@@ -1,7 +1,8 @@
-package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
+package net.kapitencraft.kap_lib.multiblock.structure.config.builder.client;
 
 import com.google.common.collect.ImmutableList;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
+import net.kapitencraft.kap_lib.multiblock.structure.config.builder.MultiblockStructureConfigurationBlockEntity;
 import net.kapitencraft.kap_lib.multiblock.structure.network.C2S.SetMultiblockStructureConfigurationBlockDataPacket;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
@@ -18,6 +19,7 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
     private MultiblockStructureConfigurationBlockEntity.Mode initialMode = MultiblockStructureConfigurationBlockEntity.Mode.SAVE;
 
     private final MultiblockStructureConfigurationBlockEntity configuration;
+    private ConfigureGroupsWidget groupSelector;
     private EditBox nameEdit;
     private EditBox posXEdit;
     private EditBox posYEdit;
@@ -26,7 +28,7 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
     private Button saveButton;
     private Button detectButton;
     
-    protected MultiblockStructureConfigurationEditScreen(MultiblockStructureConfigurationBlockEntity configuration) {
+    public MultiblockStructureConfigurationEditScreen(MultiblockStructureConfigurationBlockEntity configuration) {
         super(Component.translatable(MBBlocks.MULTIBLOCK_STRUCTURE_CONFIG.get().getDescriptionId()));
         this.configuration = configuration;
     }
@@ -46,19 +48,24 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
         super.init();
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, p_99460_ -> this.onDone()).bounds(this.width / 2 - 4 - 150, 210, 150, 20).build());
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, p_99457_ -> this.onCancel()).bounds(this.width / 2 + 4, 210, 150, 20).build());
+        this.groupSelector = new ConfigureGroupsWidget(
+                this.width / 2 - 320, 40, 150, 300, Component.translatable("cmsb.groups")
+        );
+        this.groupSelector.importFrom(this.configuration);
+        this.addRenderableWidget(this.groupSelector);
         BlockPos blockpos = this.configuration.getStructurePos();
         this.posXEdit = new EditBox(this.font, this.width / 2 - 152, 80, 80, 20, Component.translatable("structure_block.position.x"));
         this.posXEdit.setMaxLength(15);
         this.posXEdit.setValue(Integer.toString(blockpos.getX()));
-        this.addWidget(this.posXEdit);
+        this.addRenderableWidget(this.posXEdit);
         this.posYEdit = new EditBox(this.font, this.width / 2 - 72, 80, 80, 20, Component.translatable("structure_block.position.y"));
         this.posYEdit.setMaxLength(15);
         this.posYEdit.setValue(Integer.toString(blockpos.getY()));
-        this.addWidget(this.posYEdit);
+        this.addRenderableWidget(this.posYEdit);
         this.posZEdit = new EditBox(this.font, this.width / 2 + 8, 80, 80, 20, Component.translatable("structure_block.position.z"));
         this.posZEdit.setMaxLength(15);
         this.posZEdit.setValue(Integer.toString(blockpos.getZ()));
-        this.addWidget(this.posZEdit);
+        this.addRenderableWidget(this.posZEdit);
         Vec3i vec3i = this.configuration.getStructureSize();
         this.sizeXEdit = new EditBox(this.font, this.width / 2 - 152, 120, 80, 20, Component.translatable("structure_block.size.x"));
         this.sizeXEdit.setMaxLength(15);
@@ -121,6 +128,7 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
         this.posXEdit.setVisible(false);
         this.posYEdit.setVisible(false);
         this.posZEdit.setVisible(false);
+        this.groupSelector.visible = false;
         this.saveButton.visible = false;
         this.detectButton.visible = false;
         switch (structureMode) {
@@ -131,6 +139,7 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
                 this.posXEdit.setVisible(true);
                 this.posYEdit.setVisible(true);
                 this.posZEdit.setVisible(true);
+                this.groupSelector.visible = true;
                 this.saveButton.visible = true;
                 this.detectButton.visible = true;
                 break;
