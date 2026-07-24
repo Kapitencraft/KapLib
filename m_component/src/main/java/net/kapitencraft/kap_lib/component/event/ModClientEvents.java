@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.component.event;
 
 import net.kapitencraft.kap_lib.component.player_head.PlayerHeadAllocator;
-import net.kapitencraft.kap_lib.core.event.custom.FontSetsEvent;
+import net.kapitencraft.kap_lib.core.event.custom.client.FontSetsEvent;
 import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

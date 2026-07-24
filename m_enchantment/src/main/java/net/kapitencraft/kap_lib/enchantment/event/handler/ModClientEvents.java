@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.enchantment.event.handler;
 
-import net.kapitencraft.kap_lib.core.event.custom.FontSetsEvent;
+import net.kapitencraft.kap_lib.core.event.custom.client.FontSetsEvent;
 import net.kapitencraft.kap_lib.enchantment.client.enchantment_applicable.EnchantmentApplicableAllocator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
