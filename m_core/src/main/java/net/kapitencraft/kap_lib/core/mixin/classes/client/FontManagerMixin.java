@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.core.mixin.classes.client;
 
-import net.kapitencraft.kap_lib.core.event.custom.FontSetsEvent;
+import net.kapitencraft.kap_lib.core.event.custom.client.FontSetsEvent;
 import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.renderer.texture.TextureManager;
