@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.core.event.custom;
+package net.kapitencraft.kap_lib.core.event.custom.client;
 
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.client.renderer.texture.TextureManager;

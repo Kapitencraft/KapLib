@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.kapitencraft.kap_lib.core.config.ServerModConfig;
 import net.kapitencraft.kap_lib.core.util.UpdateChecker;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -12,6 +13,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.registries.ModifyRegistriesEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -28,6 +30,7 @@ public class CoreModule {
 
         NeoForge.EVENT_BUS.addListener(CoreModule::registerServer);
         NeoForge.EVENT_BUS.addListener(CoreModule::onRegisterClientCommands);
+        modEventBus.addListener(CoreModule::registerDCRegistryCallback);
 
         UpdateChecker.run();
     }
@@ -41,5 +44,9 @@ public class CoreModule {
     @ApiStatus.Internal
     public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
         CoreClientTestCommand.register(event.getDispatcher());
+    }
+
+    public static void registerDCRegistryCallback(ModifyRegistriesEvent event) {
+        event.getRegistry(Registries.DATA_COMPONENT_TYPE).addCallback(new DataComponentRegistryCallback());
     }
 }
