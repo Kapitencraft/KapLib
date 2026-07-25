@@ -10,6 +10,7 @@
     "client.MinecraftMixin"
   ],
   "mixins": [
+    "InventoryMixin",
     "CommonHooksMixin",
     "PlayerMixin"
   ],
