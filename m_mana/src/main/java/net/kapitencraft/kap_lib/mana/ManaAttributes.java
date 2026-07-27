@@ -14,6 +14,7 @@ public interface ManaAttributes {
 
     DeferredRegister<Attribute> REGISTRY = LibConstants.registry(Registries.ATTRIBUTE);
 
+    @SuppressWarnings("SameParameterValue")
     private static Holder<Attribute> register(String name, double initValue, double minValue, double maxValue, @Nullable ResourceLocation baseLocation) {
         return REGISTRY.register("generic." + name, () -> new RangedAttribute("generic." + name, initValue, minValue, maxValue) {
             @Override
@@ -23,6 +24,7 @@ public interface ManaAttributes {
         }.setSyncable(true));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Holder<Attribute> registerNegative(String name, double initValue, double minValue, double maxValue, ResourceLocation baseId) {
         return REGISTRY.register("generic." + name, () -> new RangedAttribute("generic." + name, initValue, minValue, maxValue) {
             @Override
@@ -32,6 +34,7 @@ public interface ManaAttributes {
         }.setSentiment(Attribute.Sentiment.NEGATIVE).setSyncable(true));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static Holder<Attribute> register0Max(String name, double initValue, ResourceLocation baseLocation) {
         return register(name, initValue, 0, Double.MAX_VALUE, baseLocation);
     }

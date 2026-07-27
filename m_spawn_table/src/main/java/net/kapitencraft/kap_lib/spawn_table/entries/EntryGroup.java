@@ -30,7 +30,7 @@ public class EntryGroup extends CompositeEntryBase {
          case 0:
             return ALWAYS_TRUE;
          case 1:
-            return pEntries.get(0);
+            return pEntries.getFirst();
          case 2:
             ComposableEntryContainer container = pEntries.get(0);
             ComposableEntryContainer container1 = pEntries.get(1);

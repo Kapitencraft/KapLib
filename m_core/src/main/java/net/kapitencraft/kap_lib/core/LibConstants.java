@@ -11,9 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * constants of the library. used to access registries and locations as well as files

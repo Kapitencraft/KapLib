@@ -32,6 +32,7 @@ public abstract class Menu extends Widget {
         screen.setFocused(parent);
     }
 
+    @SuppressWarnings("SameReturnValue")
     protected int height() {
         return 0;
     }

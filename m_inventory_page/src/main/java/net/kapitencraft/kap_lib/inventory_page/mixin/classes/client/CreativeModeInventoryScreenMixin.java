@@ -2,8 +2,6 @@ package net.kapitencraft.kap_lib.inventory_page.mixin.classes.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.kapitencraft.kap_lib.inventory_page.mixin.duck.inventory.InventoryPageIO;
-import net.kapitencraft.kap_lib.inventory_page.mixin.duck.inventory.InventoryPageWriter;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -29,6 +27,7 @@ public abstract class CreativeModeInventoryScreenMixin extends EffectRenderingIn
         super(pMenu, pPlayerInventory, pTitle);
     }
 
+    @SuppressWarnings("SameReturnValue")
     @WrapOperation(method = "selectTab", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;size()I"))
     private int fixExtraSlots(NonNullList<?> instance, Operation<Integer> original) {
         return 46;
@@ -36,13 +35,13 @@ public abstract class CreativeModeInventoryScreenMixin extends EffectRenderingIn
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void fixTabIssue(LocalPlayer player, FeatureFlagSet enabledFeatures, boolean displayOperatorCreativeTab, CallbackInfo ci) {
-        InventoryPageIO inventoryPageIO = ((InventoryPageIO) player.inventoryMenu);
-        this.originalTab = inventoryPageIO.getPageIndex();
-        inventoryPageIO.setPage(0);
+        this.originalTab = player.inventoryMenu.getPageIndex();
+        player.inventoryMenu.setPage(0);
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Inject(method = "removed", at = @At("HEAD"))
     private void resetOriginalTab(CallbackInfo ci) {
-        ((InventoryPageWriter) Objects.requireNonNull(this.minecraft.player).inventoryMenu).setPage(originalTab);
+        Objects.requireNonNull(this.minecraft.player).inventoryMenu.setPage(originalTab);
     }
 }

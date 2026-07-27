@@ -79,7 +79,7 @@ public class SpawnPool {
       int i = list.size();
       if (mutableint.intValue() != 0 && i != 0) {
          if (i == 1) {
-            list.get(0).createEntity(pEntityConsumer, pContext);
+            list.getFirst().createEntity(pEntityConsumer, pContext);
          } else {
             int j = randomsource.nextInt(mutableint.intValue());
 

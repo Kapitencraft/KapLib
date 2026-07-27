@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.shader.event.handler;
 
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
 import net.kapitencraft.kap_lib.shader.event.custom.client.RegisterUniformsEvent;
 import net.neoforged.api.distmarker.Dist;

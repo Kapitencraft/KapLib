@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
+import net.kapitencraft.kap_lib.core.mixin.duck.MixinSelfProvider;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -23,7 +24,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Mixin(Style.class)
-public abstract class StyleMixin implements EffectsStyle {
+public abstract class StyleMixin implements EffectsStyle, MixinSelfProvider<Style> {
     @Shadow
     @Nullable
     public TextColor color;
@@ -76,10 +77,6 @@ public abstract class StyleMixin implements EffectsStyle {
     @Shadow
     @Final
     public static ResourceLocation DEFAULT_FONT;
-
-    private Style self() {
-        return (Style) (Object) this;
-    }
 
     @SuppressWarnings("all")
     @NotNull

@@ -39,9 +39,7 @@ public class AddPassengersFunction extends SpawnEntityConditionalFunction {
     protected Entity run(Entity pEntity, SpawnContext pContext) {
         pEntity.getIndirectPassengers();
         SpawnTable table = passengers.map(k -> pContext.getResolver().get(SpawnTableRegistries.Keys.SPAWN_TABLES, k).map(Holder::value).orElse(SpawnTable.EMPTY), Function.identity());
-        table.getRandomEntitiesRaw(pContext, entity -> {
-            entity.startRiding(pEntity, true);
-        });
+        table.getRandomEntitiesRaw(pContext, entity -> entity.startRiding(pEntity, true));
         return pEntity;
     }
 

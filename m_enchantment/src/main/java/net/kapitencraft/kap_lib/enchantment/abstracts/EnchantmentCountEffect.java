@@ -81,7 +81,7 @@ public interface EnchantmentCountEffect {
         /**
          * executed counter times, and then never again
          */
-        ONCE;
+        ONCE
     }
 
     MapCodec<? extends EnchantmentCountEffect> codec();

@@ -18,6 +18,7 @@ public abstract class InventoryPage {
      * @param player the player that is viewing the pages
      * @return whether this page should be visible and to be interacted with
      */
+    @SuppressWarnings("SameReturnValue")
     public boolean isVisible(Player player) {
         return true;
     }
@@ -25,13 +26,14 @@ public abstract class InventoryPage {
     /**
      * @return whether the inventory slots should be rendered
      */
+    @SuppressWarnings("SameReturnValue")
     public abstract boolean withInventory();
 
     public InventoryPageType<?> getType() {
         return type;
     }
 
-    ResourceLocation TAB_LOCATION = ResourceLocation.withDefaultNamespace("textures/gui/container/creative_inventory/tabs.png");
+    final ResourceLocation TAB_LOCATION = ResourceLocation.withDefaultNamespace("textures/gui/container/creative_inventory/tabs.png");
 
     public @NotNull ResourceLocation tabLocation() {
         return TAB_LOCATION;

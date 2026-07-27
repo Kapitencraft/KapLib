@@ -1,7 +1,5 @@
 {
   "type": "mod",
-  "assets": [
-    "kap_lib/textures/font/unknown_player.png"
-  ],
-  "dependencies": ["shader"]
+  "dependencies": ["shader"],
+  "interfaceInjection": true
 }

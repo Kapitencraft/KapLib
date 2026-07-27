@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.core.util;
 
-import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;

@@ -88,7 +88,7 @@ public interface EnchantmentBowEffect {
         /**
          * the HIT execution type. executed when the Arrow hits a block / entity
          */
-        HIT;
+        HIT
     }
 
     MapCodec<? extends EnchantmentBowEffect> codec();

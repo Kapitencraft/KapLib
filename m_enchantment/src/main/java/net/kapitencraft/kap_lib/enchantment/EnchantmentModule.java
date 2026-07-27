@@ -6,7 +6,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import org.apache.commons.compress.archivers.sevenz.CLI;
 
 @Mod(EnchantmentModule.MODULE_ID)
 public class EnchantmentModule {

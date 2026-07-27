@@ -17,7 +17,7 @@ public class HoverTooltip {
     private final int yOffsetStart;
     private final int xSize;
     private final int ySize;
-    protected List<Component> text;
+    protected final List<Component> text;
 
     /**
      * @param xOffsetStart the left position, relative to the screen's background, of the rectangle that determines its position

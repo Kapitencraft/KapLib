@@ -313,7 +313,6 @@ public class UpdateChecker {
                 if (!oldFile.delete()) {
                     throw new IOException("unable to delete old file '" + oldFileName + "'");
                 }
-                ;
             }
         } catch (IOException e) {
             LOGGER.warn("error attempting to save update file: {}", e.getMessage());

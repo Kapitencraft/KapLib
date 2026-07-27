@@ -19,6 +19,7 @@ public interface CooldownRegistries {
 
     Registry<Cooldown> COOLDOWNS = syncReg(Keys.COOLDOWNS);
 
+    @SuppressWarnings("SameParameterValue")
     private static <T> Registry<T> syncReg(ResourceKey<Registry<T>> key) {
         Registry<T> registry = new RegistryBuilder<>(key).sync(true).create();
         registries.add(registry);
@@ -34,6 +35,7 @@ public interface CooldownRegistries {
 
         ResourceKey<Registry<Cooldown>> COOLDOWNS = createRegistry("cooldowns");
 
+        @SuppressWarnings("SameParameterValue")
         private static <T> ResourceKey<Registry<T>> createRegistry(String id) {
             return ResourceKey.createRegistryKey(LibConstants.res(id));
         }

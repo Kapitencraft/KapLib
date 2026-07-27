@@ -126,8 +126,8 @@ public interface CollectionHelper {
     /**
      * @param size the size the list should be grown to
      * @param sup the
-     * @param <T>
-     * @return
+     * @param <T> the type of the list entry
+     * @return a list of given type with given size populated by the supplier
      */
     static <T> List<T> create(int size, Supplier<T> sup) {
         List<T> list = new ArrayList<>();

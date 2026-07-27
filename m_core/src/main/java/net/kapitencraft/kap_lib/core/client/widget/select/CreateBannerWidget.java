@@ -108,6 +108,7 @@ public class CreateBannerWidget extends PositionedWidget {
             this.active = null;
         }
 
+        @SuppressWarnings("DataFlowIssue")
         private static List<Holder<BannerPattern>> getElements() {
             HolderLookup.RegistryLookup<BannerPattern> lookup = Minecraft.getInstance().level.registryAccess().lookupOrThrow(Registries.BANNER_PATTERN);
             return lookup.listElements().collect(Collectors.toUnmodifiableList());

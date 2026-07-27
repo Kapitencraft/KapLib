@@ -1,9 +1,0 @@
-{
-  "minecraft:furnace": [
-    {
-      "type": "kap_lib:stat",
-      "minCount": 20,
-      "stat": "minecraft.mined:minecraft.coal_ore"
-    }
-  ]
-}

@@ -27,7 +27,7 @@ public class ModRenderTypes extends RenderType {
         return create("chromatic", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256, false, true, rendertype$state);
     }
 
-    public static RenderType FILL_CHROMA = create("chroma", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, true,
+    public static final RenderType FILL_CHROMA = create("chroma", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, true,
             CompositeState.builder()
                     .setShaderState(ModShaderStateShards.GUI_CHROMA)
                     .setTransparencyState(TRANSLUCENT_TRANSPARENCY)

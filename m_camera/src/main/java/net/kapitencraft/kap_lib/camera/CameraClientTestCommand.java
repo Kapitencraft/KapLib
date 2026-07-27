@@ -59,6 +59,7 @@ public class CameraClientTestCommand {
         return shake(.01f, .5f, 1.5f);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private static int shake(float intensity, float strength, float speed) {
         CameraController.INSTANCE.shake(intensity, strength, speed);
         return 1;

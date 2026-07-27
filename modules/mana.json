@@ -1,10 +1,4 @@
 {
   "type": "mod",
-  "extensions": false,
-  "data": [
-    "c/tags/damage_type/magic.json",
-    "kap_lib/damage_type/mana_overflow.json",
-    "kap_lib/damage_type/mana_overflow_self.json",
-    "minecraft/tags/damage_type/**"
-  ]
+  "extensions": false
 }

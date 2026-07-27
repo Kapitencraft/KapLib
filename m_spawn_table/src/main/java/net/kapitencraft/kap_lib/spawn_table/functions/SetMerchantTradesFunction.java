@@ -39,7 +39,7 @@ public class SetMerchantTradesFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_MERCHANT_TRADES.get();
     }
 

@@ -33,7 +33,7 @@ public class ArmorTabGroup extends TabGroup {
     public void register(BuildCreativeModeTabContentsEvent event) {
         this.items.removeIf(o -> {
             if (!(o.get() instanceof ArmorItem)) {
-                LibConstants.LOGGER.warn("non-armor item has been added to armor tabgroup: {}", o.getKey());
+                LibConstants.LOGGER.warn("non-armor item has been added to armor tab-group: {}", o.getKey());
                 return true;
             }
             return false;

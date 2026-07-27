@@ -9,11 +9,7 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTy
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
-import java.util.UUID;
 
 public class SetLifeTimeFinalizer implements ParticleFinalizer {
     private final int lifeTime;

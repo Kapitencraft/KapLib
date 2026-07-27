@@ -91,6 +91,7 @@ public abstract class TextConverter<T> {
         return firstArg;
     }
 
+    @SafeVarargs
     protected static <T> void removeAll(List<T> list, T... ts) {
         for (T t : ts) {
             list.remove(t);

@@ -1,9 +1,5 @@
 {
   "type": "mod",
-  "assets": [
-    "kap_lib/font/enchantment_info.json",
-    "kap_lib/textures/font/no_trading.png",
-    "kap_lib/textures/font/treasure.png"
-  ],
-  "compat": ["component", "shader"]
+  "compat": ["component", "shader"],
+  "interfaceInjection": true
 }

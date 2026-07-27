@@ -15,7 +15,7 @@ public interface ExtraRecipeTypes {
     Supplier<RecipeType<ArmorRecipe>> ARMOR_RECIPE = register("armor");
 
     static <T extends Recipe<?>> Supplier<RecipeType<T>> register(final String name) {
-        return REGISTRY.register(name, ()-> new RecipeType<T>() {
+        return REGISTRY.register(name, ()-> new RecipeType<>() {
             @Override
             public String toString() {
                 return name;

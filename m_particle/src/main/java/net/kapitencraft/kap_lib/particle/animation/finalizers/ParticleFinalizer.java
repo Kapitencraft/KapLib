@@ -10,9 +10,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.UUID;
-
 public interface ParticleFinalizer {
     Codec<ParticleFinalizer.Builder<?>> CODEC = ParticleAnimationRegistries.PARTICLE_FINALIZER_TYPES.byNameCodec().dispatch(ParticleFinalizer.Builder::type, Type::codec);
     StreamCodec<RegistryFriendlyByteBuf, ParticleFinalizer> STREAM_CODEC = ByteBufCodecs.registry(ParticleAnimationRegistries.Keys.FINALIZER_TYPES).dispatch(ParticleFinalizer::getType, Type::streamCodec);

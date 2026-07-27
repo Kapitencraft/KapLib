@@ -13,9 +13,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class MoveTowardsElement implements AnimationElement {
     private final PositionTarget targetLoc;
     private final int duration;

@@ -18,10 +18,10 @@ import java.util.function.Function;
 
 /**
  * basic armor item.
- * <br>for custom model implementation (override {@link #createModelProvider()} to enable
  */
 public abstract class AbstractArmorItem extends ArmorItem {
 
+    @SuppressWarnings("unused")
     protected AbstractArmorItem(Holder<ArmorMaterial> pMaterial, Type pType, Properties pProperties) {
         super(pMaterial, pType, pProperties);
     }
@@ -31,6 +31,7 @@ public abstract class AbstractArmorItem extends ArmorItem {
      * @param living the given entity
      * @return whether there is a fullset or not
      */
+    @SuppressWarnings("unused")
     public boolean isFullSetActive(LivingEntity living) {
         return isFullSetActive(living, this.getMaterial());
     }
@@ -59,17 +60,12 @@ public abstract class AbstractArmorItem extends ArmorItem {
     }
 
     //region display / model
-    /**
-     *
-     * @return the model provider to use
-     * no need to cache, this implementation does that already
-     */
-    protected ArmorModelProvider createModelProvider() { return null;}
 
     /**
      * creates a custom texture for your armor in
      * <br>{@code <nameSpace>:textures/models/armor/custom/<id>.png}
      */
+    @SuppressWarnings("unused")
     public static ResourceLocation makeCustomTextureLocation(String nameSpace, String id) {
         return ResourceLocation.fromNamespaceAndPath(nameSpace, "textures/models/armor/custom/" + id + ".png");
     }
@@ -85,6 +81,7 @@ public abstract class AbstractArmorItem extends ArmorItem {
      * @param <T> armor item class type
      * @return a Map mapping the ArmorType to the RegObj for the slot
      */
+    @SuppressWarnings("unused")
     public static <T extends AbstractArmorItem> Map<Type, DeferredItem<T>> createRegistry(DeferredRegister.Items registry, String baseName, Function<Type, T> creator, @Nullable TabGroup group) {
         return Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
             for (Type type : Type.values()) {

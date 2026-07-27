@@ -16,6 +16,7 @@ public interface CooldownAttributes {
 
     Holder<Attribute> COOLDOWN_REDUCTION = registerNegative("cooldown_reduction", 0, 0, 100, BASE_COOLDOWN_REDUCTION_LOC);
 
+    @SuppressWarnings("SameParameterValue")
     private static Holder<Attribute> registerNegative(String name, double initValue, double minValue, double maxValue, ResourceLocation baseId) {
         return REGISTRY.register("generic." + name, () -> new RangedAttribute("generic." + name, initValue, minValue, maxValue) {
             @Override

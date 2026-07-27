@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.core.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,6 +23,7 @@ public interface UsefulTextures {
     ResourceLocation ARROW_UP = ResourceLocation.withDefaultNamespace("transferable_list/move_up");
     ResourceLocation ARROW_UP_HIGHLIGHT = ResourceLocation.withDefaultNamespace("transferable_list/move_up_highlighted");
 
+    @SuppressWarnings("SameParameterValue")
     private static ResourceLocation getGuiLocation(String path) {
         return ResourceLocation.withDefaultNamespace("textures/gui/" + path);
     }

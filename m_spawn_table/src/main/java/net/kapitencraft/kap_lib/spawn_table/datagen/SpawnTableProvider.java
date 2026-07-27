@@ -61,7 +61,7 @@ public class SpawnTableProvider implements DataProvider {
          ResourceLocation resourcelocation1 = map.put(RandomSequence.seedForKey(resourcelocation), resourcelocation);
          if (resourcelocation1 != null) {
             String var10000 = String.valueOf(resourcelocation1);
-            Util.logAndPauseIfInIde("Loot table random sequence seed collision on " + var10000 + " and " + String.valueOf(p_335199_.location()));
+            Util.logAndPauseIfInIde("Loot table random sequence seed collision on " + var10000 + " and " + p_335199_.location());
          }
 
          p_335200_.setRandomSequence(resourcelocation);

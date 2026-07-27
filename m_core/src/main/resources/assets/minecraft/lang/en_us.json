@@ -1,11 +1,5 @@
 {
-  "chat.square_brackets": "%s",
-
-
   "item.nbt_tags": "NBT: %s tag(s), press ALT to see details",
-
-  "best.creeper.1": "Very explosive",
-  "best.enderman.1": "Very sensitive, especially between the eyes",
 
   "enchantment.minecraft.breach.desc": "reduces effectiveness of enemy armor",
   "enchantment.minecraft.density.desc": "increases damage by mace fall attack",

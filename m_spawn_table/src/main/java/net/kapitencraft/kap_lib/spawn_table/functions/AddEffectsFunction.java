@@ -54,7 +54,7 @@ public class AddEffectsFunction extends SpawnEntityConditionalFunction {
         private Builder() {
         }
 
-        private List<MobEffectInstance> effects = new ArrayList<>();
+        private final List<MobEffectInstance> effects = new ArrayList<>();
 
         /**
          * adds the effect to the function

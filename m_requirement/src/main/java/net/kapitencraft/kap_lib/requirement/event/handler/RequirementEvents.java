@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.requirement.event.handler;
 
 import net.kapitencraft.kap_lib.requirement.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.requirement.RequirementManager;
-import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
 import net.kapitencraft.kap_lib.requirement.type.RequirementType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;

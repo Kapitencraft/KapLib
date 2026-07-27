@@ -22,7 +22,7 @@ public abstract class SelectRegistryElementWidget<T> extends PositionedWidget {
     private final int titleWidth;
     protected float scroll;
     protected boolean scrolling;
-    protected int maxScroll;
+    protected final int maxScroll;
     protected final List<T> allElements;
     protected T selected;
     private final Consumer<T> valueSink;

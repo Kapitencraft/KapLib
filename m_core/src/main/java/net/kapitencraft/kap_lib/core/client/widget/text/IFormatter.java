@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.core.client.widget.text;
 
 import net.minecraft.util.FormattedCharSequence;
-import org.jetbrains.annotations.ApiStatus;
 
 /**
  * colorize the text inside a multiple line textbox

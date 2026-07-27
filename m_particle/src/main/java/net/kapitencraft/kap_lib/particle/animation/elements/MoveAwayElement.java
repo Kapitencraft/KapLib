@@ -14,9 +14,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class MoveAwayElement implements AnimationElement {
     private final PositionTarget target;
     private final float speed;

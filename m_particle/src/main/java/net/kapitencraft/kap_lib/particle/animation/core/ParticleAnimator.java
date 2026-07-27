@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.core;
 
+import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTrigger;
+import net.kapitencraft.kap_lib.particle.animation.activation_triggers.core.ActivationTriggerInstance;
 import net.kapitencraft.kap_lib.particle.animation.spawners.VisibleSpawner;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
@@ -11,6 +13,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ParticleAnimator {
     /**
@@ -76,5 +79,27 @@ public class ParticleAnimator {
     public void removed() {
         //finalize all remaining particles
         this.particles.forEach(ParticleConfig::invalidate);
+    }
+
+    public static class Pending {
+        private final ParticleAnimator animator;
+        private final Map<ActivationTriggerInstance, ActivationTrigger.Listener<?>> reqs;
+
+        public Pending(ParticleAnimator animator, Map<ActivationTriggerInstance, ActivationTrigger.Listener<?>> reqs) {
+            this.animator = animator;
+            this.reqs = reqs;
+        }
+
+        public ParticleAnimator getAnimator() {
+            return animator;
+        }
+
+        public void removeTrigger(ActivationTriggerInstance instance) {
+            rmT(instance.getTrigger(), reqs.get(instance));
+        }
+
+        private <T extends ActivationTriggerInstance> void rmT(ActivationTrigger<T> trigger, ActivationTrigger.Listener<?> listener) {
+            trigger.removeListener((ActivationTrigger.Listener<T>) listener);
+        }
     }
 }

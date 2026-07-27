@@ -31,7 +31,7 @@ public class CustomStatReqCondition extends CountCondition<CustomStatReqConditio
     );
     private static final StreamCodec<RegistryFriendlyByteBuf, CustomStatReqCondition> STREAM_CODEC = StreamCodec.of(CustomStatReqCondition::toNetwork, CustomStatReqCondition::fromNetwork);
 
-    public static RegistrySerializer<CustomStatReqCondition> SERIALIZER = new RegistrySerializer<>(
+    public static final RegistrySerializer<CustomStatReqCondition> SERIALIZER = new RegistrySerializer<>(
             CODEC, STREAM_CODEC
     );
 

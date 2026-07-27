@@ -1,0 +1,5 @@
+{
+  "net/minecraft/world/inventory/InventoryMenu": [
+    "net/kapitencraft/kap_lib/inventory_page/mixin/duck/inventory/InventoryPageIO"
+  ]
+}

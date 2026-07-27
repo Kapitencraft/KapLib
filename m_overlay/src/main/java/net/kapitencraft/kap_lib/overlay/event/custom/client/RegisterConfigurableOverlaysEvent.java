@@ -3,15 +3,12 @@ package net.kapitencraft.kap_lib.overlay.event.custom.client;
 import net.kapitencraft.kap_lib.core.stream.Consumers;
 import net.kapitencraft.kap_lib.overlay.OverlayProperties;
 import net.kapitencraft.kap_lib.overlay.holder.Overlay;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.event.IModBusEvent;
 
-import java.util.ResourceBundle;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**

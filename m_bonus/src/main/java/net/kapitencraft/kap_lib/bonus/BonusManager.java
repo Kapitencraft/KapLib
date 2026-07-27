@@ -282,9 +282,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         }
 
         private BonusLookup(LivingEntity target) {
-            getActiveBonuses(target).values().forEach(element -> {
-                activeBonuses.put(element, new AtomicInteger());
-            });
+            getActiveBonuses(target).values().forEach(element -> activeBonuses.put(element, new AtomicInteger()));
             this.target = target;
         }
 

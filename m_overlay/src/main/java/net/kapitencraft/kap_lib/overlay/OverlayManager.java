@@ -17,8 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.neoforged.fml.ModLoader;
@@ -48,7 +46,7 @@ public class OverlayManager {
 
     }
 
-    public static OverlayManager INSTANCE = OverlayManager.load();
+    public static final OverlayManager INSTANCE = OverlayManager.load();
 
 
     private static OverlayManager fromCodec(Map<ResourceLocation, OverlayProperties> map) {

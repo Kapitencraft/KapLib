@@ -54,14 +54,14 @@ public class ParticleAnimation {
     private final Spawner spawner;
     public final int minSpawnDelay, maxSpawnDelay;
 
-    private ParticleAnimation(ParticleAnimationBuilder builder, ParticleAnimationPresetContext context) {
+    private ParticleAnimation(ParticleAnimationBuilder builder) {
         if (builder.minSpawnDelay > builder.maxSpawnDelay)
             throw new IllegalStateException("minimum spawn delay must be smaller than maximum spawn delay");
         if (builder.minSpawnDelay < -1 || builder.minSpawnDelay == 0)
             throw new IllegalStateException("minimum spawn delay must be above 0 or -1");
-        this.elements = builder.elements.stream().map(b -> (AnimationElement) b.build(context)).toList();
-        this.finalizer = Objects.requireNonNull(builder.finalizer.build(context), "animations must have a finalizer");
-        this.spawner = Objects.requireNonNull(builder.spawner.build(context), "animations must have a spawner");
+        this.elements = builder.elements.stream().map(b -> (AnimationElement) b.build(ParticleAnimationPresetContext.EMPTY)).toList();
+        this.finalizer = Objects.requireNonNull(builder.finalizer.build(ParticleAnimationPresetContext.EMPTY), "animations must have a finalizer");
+        this.spawner = Objects.requireNonNull(builder.spawner.build(ParticleAnimationPresetContext.EMPTY), "animations must have a spawner");
         this.terminators = builder.terminators;
         if (this.terminators.isEmpty()) throw new IllegalStateException("particle animation must have a terminator");
         this.maxSpawnDelay = builder.maxSpawnDelay;
@@ -205,7 +205,7 @@ public class ParticleAnimation {
 
         @ApiStatus.Internal
         private ParticleAnimation build() {
-            return new ParticleAnimation(this, ParticleAnimationPresetContext.EMPTY);
+            return new ParticleAnimation(this);
         }
 
         /**
