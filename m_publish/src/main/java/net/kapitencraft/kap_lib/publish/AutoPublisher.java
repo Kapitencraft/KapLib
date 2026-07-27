@@ -324,11 +324,6 @@ public class AutoPublisher {
         writer.close();
     }
 
-    @Deprecated
-    static String formatVersion(String modVersion, String mcVersion) {
-        return String.format("v%s-mc%s", modVersion, mcVersion);
-    }
-
     static String getAuth(boolean modrinth) {
         return modrinth ? System.getProperty("modrinthAuth") : System.getProperty("curseforgeAuth");
     }

@@ -66,7 +66,7 @@ public class NestedSpawnTable extends SpawnPoolSingletonContainer {
       }
 
       super.validate(validationContext);
-      this.entry.ifLeft((p_335332_) -> validationContext.resolver().get(SpawnTableRegistries.Keys.SPAWN_TABLES, p_335332_).ifPresentOrElse((p_339565_) -> p_339565_.value().validate(validationContext.enterElement("->{" + String.valueOf(p_335332_.location()) + "}", p_335332_)), () -> validationContext.reportProblem("Unknown loot table called " + String.valueOf(p_335332_.location())))).ifRight((p_331183_) -> p_331183_.validate(validationContext.forChild("->{inline}")));
+      this.entry.ifLeft((p_335332_) -> validationContext.resolver().get(SpawnTableRegistries.Keys.SPAWN_TABLES, p_335332_).ifPresentOrElse((p_339565_) -> p_339565_.value().validate(validationContext.enterElement("->{" + p_335332_.location() + "}", p_335332_)), () -> validationContext.reportProblem("Unknown loot table called " + p_335332_.location()))).ifRight((p_331183_) -> p_331183_.validate(validationContext.forChild("->{inline}")));
    }
 
    public static Builder<?> spawnTableReference(ResourceKey<SpawnTable> pTable) {

@@ -543,17 +543,6 @@ public interface MathHelper {
     }
 
     /**
-     * gets the largest difference between the 2 vectors, in form of a scalar
-     */
-    static float getOversizeScale(Vec3 original, Vec3 clamped) {
-        if (clamped.equals(original)) return 1;
-        float x = original.x == 0 ? 0 : (float) (original.x / clamped.x);
-        float y = original.y == 0 ? 0 : (float) (original.y / clamped.y);
-        float z = original.z == 0 ? 0 : (float) (original.z / clamped.z);
-        return pickLargest(x, y, z);
-    }
-
-    /**
      * picks the largest of the given values or -1 if the array is empty
      */
     static float pickLargest(float... values) {

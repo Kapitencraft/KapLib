@@ -23,7 +23,7 @@ public class TrackingShot {
     }
 
     public void setup() {
-        this.modifier = data.modifiers.get(0);
+        this.modifier = data.modifiers.getFirst();
     }
 
     public void tick(CameraData camData) {

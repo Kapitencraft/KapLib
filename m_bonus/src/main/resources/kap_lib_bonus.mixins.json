@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_21",
-  "package": "net.kapitencraft.kap_lib.bonus.mixin.classes",#
+  "package": "net.kapitencraft.kap_lib.bonus.mixin.classes",
   "client": [
     "client.ItemStackClientMixin"
   ],

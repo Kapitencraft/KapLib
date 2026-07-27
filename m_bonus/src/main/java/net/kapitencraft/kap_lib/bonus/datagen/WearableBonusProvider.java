@@ -165,6 +165,7 @@ public abstract class WearableBonusProvider extends ItemTagsProvider {
             return this.slot(slot, setSlotBuilder -> setSlotBuilder.add(item));
         }
 
+        @SuppressWarnings("UnusedReturnValue")
         public SetBuilder slot(EquipmentSlot slot, Supplier<? extends Item> supplier) {
             return this.slot(slot, supplier.get());
         }

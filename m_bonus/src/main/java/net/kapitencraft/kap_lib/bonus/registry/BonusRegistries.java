@@ -19,6 +19,7 @@ public interface BonusRegistries {
 
     Registry<RegistrySerializer<? extends Bonus<?>>> SERIALIZERS = syncReg(Keys.SERIALIZERS);
 
+    @SuppressWarnings("SameParameterValue")
     private static <T> Registry<T> syncReg(ResourceKey<Registry<T>> key) {
         Registry<T> registry = new RegistryBuilder<>(key).sync(true).create();
         registries.add(registry);
@@ -33,6 +34,7 @@ public interface BonusRegistries {
     interface Keys {
         ResourceKey<Registry<RegistrySerializer<? extends Bonus<?>>>> SERIALIZERS = createRegistry("bonus_serializers");
 
+        @SuppressWarnings("SameParameterValue")
         private static <T > ResourceKey < Registry < T >> createRegistry(String id) {
         return ResourceKey.createRegistryKey(LibConstants.res(id));
     }

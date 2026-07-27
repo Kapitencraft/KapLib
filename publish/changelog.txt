@@ -1,7 +1,20 @@
+This library is now hosted on the central maven under `io.github.kapitencraft`. only a merged jar continues to be
+hosted for convenience and support reasons.
+
+please reference [The Wiki](https://github.com/Kapitencraft/KapLib/wiki#implementing) on how to add this project to your
+development environment.
+
+the changelog for the different modules is listed below:
+
 # Attribute Module
 
+fixed timed modifiers only expiring for players
 fixed life steal particle animation disable config not working
 bonus attack speed is now implemented via the damage event instead of a mixin, increasing compatibility
+made Wisdom use LOW priority event listeners to improve mod compat with other mods adding xp changes
+changed Double Jump attribute to use vanilla jumping behavior instead
+reworked double jump attribute to use DataAttachment instead of persistent data
+changed most attributes to be applied to all entities using the `LivingEntity#createLivingAttributes` method. (Dev note: double jump doesn't work with mounted mobs unfortunately)
 
 # Core Module
 
@@ -12,21 +25,26 @@ added `RegisterOrderedItemComponentTooltipEvent` used to order different item co
 add info to the items' tooltip
 fixed MultiLineTextBoxes suggestions not disappearing when inserting
 fixed UpdateChecker not running
+fixed high velocity de-sync once and for all (Dev note: for objects with speed greater than |3.9| in any dimension, the packet sends a total of 18 more bytes)
 renamed TextHelper#makeGrammar -> #langify
-moved `FontSetsEvent` into the `./client` package
 removed core.util.Reference and IntegerReference. use Atomic classes instead
+moved `FontSetsEvent` into the `./client` package
 
 # Component Module
 
 removed GlyphEffects registry in favor of event based system to fix possible crash stacking
 
-# Datagen Module
+# DataGen Module
 
 added TextureProvider fields for all KapLib implemented transfer masks
 
 # Enchantment Module
 
 fixed enchantment info also being shown on applied items instead of just enchanted books
+
+# Particle Module
+
+added data-generated ParticlePresets for both client and server data and a dedicated DataGenerator
 
 # Recipe Module
 

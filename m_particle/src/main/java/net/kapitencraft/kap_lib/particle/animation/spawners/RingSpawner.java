@@ -23,9 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 public class RingSpawner extends VisibleSpawner {
     private final PositionTarget target;

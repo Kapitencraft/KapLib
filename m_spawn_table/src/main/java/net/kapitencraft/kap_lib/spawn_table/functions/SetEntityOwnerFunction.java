@@ -37,7 +37,7 @@ public class SetEntityOwnerFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_OWNER.get();
     }
 

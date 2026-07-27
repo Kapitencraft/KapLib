@@ -12,6 +12,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
 
+@SuppressWarnings("SameReturnValue")
 public interface IFishingHook {
 
     default FishingHook self() {

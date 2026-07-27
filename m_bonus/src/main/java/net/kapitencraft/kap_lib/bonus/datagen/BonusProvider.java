@@ -6,13 +6,9 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.kapitencraft.kap_lib.bonus.Bonus;
-import net.kapitencraft.kap_lib.bonus.registry.BonusRegistries;
 import net.kapitencraft.kap_lib.core.collection.DoubleMap;
 import net.kapitencraft.kap_lib.core.collection.MapStream;
-import net.kapitencraft.kap_lib.inventory_page.registry.custom.InventoryPageRegistries;
-import net.kapitencraft.kap_lib.inventory_page.wearable.WearableSlot;
 import net.minecraft.Util;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -160,6 +156,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
             return this.slot(slot, setSlotBuilder -> setSlotBuilder.add(item));
         }
 
+        @SuppressWarnings("UnusedReturnValue")
         public SetBuilder slot(EquipmentSlot slot, Supplier<? extends Item> supplier) {
             return this.slot(slot, supplier.get());
         }
@@ -257,8 +254,6 @@ public abstract class BonusProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags(@NotNull HolderLookup.Provider pProvider) {
-        this.setBuilders.values().forEach(setBuilder -> {
-            setBuilder.equipmentContent.values().forEach(setSlotBuilder -> builders.put(setSlotBuilder.key.location(), setSlotBuilder.builder));
-        });
+        this.setBuilders.values().forEach(setBuilder -> setBuilder.equipmentContent.values().forEach(setSlotBuilder -> builders.put(setSlotBuilder.key.location(), setSlotBuilder.builder)));
     }
 }

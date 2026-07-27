@@ -13,7 +13,7 @@ public class CameraData {
      */
     public Vec3 pos,
     /**
-     * rotation of the camera. z is roll
+     * rotation of the camera. z is Roll
      */
     rot;
     /**

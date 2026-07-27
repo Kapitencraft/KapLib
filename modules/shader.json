@@ -1,8 +1,5 @@
 {
   "type": "mod",
   "extensions": false,
-  "at": false,
-  "assets": [
-    "kap_lib/shaders/**"
-  ]
+  "at": false
 }

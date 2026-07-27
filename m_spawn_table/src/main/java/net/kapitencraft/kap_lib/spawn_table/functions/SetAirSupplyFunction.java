@@ -32,7 +32,7 @@ public class SetAirSupplyFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_AIR_SUPPLY.get();
     }
 }

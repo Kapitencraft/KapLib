@@ -31,7 +31,7 @@ public class SetMotionFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_MOTION.get();
     }
 }

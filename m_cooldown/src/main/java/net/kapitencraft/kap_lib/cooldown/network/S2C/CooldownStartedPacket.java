@@ -21,9 +21,7 @@ public record CooldownStartedPacket(Cooldown cooldown, int duration, int entityI
     public static final Type<CooldownStartedPacket> TYPE = new Type<>(LibConstants.res("cooldown_started"));
 
     public void handle(IPayloadContext sup) {
-        sup.enqueueWork(() -> {
-            Cooldowns.get((LivingEntity) Minecraft.getInstance().level.getEntity(entityId)).setCooldownTime(cooldown, duration);
-        });
+        sup.enqueueWork(() -> Cooldowns.get((LivingEntity) Minecraft.getInstance().level.getEntity(entityId)).setCooldownTime(cooldown, duration));
     }
 
     @Override

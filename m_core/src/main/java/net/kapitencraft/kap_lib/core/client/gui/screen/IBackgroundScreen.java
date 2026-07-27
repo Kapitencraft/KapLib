@@ -5,7 +5,9 @@ package net.kapitencraft.kap_lib.core.client.gui.screen;
  */
 public interface IBackgroundScreen {
 
+    @SuppressWarnings("SameReturnValue")
     int getImageWidth();
+    @SuppressWarnings("SameReturnValue")
     int getImageHeight();
 
     default int leftPos(int width) {

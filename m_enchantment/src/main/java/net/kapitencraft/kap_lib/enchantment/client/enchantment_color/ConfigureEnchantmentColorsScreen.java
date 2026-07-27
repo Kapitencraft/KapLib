@@ -2,10 +2,10 @@ package net.kapitencraft.kap_lib.enchantment.client.enchantment_color;
 
 import net.kapitencraft.kap_lib.core.client.UsefulTextures;
 import net.kapitencraft.kap_lib.core.client.widget.PositionedWidget;
+import net.kapitencraft.kap_lib.core.client.widget.select.HolderByNameRegistryElementSelectorWidget;
 import net.kapitencraft.kap_lib.core.client.widget.select.SelectChatColorWidget;
 import net.kapitencraft.kap_lib.core.client.widget.select.SelectCountWidget;
 import net.kapitencraft.kap_lib.core.client.widget.select.SelectEnumWidget;
-import net.kapitencraft.kap_lib.core.client.widget.select.HolderByNameRegistryElementSelectorWidget;
 import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.core.range.simple.IntegerNumberRange;
@@ -177,12 +177,13 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     private int getHoveredIndex(int y) {
         if (selector != null) return -1;
         //y = this.topPos + (ELEMENT_HEIGHT + 2) * index + (int) scrollY + 12
-        int index = (topPos + (int) scrollY + 12 - y) / - (ELEMENT_HEIGHT + 2);
+        int index = (topPos + (int) scrollY + 12 - y) / -(ELEMENT_HEIGHT + 2);
         return index < 0 || index >= this.elements.size() ? -1 : index;
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private class ColorElement {
-        private String name;
+        private final String name;
         private SelectChatColorWidget.ColorType colorType;
         private @Nullable LevelRange levelRange;
         private boolean bold, underlined, italic;
@@ -312,7 +313,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
             } else if (MathHelper.is2dBetween(relativeX, relativeY, 280, 35, 290, 45)) {
                 this.italic = !this.italic;
             } else if (MathHelper.is2dBetween(relativeX, relativeY, 280, 47, 290, 57)) {
-                selector = new SelectChatColorWidget(leftPos +  178, topPos + 56, this::setColor, Component.translatable("cec.select_color"), font, this.colorType);
+                selector = new SelectChatColorWidget(leftPos + 178, topPos + 56, this::setColor, Component.translatable("cec.select_color"), font, this.colorType);
             } else if (this.levelRange != null) {
                 if (MathHelper.is2dBetween(relativeX, relativeY, 163, 22, 173, 32)) {
                     this.levelRange = new LevelRange(levelRange.getMin(), levelRange.getMax(), !levelRange.isMaxLevelRelative());

@@ -1,13 +1,14 @@
 package net.kapitencraft.kap_lib.spawn_table;
 
-import net.kapitencraft.kap_lib.spawn_table.entries.DynamicSpawn;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.storage.loot.*;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 import javax.annotation.Nullable;
@@ -20,63 +21,67 @@ import java.util.function.Consumer;
  * This includes the Level as well as any known {@link LootContextParam}s.
  */
 public class SpawnContext extends LootContext {
-   private final Map<ResourceLocation, DynamicSpawn> dynamicSpawns = new HashMap<>();
+    private final Map<ResourceLocation, DynamicEntity> dynamicSpawns;
 
+    SpawnContext(LootParams params, RandomSource randomsource, HolderGetter.Provider provider, Map<ResourceLocation, DynamicEntity> map) {
+        super(params, randomsource, provider);
+        this.dynamicSpawns = ImmutableMap.copyOf(map);
+    }
 
-   SpawnContext(LootParams params, RandomSource randomsource, HolderGetter.Provider provider) {
-      super(params, randomsource, provider);
-   }
+    public void addDynamicSpawn(ResourceLocation pName, Consumer<Entity> pConsumer) {
+        DynamicEntity spawn = this.dynamicSpawns.get(pName);
+        if (spawn != null) spawn.add(pConsumer);
+    }
 
-   public void addDynamicSpawn(ResourceLocation pName, Consumer<Entity> pConsumer) {
-      DynamicSpawn spawn = this.dynamicSpawns.get(pName);
-      if (spawn != null) spawn.createEntity(pConsumer, this);
-   }
+    public static class Builder {
+        private final LootParams params;
+        @Nullable
+        private RandomSource random;
+        private Map<ResourceLocation, DynamicEntity> dynamicSpawns = new HashMap<>();
 
-   public static class Builder {
-      private final LootParams params;
-      @Nullable
-      private RandomSource random;
-      private ResourceLocation queriedLootTableId; // Forge: correctly pass around loot table ID with copy constructor
+        public Builder(LootParams pParams) {
+            this.params = pParams;
+        }
 
-      public Builder(LootParams pParams) {
-         this.params = pParams;
-      }
+        public Builder(SpawnContext context) {
+            this.params = context.params;
+            this.random = context.random;
+        }
 
-      public Builder(SpawnContext context) {
-         this.params = context.params;
-         this.random = context.random;
-      }
+        public SpawnContext.Builder withOptionalRandomSeed(long pSeed) {
+            if (pSeed != 0L) {
+                this.random = RandomSource.create(pSeed);
+            }
 
-      public SpawnContext.Builder withOptionalRandomSeed(long pSeed) {
-         if (pSeed != 0L) {
-            this.random = RandomSource.create(pSeed);
-         }
+            return this;
+        }
 
-         return this;
-      }
+        public SpawnContext.Builder withDynamicEntity(ResourceLocation name, SpawnContext.DynamicEntity dynamic) {
+            this.dynamicSpawns.put(name, dynamic);
+            return this;
+        }
 
-      public SpawnContext.Builder withQueriedLootTableId(ResourceLocation queriedLootTableId) {
-         this.queriedLootTableId = queriedLootTableId;
-         return this;
-      }
+        public ServerLevel getLevel() {
+            return this.params.getLevel();
+        }
 
-      public ServerLevel getLevel() {
-         return this.params.getLevel();
-      }
+        public SpawnContext create(@Nullable ResourceLocation pRandomLocation) {
+            ServerLevel serverlevel = this.getLevel();
+            MinecraftServer minecraftserver = serverlevel.getServer();
+            RandomSource randomsource;
+            if (this.random != null) {
+                randomsource = this.random;
+            } else if (pRandomLocation != null) {
+                randomsource = serverlevel.getRandomSequence(pRandomLocation);
+            } else {
+                randomsource = serverlevel.getRandom();
+            }
 
-      public SpawnContext create(@Nullable ResourceLocation pRandomLocation) {
-         ServerLevel serverlevel = this.getLevel();
-         MinecraftServer minecraftserver = serverlevel.getServer();
-         RandomSource randomsource;
-         if (this.random != null) {
-            randomsource = this.random;
-         } else if (pRandomLocation != null) {
-            randomsource = serverlevel.getRandomSequence(pRandomLocation);
-         } else {
-            randomsource = serverlevel.getRandom();
-         }
+            return new SpawnContext(this.params, randomsource, minecraftserver.reloadableRegistries().lookup(), this.dynamicSpawns);
+        }
+    }
 
-         return new SpawnContext(this.params, randomsource, minecraftserver.reloadableRegistries().lookup());
-      }
-   }
+    public interface DynamicEntity {
+        void add(Consumer<Entity> output);
+    }
 }

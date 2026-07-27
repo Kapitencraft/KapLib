@@ -25,7 +25,7 @@ public class HolderByNameRegistryElementSelectorWidget<T> extends PositionedWidg
     private final int titleWidth;
     protected float scroll;
     protected boolean scrolling;
-    protected int maxScroll;
+    protected final int maxScroll;
     protected final List<Holder<T>> allElements;
     protected Holder<T> selected;
     private final Consumer<Holder<T>> valueSink;

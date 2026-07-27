@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.particle.registry;
 
 import net.kapitencraft.kap_lib.core.util.Color;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.particle.custom.DamageIndicatorParticleOptions;
 import net.kapitencraft.kap_lib.particle.custom.LightningParticleOptions;
 import net.kapitencraft.kap_lib.particle.custom.ShimmerShieldParticleOptions;

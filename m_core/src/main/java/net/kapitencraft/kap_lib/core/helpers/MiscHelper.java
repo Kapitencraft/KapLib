@@ -2,8 +2,6 @@ package net.kapitencraft.kap_lib.core.helpers;
 
 import net.kapitencraft.kap_lib.core.util.Color;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.core.tags.ExtraTags;
-import net.kapitencraft.kap_lib.core.util.ExtraRarities;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.BlockPos;
@@ -177,6 +175,7 @@ public class MiscHelper {
      * @param values       values to search in
      * @return the found value or defaultValue if noting was returned
      */
+    @SafeVarargs
     public static <T, K> T getValue(Function<T, K> provider, T defaultValue, K key, T... values) {
         for (T t : values) {
             if (provider.apply(t).equals(key)) {

@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
+@SuppressWarnings("SameReturnValue")
 public class ComponentClientTestCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -31,6 +32,7 @@ public class ComponentClientTestCommand {
         return 1;
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private static int testGlyphs(CommandContext<CommandSourceStack> context) {
         Player player = Minecraft.getInstance().player;
         UUID uuid = player.getUUID();

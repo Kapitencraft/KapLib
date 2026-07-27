@@ -152,9 +152,9 @@ public abstract class TextureProvider implements DataProvider {
     /**
      * get palette from img
      */
-    private static List<Color> getPalette(NativeImage image, NativeImage mask, int paletteSize) {
+    private static List<Color> getPalette(NativeImage image, NativeImage mask) {
         List<Color> opaquePixels = loadOpaquePixels(image, mask);
-        List<Color> uniqueColors = getMostUniqueColors(opaquePixels, paletteSize);
+        List<Color> uniqueColors = getMostUniqueColors(opaquePixels, 256);
         return sortByBrightness(uniqueColors);
     }
 
@@ -230,19 +230,12 @@ public abstract class TextureProvider implements DataProvider {
     /**
      * MAIN FUCKASS METHOD
      */
-    private static NativeImage remapTexture(NativeImage paletteSource, NativeImage patternSource, NativeImage maskSource, int paletteSize) {
-        List<Color> sourcePalette = getPalette(paletteSource, null, paletteSize);
-        List<Color> patternPalette = getPalette(patternSource, maskSource, paletteSize);
+    private static NativeImage remapTexture(NativeImage paletteSource, NativeImage patternSource, NativeImage maskSource) {
+        List<Color> sourcePalette = getPalette(paletteSource, null);
+        List<Color> patternPalette = getPalette(patternSource, maskSource);
 
         IntUnaryOperator mapper = makeColorMapper(patternPalette, sourcePalette);
         return patternSource.mappedCopy(mapper);
-    }
-
-    /**
-     * MAIN FUCKASS METHOD WITH A DEFAULT 256 PALETTE SIZE
-     */
-    private static NativeImage remapTexture(NativeImage paletteSource, NativeImage targetTexture, NativeImage maskSource) {
-        return remapTexture(paletteSource, targetTexture, maskSource, 256);
     }
 
     //endregion

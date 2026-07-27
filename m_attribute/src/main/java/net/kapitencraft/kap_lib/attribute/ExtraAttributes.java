@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.attribute;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.core.util.Modules;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -101,12 +100,7 @@ public interface ExtraAttributes {
     Holder<Attribute> PROJECTILE_SPEED = register("projectile_speed", 0, 0, 10000, BaseAttributeLocations.PROJECTILE_SPEED);
     //endregion
 
-    //region Mining
-    Holder<Attribute> PRISTINE = register("pristine", 0, 0, 400, BaseAttributeLocations.PRISTINE);
-    Holder<Attribute> MINING_FORTUNE = register0Max("mining_fortune", 0, BaseAttributeLocations.MINING_FORTUNE);
-    //endregion
-
-    //Misc
+    //region misc
     /**
      * amount of health regenerated when attacking
      */
@@ -123,15 +117,12 @@ public interface ExtraAttributes {
      * increases experience gained from mining and combat
      */
     Holder<Attribute> WISDOM = register("wisdom", 0, -100, 10000, BaseAttributeLocations.WISDOM);
+    //endregion
 
     /**
      * gets the players experience scale, which should be multiplied with the base experience to get the final dropped experience
      */
     static double getExperienceScale(Player player) {
-        if (!Modules.isAttributesActive()) {
-            return 1;
-        }
-        double wisdom = player.getAttributeValue(ExtraAttributes.WISDOM);
-        return 1 + (wisdom / 100);
+        return 1 + (player.getAttributeValue(ExtraAttributes.WISDOM) / 100);
     }
 }

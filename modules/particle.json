@@ -1,7 +1,4 @@
 {
   "type": "mod",
-  "at": true,
-  "assets": [
-    "kap_lib/particles/**"
-  ]
+  "at": true
 }

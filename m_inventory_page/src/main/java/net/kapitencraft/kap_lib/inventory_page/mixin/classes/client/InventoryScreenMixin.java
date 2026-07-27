@@ -81,7 +81,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/InventoryScreen;addWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", shift = At.Shift.AFTER))
     private void initPages(CallbackInfo ci) {
-        InventoryPageReader reader = (InventoryPageReader) this.menu;
+        InventoryPageReader reader = this.menu;
         InventoryPage[] pages = reader.getPages();
         renderers = new InventoryPageRenderer[pages.length];
         visible = new int[pages.length];
@@ -95,7 +95,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     @WrapOperation(method = "init", at = @At(value = "NEW", target = "(IIIILnet/minecraft/client/gui/components/WidgetSprites;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/ImageButton;"))
     private ImageButton wrapRecipeBookButton(int x, int y, int width, int height, WidgetSprites sprites, Button.OnPress onPress, Operation<ImageButton> original) {
-        return new RecipeBookButtonWrapper(x, y, width, height, sprites, onPress, (InventoryPageReader) this.menu);
+        return new RecipeBookButtonWrapper(x, y, width, height, sprites, onPress, this.menu);
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
@@ -103,10 +103,10 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         int relativeY = (int) pMouseY - this.topPos;
         int relativeX = (int) pMouseX - this.leftPos;
         if (relativeX > 0 && relativeX < this.imageWidth) {
-            if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
+            if (relativeY > 0 && relativeY < this.imageHeight && this.menu.getPageIndex() != 0) {
                 if (this.renderer.onMouseClicked(relativeX, relativeY, pButton)) cir.setReturnValue(true);
             } else if (relativeY >= -32 && relativeY <= 0) {
-                InventoryPageIO pageIo = (InventoryPageIO) this.menu;
+                InventoryPageIO pageIo = this.menu;
                 int index = relativeX / 28;
                 if (index < pageIo.getPages().length) {
                     if (visible[index] != -1) {
@@ -124,7 +124,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         int relativeY = (int) pMouseY - this.topPos;
         int relativeX = (int) pMouseX - this.leftPos;
         if (relativeX > 0 && relativeX < this.imageWidth) {
-            if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
+            if (relativeY > 0 && relativeY < this.imageHeight && this.menu.getPageIndex() != 0) {
                 if (this.renderer.onMouseReleased(relativeX, relativeY, pButton)) cir.setReturnValue(true);
             }
         }
@@ -135,7 +135,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         int relativeY = (int) pMouseY - this.topPos;
         int relativeX = (int) pMouseX - this.leftPos;
         if (relativeX > 0 && relativeX < this.imageWidth) {
-            if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
+            if (relativeY > 0 && relativeY < this.imageHeight && this.menu.getPageIndex() != 0) {
                 return this.renderer.onMouseDragged(relativeX, relativeY, pButton);
             }
         }
@@ -147,7 +147,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
         int relativeY = (int) pMouseY - this.topPos;
         int relativeX = (int) pMouseX - this.leftPos;
         if (relativeX > 0 && relativeX < this.imageWidth) {
-            if (relativeY > 0 && relativeY < this.imageHeight && ((InventoryPageReader) this.menu).getPageIndex() != 0) {
+            if (relativeY > 0 && relativeY < this.imageHeight && this.menu.getPageIndex() != 0) {
                 return this.renderer.onMouseScrolled(relativeX, relativeY, deltaX);
             }
         }
@@ -157,7 +157,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
     @SuppressWarnings("DataFlowIssue")
     @Inject(method = "renderBg", at = @At("HEAD"), cancellable = true)
     private void addPages(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY, CallbackInfo ci) {
-        InventoryPageReader reader = (InventoryPageReader) this.menu;
+        InventoryPageReader reader = this.menu;
         int selected = reader.getPageIndex();
         InventoryPage[] pages = reader.getPages();
         int index = 0;
@@ -178,7 +178,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
 
     @Inject(method = "renderLabels", at = @At("HEAD"), cancellable = true)
     private void cancelIfOtherPage(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, CallbackInfo ci) {
-        if (((InventoryPageReader) this.menu).getPageIndex() != 0) ci.cancel();
+        if (this.menu.getPageIndex() != 0) ci.cancel();
     }
 
     @Unique
@@ -204,8 +204,8 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
     @Inject(method = "keyPressed", at = @At("HEAD"))
     private void addPageSwap(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
         if (keyCode == GLFW.GLFW_KEY_TAB && Screen.hasControlDown()) {
-            ((InventoryPageIO) this.menu).cycle();
-            this.renderer = this.renderers[((InventoryPageReader) this.menu).getPageIndex()];
+            this.menu.cycle();
+            this.renderer = this.renderers[this.menu.getPageIndex()];
         }
     }
 }

@@ -80,7 +80,7 @@ public abstract class SpawnPoolSingletonContainer extends SpawnPoolEntryContaine
       }
    }
 
-   public static SpawnPoolSingletonContainer.Builder<?> simpleBuilder(SpawnPoolSingletonContainer.EntryConstructor pEntryBuilder) {
+   protected static SpawnPoolSingletonContainer.Builder<?> simpleBuilder(SpawnPoolSingletonContainer.EntryConstructor pEntryBuilder) {
       return new SpawnPoolSingletonContainer.DummyBuilder(pEntryBuilder);
    }
 

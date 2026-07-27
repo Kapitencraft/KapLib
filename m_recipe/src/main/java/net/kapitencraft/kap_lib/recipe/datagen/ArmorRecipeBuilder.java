@@ -65,7 +65,7 @@ public class ArmorRecipeBuilder implements RecipeBuilder {
 
     @Override
     public @NotNull Item getResult() {
-        return items.values().iterator().next().get(); //oh god
+        return items.values().iterator().next().get();
     }
 
     @Override

@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
+@SuppressWarnings("SameReturnValue")
 public class ParticleClientTestCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

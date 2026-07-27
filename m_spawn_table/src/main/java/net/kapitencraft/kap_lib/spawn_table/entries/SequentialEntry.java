@@ -26,24 +26,20 @@ public class SequentialEntry extends CompositeEntryBase {
     * Compose the given children into one container.
     */
    protected ComposableEntryContainer compose(List<? extends ComposableEntryContainer> pEntries) {
-      switch (pEntries.size()) {
-         case 0:
-            return ALWAYS_TRUE;
-         case 1:
-            return pEntries.get(0);
-         case 2:
-            return pEntries.get(0).and(pEntries.get(1));
-         default:
-            return (p_79819_, p_79820_) -> {
-               for(ComposableEntryContainer composableentrycontainer : pEntries) {
-                  if (!composableentrycontainer.expand(p_79819_, p_79820_)) {
-                     return false;
-                  }
+       return switch (pEntries.size()) {
+           case 0 -> ALWAYS_TRUE;
+           case 1 -> pEntries.get(0);
+           case 2 -> pEntries.get(0).and(pEntries.get(1));
+           default -> (p_79819_, p_79820_) -> {
+               for (ComposableEntryContainer composableentrycontainer : pEntries) {
+                   if (!composableentrycontainer.expand(p_79819_, p_79820_)) {
+                       return false;
+                   }
                }
 
                return true;
-            };
-      }
+           };
+       };
    }
 
    public static Builder sequential(SpawnPoolEntryContainer.Builder<?>... pChildren) {

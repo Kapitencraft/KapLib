@@ -8,8 +8,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 public record SyncBonusesPacket(BonusManager.Data data) implements CustomPacketPayload {
     public static final StreamCodec<RegistryFriendlyByteBuf, SyncBonusesPacket> CODEC =
             BonusManager.Data.STREAM_CODEC.map(SyncBonusesPacket::new, SyncBonusesPacket::data);

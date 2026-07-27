@@ -41,6 +41,7 @@ public class ExtraTags {
         private static TagKey<Item> forgeKey(String path) {
             return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));
         }
+        @SuppressWarnings("SameParameterValue")
         private static TagKey<Item> modKey(String path) {
             return TagKey.create(Registries.ITEM, LibConstants.res(path));
         }
@@ -52,6 +53,7 @@ public class ExtraTags {
          */
         TagKey<EntityType<?>> ENDER_MOBS = forgeKey("ender_mobs");
 
+        @SuppressWarnings("SameParameterValue")
         private static TagKey<EntityType<?>> forgeKey(String path) {
             return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("c", path));
         }

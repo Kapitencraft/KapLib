@@ -226,13 +226,13 @@ public class ResizeBox extends InteractiveBox implements IMenuBuilder {
 
     private class AccessBox extends InteractiveBox {
         private final ResizeBox.Type type;
-        protected AccessBox(Vec2 start, Vec2 finish, int cursorType, int color, ResizeBox.Type type) {
-            super(start, finish, cursorType, color);
+        protected AccessBox(int cursorType, int color, Type type) {
+            super(Vec2.ZERO, Vec2.ZERO, cursorType, color);
             this.type = type;
         }
 
         protected AccessBox(int color, ResizeBox.Type type) {
-            this(Vec2.ZERO, Vec2.ZERO, getCursorType(type), color, type);
+            this(getCursorType(type), color, type);
         }
 
         protected ResizeBox.Type getType() {

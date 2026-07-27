@@ -35,7 +35,7 @@ public interface CollectorHelper {
      * @param valueMapper the right pair value extractor
      * @param <K> type of the left pair value
      * @param <V> type of the right pair value
-     * @param <L> type of the stream's value, to be converted into a pair list
+     * @param <L> type of the stream's value, to be converted into a pair-list
      * @return a collector to create lists of pairs
      */
     static <K, V, L> Collector<L, ?, List<Pair<K, V>>> toPairList(Function<L, K> keyMapper, Function<L, V> valueMapper) {

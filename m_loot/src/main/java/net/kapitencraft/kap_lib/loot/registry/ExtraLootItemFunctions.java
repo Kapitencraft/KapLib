@@ -15,6 +15,7 @@ public interface ExtraLootItemFunctions {
 
     Supplier<LootItemFunctionType<AttributeAmountModifierFunction>> ATTRIBUTE_MODIFIER = REGISTRY.register("attribute_modifier", type(AttributeAmountModifierFunction.CODEC));
 
+    @SuppressWarnings("SameParameterValue")
     private static <T extends LootItemFunction> Supplier<LootItemFunctionType<T>> type(MapCodec<T> serializer) {
         return ()-> new LootItemFunctionType<>(serializer);
     }

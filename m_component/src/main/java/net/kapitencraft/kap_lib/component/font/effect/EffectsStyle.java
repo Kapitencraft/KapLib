@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.component.font.effect;
 
-import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.minecraft.network.chat.Style;
 import org.checkerframework.dataflow.qual.Pure;
 import org.jetbrains.annotations.ApiStatus;

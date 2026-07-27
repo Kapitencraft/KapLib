@@ -44,7 +44,7 @@ public final class ClientParticleAnimationManager extends SimpleJsonResourceRelo
     /**
      * animations waiting for their activation
      */
-    private final Map<ParticleAnimator, List<ActivationTriggerInstance>> onHold = new HashMap<>();
+    private final Map<ParticleAnimator.Pending, List<ActivationTriggerInstance>> onHold = new HashMap<>();
 
     public ClientParticleAnimationManager() {
         super(JsonHelper.GSON, "animation_presets");
@@ -63,11 +63,13 @@ public final class ClientParticleAnimationManager extends SimpleJsonResourceRelo
     public void accept(ParticleAnimation animation) {
         List<ActivationTriggerInstance> triggers = animation.getTriggers();
         if (!triggers.isEmpty()) {
-            ParticleAnimator animator = new ParticleAnimator(animation);
+            Map<ActivationTriggerInstance, ActivationTrigger.Listener<?>> listeners = new HashMap<>();
+            ParticleAnimator.Pending animator = new ParticleAnimator.Pending(new ParticleAnimator(animation), listeners);
             List<ActivationTriggerInstance> remaining = new ArrayList<>();
             for (ActivationTriggerInstance instance : triggers) {
                 ActivationTrigger.Listener<ActivationTriggerInstance> listener = new ActivationTrigger.Listener<>(instance, animator);
                 addListener(listener, remaining);
+                listeners.put(instance, listener);
             }
             if (!remaining.isEmpty()) {
                 onHold.put(animator, remaining);
@@ -104,12 +106,13 @@ public final class ClientParticleAnimationManager extends SimpleJsonResourceRelo
         });
     }
 
-    public void triggerComplete(ParticleAnimator animator, ActivationTriggerInstance trigger) {
-        List<ActivationTriggerInstance> triggers = onHold.get(animator);
+    public void triggerComplete(ParticleAnimator.Pending pending, ActivationTriggerInstance trigger) {
+        List<ActivationTriggerInstance> triggers = onHold.get(pending);
         triggers.remove(trigger);
+        pending.removeTrigger(trigger);
         if (triggers.isEmpty()) {
-            onHold.remove(animator);
-            activeAnimations.add(animator);
+            onHold.remove(pending);
+            activeAnimations.add(pending.getAnimator());
         }
     }
 
@@ -118,6 +121,7 @@ public final class ClientParticleAnimationManager extends SimpleJsonResourceRelo
         animator.removed();
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean usePreset(ResourceLocation location, ParticleAnimationPresetContext data) {
         ParticleAnimationPreset preset = this.presets.get(location);
         if (preset == null)

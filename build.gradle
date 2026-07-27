@@ -56,8 +56,8 @@ ext.createRequiredClasses = { Project project, String name ->
 
 subprojects { Project proj ->
 
-    Object data = name == 'aggregate' ? [] : new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
-    if (name != 'aggregate' && data.type == 'mod')
+    Object moduleData = name == 'aggregate' ? [] : new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
+    if (name != 'aggregate' && moduleData.type == 'mod')
         rootProject.ext.createRequiredClasses(proj, name)
 
 
@@ -86,14 +86,29 @@ subprojects { Project proj ->
         if (name == 'recipe' || name == 'aggregate') {
             maven { url 'https://maven.blamejared.com' }
         }
+        if (name == 'enchantment' || name == 'aggregate') {
+            exclusiveContent {
+                forRepository {
+                    maven {
+                        name = "Modrinth"
+                        url = "https://api.modrinth.com/maven"
+                    }
+                }
+                filter {
+                    includeGroup "maven.modrinth"
+                }
+            }
+        }
     }
 
     dependencies {
-        if (name != "core" && data.type == 'mod') {
+        if (name != "core" && moduleData.type == 'mod') {
             api(project(":core"))
         }
 
-        if (name == 'recipe') {
+        if (name == 'enchantment') {
+            implementation('maven.modrinth:sorted-enchantments:2.0.0+1.21+neoforge')
+        } else if (name == 'recipe') {
             compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
             compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
             runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
@@ -107,20 +122,21 @@ subprojects { Project proj ->
         } else if (name == 'datagen') {
             api(project(":core"))
         } else if (name == 'aggregate') {
+            implementation('maven.modrinth:sorted-enchantments:2.0.0+1.21+neoforge')
             rootProject.subprojects.each { Project project ->
                 if (project.name != 'aggregate')
                     api(project)
             }
         }
 
-        if (data.compat != null) {
-            data.compat.each { String dep ->
+        if (moduleData.compat != null) {
+            moduleData.compat.each { String dep ->
                 compileOnly(project(":${dep}"))
             }
         }
 
-        if (data.dependencies != null) {
-            data.dependencies.each { String dep ->
+        if (moduleData.dependencies != null) {
+            moduleData.dependencies.each { String dep ->
                 api(project(":${dep}"))
             }
         }
@@ -228,7 +244,7 @@ subprojects { Project proj ->
         }
     }
 
-    if (data.type == 'mod' || data.type == 'game_lib') {
+    if (moduleData.type == 'mod' || moduleData.type == 'game_lib') {
         neoForge {
             version = rootProject.neo_version
 
@@ -278,22 +294,21 @@ subprojects { Project proj ->
                     programArgument '--nogui'
                 }
 
-                //data {
-                //    data()
-                //    // example of overriding the workingDirectory set in configureEach above
-//
-                //    sourceSet = proj.sourceSets.main
-//
-                //    // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-                //    programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-                //}
+                data {
+                    data()
+                    // example of overriding the workingDirectory set in configureEach above
+                    logLevel = org.slf4j.event.Level.DEBUG
+
+                    // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+                    programArguments.addAll '--mod', moduleId, '--all', '--output', proj.file('src/generated/resources/').getAbsolutePath(), '--existing', proj.file('src/main/resources/').getAbsolutePath()
+                }
             }
 
-            if (name == 'enchantment')
+            if (moduleData.interfaceInjection)
                 interfaceInjectionData.from 'interfaces.json'
         }
     }
-    if (data.type == 'game_lib') {
+    if (moduleData.type == 'game_lib') {
         jar {
             manifest {
                 attributes([
@@ -339,6 +354,17 @@ tasks.register('gitUpdate', Task) {
 
 repositories {
     maven { url 'https://maven.blamejared.com' }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {

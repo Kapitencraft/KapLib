@@ -23,6 +23,6 @@ public class TextToBoolConverter extends TextConverter<Boolean> {
         return PREFERRED_ARGS.contains(s) || OTHER_ARGS.contains(s);
     }
 
-    public static List<String> PREFERRED_ARGS = List.of("==", "!=", "<=", ">=");
-    public static List<String> OTHER_ARGS = List.of("||", "&&");
+    public static final List<String> PREFERRED_ARGS = List.of("==", "!=", "<=", ">=");
+    public static final List<String> OTHER_ARGS = List.of("||", "&&");
 }

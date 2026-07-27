@@ -21,7 +21,7 @@ public record ActivateParticleAnimationsPacket(List<ParticleAnimation> animation
         return TYPE;
     }
 
-    public void handle(IPayloadContext context) {
+    public void handle(IPayloadContext ignoredContext) {
         ClientParticleAnimationManager.activate(this.animations);
     }
 }

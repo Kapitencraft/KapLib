@@ -8,7 +8,7 @@ import net.minecraft.world.phys.Vec2;
  * boxes that can be rendered on screen and interacted with
  * <br> (hence the {@link GuiEventListener} implementation)
  */
-public class InteractiveBox extends RenderBox implements GuiEventListener {
+public abstract class InteractiveBox extends RenderBox implements GuiEventListener {
     protected InteractiveBox(Vec2 start, Vec2 finish, int cursorType, int color) {
         super(start, finish, cursorType, color);
     }
@@ -44,9 +44,11 @@ public class InteractiveBox extends RenderBox implements GuiEventListener {
         return false;
     }
 
+    @SuppressWarnings("EmptyMethod")
     public void mouseClick(double x, double y) {
     }
 
+    @SuppressWarnings("EmptyMethod")
     public void mouseMove(double x, double y) {
     }
 

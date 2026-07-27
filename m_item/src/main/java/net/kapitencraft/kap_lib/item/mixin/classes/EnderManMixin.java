@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(EnderMan.class)
 public abstract class EnderManMixin extends Monster implements NeutralMob {
 
+    @SuppressWarnings("UnusedReturnValue")
     @Shadow protected abstract boolean teleport();
 
     protected EnderManMixin(EntityType<? extends Monster> p_33002_, Level p_33003_) { //DUMMY
