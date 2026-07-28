@@ -60,7 +60,6 @@ subprojects { Project proj ->
     if (name != 'aggregate' && data.type == 'mod')
         rootProject.ext.createRequiredClasses(proj, name)
 
-
     String moduleId = mod_id + "_" + name
 
     String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
@@ -419,7 +418,13 @@ tasks.named('assemble').configure {
 }
 
 tasks.named('jar', Jar) {
-    exclude("**/*") //keep empty
+    for (final def proj in subprojects) {
+        it.from(proj.tasks.findByName("jar").source) {
+            exclude 'META-INF/neoforge.mods.toml'
+        }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.WARN
 }
 
 tasks.withType(JavaCompile).configureEach {
