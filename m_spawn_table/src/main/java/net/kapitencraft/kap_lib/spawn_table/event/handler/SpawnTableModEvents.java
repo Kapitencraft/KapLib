@@ -14,6 +14,7 @@ public class SpawnTableModEvents {
     public static void addRegistries(NewRegistryEvent event) {
         SpawnTableRegistries.registerAll(event::register);
     }
+
     @SubscribeEvent
     public static void onDataPackRegistryNewRegistry(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(SpawnTableRegistries.Keys.SPAWN_TABLES, SpawnTable.DIRECT_CODEC);

@@ -1,6 +1,6 @@
 {
   "type": "mod",
   "extensions": false,
-  "at": false,
+  "at": true,
   "dependencies": ["inventory_page"]
 }

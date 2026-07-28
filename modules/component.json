@@ -1,5 +1,7 @@
 {
   "type": "mod",
+  "at": "true",
+  "mixin": true,
   "dependencies": ["shader"],
   "interfaceInjection": true
 }

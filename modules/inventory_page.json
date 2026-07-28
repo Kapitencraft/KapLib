@@ -1,4 +1,5 @@
 {
   "type": "mod",
-  "interfaceInjection": true
+  "interfaceInjection": true,
+  "mixin": true
 }
