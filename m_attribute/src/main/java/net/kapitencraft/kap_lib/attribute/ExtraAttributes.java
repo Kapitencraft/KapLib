@@ -1,9 +1,11 @@
 package net.kapitencraft.kap_lib.attribute;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.minecraft.world.entity.player.Player;
@@ -124,5 +126,9 @@ public interface ExtraAttributes {
      */
     static double getExperienceScale(Player player) {
         return 1 + (player.getAttributeValue(ExtraAttributes.WISDOM) / 100);
+    }
+
+    static boolean isArtificialCrit(LivingEntity living) {
+        return living.getAttributes().hasAttribute(CRIT_CHANCE) && living.getAttributeValue(CRIT_CHANCE)  / 100 > Math.random();
     }
 }

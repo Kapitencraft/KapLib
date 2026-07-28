@@ -20,6 +20,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -111,7 +112,7 @@ public class AttributeEvents {
     @SubscribeEvent
     private static void critDamageRegister(CriticalHitEvent event) {
         Player attacker = event.getEntity();
-        if (event.isVanillaCritical() || AttributeHelper.getSaveAttributeValue(ExtraAttributes.CRIT_CHANCE, attacker) / 100 > Math.random()) {
+        if (event.isVanillaCritical() || ExtraAttributes.isArtificialCrit(attacker)) {
             event.setCriticalHit(true);
             event.setDamageMultiplier((float) (1 + AttributeHelper.getSaveAttributeValue(ExtraAttributes.CRIT_DAMAGE, attacker) / 100));
         }
@@ -139,9 +140,10 @@ public class AttributeEvents {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     private static void damageAttributeRegister(LivingDamageEvent.Pre event) {
-        @Nullable LivingEntity attacker = MiscHelper.getAttacker(event.getSource());
+        DamageSource source = event.getSource();
+        @Nullable LivingEntity attacker = MiscHelper.getAttacker(source);
         if (attacker == null) return;
-        if (event.getSource().isDirect() && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {
+        if (source.isDirect() && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {
             double strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH, attacker);
             event.setNewDamage(event.getNewDamage() * (float) (1 + strength / 100));
         }
@@ -151,8 +153,15 @@ public class AttributeEvents {
             MiscHelper.getArmorEquipment(attacked)
                     .forEach(stack -> stack.hurtAndBreak((int) (armorShredder / 3), sL, attacker instanceof ServerPlayer serverPlayer ? serverPlayer : null, i -> {}));
         }
+        if (source.getDirectEntity() instanceof AbstractArrow arrow) {
+            if (arrow.getOwner() instanceof LivingEntity owner) {
+                if (arrow.isCritArrow() || ExtraAttributes.isArtificialCrit(owner)) {
+                    event.setNewDamage(event.getNewDamage() * (1f + (float) owner.getAttributeValue(ExtraAttributes.CRIT_DAMAGE) / 100f));
+                }
+            }
+        }
         double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIFE_STEAL, attacker);
-        if (event.getSource().isDirect() && liveSteal > 0) {
+        if (source.isDirect() && liveSteal > 0) {
             if (attacker.level() instanceof ServerLevel && Modules.isParticleActive()) {
                 ParticleCompat.sendLifeStealAnimation(attacked, attacker);
             }
