@@ -32,8 +32,6 @@ public record ParticleAnimationPreset(
             Codec.INT.fieldOf("max_delay").forGetter(ParticleAnimationPreset::maxSpawnDelay)
     ).apply(i, ParticleAnimationPreset::new));
 
-    //TODO add a builder to the target providers in order to abstract the entities into a form where they can be dynamically created
-
     public ParticleAnimation build(ParticleAnimationPresetContext context) {
         return new ParticleAnimation(
                 this.elements.stream().map(b -> b.build(context)).collect(Collectors.toUnmodifiableList()),

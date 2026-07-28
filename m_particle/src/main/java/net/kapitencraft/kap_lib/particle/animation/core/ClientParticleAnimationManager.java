@@ -29,7 +29,6 @@ import java.util.Map;
 /**
  * manager of all animations
  */
-//TODO store animations in JSON and load them via reference
 public final class ClientParticleAnimationManager extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 

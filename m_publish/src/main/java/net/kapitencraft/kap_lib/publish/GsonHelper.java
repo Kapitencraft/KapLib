@@ -30,7 +30,7 @@ public class GsonHelper {
 
     public static String getOptionalAsString(JsonObject object, String memberName, String fallback) throws JsonParseException {
         if (!object.has(memberName)) {
-            return null;
+            return fallback;
         }
         JsonElement element = object.get(memberName);
         if (!element.isJsonPrimitive() || !element.getAsJsonPrimitive().isString()) return fallback;

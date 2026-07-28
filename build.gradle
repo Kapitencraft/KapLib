@@ -77,7 +77,11 @@ subprojects { Project proj ->
     }
 
     base {
-        archivesName = mod_id + "-" + name
+        if (name == 'aggregate') {
+            archivesName = mod_id
+        } else {
+            archivesName = mod_id + "-" + name
+        }
     }
 
     repositories {
@@ -438,6 +442,18 @@ neoForge {
     }
 }
 
+tasks.named('processResources', ProcessResources) {
+    filesMatching('publish_config.json') {
+        expand(
+                'mod_id': mod_id,
+                'mod_name': mod_name,
+                'mod_version': mod_version,
+                'minecraft_version': mc_version,
+                'neo_version': neo_version
+        )
+    }
+}
+
 tasks.named('assemble').configure {
     dependsOn(subprojects.collect {
         it.tasks.named("build")
@@ -446,6 +462,10 @@ tasks.named('assemble').configure {
 
 tasks.named('jar', Jar) {
     exclude("**/*") //keep empty
+}
+
+tasks.withType(ProcessResources).configureEach {
+    it.exclude("**/.cache/**")
 }
 
 tasks.withType(JavaCompile).configureEach {

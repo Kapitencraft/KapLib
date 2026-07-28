@@ -1,5 +1,5 @@
 This library is now hosted on the central maven under `io.github.kapitencraft`. only a merged jar continues to be
-hosted for convenience and support reasons.
+hosted for convenience and support reasons. these files can (currently)
 
 please reference [The Wiki](https://github.com/Kapitencraft/KapLib/wiki#implementing) on how to add this project to your
 development environment.
