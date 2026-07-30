@@ -1,4 +1,10 @@
-# Attribute module
+# Attribute Module
 
-added ExtraAttributes#isArtificialCrit method to determine if a LivingEntity should crit
+added ExtraAttributes#isArtificialCrit method to determine if a LivingEntity should crit using the CRIT_CHANCE attribute
 fixed arrows set as critical not triggering critical calculation
+fixed DRAW_SPEED, FISHING_SPEED and WISDOM attributes not being applied to player
+
+# Enchantment Module
+
+changed EnchantmentCountEffect using attack strength scale from 0 -> .5 adjust ticks
+adjusted the order of enchantment descriptions to simplify changes in the future

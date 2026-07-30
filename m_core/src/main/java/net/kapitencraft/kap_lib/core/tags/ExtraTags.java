@@ -15,6 +15,7 @@ public class ExtraTags {
     public interface DamageTypes {
         TagKey<DamageType> MAGIC = forgeKey("magic");
         TagKey<DamageType> PARTICLE_WEAPON = forgeKey("particle_weapon");
+        TagKey<DamageType> APPLIES_NO_INVULNERABILITY = forgeKey("applies_no_invulnerability");
 
         private static TagKey<DamageType> forgeKey(String subName) {
             return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("c", subName));

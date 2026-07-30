@@ -16,6 +16,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
@@ -42,6 +44,13 @@ import javax.annotation.Nullable;
 @ApiStatus.Internal
 @EventBusSubscriber
 public class AttributeEvents {
+
+    @SubscribeEvent
+    public static void onEntityAttributeModification(EntityAttributeModificationEvent event) {
+        event.add(EntityType.PLAYER, ExtraAttributes.DRAW_SPEED);
+        event.add(EntityType.PLAYER, ExtraAttributes.FISHING_SPEED);
+        event.add(EntityType.PLAYER, ExtraAttributes.WISDOM);
+    }
 
     @SubscribeEvent
     private static void joinLevelEvent(EntityJoinLevelEvent event) {

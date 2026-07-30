@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.core.event.handler;
 
+import net.kapitencraft.kap_lib.core.tags.ExtraTags;
 import net.kapitencraft.kap_lib.core.util.DamageCounter;
 import net.kapitencraft.kap_lib.core.util.BlockBreakSet;
 import net.neoforged.bus.api.EventPriority;
@@ -14,6 +15,9 @@ public class CoreEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void utilDamage(LivingDamageEvent.Pre event) {
         DamageCounter.increaseDamage(event.getNewDamage());
+        if (event.getSource().is(ExtraTags.DamageTypes.APPLIES_NO_INVULNERABILITY)) {
+            event.getContainer().setPostAttackInvulnerabilityTicks(0);
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)

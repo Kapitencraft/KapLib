@@ -27,19 +27,20 @@ class LivingEntityMixin implements MixinSelfProvider<LivingEntity> {
     @Shadow @Final private static EntityDataAccessor<Boolean> DATA_EFFECT_AMBIENCE_ID;
     @Unique
     private static final List<Holder<Attribute>> GENERIC_ATTRIBUTES = List.of(
-            ExtraAttributes.RANGED_DAMAGE,
-            ExtraAttributes.DOUBLE_JUMP,
             ExtraAttributes.DODGE,
-            ExtraAttributes.CRIT_DAMAGE,
-            ExtraAttributes.FEROCITY,
-            ExtraAttributes.ARMOR_SHREDDER,
+            ExtraAttributes.MAGIC_DEFENCE,
+            ExtraAttributes.TRUE_DEFENCE,
+            ExtraAttributes.DOUBLE_JUMP,
+            ExtraAttributes.VITALITY,
             ExtraAttributes.BONUS_ATTACK_SPEED,
+            ExtraAttributes.STRENGTH,
+            ExtraAttributes.CRIT_DAMAGE,
+            ExtraAttributes.CRIT_CHANCE,
+            ExtraAttributes.FEROCITY,
+            ExtraAttributes.RANGED_DAMAGE,
             ExtraAttributes.PROJECTILE_SPEED,
             ExtraAttributes.LIFE_STEAL,
-            ExtraAttributes.STRENGTH,
-            ExtraAttributes.VITALITY,
-            ExtraAttributes.TRUE_DEFENCE,
-            ExtraAttributes.MAGIC_DEFENCE
+            ExtraAttributes.ARMOR_SHREDDER
     );
 
     /**
