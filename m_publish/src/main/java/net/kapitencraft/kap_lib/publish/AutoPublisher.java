@@ -167,7 +167,7 @@ public class AutoPublisher {
                 String versionName = GsonHelper.getAsString(object, "version_name");
                 DependencyType depType = jsonDeserializationContext.deserialize(object.get("type"), DependencyType.class);
                 int ordinal = GsonHelper.getOptionalAsInt(object, "ordinal", 0);
-                return new DependencyInfo(modrinthId, versionName, curseforgeId, depType, ordinal);
+                return new DependencyInfo(modrinthId, curseforgeId, versionName, depType, ordinal);
             }
         }
     }
