@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.particle.network;
 
+import net.kapitencraft.kap_lib.particle.ParticleModule;
 import net.kapitencraft.kap_lib.particle.network.S2C.ActivateParticleAnimationsPacket;
 import net.kapitencraft.kap_lib.particle.network.S2C.SendParticleAnimationPacket;
 import net.kapitencraft.kap_lib.particle.network.S2C.UseParticleAnimationPresetPacket;
@@ -8,7 +9,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = ParticleModule.MODULE_ID)
 public class ParticleMessages {
     @SubscribeEvent
     public static void register(RegisterPayloadHandlersEvent event) {

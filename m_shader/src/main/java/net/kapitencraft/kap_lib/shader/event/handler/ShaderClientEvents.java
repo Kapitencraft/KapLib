@@ -1,13 +1,14 @@
 package net.kapitencraft.kap_lib.shader.event.handler;
 
+import net.kapitencraft.kap_lib.shader.ShaderModule;
 import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
 import net.kapitencraft.kap_lib.shader.event.custom.client.RegisterUniformsEvent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
-@EventBusSubscriber(Dist.CLIENT)
-public class ShaderModClientEvents {
+@EventBusSubscriber(value = Dist.CLIENT, modid = ShaderModule.MODULE_ID)
+public class ShaderClientEvents {
 
     @SubscribeEvent
     public static void registerUniforms(RegisterUniformsEvent event) {

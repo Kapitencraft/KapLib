@@ -443,121 +443,107 @@ tasks.named('assemble').configure {
     })
 }
 
-//tasks.named('jar', Jar) {
-//    for (final def proj in subprojects) {
-//        if (proj.name == 'aggregate' || proj.ext.data.type != 'mod') continue
-//        String name = proj.name
-//
-//        it.from(proj.tasks.findByName("jar").source) {
-//            exclude 'META-INF/neoforge.mods.toml'
-//            exclude 'MANIFEST.MF'
-//            exclude 'pack.mcmeta'
-//            exclude '**/lang/**'
-//
-//            filesMatching('META-INF/accesstransformer.cfg') {
-//                it.setPath("META-INF/accesstransformer-${name}.cfg")
-//            }
-//        }
-//    }
-//
-//    duplicatesStrategy = DuplicatesStrategy.WARN
-//}
+tasks.named('jar', Jar) {
+    for (final def proj in subprojects) {
+        if (proj.name == 'aggregate' || proj.ext.data.type != 'mod') continue
+        String name = proj.name
 
-//ext.buildModsToml = { Project ignored ->
-//    StringBuilder builder = new StringBuilder()
-//
-//    subprojects.each { Project proj ->
-//        if (proj.name == 'aggregate') return
-//        String moduleId = mod_id + "_" + proj.name
-//        String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
-//
-//        String primary = '''
-//[[mods]]
-//modId="%s"
-//version="%s"
-//displayName="%s"
-//description=\'\'\' %s \'\'\''''.formatted(moduleId, mod_version, modName, mod_description)
-//
-//        builder.append(primary)
-//
-//        if (proj.ext.data.extensions) {
-//            builder.append('\nenumExtensions="META-INF/enumextensions.json"')
-//        }
-//
-//        if (proj.ext.data.mixin) {
-//            String mixins = '''
-//[[mixins]]
-//config = "%s.mixins.json"
-//'''.formatted(moduleId)
-//            builder.append(mixins)
-//        }
-//
-//        if (proj.ext.data.at) {
-//            String at = '''
-//[[accessTransformers]]
-//file="META-INF/accesstransformer-%s.cfg"
-//'''.formatted(proj.name)
-//            builder.append(at)
-//        }
-//
-//        String deps = '''
-//[[dependencies.%s]] #optional
-//    modId="neoforge"
-//    mandatory=true
-//    versionRange="%s"
-//    ordering="NONE"
-//    side="BOTH"
-//[[dependencies.%s]]
-//    modId="minecraft"
-//    mandatory=true
-//    versionRange="%s"
-//    ordering="NONE"
-//    side="BOTH"
-//'''.formatted(moduleId, neo_version_range, moduleId, minecraft_version_range)
-//        builder.append(deps)
-//    }
-//    return builder.toString()
-//}
+        it.from(proj.sourceSets.main.output) {
+            exclude 'META-INF/neoforge.mods.toml'
+            exclude 'MANIFEST.MF'
+            exclude 'pack.mcmeta'
+            exclude '**/lang/**'
 
-//ext.addFiles = { AbstractCopyTask it ->
-//    for (final def proj in subprojects) {
-//        if (proj.name == 'aggregate' || proj.ext.data.type != 'mod') continue
-//        String name = proj.name
-//
-//        it.from(proj.tasks.findByName("processResources").source) {
-//            exclude 'META-INF/neoforge.mods.toml'
-//            exclude 'MANIFEST.MF'
-//            exclude 'pack.mcmeta'
-//            exclude '**/lang/**'
-//
-//            filesMatching('META-INF/accesstransformer.cfg') {
-//                it.setPath("META-INF/accesstransformer-${name}.cfg")
-//            }
-//        }
-//    }
-//}
-//
-//tasks.named('classes', DefaultTask) {
-//    for (final def proj in subprojects) {
-//        if (proj.name == 'aggregate' || proj.ext.data.type != 'mod') continue
-//
-//        it.inputs.files(proj.tasks.findByName("compileJava").outputs)
-//    }
-//}
-//
-//tasks.named('processResources', ProcessResources) {
-//    rootProject.ext.addFiles(it)
-//    filesMatching('META-INF/neoforge.mods.toml') {
-//        expand(
-//                "loader_version_range": loader_version_range,
-//                "mod_license": mod_license,
-//                "modData": rootProject.ext.buildModsToml(rootProject)
-//        )
-//    }
-//    filesMatching('pack.mcmeta') {
-//        expand("mod_id": mod_id)
-//    }
-//}
+            filesMatching('META-INF/accesstransformer.cfg') {
+                it.setPath("META-INF/accesstransformer-${name}.cfg")
+            }
+        }
+    }
+
+
+    duplicatesStrategy = DuplicatesStrategy.WARN
+}
+
+ext.buildModsToml = { Project ignored ->
+    StringBuilder builder = new StringBuilder()
+
+    subprojects.each { Project proj ->
+        if (proj.name == 'aggregate') return
+        String moduleId = mod_id + "_" + proj.name
+        String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
+
+        String primary = '''
+[[mods]]
+modId="%s"
+version="%s"
+displayName="%s"
+description=\'\'\' %s \'\'\''''.formatted(moduleId, mod_version, modName, mod_description)
+
+        builder.append(primary)
+
+        if (proj.ext.data.extensions) {
+            builder.append('\nenumExtensions="META-INF/enumextensions.json"')
+        }
+
+        if (proj.ext.data.mixin) {
+            String mixins = '''
+[[mixins]]
+config = "%s.mixins.json"
+'''.formatted(moduleId)
+            builder.append(mixins)
+        }
+
+        if (proj.ext.data.at) {
+            String at = '''
+[[accessTransformers]]
+file="META-INF/accesstransformer-%s.cfg"
+'''.formatted(proj.name)
+            builder.append(at)
+        }
+
+        String deps = '''
+[[dependencies.%s]] #optional
+    modId="neoforge"
+    mandatory=true
+    versionRange="%s"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.%s]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="%s"
+    ordering="NONE"
+    side="BOTH"
+'''.formatted(moduleId, neo_version_range, moduleId, minecraft_version_range)
+        builder.append(deps)
+    }
+    return builder.toString()
+}
+
+ext.addFiles = { AbstractCopyTask it ->
+}
+
+tasks.named('classes', DefaultTask) {
+    for (final def proj in subprojects) {
+        if (proj.name == 'aggregate' || proj.ext.data.type != 'mod') continue
+
+        it.inputs.files(proj.tasks.findByName("compileJava").outputs)
+    }
+}
+
+tasks.named('processResources', ProcessResources) {
+    rootProject.ext.addFiles(it)
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(
+                "loader_version_range": loader_version_range,
+                "mod_license": mod_license,
+                "modData": rootProject.ext.buildModsToml(rootProject)
+        )
+    }
+    filesMatching('pack.mcmeta') {
+        expand("mod_id": mod_id)
+    }
+}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation

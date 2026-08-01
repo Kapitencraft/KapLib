@@ -19,7 +19,6 @@ void main() {
         discard;
     }
 
-
     vec2 stage = filterStage(gl_FragCoord.xy / ScreenSize.xy, int(ChromaConfig.r));
     float l = chromaPos(ChromaConfig.a, stage, ChromaConfig.g);
 

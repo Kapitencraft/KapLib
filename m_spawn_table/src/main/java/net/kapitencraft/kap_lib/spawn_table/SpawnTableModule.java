@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.spawn_table;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.spawn_table.event.handler.SpawnTableEvents;
 import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnEntityFunctions;
 import net.kapitencraft.kap_lib.spawn_table.registry.spawn_table.SpawnPoolEntries;
 import net.minecraft.commands.CommandSourceStack;
@@ -20,6 +21,7 @@ public class SpawnTableModule {
 
         SpawnEntityFunctions.REGISTRY.register(modEventBus);
         SpawnPoolEntries.REGISTRY.register(modEventBus);
+        modEventBus.register(SpawnTableEvents.class);
 
         NeoForge.EVENT_BUS.addListener(SpawnTableModule::registerServer);
     }

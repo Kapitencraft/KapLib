@@ -1,14 +1,15 @@
 package net.kapitencraft.kap_lib.spawn_table.event.handler;
 
 import net.kapitencraft.kap_lib.spawn_table.SpawnTable;
+import net.kapitencraft.kap_lib.spawn_table.SpawnTableModule;
 import net.kapitencraft.kap_lib.spawn_table.registry.SpawnTableRegistries;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
-@EventBusSubscriber
-public class SpawnTableModEvents {
+@EventBusSubscriber(modid = SpawnTableModule.MODULE_ID)
+public class SpawnTableEvents {
 
     @SubscribeEvent
     public static void addRegistries(NewRegistryEvent event) {
