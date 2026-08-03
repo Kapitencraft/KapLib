@@ -17,8 +17,5 @@
   "changelog": {
     "format": "md",
     "style": "none"
-  },
-  "assets": {
-    "source": "aggregate/build/libs"
   }
 }
