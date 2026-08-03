@@ -1,3 +1,4 @@
 {
-  "type": "mod"
+  "type": "mod",
+  "mixin": true
 }

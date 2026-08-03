@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.core;
 import com.mojang.brigadier.CommandDispatcher;
 import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.kapitencraft.kap_lib.core.config.ServerModConfig;
+import net.kapitencraft.kap_lib.core.event.handler.CoreEvents;
 import net.kapitencraft.kap_lib.core.util.UpdateChecker;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
@@ -25,14 +26,14 @@ public class CoreModule {
     public static final String MODULE_ID = LibConstants.MOD_ID + "_core";
 
     public CoreModule(IEventBus modEventBus, ModContainer container) {
+        UpdateChecker.run();
+
         container.registerConfig(ModConfig.Type.CLIENT, CoreClientModConfig.SPEC);
         container.registerConfig(ModConfig.Type.SERVER, ServerModConfig.SPEC);
 
         NeoForge.EVENT_BUS.addListener(CoreModule::registerServer);
         NeoForge.EVENT_BUS.addListener(CoreModule::onRegisterClientCommands);
         modEventBus.addListener(CoreModule::registerDCRegistryCallback);
-
-        UpdateChecker.run();
     }
 
     @ApiStatus.Internal

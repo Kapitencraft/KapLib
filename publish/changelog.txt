@@ -1,1 +1,8 @@
+# Core Module
+
+fixed a bug where accessing `MathHelper#chance` would crash for entity without the luck attribute
+fixed ScrollableTooltips scrolling in the wrong direction
+
+# Publish Module
+
 fixed AutoPublisher not accepting dependencies due to argument order issue

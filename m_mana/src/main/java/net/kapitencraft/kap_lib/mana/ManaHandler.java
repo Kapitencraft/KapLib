@@ -14,7 +14,7 @@ import org.jetbrains.annotations.ApiStatus;
 /**
  * handles anything mana related, such as {@link #setMana(LivingEntity, double) setting}, {@link #getMana(LivingEntity) getting} or {@link #consumeMana(LivingEntity, double) consuming} mana
  */
-@EventBusSubscriber()
+@EventBusSubscriber(modid = ManaModule.MODULE_ID)
 public class ManaHandler {
 
     @SuppressWarnings("all")

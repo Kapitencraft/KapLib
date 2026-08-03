@@ -21,7 +21,6 @@ public interface SpawnTableRegistries {
     Registry<SpawnEntityFunctionType<?>> SPAWN_FUNCTION_TYPES = reg(Keys.FUNCTION_TYPES);
     Registry<SpawnPoolEntryType> SPAWN_POOL_ENTRY_TYPES = reg(Keys.POOL_ENTRY_TYPES);
 
-
     private static <T> Registry<T> reg(ResourceKey<Registry<T>> key) {
         Registry<T> registry = new RegistryBuilder<>(key).create();
         registries.add(registry);

@@ -1,7 +1,9 @@
 package net.kapitencraft.kap_lib.particle.event.handler;
 
+import net.kapitencraft.kap_lib.particle.ParticleModule;
 import net.kapitencraft.kap_lib.particle.animation.core.ServerParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.custom.DamageIndicatorParticleOptions;
+import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.TerminatorTriggers;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,8 +14,9 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = ParticleModule.MODULE_ID)
 public class ParticleEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -38,6 +41,11 @@ public class ParticleEvents {
     @SubscribeEvent
     public static void onRegisterClientReloadListeners(AddReloadListenerEvent event) {
         event.addListener(ServerParticleAnimationManager.INSTANCE);
+    }
+
+    @SubscribeEvent
+    public static void addRegistries(NewRegistryEvent event) {
+        ParticleAnimationRegistries.registerAll(event::register);
     }
 
 }

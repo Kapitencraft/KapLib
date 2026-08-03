@@ -1,12 +1,13 @@
 package net.kapitencraft.kap_lib.core.datagen;
 
+import net.kapitencraft.kap_lib.core.CoreModule;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = CoreModule.MODULE_ID)
 public class CoreDataGenerator {
 
     @SubscribeEvent

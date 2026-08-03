@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.attribute.event.handler;
 
 import net.kapitencraft.kap_lib.attribute.AttributeAttachmentTypes;
+import net.kapitencraft.kap_lib.attribute.AttributeModule;
 import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
 import net.kapitencraft.kap_lib.attribute.timed.TimedModifiers;
 import net.kapitencraft.kap_lib.attribute.compat.ParticleCompat;
@@ -42,7 +43,7 @@ import javax.annotation.Nullable;
  * internal
  */
 @ApiStatus.Internal
-@EventBusSubscriber
+@EventBusSubscriber(modid = AttributeModule.MODULE_ID)
 public class AttributeEvents {
 
     @SubscribeEvent

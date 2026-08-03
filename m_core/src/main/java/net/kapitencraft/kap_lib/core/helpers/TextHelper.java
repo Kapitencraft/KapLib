@@ -36,6 +36,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class TextHelper {
@@ -348,4 +350,17 @@ public class TextHelper {
         return latin;
     }
     //endregion
+
+    public static List<String> getAllMatches(String v, Pattern pattern) {
+        List<String> matches = new ArrayList<>();
+        consumeAllMatches(v, pattern, matches);
+        return matches;
+    }
+
+    public static void consumeAllMatches(String v, Pattern pattern, List<String> sink) {
+        Matcher matcher = pattern.matcher(v);
+        for (int i = 0; matcher.find(i); i = matcher.end()) {
+            sink.add(matcher.group());
+        }
+    }
 }

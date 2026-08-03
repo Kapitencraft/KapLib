@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.core.util;
 
+import net.kapitencraft.kap_lib.core.CoreModule;
 import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,7 +19,7 @@ import org.joml.Vector2i;
 
 import java.util.List;
 
-@EventBusSubscriber(value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT, modid = CoreModule.MODULE_ID)
 @ApiStatus.Internal
 public class ScrollableTooltips {
     private static int scrollY = 0;
@@ -72,7 +73,7 @@ public class ScrollableTooltips {
             if (Screen.hasControlDown()) {
                 scale += scrollOffset;
             } else {
-                scrollY -= scrollOffset;
+                scrollY += scrollOffset;
             }
         }
     }
