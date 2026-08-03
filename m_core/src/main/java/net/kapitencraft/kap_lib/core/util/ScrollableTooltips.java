@@ -73,7 +73,7 @@ public class ScrollableTooltips {
             if (Screen.hasControlDown()) {
                 scale += scrollOffset;
             } else {
-                scrollY -= scrollOffset;
+                scrollY += scrollOffset;
             }
         }
     }

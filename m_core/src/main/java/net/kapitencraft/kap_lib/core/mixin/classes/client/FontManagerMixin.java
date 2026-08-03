@@ -30,7 +30,7 @@ public class FontManagerMixin {
     }
 
     @Inject(method = "apply", at = @At("TAIL"))
-    private void addPlayerHeadFontSetApply(FontManager.Preparation pPreperation, ProfilerFiller pProfiler, CallbackInfo ci) {
+    private void addPlayerHeadFontSetApply(FontManager.Preparation preparation, ProfilerFiller pProfiler, CallbackInfo ci) {
         fireAddFontsetsEvent(new FontSetsEvent.Update(this.fontSets));
     }
 

@@ -336,7 +336,7 @@ public interface MathHelper {
      * @return whether the chance fired, checking for the {@link LivingEntity }
      */
     static boolean chance(double chance, @Nullable LivingEntity living) {
-        return Math.random() <= chance * (living != null ? (1 + living.getAttributeValue(Attributes.LUCK) / 100) : 1);
+        return Math.random() <= chance * (living != null && living.getAttributes().hasAttribute(Attributes.LUCK) ? (1 + living.getAttributeValue(Attributes.LUCK) / 100) : 1);
     }
 
     /**
