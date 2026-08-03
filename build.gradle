@@ -343,6 +343,7 @@ repositories {
 }
 
 dependencies {
+    runtimeOnly(project(':publish'))
 
     compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
