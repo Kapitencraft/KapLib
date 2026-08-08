@@ -17,15 +17,9 @@ import javax.annotation.Nullable;
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
 
-    @Shadow
-    @Nullable
-    public HitResult hitResult;
-
     @WrapOperation(method = "startAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack includeOffhandAttack(LocalPlayer instance, InteractionHand hand, Operation<ItemStack> original) {
-        if (this.hitResult.getType() == HitResult.Type.ENTITY)
-            return instance.getWeaponItem();
-        return original.call(instance, hand);
+        return instance.getWeaponItem();
     }
 
     @WrapOperation(method = "startAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
@@ -35,4 +29,6 @@ public class MinecraftMixin {
         else
             original.call(instance, InteractionHand.OFF_HAND);
     }
+
+
 }

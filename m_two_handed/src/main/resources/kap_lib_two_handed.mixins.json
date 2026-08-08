@@ -5,11 +5,14 @@
   "package": "net.kapitencraft.kap_lib.two_handed.mixin.classes",
   "refmap": "kap_lib_two_handed.mixin-refmap.json",
   "client": [
-    "MultiPlayerGameModeMixin",
+    "client.MultiPlayerGameModeMixin",
     "client.GuiMixin",
     "client.MinecraftMixin"
   ],
   "mixins": [
+    "AbstractContainerMenuMixin",
+    "InventoryMenuOffhandSlotWrapperMixin",
+    "ServerGamePacketListenerImplMixin",
     "InventoryMixin",
     "CommonHooksMixin",
     "PlayerMixin"

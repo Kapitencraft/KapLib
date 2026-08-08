@@ -1,5 +1,8 @@
 {
   "net/minecraft/world/entity/player/Player": [
     "net/kapitencraft/kap_lib/two_handed/mixin/duck/OffhandAttackCooldownHolder"
+  ],
+  "net/minecraft/world/entity/player/Inventory": [
+    "net/kapitencraft/kap_lib/two_handed/mixin/duck/InventoryClearOffhand"
   ]
 }

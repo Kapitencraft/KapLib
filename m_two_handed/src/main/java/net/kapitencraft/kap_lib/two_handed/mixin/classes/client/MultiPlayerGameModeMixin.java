@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.two_handed.mixin.classes;
+package net.kapitencraft.kap_lib.two_handed.mixin.classes.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
