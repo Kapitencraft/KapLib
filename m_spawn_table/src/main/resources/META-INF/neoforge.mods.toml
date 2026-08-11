@@ -18,14 +18,11 @@ displayName="${mod_name}" #mandatory
 # A text field displayed in the mod UI
 authors="${mod_authors}" #optional
 
-[[mixins]]
-config = "${mod_id}.mixins.json"
+description='''${mod_description}'''
 
 [[accessTransformers]]
 file="META-INF/accesstransformer.cfg"
 
-# The description text for the mod (multi line!) (#mandatory)
-description='''${mod_description}'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies."${mod_id}"]] #optional
     # the modid of the dependency

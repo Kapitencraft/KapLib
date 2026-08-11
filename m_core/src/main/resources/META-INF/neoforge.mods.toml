@@ -19,14 +19,14 @@ enumExtensions="META-INF/enumextensions.json"
 # A text field displayed in the mod UI
 authors="${mod_authors}" #optional
 
+description='''${mod_description}'''
+
 [[mixins]]
 config = "${mod_id}.mixins.json"
 
 [[accessTransformers]]
 file="META-INF/accesstransformer.cfg"
 
-# The description text for the mod (multi line!) (#mandatory)
-description='''${mod_description}'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies."${mod_id}"]] #optional
     # the modid of the dependency
