@@ -345,6 +345,10 @@ repositories {
 dependencies {
     runtimeOnly(project(':publish'))
 
+    subprojects.forEach {
+        jarJar(implementation(it))
+    }
+
     compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
     runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
@@ -429,44 +433,15 @@ tasks.named('assemble').configure {
     })
 }
 
-tasks.named('jar', Jar) {
-    for (final def proj in subprojects) {
-        if (proj.ext.data.type != 'mod') continue
-        String name = proj.name
-
-        it.from(proj.sourceSets.main.output) {
-            exclude 'META-INF/neoforge.mods.toml'
-            exclude 'MANIFEST.MF'
-            exclude 'pack.mcmeta'
-            exclude '**/lang/**'
-
-            filesMatching('META-INF/accesstransformer.cfg') {
-                it.setPath("META-INF/accesstransformer-${name}.cfg")
-            }
-        }
+jar {
+    manifest {
+        attributes([
+                "FMLModType": "GAMELIBRARY"
+        ])
     }
-
-    duplicatesStrategy = DuplicatesStrategy.WARN
 }
 
-tasks.named('sourcesJar', Jar) {
-    for (final def proj in subprojects) {
-        if (proj.ext.data.type != 'mod') continue
-        String name = proj.name
-
-        it.from(proj.sourceSets.main.allSource.getFiles()) {
-            exclude 'META-INF/neoforge.mods.toml'
-            exclude 'MANIFEST.MF'
-            exclude 'pack.mcmeta'
-            exclude '**/lang/**'
-
-            filesMatching('META-INF/accesstransformer.cfg') {
-                it.setPath("META-INF/accesstransformer-${name}.cfg")
-            }
-        }
-    }
-
-    duplicatesStrategy = DuplicatesStrategy.WARN
+tasks.named('jar', Jar) {
 }
 
 //tasks.named('javadoc', Javadoc) {
@@ -477,98 +452,7 @@ tasks.named('sourcesJar', Jar) {
 //    }
 //}
 
-ext.buildModsToml = { Project ignored ->
-    StringBuilder builder = new StringBuilder()
-
-    subprojects.each { Project proj ->
-        String moduleId = mod_id + "_" + proj.name
-        String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
-
-        String primary = '''
-[[mods]]
-modId="%s"
-version="%s"
-displayName="%s"
-description=\'\'\' %s \'\'\''''.formatted(moduleId, mod_version, modName, mod_description)
-
-        builder.append(primary)
-
-        if (proj.ext.data.extensions) {
-            builder.append('\nenumExtensions="META-INF/enumextensions.json"')
-        }
-
-        if (proj.ext.data.mixin) {
-            String mixins = '''
-[[mixins]]
-config = "%s.mixins.json"
-'''.formatted(moduleId)
-            builder.append(mixins)
-        }
-
-        if (proj.ext.data.at) {
-            String at = '''
-[[accessTransformers]]
-file="META-INF/accesstransformer-%s.cfg"
-'''.formatted(proj.name)
-            builder.append(at)
-        }
-
-        String deps = '''
-[[dependencies.%s]] #optional
-    modId="neoforge"
-    mandatory=true
-    versionRange="%s"
-    ordering="NONE"
-    side="BOTH"
-[[dependencies.%s]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="%s"
-    ordering="NONE"
-    side="BOTH"
-'''.formatted(moduleId, neo_version_range, moduleId, minecraft_version_range)
-        builder.append(deps)
-    }
-    return builder.toString()
-}
-
 tasks.named('processResources', ProcessResources) {
-    filesMatching('META-INF/neoforge.mods.toml') {
-        expand(
-                "loader_version_range": loader_version_range,
-                "mod_license": mod_license,
-                "modData": rootProject.ext.buildModsToml(rootProject)
-        )
-    }
-    filesMatching('pack.mcmeta') {
-        expand("mod_id": mod_id)
-    }
-
-    File output = file("src/main/resources/assets/kap_lib/lang")
-    output.mkdirs()
-
-    Pattern CONTENT_PATTERN = Pattern.compile("\".+\": \".+\"")
-
-    HashMap<String, List<String>> langOutput = new HashMap<>()
-    for (final def proj in subprojects) {
-        proj.sourceSets.main.resources.getFiles().stream().filter { File f ->
-            return f.path.contains('lang')
-        }.forEach({ File f ->
-            List<String> o = langOutput.computeIfAbsent(f.name, (fi) -> new ArrayList<>())
-            Matcher matcher = CONTENT_PATTERN.matcher(f.text);
-            for (int i = 0; matcher.find(i); i = matcher.end()) {
-                o.add(matcher.group())
-            }
-        })
-    }
-
-    langOutput.forEach { String key, List<String> values ->
-        File f = new File(output, key)
-        it.from(f)
-        //f.createNewFile()
-        f.text = values.stream().collect(Collectors.joining(",\n\t", "{\n\t", "\n}"))
-    }
-
     var publishProperties = [
             mod_id     : mod_id, mod_name: mod_name,
             mod_version: mod_version, minecraft_version: mc_version,
@@ -587,10 +471,6 @@ tasks.withType(Javadoc).configureEach {
 
 tasks.withType(ProcessResources).configureEach {
     exclude("**/.cache/**")
-}
-
-tasks.withType(ProcessResources).configureEach {
-    it.exclude("**/.cache/**")
 }
 
 tasks.withType(JavaCompile).configureEach {

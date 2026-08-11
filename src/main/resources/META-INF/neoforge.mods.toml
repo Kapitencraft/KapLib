@@ -1,6 +1,0 @@
-modLoader="javafml" #mandatory
-loaderVersion="${loader_version_range}"
-license="${mod_license}"
-issueTrackerURL = 'https://github.com/Kapitencraft/KapLib/issues'
-
-${modData}
