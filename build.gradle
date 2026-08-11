@@ -232,6 +232,8 @@ subprojects { Project proj ->
         neoForge {
             version = rootProject.neo_version
 
+            addModdingDependenciesTo sourceSets.test
+
             parchment {
                 mappingsVersion = rootProject.parchment_version
                 minecraftVersion = rootProject.mc_version

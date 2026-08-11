@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.kapitencraft.kap_lib.two_handed.mixin.duck.OffhandAttackCooldownHolder;
+import net.kapitencraft.kap_lib.two_handed.mixin.duck.TwoHandedSuppressor;
 import net.minecraft.core.Holder;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 
 @Mixin(Player.class)
-public abstract class PlayerMixin extends LivingEntity implements OffhandAttackCooldownHolder {
+public abstract class PlayerMixin extends LivingEntity implements OffhandAttackCooldownHolder, TwoHandedSuppressor {
     //dummy constructor
     protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
@@ -45,6 +46,7 @@ public abstract class PlayerMixin extends LivingEntity implements OffhandAttackC
 
     @Shadow @Nonnull public abstract ItemStack getWeaponItem();
 
+    //region OffhandAttackCooldownHolder
     @Unique
     private int offhandAttackStrengthTicker;
     @Unique
@@ -128,6 +130,22 @@ public abstract class PlayerMixin extends LivingEntity implements OffhandAttackC
         //enable offhand modifiers for offhand item
         offhandModifiers.forEach(EquipmentSlot.OFFHAND, addAction);
     }
+    //endregion
+
+    //region TwoHandedSuppressor
+    @Unique
+    boolean suppressesTwoHanded;
+
+    @Override
+    public boolean suppressesTwoHanded() {
+        return suppressesTwoHanded;
+    }
+
+    @Override
+    public void setSuppressed(boolean suppressed) {
+        this.suppressesTwoHanded = suppressed;
+    }
+    //endregion
 
     @Inject(method = "tick", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/world/entity/player/Player;attackStrengthTicker:I"))
     private void tickOffhandAttackStrengthTicker(CallbackInfo ci) {

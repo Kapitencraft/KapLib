@@ -2,11 +2,8 @@ package net.kapitencraft.kap_lib.two_handed.mixin.classes;
 
 import net.kapitencraft.kap_lib.two_handed.TwoHandedModule;
 import net.kapitencraft.kap_lib.two_handed.mixin.duck.InventoryClearOffhand;
-import net.kapitencraft.kap_lib.two_handed.registry.THItemComponents;
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
