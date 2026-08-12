@@ -68,4 +68,14 @@ class LivingEntityMixin implements MixinSelfProvider<LivingEntity> {
         GENERIC_ATTRIBUTES.forEach(original::add);
         return original;
     }
+
+    @Inject(method = "hurt", at = @At(value = "RETURN", ordinal = 6))
+    private void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> info) {
+        if (source.getEntity() != null && source.getEntity() instanceof LivingEntity living) {
+            double attackSpeed = AttributeHelper.getSaveAttributeValue(ExtraAttributes.BONUS_ATTACK_SPEED, living);
+            if (attackSpeed > 0) {
+                self().invulnerableTime = (int) (20 - (attackSpeed * 0.15));
+            }
+        }
+    }
 }

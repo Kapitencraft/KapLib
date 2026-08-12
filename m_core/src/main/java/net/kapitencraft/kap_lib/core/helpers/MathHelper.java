@@ -190,8 +190,7 @@ public interface MathHelper {
      * @return a list of entities that surround the given source in a {@code range} radius and is an instance of {@code tClass}
      */
     static <T extends Entity> List<T> getEntitiesAround(Class<T> tClass, Entity source, double range) {
-        Level level = source.level();
-        return getEntitiesAround(tClass, level, source.getBoundingBox(), range);
+        return getEntitiesAround(tClass, source.level(), source.getBoundingBox(), range);
     }
 
 
@@ -350,9 +349,19 @@ public interface MathHelper {
      * @return the closest entity of the given type, or null if none could be found within the given range
      */
     static <T extends Entity> @Nullable T getClosestEntity(Class<T> tClass, Entity source, double range) {
-        List<T> entities = getEntitiesAround(tClass, source, range).stream().filter(t -> t.is(source)).sorted(Comparator.comparingDouble(value -> value.distanceTo(source))).toList();
+        return getClosestEntity(tClass, source, range, v -> true);
+    }
+
+    static <T extends Entity> @Nullable T getClosestEntity(Class<T> type, Entity origin, double range, Predicate<T> filter) {
+        List<T> entities = getEntitiesAround(type, origin, range).stream().filter(t -> !t.is(origin) && filter.test(t)).toList();
         if (entities.isEmpty()) return null;
-        return entities.getFirst();
+        T val = entities.getFirst();
+        for (int i = 1; i < entities.size(); i++) {
+            if (val.distanceTo(origin) > entities.get(i).distanceTo(origin)) {
+                val = entities.get(i);
+            }
+        }
+        return val;
     }
 
     /**
