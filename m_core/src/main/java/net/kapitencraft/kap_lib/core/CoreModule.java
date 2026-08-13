@@ -3,7 +3,6 @@ package net.kapitencraft.kap_lib.core;
 import com.mojang.brigadier.CommandDispatcher;
 import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
 import net.kapitencraft.kap_lib.core.config.ServerModConfig;
-import net.kapitencraft.kap_lib.core.event.handler.CoreEvents;
 import net.kapitencraft.kap_lib.core.util.UpdateChecker;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;

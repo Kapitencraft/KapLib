@@ -2,9 +2,6 @@
 import groovy.json.JsonSlurper
 
 import java.nio.file.Files
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-import java.util.stream.Collectors
 
 plugins {
     id 'idea'
@@ -223,6 +220,8 @@ subprojects { Project proj ->
         neoForge {
             version = rootProject.neo_version
 
+            addModdingDependenciesTo sourceSets.test
+
             parchment {
                 mappingsVersion = rootProject.parchment_version
                 minecraftVersion = rootProject.mc_version
@@ -279,8 +278,9 @@ subprojects { Project proj ->
                 }
             }
 
-            if (moduleData.interfaceInjection)
+            if (moduleData.interfaceInjection) {
                 interfaceInjectionData.from 'interfaces.json'
+            }
         }
     }
     if (moduleData.type == 'game_lib') {
@@ -439,9 +439,6 @@ jar {
                 "FMLModType": "GAMELIBRARY"
         ])
     }
-}
-
-tasks.named('jar', Jar) {
 }
 
 //tasks.named('javadoc', Javadoc) {

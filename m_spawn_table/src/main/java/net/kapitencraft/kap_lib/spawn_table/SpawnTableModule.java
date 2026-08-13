@@ -23,11 +23,11 @@ public class SpawnTableModule {
         SpawnPoolEntries.REGISTRY.register(modEventBus);
         modEventBus.register(SpawnTableEvents.class);
 
-        NeoForge.EVENT_BUS.addListener(SpawnTableModule::registerServer);
+        NeoForge.EVENT_BUS.addListener(SpawnTableModule::registerServerCommand);
     }
 
     @ApiStatus.Internal
-    static void registerServer(RegisterCommandsEvent event) {
+    static void registerServerCommand(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         SpawnTableServerTestCommand.register(dispatcher);
     }
