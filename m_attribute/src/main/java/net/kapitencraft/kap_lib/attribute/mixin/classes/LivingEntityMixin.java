@@ -24,7 +24,6 @@ import java.util.List;
 
 @Mixin(LivingEntity.class)
 class LivingEntityMixin implements MixinSelfProvider<LivingEntity> {
-    @Shadow @Final private static EntityDataAccessor<Boolean> DATA_EFFECT_AMBIENCE_ID;
     @Unique
     private static final List<Holder<Attribute>> GENERIC_ATTRIBUTES = List.of(
             ExtraAttributes.DODGE,

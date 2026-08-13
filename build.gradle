@@ -280,6 +280,9 @@ subprojects { Project proj ->
 
             if (moduleData.interfaceInjection) {
                 interfaceInjectionData.from 'interfaces.json'
+                interfaceInjectionData {
+                    publish file('interfaces.json')
+                }
             }
         }
     }

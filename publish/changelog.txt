@@ -1,0 +1,7 @@
+# Two-Handed Module
+
+added new module two-handed, allowing you to attack with weapons from the offhand with independent attack cooldown.
+
+# Publish Module
+
+fixed plain-changelog not including line breaks

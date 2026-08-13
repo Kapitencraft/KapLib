@@ -505,7 +505,7 @@ public class AutoPublisher {
 
         @Override
         public void parse(BufferedReader reader) {
-            content = reader.lines().collect(Collectors.joining("\n")); //add HTML / MD line feed character
+            content = reader.lines().collect(Collectors.joining("<br>\n")); //add HTML / MD line feed character
         }
 
         @Override
