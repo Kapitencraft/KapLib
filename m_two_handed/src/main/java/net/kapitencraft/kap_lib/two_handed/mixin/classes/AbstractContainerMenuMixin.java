@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class AbstractContainerMenuMixin {
     @Inject(method = "clicked", at = @At("HEAD"), cancellable = true)
     private void checkOffhandSwap(int slotId, int button, ClickType clickType, Player player, CallbackInfo ci) {
-        if (clickType == ClickType.SWAP && TwoHandedModule.isTwoHanded(player.getMainHandItem())) {
+        if (clickType == ClickType.SWAP && TwoHandedModule.isTwoHanded(player.getMainHandItem(), player)) {
             ci.cancel();
         }
     }

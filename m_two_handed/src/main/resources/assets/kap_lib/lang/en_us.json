@@ -1,3 +1,4 @@
 {
-  "item.two_handed": "Two Handed"
+  "item.two_handed": "Two Handed",
+  "command.server_test.two_handed.toggle": "Two-Handed Toggle is now set to %1$s"
 }

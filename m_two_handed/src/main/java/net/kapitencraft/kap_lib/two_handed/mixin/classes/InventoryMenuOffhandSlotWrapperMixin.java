@@ -21,6 +21,6 @@ public class InventoryMenuOffhandSlotWrapperMixin extends Slot {
 
     @Override
     public boolean isActive() {
-        return !TwoHandedModule.isTwoHanded(val$owner.getMainHandItem()) && super.isActive();
+        return !TwoHandedModule.isTwoHanded(val$owner.getMainHandItem(), val$owner) && super.isActive();
     }
 }

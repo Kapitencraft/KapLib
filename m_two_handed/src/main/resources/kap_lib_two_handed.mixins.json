@@ -16,6 +16,7 @@
     "InventoryMixin",
     "ItemPropertiesMixin",
     "PlayerMixin",
+    "LivingEntityMixin",
     "ServerGamePacketListenerImplMixin"
   ],
   "injectors": {

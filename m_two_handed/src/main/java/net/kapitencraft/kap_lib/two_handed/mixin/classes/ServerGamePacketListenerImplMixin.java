@@ -19,7 +19,7 @@ public class ServerGamePacketListenerImplMixin {
     @Inject(method = "handleSetCarriedItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;resetLastActionTime()V"))
     private void checkTwoHanded(ServerboundSetCarriedItemPacket packet, CallbackInfo ci) {
         Inventory inventory = this.player.getInventory();
-        if (TwoHandedModule.isTwoHanded(inventory.getSelected())) {
+        if (TwoHandedModule.isTwoHanded(inventory.getSelected(), player)) {
             inventory.clearOffhand();
         }
     }

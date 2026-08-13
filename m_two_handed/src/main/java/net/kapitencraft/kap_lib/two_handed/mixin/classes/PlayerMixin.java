@@ -132,21 +132,6 @@ public abstract class PlayerMixin extends LivingEntity implements OffhandAttackC
     }
     //endregion
 
-    //region TwoHandedSuppressor
-    @Unique
-    boolean suppressesTwoHanded;
-
-    @Override
-    public boolean suppressesTwoHanded() {
-        return suppressesTwoHanded;
-    }
-
-    @Override
-    public void setSuppressed(boolean suppressed) {
-        this.suppressesTwoHanded = suppressed;
-    }
-    //endregion
-
     @Inject(method = "tick", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/world/entity/player/Player;attackStrengthTicker:I"))
     private void tickOffhandAttackStrengthTicker(CallbackInfo ci) {
         this.offhandAttackStrengthTicker++;
