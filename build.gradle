@@ -295,6 +295,15 @@ subprojects { Project proj ->
             }
         }
     }
+    if (data.type == 'game_lib') {
+        jar {
+            manifest {
+                attributes([
+                        "FMLModType": "GAMELIBRARY"
+                ])
+            }
+        }
+    }
 }
 
 // Mojang ships Java 21 to end users in 1.21+, so your mod should target Java 21.
