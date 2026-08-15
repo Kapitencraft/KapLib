@@ -3,13 +3,11 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
-import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -22,8 +20,8 @@ public class LineSpawner extends VisibleSpawner {
     private final PositionTarget start, end;
     private final float spacing;
 
-    public LineSpawner(ParticleOptions options, PositionTarget start, PositionTarget end, float spacing) {
-        super(options);
+    public LineSpawner(String texture, PositionTarget start, PositionTarget end, float spacing) {
+        super(texture);
         this.start = start;
         this.end = end;
         this.spacing = spacing;
@@ -36,7 +34,7 @@ public class LineSpawner extends VisibleSpawner {
     @Override
     public void spawn(ParticleSpawnSink sink) {
         List<Vec3> positions = MathHelper.makeLine(start.get(), end.get(), spacing);
-        positions.forEach(v -> sink.accept(particle, v));
+        positions.forEach(v -> sink.accept(v, texture));
     }
 
     @Override
@@ -46,14 +44,14 @@ public class LineSpawner extends VisibleSpawner {
 
     public static class Builder extends VisibleSpawner.Builder<Builder, LineSpawner> {
         private static final MapCodec<LineSpawner.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                Codec.STRING.fieldOf("texture").forGetter(s -> s.texture),
                 PositionTarget.CODEC.fieldOf("start").forGetter(s -> s.start),
                 PositionTarget.CODEC.fieldOf("end").forGetter(s -> s.end),
                 Codec.FLOAT.fieldOf("spacing").forGetter(s -> s.spacing)
         ).apply(i, LineSpawner.Builder::fromCodec));
 
-        private static Builder fromCodec(ParticleOptions options, PositionTarget.Builder<?> start, PositionTarget.Builder<?> end, float spacing) {
-            return new Builder().setParticle(options).start(start).end(end).spacing(spacing);
+        private static Builder fromCodec(String texture, PositionTarget.Builder<?> start, PositionTarget.Builder<?> end, float spacing) {
+            return new Builder().setTexture(texture).start(start).end(end).spacing(spacing);
         }
 
         private PositionTarget.Builder<?> start, end;
@@ -76,7 +74,7 @@ public class LineSpawner extends VisibleSpawner {
 
         @Override
         public LineSpawner build(ParticleAnimationPresetContext context) {
-            return new LineSpawner(particle, start.build(context), end.build(context), spacing);
+            return new LineSpawner(this.texture, start.build(context), end.build(context), spacing);
         }
 
         @Override
@@ -88,7 +86,7 @@ public class LineSpawner extends VisibleSpawner {
     public static class Type implements VisibleSpawner.Type<LineSpawner> {
 
         private static final StreamCodec<? super RegistryFriendlyByteBuf, LineSpawner> STREAM_CODEC = StreamCodec.composite(
-                ParticleTypes.STREAM_CODEC, s -> s.particle,
+                ByteBufCodecs.STRING_UTF8, s -> s.texture,
                 PositionTarget.STREAM_CODEC, s -> s.start,
                 PositionTarget.STREAM_CODEC, s -> s.end,
                 ByteBufCodecs.FLOAT, s -> s.spacing,
@@ -108,6 +106,6 @@ public class LineSpawner extends VisibleSpawner {
 
     @Override
     public String toString() {
-        return "LineSpawner from " + start + " to " + end + ", spacing = " + spacing + ", particle = " + particle;
+        return "LineSpawner from " + start + " to " + end + ", spacing = " + spacing + ", particle = " + texture;
     }
 }

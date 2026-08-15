@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.elements;
 
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -25,7 +25,7 @@ public class GroupElement implements AnimationElement {
     }
 
     @Override
-    public int createLength(ParticleConfig config) {
+    public int createLength(ParticleData config) {
         int max = 0;
         for (AnimationElement element : elements) {
             int check = element.createLength(config);
@@ -35,7 +35,7 @@ public class GroupElement implements AnimationElement {
     }
 
     @Override
-    public void tick(ParticleConfig object, int tick, double percentage) {
+    public void tick(ParticleData object, int tick, double percentage) {
         for (AnimationElement element : elements) {
             element.tick(object, tick, percentage);
         }

@@ -7,7 +7,7 @@ import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset
 import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -42,12 +42,12 @@ public class RotateElement implements AnimationElement {
     }
 
     @Override
-    public int createLength(ParticleConfig config) {
+    public int createLength(ParticleData config) {
         return duration;
     }
 
     @Override
-    public void tick(ParticleConfig object, int tick, double percentage) {
+    public void tick(ParticleData object, int tick, double percentage) {
         Vec3 pv = pivot.get();
         object.setPos(
                 MathHelper.rotateAroundAxis(object.pos(), pv, degreePerTick, axis)

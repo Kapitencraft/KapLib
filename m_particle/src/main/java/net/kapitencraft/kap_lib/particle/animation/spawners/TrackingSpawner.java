@@ -30,7 +30,7 @@ public class TrackingSpawner extends VisibleSpawner {
 
     @Override
     public void spawn(ParticleSpawnSink sink) {
-        sink.accept(particle, target.get());
+        sink.accept(texture, target.get());
     }
 
     @Override
@@ -42,7 +42,7 @@ public class TrackingSpawner extends VisibleSpawner {
 
 
         private static final StreamCodec<? super RegistryFriendlyByteBuf, TrackingSpawner> STREAM_CODEC = StreamCodec.composite(
-                ParticleTypes.STREAM_CODEC, s -> s.particle,
+                ParticleTypes.STREAM_CODEC, s -> s.texture,
                 PositionTarget.STREAM_CODEC, s -> s.target,
                 TrackingSpawner::new
         );
@@ -65,7 +65,7 @@ public class TrackingSpawner extends VisibleSpawner {
         ).apply(i, Builder::fromCodec));
 
         private static Builder fromCodec(ParticleOptions options, PositionTarget.Builder<?> positionTarget) {
-            return new Builder().setParticle(options).target(positionTarget);
+            return new Builder().setTexture(options).target(positionTarget);
         }
 
 
@@ -78,7 +78,7 @@ public class TrackingSpawner extends VisibleSpawner {
 
         @Override
         public TrackingSpawner build(ParticleAnimationPresetContext context) {
-            return new TrackingSpawner(particle, target.build(context));
+            return new TrackingSpawner(TrackingSpawner.this.texture, target.build(context));
         }
 
         @Override

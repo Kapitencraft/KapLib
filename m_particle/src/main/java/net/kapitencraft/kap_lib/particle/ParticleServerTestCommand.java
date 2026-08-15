@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
 import net.kapitencraft.kap_lib.particle.animation.core.ServerParticleAnimationManager;
+import net.kapitencraft.kap_lib.particle.animation.core.TextureStorage;
 import net.kapitencraft.kap_lib.particle.animation.elements.KeepAliveElement;
 import net.kapitencraft.kap_lib.particle.animation.elements.RotateElement;
 import net.kapitencraft.kap_lib.particle.animation.finalizers.RemoveParticleFinalizer;
@@ -78,12 +79,13 @@ public class ParticleServerTestCommand {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
             Vec3 pos = player.position();
             ParticleAnimation.builder()
+                    .withTexture("flame", TextureStorage.StorageDraft.DraftEntry.FLAME)
                     .spawnTime(ParticleAnimation.SpawnTime.once())
                     .spawn(LineSpawner.builder()
                             .start(PositionTarget.fixed(pos))
                             .end(PositionTarget.fixed(pos.add(0, 10, 0)))
                             .spacing(.25f)
-                            .setParticle(ParticleTypes.FLAME)
+                            .setTexture("flame")
                     )
                     .terminatedWhen(TimedTerminator.seconds(10))
                     .finalizes(RemoveParticleFinalizer.builder())
@@ -96,10 +98,11 @@ public class ParticleServerTestCommand {
     private static int testAura(CommandContext<CommandSourceStack> context) {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
             ParticleAnimation.builder()
+                    .withTexture("flame", TextureStorage.StorageDraft.DraftEntry.FLAME)
                     .spawnTime(ParticleAnimation.SpawnTime.absolute(1))
                     .finalizes(SetLifeTimeFinalizer.builder().resetAge().lifeTime(20))
                     .spawn(RingSpawner.entityWithBBSize(player, 1.7f, 1f)
-                            .setParticle(ParticleTypes.FLAME)
+                            .setTexture("flame")
                             .rotPerTick(5)
                             .heightPerTick(.02f)
                     )
@@ -137,7 +140,7 @@ public class ParticleServerTestCommand {
                 .spawnCount(2)
                 .rotPerTick(5)
                 .radius(.3f)
-                .setParticle(new DustParticleOptions(Vec3.fromRGB24(colorPacked).toVector3f(), .34f));
+                .setTexture(new DustParticleOptions(Vec3.fromRGB24(colorPacked).toVector3f(), .34f));
     }
 
     private static int testRotation(CommandContext<CommandSourceStack> context) {
@@ -154,9 +157,10 @@ public class ParticleServerTestCommand {
         return CommandHelper.checkNonConsoleCommand(context, (player, commandSourceStack) -> {
             Vec3 playerPos = player.position().add(0, -2, 0);
             ParticleAnimation.builder()
+                    .withTexture("flame", TextureStorage.StorageDraft.DraftEntry.FLAME)
                     .spawnTime(ParticleAnimation.SpawnTime.once())
                     .finalizes(RemoveParticleFinalizer.builder())
-                    .spawn(SingleSpawner.at(ParticleTypes.FLAME, PositionTarget.fixed(playerPos.add(5, 0, 0))))
+                    .spawn(SingleSpawner.at("flame", PositionTarget.fixed(playerPos.add(5, 0, 0))))
                     .then(RotateElement.builder()
                             .angle(1)
                             .duration(360)

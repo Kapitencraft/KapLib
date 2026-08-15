@@ -19,6 +19,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -37,6 +38,7 @@ import java.util.function.Function;
  */
 public class ParticleAnimation {
     public static final StreamCodec<RegistryFriendlyByteBuf, ParticleAnimation> STREAM_CODEC = ExtraStreamCodecs.composite(
+            TextureStorage.StorageDraft.STREAM_CODEC, p -> p.textures,
             AnimationElement.STREAM_CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::allElements,
             ParticleFinalizer.STREAM_CODEC, p -> p.finalizer,
             TerminationTrigger.STREAM_CODEC.apply(ByteBufCodecs.list()), ParticleAnimation::getTerminators,
@@ -47,6 +49,7 @@ public class ParticleAnimation {
             ParticleAnimation::new
     );
 
+    private final TextureStorage.StorageDraft textures;
     private final List<AnimationElement> elements;
     private final ParticleFinalizer finalizer;
     private final List<TerminationTriggerInstance> terminators;
@@ -55,6 +58,7 @@ public class ParticleAnimation {
     public final int minSpawnDelay, maxSpawnDelay;
 
     private ParticleAnimation(ParticleAnimationBuilder builder) {
+        this.textures = builder.textures.build();
         if (builder.minSpawnDelay > builder.maxSpawnDelay)
             throw new IllegalStateException("minimum spawn delay must be smaller than maximum spawn delay");
         if (builder.minSpawnDelay < -1 || builder.minSpawnDelay == 0)
@@ -69,7 +73,8 @@ public class ParticleAnimation {
         this.activationTriggers = builder.activationTriggers;
     }
 
-    public ParticleAnimation(List<AnimationElement> elements, ParticleFinalizer finalizer, List<TerminationTriggerInstance> terminators, List<ActivationTriggerInstance> activationTriggers, Spawner spawner, int minSpawnDelay, int maxSpawnDelay) {
+    public ParticleAnimation(TextureStorage.StorageDraft textures, List<AnimationElement> elements, ParticleFinalizer finalizer, List<TerminationTriggerInstance> terminators, List<ActivationTriggerInstance> activationTriggers, Spawner spawner, int minSpawnDelay, int maxSpawnDelay) {
+        this.textures = textures;
         this.elements = elements;
         this.finalizer = finalizer;
         this.terminators = terminators;
@@ -77,6 +82,10 @@ public class ParticleAnimation {
         this.minSpawnDelay = minSpawnDelay;
         this.maxSpawnDelay = maxSpawnDelay;
         this.activationTriggers = activationTriggers;
+    }
+
+    public TextureStorage.StorageDraft getTextureDraft() {
+        return this.textures;
     }
 
     public AnimationElement getElement(int elementIndex) {
@@ -129,6 +138,7 @@ public class ParticleAnimation {
     public static class ParticleAnimationBuilder {
 
         private final List<AnimationElement.Builder<?>> elements = new ArrayList<>();
+        private final TextureStorage.StorageDraft.Builder textures = new TextureStorage.StorageDraft.Builder();
         private Spawner.SpawnerBuilder<?> spawner;
         private ParticleFinalizer.Builder<?> finalizer;
         private final List<TerminationTriggerInstance> terminators = new ArrayList<>();
@@ -136,6 +146,16 @@ public class ParticleAnimation {
         private final List<ActivationTriggerInstance> activationTriggers = new ArrayList<>();
 
         private ParticleAnimationBuilder() {
+        }
+
+        public ParticleAnimationBuilder withTexture(String name, TextureStorage.StorageDraft.DraftEntry entry) {
+            this.textures.addEntry(name, entry);
+            return this;
+        }
+
+        public ParticleAnimationBuilder withTexture(String name, ResourceLocation atlasLocation, ResourceLocation textureLocation, boolean translucent) {
+            this.textures.addEntry(name, atlasLocation, textureLocation, translucent);
+            return this;
         }
 
         /**
@@ -287,7 +307,7 @@ public class ParticleAnimation {
     }
 
     @ApiStatus.Internal
-    public void finalize(ParticleConfig config) {
+    public void finalize(ParticleData config) {
         this.finalizer.finalize(config);
     }
 }

@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.particle.animation.finalizers;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -30,7 +30,7 @@ public class SetLifeTimeFinalizer implements ParticleFinalizer {
     }
 
     @Override
-    public void finalize(ParticleConfig config) {
+    public void finalize(ParticleData config) {
         config.lifeTime = lifeTime;
         if (resetAge) config.age = 0;
     }

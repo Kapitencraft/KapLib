@@ -6,7 +6,6 @@ import net.kapitencraft.kap_lib.particle.animation.spawners.VisibleSpawner;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTrigger;
 import net.kapitencraft.kap_lib.particle.animation.terminators.core.TerminationTriggerInstance;
 import net.minecraft.CrashReport;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.ApiStatus;
@@ -16,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ParticleAnimator {
+
+    private final TextureStorage textures;
     /**
      * the animation this animator is running
      */
@@ -23,11 +24,11 @@ public class ParticleAnimator {
     /**
      * the particles that are effected by the animation
      */
-    private final List<ParticleConfig> particles = new ArrayList<>();
+    private final List<AnimationParticle> particles = new ArrayList<>();
     /**
      * the spawn sink used inside {@link VisibleSpawner#spawn(ParticleSpawnSink) Spawner#spawn} to add new particles
      */
-    private final ParticleSpawnSink sink = new ParticleSpawnSink(this);
+    private final ParticleSpawnSink sink;
     /**
      * the amount of ticks this animator has been running for
      */
@@ -40,6 +41,8 @@ public class ParticleAnimator {
     @ApiStatus.Internal
     public ParticleAnimator(ParticleAnimation animation) {
         this.animation = animation;
+        this.textures = animation.getTextureDraft().build();
+        this.sink = new ParticleSpawnSink(this, animation);
         List<TerminationTriggerInstance> terminators = animation.getTerminators();
         for (TerminationTriggerInstance terminator : terminators) {
             TerminationTrigger<TerminationTriggerInstance> trigger = (TerminationTrigger<TerminationTriggerInstance>) terminator.getTrigger();
@@ -47,11 +50,14 @@ public class ParticleAnimator {
         }
     }
 
+    public TextureStorage.StorageEntry getTexture(String key) {
+        return textures.get(key);
+    }
 
     @ApiStatus.Internal
-    public void addParticle(Particle particle) {
+    public void addParticle(AnimationParticle particle) {
         //LibClient.animations.addContained(particle);
-        particles.add(new ParticleConfig(particle, animation));
+        particles.add(particle);
     }
 
     @ApiStatus.Internal
@@ -61,10 +67,9 @@ public class ParticleAnimator {
             currentSpawnDelay = Mth.randomBetweenInclusive(source, animation.minSpawnDelay, animation.maxSpawnDelay);
         }
         currentSpawnDelay--;
-        List<ParticleConfig> expired = particles.stream().filter(ParticleConfig::hasExpired).toList();
-        expired.forEach(ParticleConfig::invalidate);
+        List<AnimationParticle> expired = particles.stream().filter(AnimationParticle::isDead).toList();
+        expired.forEach(AnimationParticle::invalidate);
         particles.removeAll(expired);
-        particles.forEach(ParticleConfig::tick);
         runningTicks++;
     }
 
@@ -78,7 +83,7 @@ public class ParticleAnimator {
 
     public void removed() {
         //finalize all remaining particles
-        this.particles.forEach(ParticleConfig::invalidate);
+        this.particles.forEach(AnimationParticle::invalidate);
     }
 
     public static class Pending {

@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -31,12 +31,12 @@ public class MoveAwayElement implements AnimationElement {
     }
 
     @Override
-    public int createLength(ParticleConfig config) {
+    public int createLength(ParticleData config) {
         return duration;
     }
 
     @Override
-    public void tick(ParticleConfig object, int tick, double percentage) {
+    public void tick(ParticleData object, int tick, double percentage) {
         Vec3 relative = object.pos().subtract(target.get());
         object.setPos(
                 object.pos().add(MathHelper.clampLength(relative, relative.length() + speed))

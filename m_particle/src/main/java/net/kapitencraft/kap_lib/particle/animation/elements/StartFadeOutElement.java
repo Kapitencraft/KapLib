@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -23,12 +23,12 @@ public class StartFadeOutElement implements AnimationElement {
     }
 
     @Override
-    public int createLength(ParticleConfig config) {
+    public int createLength(ParticleData config) {
         return 0;
     }
 
     @Override
-    public void tick(ParticleConfig object, int tick, double percentage) {
+    public void tick(ParticleData object, int tick, double percentage) {
         object.registerTicker((config, tickIndex) -> config.a += rate);
     }
 

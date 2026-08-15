@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -16,7 +16,7 @@ public interface ParticleFinalizer {
 
     @NotNull Type<? extends ParticleFinalizer> getType();
 
-    void finalize(ParticleConfig config);
+    void finalize(ParticleData config);
 
     interface Type<T extends ParticleFinalizer> {
         StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec();

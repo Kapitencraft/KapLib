@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.particle.animation.finalizers;
 
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,7 +21,7 @@ public class EmptyFinalizer implements ParticleFinalizer {
     }
 
     @Override
-    public void finalize(ParticleConfig config) {
+    public void finalize(ParticleData config) {
     }
 
     public static class Type implements ParticleFinalizer.Type<EmptyFinalizer> {

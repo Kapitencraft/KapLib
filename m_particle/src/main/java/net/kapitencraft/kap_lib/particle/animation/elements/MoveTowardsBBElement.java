@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.animation.target.EntityAccessor;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.ElementTypes;
@@ -40,18 +40,18 @@ public class MoveTowardsBBElement implements AnimationElement {
 
 
     @Override
-    public int createLength(ParticleConfig config) {
+    public int createLength(ParticleData config) {
         return duration;
     }
 
     @Override
-    public void initialize(ParticleConfig object) {
+    public void initialize(ParticleData object) {
         object.setProperty("target", MathHelper.randomIn(MathHelper.RANDOM_SOURCE, ClientHelper.getEntity(entity).getBoundingBox()).subtract(ClientHelper.getEntity(entity).position()));
         object.setProperty("origin", object.pos());
     }
 
     @Override
-    public void tick(ParticleConfig object, int tick, double percentage) {
+    public void tick(ParticleData object, int tick, double percentage) {
         object.setPos(object.<Vec3>getProperty("origin")
                 .lerp(object.<Vec3>getProperty("target")
                         .add(ClientHelper.getEntity(entity).position()), percentage)

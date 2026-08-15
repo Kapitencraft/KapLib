@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.client.Minecraft;
@@ -32,7 +32,7 @@ public class SelectRandomFinalizer implements ParticleFinalizer {
     }
 
     @Override
-    public void finalize(ParticleConfig config) {
+    public void finalize(ParticleData config) {
         this.entries.getRandom(Minecraft.getInstance().level.random).orElseThrow().data().finalize(config);
     }
 

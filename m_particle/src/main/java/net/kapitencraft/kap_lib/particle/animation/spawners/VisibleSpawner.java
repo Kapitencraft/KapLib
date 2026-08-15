@@ -6,10 +6,10 @@ import net.minecraft.core.particles.ParticleOptions;
 import java.util.Objects;
 
 public abstract class VisibleSpawner implements Spawner {
-    protected final ParticleOptions particle;
+    protected final String texture;
 
-    protected VisibleSpawner(ParticleOptions particle) {
-        this.particle = Objects.requireNonNull(particle, "Spawner Particle null!");
+    protected VisibleSpawner(String texture) {
+        this.texture = Objects.requireNonNull(texture, "Spawner Texture null!");
     }
 
     /**
@@ -18,10 +18,10 @@ public abstract class VisibleSpawner implements Spawner {
      * @param <T> subtype of the builder
      */
     public static abstract class Builder<B extends Builder<B, T>, T extends Spawner> implements SpawnerBuilder<T> {
-        protected ParticleOptions particle;
+        protected String texture;
 
-        public B setParticle(ParticleOptions particle) {
-            this.particle = particle;
+        public B setTexture(String texture) {
+            this.texture = texture;
             return self();
         }
 

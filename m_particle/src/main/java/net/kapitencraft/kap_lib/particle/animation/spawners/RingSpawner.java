@@ -3,16 +3,14 @@ package net.kapitencraft.kap_lib.particle.animation.spawners;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
-import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
-import net.kapitencraft.kap_lib.particle.animation.target.rot.RotationTarget;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleSpawnSink;
+import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
+import net.kapitencraft.kap_lib.particle.animation.target.rot.RotationTarget;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerTypes;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -35,9 +33,9 @@ public class RingSpawner extends VisibleSpawner {
     private final int spawnerCount;
     private final Direction.Axis axis;
 
-    private RingSpawner(PositionTarget target, ParticleOptions particle, RotationTarget rotation,
+    private RingSpawner(PositionTarget target, String texture, RotationTarget rotation,
                         Direction.Axis axis, float rotPerTick, float maxHeight, float heightChangePerTick, float radius, int spawnerCount) {
-        super(particle);
+        super(texture);
         if (radius <= 0) throw new IllegalStateException("Ring-Spawner radius must be larger than 0!");
         this.rotation = Objects.requireNonNull(rotation, "Ring-Spawner no rotation specified!");
         this.target = Objects.requireNonNull(target, "Ring-Spawner no target specified!");
@@ -63,7 +61,7 @@ public class RingSpawner extends VisibleSpawner {
             targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, -rot.x * Mth.DEG_TO_RAD);
             targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, -rot.y * Mth.DEG_TO_RAD);
             Vec3 targetPos = targetOffset.add(Vec3.ZERO.with(axis, curHeightChange)).add(target.get());
-            sink.accept(particle, targetPos);
+            sink.accept(targetPos, texture);
             curRot += rotPerTick;
             if (heightChangePerTick > 0) applyHeightChange();
         }
@@ -104,7 +102,7 @@ public class RingSpawner extends VisibleSpawner {
     public static class Type implements VisibleSpawner.Type<RingSpawner> {
         private static final StreamCodec<RegistryFriendlyByteBuf, RingSpawner> STREAM_CODEC = ExtraStreamCodecs.composite(
                 PositionTarget.STREAM_CODEC, s -> s.target,
-                ParticleTypes.STREAM_CODEC, s -> s.particle,
+                ByteBufCodecs.STRING_UTF8, s -> s.texture,
                 RotationTarget.STREAM_CODEC, s -> s.rotation,
                 ExtraStreamCodecs.enumCodec(Direction.Axis.values()), s -> s.axis,
                 ByteBufCodecs.FLOAT, s -> s.rotPerTick,
@@ -170,7 +168,7 @@ public class RingSpawner extends VisibleSpawner {
     public static class Builder extends VisibleSpawner.Builder<Builder, RingSpawner> {
         private static final MapCodec<RingSpawner.Builder> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 PositionTarget.CODEC.fieldOf("target").forGetter(s -> s.target),
-                ParticleTypes.CODEC.fieldOf("particle").forGetter(s -> s.particle),
+                Codec.STRING.fieldOf("particle").forGetter(s -> s.texture),
                 RotationTarget.CODEC.fieldOf("rotation").forGetter(s -> s.rotationTarget),
                 Direction.Axis.CODEC.fieldOf("axis").forGetter(s -> s.axis),
                 Codec.FLOAT.fieldOf("rot_speed").forGetter(s -> s.rotPerTick),
@@ -180,9 +178,9 @@ public class RingSpawner extends VisibleSpawner {
                 Codec.INT.fieldOf("count").forGetter(s -> s.spawnCount)
         ).apply(i, RingSpawner.Builder::fromCodec));
 
-        private static Builder fromCodec(PositionTarget.Builder<?> builder, ParticleOptions options, RotationTarget.Builder<?> rotationTarget, Direction.Axis axis, Float rotPerTick, Float maxHeight, Float heightPerTick, Float radius, Integer spawnCount) {
+        private static Builder fromCodec(PositionTarget.Builder<?> builder, String texture, RotationTarget.Builder<?> rotationTarget, Direction.Axis axis, Float rotPerTick, Float maxHeight, Float heightPerTick, Float radius, Integer spawnCount) {
             return new Builder()
-                    .setTarget(builder).setParticle(options).rotation(rotationTarget).axis(axis)
+                    .setTarget(builder).setTexture(texture).rotation(rotationTarget).axis(axis)
                     .rotPerTick(rotPerTick).maxHeight(maxHeight).heightPerTick(heightPerTick)
                     .radius(radius).spawnCount(spawnCount);
         }
@@ -257,7 +255,7 @@ public class RingSpawner extends VisibleSpawner {
 
         @Override
         public RingSpawner build(ParticleAnimationPresetContext context) {
-            return new RingSpawner(target.build(context), particle, rotationTarget.build(context), axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
+            return new RingSpawner(target.build(context), this.texture, rotationTarget.build(context), axis, rotPerTick, maxHeight, heightChangePerTick, radius, spawnCount);
         }
 
         @Override
@@ -269,7 +267,7 @@ public class RingSpawner extends VisibleSpawner {
     @Override
     public String toString() {
         return "RingSpawner{" +
-                "particle=" + particle +
+                "texture=" + texture +
                 ", axis=" + axis +
                 ", spawnerCount=" + spawnerCount +
                 ", angleBetweenSpawner=" + angleBetweenSpawner +

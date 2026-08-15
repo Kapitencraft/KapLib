@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.particle.animation.elements;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.kapitencraft.kap_lib.particle.animation.core.ParticleConfig;
+import net.kapitencraft.kap_lib.particle.animation.core.ParticleData;
 import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPresetContext;
 import net.kapitencraft.kap_lib.particle.registry.ParticleAnimationRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -29,7 +29,7 @@ public interface AnimationElement {
      * @param config the particle
      * @return the target time in ticks this element will take for the given particle
      */
-    int createLength(ParticleConfig config);
+    int createLength(ParticleData config);
 
     /**
      * called each tick for every particle config in the animation
@@ -37,14 +37,14 @@ public interface AnimationElement {
      * @param tick the amount of ticks passed for this element
      * @param percentage the percentage of time passed for this element
      */
-    void tick(ParticleConfig object, int tick, double percentage);
+    void tick(ParticleData object, int tick, double percentage);
 
     /**
      * called when this element start taking over the animation of the given config
      *
      * @param object the config being initialized
      */
-    default void initialize(ParticleConfig object) {
+    default void initialize(ParticleData object) {
 
     }
 
@@ -53,7 +53,7 @@ public interface AnimationElement {
      *
      * @param config the config being finalized
      */
-    default void finalize(ParticleConfig config) {
+    default void finalize(ParticleData config) {
     }
 
     /**

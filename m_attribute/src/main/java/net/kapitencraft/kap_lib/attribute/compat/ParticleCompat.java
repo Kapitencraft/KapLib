@@ -18,7 +18,7 @@ public class ParticleCompat {
     public static void sendLifeStealAnimation(LivingEntity attacked, @NotNull LivingEntity attacker) {
         ParticleAnimation.builder()
                 .spawn(EntityBBSpawner.builder()
-                        .setParticle(new DustParticleOptions(Vec3.fromRGB24(0x800000).toVector3f(), .3f))
+                        .setTexture(new DustParticleOptions(Vec3.fromRGB24(0x800000).toVector3f(), .3f))
                         .target(attacked)
                         .perTick(150)
                         .scaleX(1.3f).scaleY(1.1f)

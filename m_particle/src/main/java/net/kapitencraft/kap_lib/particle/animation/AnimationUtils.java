@@ -1,12 +1,11 @@
 package net.kapitencraft.kap_lib.particle.animation;
 
-import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
 import net.kapitencraft.kap_lib.particle.animation.spawners.GroupSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.LineSpawner;
 import net.kapitencraft.kap_lib.particle.animation.spawners.RingSpawner;
+import net.kapitencraft.kap_lib.particle.animation.target.pos.PositionTarget;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -19,15 +18,16 @@ public interface AnimationUtils {
 
     /**
      * generates a flat star spawner for animation
-     * @param tips the amount of tips the star has
-     * @param starType what particle the star should use
-     * @param ringType if there should be a ring around the star and if so, which particle should be used
-     * @param spacing the distance between each particle spawn.
-     * @param radius the radius of the star
-     * @param origin the origin (center) position of the star
+     *
+     * @param tips        the amount of tips the star has
+     * @param starTexture what particle the star should use
+     * @param ringTexture if there should be a ring around the star and if so, which particle should be used
+     * @param spacing     the distance between each particle spawn.
+     * @param radius      the radius of the star
+     * @param origin      the origin (center) position of the star
      * @return the animation builder setup to spawn a star
      */
-    static ParticleAnimation.ParticleAnimationBuilder star(int tips, ParticleOptions starType, @Nullable ParticleOptions ringType, float spacing, float radius, PositionTarget.Builder<?> origin) {
+    static ParticleAnimation.ParticleAnimationBuilder star(int tips, String starTexture, @Nullable String ringTexture, float spacing, float radius, PositionTarget.Builder<?> origin) {
         float angleBetweenTips = 360f / tips * 2;
 
         GroupSpawner.Builder spawner = GroupSpawner.builder();
@@ -37,15 +37,15 @@ public interface AnimationUtils {
                     .start(PositionTarget.relative(origin, point(angleBetweenTips * i).scale(radius)))
                     .end(PositionTarget.relative(origin, point(angleBetweenTips * (i + 1)).scale(radius)))
                     .spacing(spacing)
-                    .setParticle(starType)
+                    .setTexture(starTexture)
             );
         }
-        if (ringType != null) {
+        if (ringTexture != null) {
             spawner.addSpawner(RingSpawner.fullCircle(360)
                     .axis(Direction.Axis.Y)
                     .radius(radius)
                     .setTarget(origin)
-                    .setParticle(ringType)
+                    .setTexture(ringTexture)
             );
         }
 
