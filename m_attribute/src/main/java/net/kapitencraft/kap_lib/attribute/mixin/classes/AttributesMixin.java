@@ -23,5 +23,4 @@ class AttributesMixin {
             attribute = (RangedAttribute) attribute.setSyncable(true);
         return attribute;
     }
-
 }

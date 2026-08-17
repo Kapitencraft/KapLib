@@ -1,12 +1,9 @@
 {
-  "asMod": true,
+  "type": "mod",
   "extensions": false,
   "at": false,
+  "mixin": true,
   "compat": [
     "inventory_page", "cooldown", "particle", "requirement", "item"
-  ],
-  "data": [
-    "test/bonuses/**",
-    "test/tags/item/set/**"
   ]
 }

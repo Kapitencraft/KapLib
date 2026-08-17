@@ -1,0 +1,21 @@
+{
+  "modrinth_id": "IrKTRsiH",
+  "curseforge_id": "kaplib",
+  "author": {
+    "name": "Kapitencraft",
+    "email": "kapitencraft@gmail.com"
+  },
+  "mod": {
+    "id": "${mod_id}",
+    "name": "${mod_name}",
+    "version": "${mod_version}",
+    "artifact_version": "v${mod_version}-mc${minecraft_version}"
+  },
+  "mc_version": "${minecraft_version}",
+  "loader_version": "${neo_version}",
+  "with_sources": true,
+  "changelog": {
+    "format": "md",
+    "style": "none"
+  }
+}

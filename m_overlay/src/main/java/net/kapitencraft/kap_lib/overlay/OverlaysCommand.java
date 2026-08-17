@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.core.helpers.CommandHelper;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 
+@SuppressWarnings("SameReturnValue")
 public class OverlaysCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {

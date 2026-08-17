@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.core.helpers.ParticleHelper;
-import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.particle.registry.ExtraParticleTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleOptions;

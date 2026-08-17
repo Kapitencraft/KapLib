@@ -18,6 +18,7 @@ public interface CameraRegistries {
 
     Registry<Modifier.Type<?>> CAMERA_MODIFIERS = syncReg(Keys.CAMERA_MODIFIERS);
 
+    @SuppressWarnings("SameParameterValue")
     private static <T> Registry<T> syncReg(ResourceKey<Registry<T>> key) {
         Registry<T> registry = new RegistryBuilder<>(key).sync(true).create();
         registries.add(registry);
@@ -34,6 +35,7 @@ public interface CameraRegistries {
         //CAMERA CONTROL
         ResourceKey<Registry<Modifier.Type<?>>> CAMERA_MODIFIERS = createRegistry("camera_modifiers");
 
+        @SuppressWarnings("SameParameterValue")
         private static <T> ResourceKey<Registry<T>> createRegistry(String id) {
             return ResourceKey.createRegistryKey(LibConstants.res(id));
         }

@@ -39,9 +39,9 @@ public interface ActivationTrigger<T extends ActivationTriggerInstance> {
     @OnlyIn(Dist.CLIENT)
     class Listener<T extends ActivationTriggerInstance> {
         private final T trigger;
-        private final ParticleAnimator animator;
+        private final ParticleAnimator.Pending animator;
 
-        public Listener(T trigger, ParticleAnimator animator) {
+        public Listener(T trigger, ParticleAnimator.Pending animator) {
             this.trigger = trigger;
             this.animator = animator;
         }

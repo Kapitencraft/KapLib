@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.recipe;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.recipe.registry.ExtraRecipeSerializers;
 import net.kapitencraft.kap_lib.recipe.registry.ExtraRecipeTypes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -12,5 +13,6 @@ public class RecipeModule {
 
     public RecipeModule(IEventBus modEventBus, ModContainer container) {
         ExtraRecipeTypes.REGISTRY.register(modEventBus);
+        ExtraRecipeSerializers.REGISTRY.register(modEventBus);
     }
 }

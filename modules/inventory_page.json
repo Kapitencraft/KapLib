@@ -1,7 +1,5 @@
 {
-  "asMod": true,
-  "assets": [
-    "kap_lib/textures/item/empty_*",
-    "kap_lib/textures/gui/inventory/equipment.png"
-  ]
+  "type": "mod",
+  "interfaceInjection": true,
+  "mixin": true
 }

@@ -190,8 +190,7 @@ public interface MathHelper {
      * @return a list of entities that surround the given source in a {@code range} radius and is an instance of {@code tClass}
      */
     static <T extends Entity> List<T> getEntitiesAround(Class<T> tClass, Entity source, double range) {
-        Level level = source.level();
-        return getEntitiesAround(tClass, level, source.getBoundingBox(), range);
+        return getEntitiesAround(tClass, source.level(), source.getBoundingBox(), range);
     }
 
 
@@ -336,7 +335,7 @@ public interface MathHelper {
      * @return whether the chance fired, checking for the {@link LivingEntity }
      */
     static boolean chance(double chance, @Nullable LivingEntity living) {
-        return Math.random() <= chance * (living != null ? (1 + living.getAttributeValue(Attributes.LUCK) / 100) : 1);
+        return Math.random() <= chance * (living != null && living.getAttributes().hasAttribute(Attributes.LUCK) ? (1 + living.getAttributeValue(Attributes.LUCK) / 100) : 1);
     }
 
     /**
@@ -350,9 +349,19 @@ public interface MathHelper {
      * @return the closest entity of the given type, or null if none could be found within the given range
      */
     static <T extends Entity> @Nullable T getClosestEntity(Class<T> tClass, Entity source, double range) {
-        List<T> entities = getEntitiesAround(tClass, source, range).stream().filter(t -> t.is(source)).sorted(Comparator.comparingDouble(value -> value.distanceTo(source))).toList();
+        return getClosestEntity(tClass, source, range, v -> true);
+    }
+
+    static <T extends Entity> @Nullable T getClosestEntity(Class<T> type, Entity origin, double range, Predicate<T> filter) {
+        List<T> entities = getEntitiesAround(type, origin, range).stream().filter(t -> !t.is(origin) && filter.test(t)).toList();
         if (entities.isEmpty()) return null;
-        return entities.getFirst();
+        T val = entities.getFirst();
+        for (int i = 1; i < entities.size(); i++) {
+            if (val.distanceTo(origin) > entities.get(i).distanceTo(origin)) {
+                val = entities.get(i);
+            }
+        }
+        return val;
     }
 
     /**
@@ -540,17 +549,6 @@ public interface MathHelper {
                 randomBetween(source, box.minY, box.maxY),
                 randomBetween(source, box.minZ, box.maxZ)
         );
-    }
-
-    /**
-     * gets the largest difference between the 2 vectors, in form of a scalar
-     */
-    static float getOversizeScale(Vec3 original, Vec3 clamped) {
-        if (clamped.equals(original)) return 1;
-        float x = original.x == 0 ? 0 : (float) (original.x / clamped.x);
-        float y = original.y == 0 ? 0 : (float) (original.y / clamped.y);
-        float z = original.z == 0 ? 0 : (float) (original.z / clamped.z);
-        return pickLargest(x, y, z);
     }
 
     /**

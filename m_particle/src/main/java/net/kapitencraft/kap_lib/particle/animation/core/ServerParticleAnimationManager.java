@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.particle.animation.core;
 
 import com.google.gson.JsonElement;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;

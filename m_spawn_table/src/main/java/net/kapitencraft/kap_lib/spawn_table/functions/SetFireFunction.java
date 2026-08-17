@@ -36,7 +36,7 @@ public class SetFireFunction extends SpawnEntityConditionalFunction {
     }
 
     @Override
-    public SpawnEntityFunctionType getType() {
+    public SpawnEntityFunctionType<?> getType() {
         return SpawnEntityFunctions.SET_FIRE_DURATION.get();
     }
 }

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
  * basic inventory page renderer interface.
  * <br>note that this interface works basically like a {@link net.minecraft.client.gui.screens.Screen Screen} and should be treated as one
  */
+@SuppressWarnings("SameReturnValue")
 public interface InventoryPageRenderer {
 
     /**
@@ -28,6 +29,7 @@ public interface InventoryPageRenderer {
     /**
      * called whenever the inventory changes size
      */
+    @SuppressWarnings("EmptyMethod")
     void init(int leftPos, int topPos);
 
     /**

@@ -1,8 +1,6 @@
 {
-  "asMod": true,
+  "type": "mod",
   "extensions": false,
   "at": false,
-  "data": [
-    "test/requirements/**"
-  ]
+  "mixin": true
 }

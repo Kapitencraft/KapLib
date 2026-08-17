@@ -1,5 +1,7 @@
 {
-  "asMod": true,
+  "type": "mod",
   "extensions": false,
+  "at": true,
+  "mixin": true,
   "compat": ["particle"]
 }

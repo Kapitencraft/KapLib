@@ -3,7 +3,6 @@
   "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_17",
   "package": "net.kapitencraft.kap_lib.mob_effect.mixin.classes",
-  "refmap": "kap_lib.mixin-refmap.json",
   "client": [
   ],
   "mixins": [

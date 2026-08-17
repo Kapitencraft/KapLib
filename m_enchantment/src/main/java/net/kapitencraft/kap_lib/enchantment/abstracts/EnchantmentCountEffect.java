@@ -62,7 +62,7 @@ public interface EnchantmentCountEffect {
     default float tryExecute(Holder<Enchantment> holder, int level, EnchantedItemInUse enchanted, LivingEntity attacker, LivingEntity attacked, float damage, DamageSource source) {
         float attackStrengthScale = 1;
         if (attacker instanceof Player p) {
-            attackStrengthScale = p.getAttackStrengthScale(0);
+            attackStrengthScale = p.getAttackStrengthScale(.5f);
         }
         return this.execute(holder, level, enchanted, attacker, attacked, damage, source, attackStrengthScale);
     }
@@ -81,7 +81,7 @@ public interface EnchantmentCountEffect {
         /**
          * executed counter times, and then never again
          */
-        ONCE;
+        ONCE
     }
 
     MapCodec<? extends EnchantmentCountEffect> codec();

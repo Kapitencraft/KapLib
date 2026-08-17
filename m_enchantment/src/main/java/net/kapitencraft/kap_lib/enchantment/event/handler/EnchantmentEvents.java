@@ -2,6 +2,8 @@ package net.kapitencraft.kap_lib.enchantment.event.handler;
 
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.core.tags.ExtraTags;
+import net.kapitencraft.kap_lib.enchantment.EnchantmentEffectRegistries;
+import net.kapitencraft.kap_lib.enchantment.EnchantmentModule;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBlockBreakEffect;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentBowEffect;
 import net.kapitencraft.kap_lib.enchantment.abstracts.EnchantmentCountEffect;
@@ -39,6 +41,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableFloat;
 
@@ -46,7 +49,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = EnchantmentModule.MODULE_ID)
 public class EnchantmentEvents {
 
     @SubscribeEvent
@@ -143,11 +146,6 @@ public class EnchantmentEvents {
     }
 
     @SubscribeEvent
-    public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
-        ConfigureEnchantmentColorsCommand.register(event.getDispatcher());
-    }
-
-    @SubscribeEvent
     public static void joinLevelEvent(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof AbstractArrow arrow && arrow.level() instanceof ServerLevel serverLevel) {
             if (arrow.getOwner() instanceof LivingEntity living) {
@@ -177,5 +175,10 @@ public class EnchantmentEvents {
                 });
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void addRegistries(NewRegistryEvent event) {
+        EnchantmentEffectRegistries.registerAll(event::register);
     }
 }

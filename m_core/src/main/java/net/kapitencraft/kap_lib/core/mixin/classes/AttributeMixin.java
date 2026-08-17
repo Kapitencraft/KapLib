@@ -25,6 +25,7 @@ public abstract class AttributeMixin implements IAttributeExtension, MixinSelfPr
         return IAttributeExtension.super.getBaseId();
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Override
     public Attribute self() {
         return MixinSelfProvider.super.self();

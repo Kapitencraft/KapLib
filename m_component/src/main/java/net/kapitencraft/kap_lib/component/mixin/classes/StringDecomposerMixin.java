@@ -68,6 +68,7 @@ public class StringDecomposerMixin {
         return true;
     }
 
+    @SuppressWarnings("SameReturnValue")
     @Shadow
     private static boolean feedChar(Style style, FormattedCharSink sink, int j, char c) {
         return false;

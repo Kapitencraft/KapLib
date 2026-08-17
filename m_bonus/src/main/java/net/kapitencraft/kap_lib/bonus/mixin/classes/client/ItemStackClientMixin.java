@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.bonus.mixin.classes.client;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.kapitencraft.kap_lib.bonus.BonusManager;
 import net.kapitencraft.kap_lib.core.mixin.duck.MixinSelfProvider;
 import net.minecraft.network.chat.Component;
@@ -20,8 +21,8 @@ import java.util.function.Consumer;
 @Mixin(ItemStack.class)
 public class ItemStackClientMixin implements MixinSelfProvider<ItemStack> {
 
-    @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/common/util/AttributeUtil;addAttributeTooltips(Lnet/minecraft/world/item/ItemStack;Ljava/util/function/Consumer;Lnet/neoforged/neoforge/common/util/AttributeTooltipContext;)V"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void addSetDisplay(Item.TooltipContext tooltipContext, Player player, TooltipFlag tooltipFlag, CallbackInfoReturnable<List<Component>> cir, List<Component> list, MutableComponent mutablecomponent, Consumer<Component> consumer) {
+    @Inject(method = "getTooltipLines", at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/common/util/AttributeUtil;addAttributeTooltips(Lnet/minecraft/world/item/ItemStack;Ljava/util/function/Consumer;Lnet/neoforged/neoforge/common/util/AttributeTooltipContext;)V"))
+    private void addSetDisplay(Item.TooltipContext tooltipContext, Player player, TooltipFlag tooltipFlag, CallbackInfoReturnable<List<Component>> cir, @Local List<Component> list) {
         list.addAll(BonusManager.getBonusDisplay(self(), player));
     }
 }

@@ -17,8 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.neoforged.fml.ModLoader;
@@ -44,7 +42,11 @@ public class OverlayManager {
             ).apply(renderControllerInstance, OverlayManager::fromCodec)
     );
 
-    public static OverlayManager INSTANCE = OverlayManager.load();
+    private record Entry(OverlayProperties properties, Function<OverlayProperties, Overlay> constructor) {
+
+    }
+
+    public static final OverlayManager INSTANCE = OverlayManager.load();
 
 
     private static OverlayManager fromCodec(Map<ResourceLocation, OverlayProperties> map) {
@@ -68,7 +70,7 @@ public class OverlayManager {
      * @return the positions of each overlay mapped to their UUID
      */
     private Map<ResourceLocation, OverlayProperties> getLocations() {
-        return MapStream.of(map).mapValues(Overlay::getProperties).mapKeys(Holder::getKey).mapKeys(ResourceKey::location).toMap();
+        return MapStream.of(map).mapValues(Overlay::getProperties).toMap();
     }
 
     /**
@@ -92,8 +94,8 @@ public class OverlayManager {
         return IOHelper.loadFile(getOrCreateFile(), CODEC, OverlayManager::new);
     }
 
-    private final Map<Holder<OverlayProperties>, Function<OverlayProperties, Overlay>> constructors = new HashMap<>();
-    public final Map<Holder<OverlayProperties>, Overlay> map = new HashMap<>();
+    private final Map<ResourceLocation, Entry> constructors = new HashMap<>();
+    public final Map<ResourceLocation, Overlay> map = new HashMap<>();
 
     private final List<Overlay> visible = new ArrayList<>(), invisible = new ArrayList<>();
 
@@ -112,10 +114,10 @@ public class OverlayManager {
         construct();
     }
 
-    void createRenderer(Holder<OverlayProperties> provider, Function<OverlayProperties, Overlay> constructor) {
-        if (this.constructors.containsKey(provider))
-            throw new IllegalStateException("detected double registered Overlay with ID '" + provider.getKey().location() + "'");
-        this.constructors.put(provider, constructor);
+    void createRenderer(ResourceLocation location, OverlayProperties properties, Function<OverlayProperties, Overlay> constructor) {
+        if (this.constructors.containsKey(location))
+            throw new IllegalStateException("detected double registered Overlay with ID '" + location + "'");
+        this.constructors.put(location, new Entry(properties, constructor));
     }
 
     /**
@@ -163,9 +165,9 @@ public class OverlayManager {
      * construct all Overlays into the active render queue
      */
     private void construct() {
-        this.constructors.forEach((location, constructor) -> {
-            OverlayProperties holder = MiscHelper.nonNullOr(this.loadedPositions.get(location.getKey().location()), location.value().createCopy());
-            Overlay overlay = constructor.apply(holder);
+        this.constructors.forEach((location, entry) -> {
+            OverlayProperties holder = MiscHelper.nonNullOr(this.loadedPositions.get(location), entry.properties.createCopy());
+            Overlay overlay = entry.constructor.apply(holder);
             if (holder.isVisible())
                 visible.add(overlay);
             else
@@ -185,8 +187,8 @@ public class OverlayManager {
                 invisible.remove(dedicatedHolder);
                 visible.add(dedicatedHolder);
             }
-            Holder<OverlayProperties> location = CollectionHelper.getKeyForValue(this.map, dedicatedHolder);
-            dedicatedHolder.getProperties().copy(location.value());
+            ResourceLocation location = CollectionHelper.getKeyForValue(this.map, dedicatedHolder);
+            dedicatedHolder.getProperties().copy(this.constructors.get(location).properties);
             return;
         }
         throw new IllegalStateException("attempted to reset non-existing Holder");
@@ -197,10 +199,9 @@ public class OverlayManager {
      */
     public static void resetAll() {
         OverlayManager controller = INSTANCE;
-        Collection<Holder<OverlayProperties>> locations = controller.constructors.keySet();
-        locations.forEach(location -> {
+        controller.constructors.forEach((location, entry) -> {
             Overlay holder = controller.map.get(location);
-            holder.getProperties().copy(location.value());
+            holder.getProperties().copy(entry.properties);
             controller.visible.add(holder);
         });
         controller.invisible.clear();

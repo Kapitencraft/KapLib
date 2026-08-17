@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.item.misc;
 
+import net.kapitencraft.kap_lib.item.ItemModule;
 import net.kapitencraft.kap_lib.item.event.custom.RegisterAnvilUsesEvent;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -18,7 +19,7 @@ import java.util.function.Predicate;
  * manager for anvil recipes.
  * register new ones using {@link RegisterAnvilUsesEvent}
  */
-@EventBusSubscriber
+@EventBusSubscriber(modid = ItemModule.MODULE_ID)
 public class AnvilUses {
     private static final List<AnvilUse> uses = new ArrayList<>();
 
@@ -40,9 +41,7 @@ public class AnvilUses {
      * @param bothPredicate  predicate for both anvil inputs
      * @param resultConsumer results. modify the left stack
      * @param xpCost         the amount of XP this anvil use should take
-     * @deprecated use {@link RegisterAnvilUsesEvent#registerAnvilUse(BiPredicate, BiConsumer, int)} instead
      */
-    @Deprecated
     @ApiStatus.Internal
     public static void registerAnvilUse(BiPredicate<ItemStack, ItemStack> bothPredicate, BiConsumer<ItemStack, ItemStack> resultConsumer, int xpCost) {
         uses.add(new AnvilUse(bothPredicate, resultConsumer, xpCost));

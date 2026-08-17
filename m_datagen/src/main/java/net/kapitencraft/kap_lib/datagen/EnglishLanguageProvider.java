@@ -33,7 +33,7 @@ public abstract class EnglishLanguageProvider extends LanguageProvider {
     }
 
     public void addItem(Supplier<Item> item) {
-        addItem(item, TextHelper.makeGrammar(BuiltInRegistries.ITEM.getKey(item.get()).getPath()));
+        addItem(item, TextHelper.langify(BuiltInRegistries.ITEM.getKey(item.get()).getPath()));
     }
 
     public void bonusWithTranslation(boolean set, String key, String name, String... description) {
@@ -45,13 +45,13 @@ public abstract class EnglishLanguageProvider extends LanguageProvider {
     public void addEnchantmentWithDescription(Holder<Enchantment> enchantment, String... description) {
         ResourceLocation location = enchantment.getKey().location();
         String id = Util.makeDescriptionId("enchantment", location);
-        add(id, TextHelper.makeGrammar(location.getPath()));
+        add(id, TextHelper.langify(location.getPath()));
         translation(id, description);
     }
 
     public void addAttribute(Holder<Attribute> attribute, @Nullable ChatFormatting color) {
         String id = attribute.getKey().location().getPath();
-        String name = (color != null ? "§" + color.getChar() : "") + TextHelper.makeGrammar(CollectionHelper.getLast(id.split("\\.")));
+        String name = (color != null ? "§" + color.getChar() : "") + TextHelper.langify(CollectionHelper.getLast(id.split("\\.")));
         add(id, name);
         String descriptionId = attribute.value().getDescriptionId();
         if (!id.equals(descriptionId)) add(descriptionId, name);

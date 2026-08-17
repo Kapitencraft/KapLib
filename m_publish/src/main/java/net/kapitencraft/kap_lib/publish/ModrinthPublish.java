@@ -34,7 +34,7 @@ public class ModrinthPublish {
             ByteAccumulator accumulator = new ByteAccumulator();
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(accumulator, StandardCharsets.UTF_8), true);
             // Add text part
-            addData(writer, boundary, modName, modVersion, mcVersion, loaderVersion, config.modrinthId(), fillModules(config.modules(), config.withSources()), config.dependencies());
+            addData(writer, boundary, config.modInfo(), mcVersion, loaderVersion, config.modrinthId(), fillModules(config.modules(), config.withSources()), config.dependencies());
 
             // Add file part
             for (AutoPublisher.Source source : sources) {
@@ -101,14 +101,14 @@ public class ModrinthPublish {
     }
 
     // Helper method to add a text field
-    private static void addData(PrintWriter writer, String boundary, String modName, String modVersion, String mcVersion, String loaderVersion, String projectId, String[] modules, AutoPublisher.DependencyInfo[] dependencies) throws IOException {
+    private static void addData(PrintWriter writer, String boundary, AutoPublisher.ModInfo modInfo, String mcVersion, String loaderVersion, String projectId, String[] modules, AutoPublisher.DependencyInfo[] dependencies) throws IOException {
         writer.append("""
                 --%s\r
                 Content-Disposition: form-data; name="data"\r
                 Content-Type: application/json; charset=UTF-8\r
                 \r
                 """.formatted(boundary));
-        writer.append(addVersionData(modName, modVersion, mcVersion, projectId, dependencies, modules)).append("\r\n");
+        writer.append(addVersionData(modInfo, mcVersion, projectId, dependencies, modules)).append("\r\n");
         writer.flush();
     }
 
@@ -128,11 +128,11 @@ public class ModrinthPublish {
         writer.flush();
     }
 
-    private static String addVersionData(String modName, String modVersion, String mcVersion, String projectId, AutoPublisher.DependencyInfo[] dependencies, String[] modules) throws IOException {
+    private static String addVersionData(AutoPublisher.ModInfo modInfo, String mcVersion, String projectId, AutoPublisher.DependencyInfo[] dependencies, String[] modules) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
-        data.put("name", String.format("%s v%s", modName, modVersion));
-        data.put("version_number", AutoPublisher.formatVersion(modVersion, mcVersion));
+        data.put("name", String.format("%s v%s", modInfo.name(), modInfo.version()));
+        data.put("version_number", modInfo.artifactVersion());
         data.put("loaders", new String[]{"neoforge"});
         data.put("game_versions", new String[]{mcVersion});
         data.put("version_type", "release");

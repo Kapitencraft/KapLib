@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.bonus.event.custom;
 
 import net.kapitencraft.kap_lib.bonus.AbstractBonusElement;
 import net.kapitencraft.kap_lib.bonus.Bonus;
-import net.kapitencraft.kap_lib.bonus.BonusManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;

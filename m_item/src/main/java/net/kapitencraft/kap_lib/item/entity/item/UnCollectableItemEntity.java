@@ -40,8 +40,8 @@ public class UnCollectableItemEntity extends ItemEntity {
     public void tick() {
         if (moveTowards && this.level() instanceof ServerLevel serverLevel) {
             List<Entity> targets = collectors.stream().map(serverLevel::getEntity).filter(Objects::nonNull).sorted(Comparator.comparingDouble(value -> value.distanceTo(this))).toList();
-            if (targets.size() > 0) {
-                Entity target0 = targets.get(0);
+            if (!targets.isEmpty()) {
+                Entity target0 = targets.getFirst();
                 Vec3 offSet = target0.position().subtract(this.position());
                 this.move(MoverType.SELF, MathHelper.clampLength(offSet, 5));
             }

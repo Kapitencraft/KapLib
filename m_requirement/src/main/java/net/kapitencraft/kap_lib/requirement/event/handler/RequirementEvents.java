@@ -1,8 +1,9 @@
 package net.kapitencraft.kap_lib.requirement.event.handler;
 
+import net.kapitencraft.kap_lib.requirement.RequirementModule;
 import net.kapitencraft.kap_lib.requirement.network.S2C.SyncRequirementsPacket;
 import net.kapitencraft.kap_lib.requirement.RequirementManager;
-import net.kapitencraft.kap_lib.requirement.type.RegistryReqType;
+import net.kapitencraft.kap_lib.requirement.registry.RequirementRegistries;
 import net.kapitencraft.kap_lib.requirement.type.RequirementType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -18,11 +19,17 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 import java.util.List;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = RequirementModule.MODULE_ID)
 public class RequirementEvents {
+
+    @SubscribeEvent
+    public static void addRegistries(NewRegistryEvent event) {
+        RequirementRegistries.registerAll(event::register);
+    }
 
     @SubscribeEvent
     public static void addRequirementListener(AddReloadListenerEvent event) {

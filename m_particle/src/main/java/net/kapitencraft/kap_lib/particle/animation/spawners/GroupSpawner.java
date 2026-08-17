@@ -7,13 +7,10 @@ import net.kapitencraft.kap_lib.particle.registry.particle_animation.SpawnerType
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public record GroupSpawner(List<Spawner> spawners) implements Spawner {
 

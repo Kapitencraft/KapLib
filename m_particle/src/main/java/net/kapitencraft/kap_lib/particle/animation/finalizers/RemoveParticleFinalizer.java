@@ -6,11 +6,7 @@ import net.kapitencraft.kap_lib.particle.animation.store.ParticleAnimationPreset
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.FinalizerTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
-import java.util.UUID;
 
 public class RemoveParticleFinalizer implements ParticleFinalizer {
     private static final RemoveParticleFinalizer INSTANCE = new RemoveParticleFinalizer();

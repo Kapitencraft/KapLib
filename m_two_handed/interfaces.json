@@ -1,0 +1,14 @@
+{
+  "net/minecraft/world/entity/player/Player": [
+    "net/kapitencraft/kap_lib/two_handed/mixin/duck/OffhandAttackCooldownHolder"
+  ],
+  "net/minecraft/world/entity/LivingEntity": [
+    "net/kapitencraft/kap_lib/two_handed/mixin/duck/TwoHandedSuppressor"
+  ],
+  "net/minecraft/world/entity/player/Inventory": [
+    "net/kapitencraft/kap_lib/two_handed/mixin/duck/InventoryClearOffhand"
+  ],
+  "net/minecraft/world/item/Item$Properties": [
+    "net/kapitencraft/kap_lib/two_handed/mixin/duck/TwoHandedPropertyInjector"
+  ]
+}

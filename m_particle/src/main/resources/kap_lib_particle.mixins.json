@@ -3,7 +3,6 @@
   "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_21",
   "package": "net.kapitencraft.kap_lib.particle.mixin.classes",
-  "refmap": "kap_lib.mixin-refmap.json",
   "client": [
     "client.ParticleEngineMixin"
   ],

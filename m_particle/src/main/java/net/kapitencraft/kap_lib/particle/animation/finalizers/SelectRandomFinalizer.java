@@ -14,13 +14,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.random.Weight;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class SelectRandomFinalizer implements ParticleFinalizer {
     private final WeightedRandomList<WeightedEntry.Wrapper<ParticleFinalizer>> entries;

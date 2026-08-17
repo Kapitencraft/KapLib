@@ -4,9 +4,13 @@ import net.kapitencraft.kap_lib.inventory_page.page.InventoryPage;
 
 public interface InventoryPageReader {
 
-    int getPageIndex();
+    default int getPageIndex() {
+        return -1;
+    }
 
-    InventoryPage[] getPages();
+    default InventoryPage[] getPages() {
+        return new InventoryPage[0];
+    }
 
     default InventoryPage getPage() {
         return getPages()[getPageIndex()];

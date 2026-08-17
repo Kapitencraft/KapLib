@@ -58,7 +58,7 @@ public class MultiLineTextBox extends ScrollableWidget {
     /**
      * if true the textbox can lose focus by clicking elsewhere on the screen
      */
-    private boolean canLoseFocus = true;
+    private final boolean canLoseFocus = true;
     /**
      * If this value is true along with isFocused, keyTyped will process the keys.
      */
@@ -95,7 +95,7 @@ public class MultiLineTextBox extends ScrollableWidget {
     /**
      * Called to check if the text is valid
      */
-    private Predicate<String> filter = Objects::nonNull;
+    private final Predicate<String> filter = Objects::nonNull;
     private Consumer<Integer> lineCreationConsumer = i -> {};
     private Consumer<Integer> lineRemovedConsumer = i -> {};
     private BiConsumer<Integer, String> lineModificationConsumer = (integer, string) -> {};
@@ -433,6 +433,7 @@ public class MultiLineTextBox extends ScrollableWidget {
     /**
      * Like getNthWordFromPos (which wraps this), but adds option for skipping consecutive spaces
      */
+    @SuppressWarnings("SameParameterValue")
     private int getWordPosition(int pN, int pPos, boolean pSkipWs) {
         int i = pPos;
         boolean flag = pN < 0;
@@ -463,6 +464,7 @@ public class MultiLineTextBox extends ScrollableWidget {
         return i;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private int getWordPosition2d(int pN) {
         return getWordPosition2d(pN, this.cursorPos2d);
     }
@@ -471,6 +473,7 @@ public class MultiLineTextBox extends ScrollableWidget {
         return getWordPosition2d(pN, pPos, true);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private int getWordPosition2d(int pN, Vec2i pPos, boolean pSkipWs) {
         int i = pPos.x;
         boolean flag = pN < 0;

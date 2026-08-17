@@ -17,6 +17,7 @@ public interface AttributeDamageTypes {
      */
     ResourceKey<DamageType> FEROCITY = register("ferocity");
 
+    @SuppressWarnings("SameParameterValue")
     private static ResourceKey<DamageType> register(String name) {
         return ResourceKey.create(Registries.DAMAGE_TYPE, LibConstants.res(name));
     }

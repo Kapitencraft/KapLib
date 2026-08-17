@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "compatibilityLevel": "JAVA_17",
+  "package": "net.kapitencraft.kap_lib.two_handed.mixin.classes",
+  "refmap": "kap_lib_two_handed.mixin-refmap.json",
+  "client": [
+    "client.GuiMixin",
+    "client.MinecraftMixin",
+    "client.MultiPlayerGameModeMixin"
+  ],
+  "mixins": [
+    "AbstractContainerMenuMixin",
+    "CommonHooksMixin",
+    "InventoryMenuOffhandSlotWrapperMixin",
+    "InventoryMixin",
+    "ItemPropertiesMixin",
+    "PlayerMixin",
+    "LivingEntityMixin",
+    "ServerGamePacketListenerImplMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

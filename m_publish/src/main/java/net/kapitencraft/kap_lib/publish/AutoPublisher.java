@@ -31,7 +31,6 @@ public class AutoPublisher {
 
     private static final File CONFIG = new File("build/resources/main/publish_config.json");
     static final String SOURCE_PATH = "build/libs";
-    static final String AUTHENTICATION_PATH = "run/AuthCache.txt";
     private static final File DATA_CACHE = new File("run/PublishCache.txt");
     static final String CHANGELOG_PATH = "publish/changelog.txt";
     static final String CATEGORIES_PATH = "publish/categories.json";
@@ -167,8 +166,8 @@ public class AutoPublisher {
                 String curseforgeId = GsonHelper.getOptionalAsString(object, "curseforge_id");
                 String versionName = GsonHelper.getAsString(object, "version_name");
                 DependencyType depType = jsonDeserializationContext.deserialize(object.get("type"), DependencyType.class);
-                int ordinal = GsonHelper.getAsInt(object, "ordinal");
-                return new DependencyInfo(modrinthId, versionName, curseforgeId, depType, ordinal);
+                int ordinal = GsonHelper.getOptionalAsInt(object, "ordinal", 0);
+                return new DependencyInfo(modrinthId, curseforgeId, versionName, depType, ordinal);
             }
         }
     }
@@ -208,8 +207,8 @@ public class AutoPublisher {
         }
     }
 
-    record AssetsInfo(String sourcePath, String authPath, String changelogPath, String categoriesPath) {
-        public static final AssetsInfo DEFAULT = new AssetsInfo(SOURCE_PATH, AUTHENTICATION_PATH, CHANGELOG_PATH, CATEGORIES_PATH);
+    record AssetsInfo(String sourcePath, String changelogPath, String categoriesPath) {
+        public static final AssetsInfo DEFAULT = new AssetsInfo(SOURCE_PATH, CHANGELOG_PATH, CATEGORIES_PATH);
 
         private static class Deserializer implements JsonDeserializer<AssetsInfo> {
 
@@ -218,10 +217,9 @@ public class AutoPublisher {
                 if (!jsonElement.isJsonObject()) throw new JsonParseException("mod info must be object");
                 JsonObject object = jsonElement.getAsJsonObject();
                 String sourcePath = GsonHelper.getOptionalAsString(object, "source", SOURCE_PATH);
-                String authPath = GsonHelper.getOptionalAsString(object, "auth", AUTHENTICATION_PATH);
                 String changelogPath = GsonHelper.getOptionalAsString(object, "changelog", CHANGELOG_PATH);
                 String categoriesPath = GsonHelper.getOptionalAsString(object, "categories", CATEGORIES_PATH);
-                return new AssetsInfo(sourcePath, authPath, changelogPath, categoriesPath);
+                return new AssetsInfo(sourcePath, changelogPath, categoriesPath);
             }
         }
     }
@@ -324,11 +322,6 @@ public class AutoPublisher {
     private static void clearChangelog() throws IOException {
         FileWriter writer = new FileWriter(CHANGELOG_PATH);
         writer.close();
-    }
-
-    @Deprecated
-    static String formatVersion(String modVersion, String mcVersion) {
-        return String.format("v%s-mc%s", modVersion, mcVersion);
     }
 
     static String getAuth(boolean modrinth) {
@@ -512,7 +505,7 @@ public class AutoPublisher {
 
         @Override
         public void parse(BufferedReader reader) {
-            content = reader.lines().collect(Collectors.joining("\n")); //add HTML / MD line feed character
+            content = reader.lines().collect(Collectors.joining("<br>\n")); //add HTML / MD line feed character
         }
 
         @Override

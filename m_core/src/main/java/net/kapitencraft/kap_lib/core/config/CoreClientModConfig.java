@@ -1,11 +1,7 @@
 package net.kapitencraft.kap_lib.core.config;
 
 import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements.Element;
-import net.minecraft.ChatFormatting;
 import net.neoforged.neoforge.common.ModConfigSpec;
-import org.jetbrains.annotations.ApiStatus;
-
-import java.util.Arrays;
 
 public class CoreClientModConfig {
 

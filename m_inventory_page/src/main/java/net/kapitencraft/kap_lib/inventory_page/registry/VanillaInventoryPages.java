@@ -13,6 +13,4 @@ public interface VanillaInventoryPages {
 
     Supplier<InventoryPageType<CraftingPage>> CRAFTING = REGISTRY.register("crafting", () -> new InventoryPageType<>(CraftingPage::new));
     Supplier<InventoryPageType<EquipmentPage>> EQUIPMENT = REGISTRY.register("equipment", () -> new InventoryPageType<>(EquipmentPage::new));
-
-
 }

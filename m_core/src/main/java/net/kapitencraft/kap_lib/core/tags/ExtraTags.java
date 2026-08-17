@@ -15,6 +15,7 @@ public class ExtraTags {
     public interface DamageTypes {
         TagKey<DamageType> MAGIC = forgeKey("magic");
         TagKey<DamageType> PARTICLE_WEAPON = forgeKey("particle_weapon");
+        TagKey<DamageType> APPLIES_NO_INVULNERABILITY = forgeKey("applies_no_invulnerability");
 
         private static TagKey<DamageType> forgeKey(String subName) {
             return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath("c", subName));
@@ -41,6 +42,7 @@ public class ExtraTags {
         private static TagKey<Item> forgeKey(String path) {
             return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", path));
         }
+        @SuppressWarnings("SameParameterValue")
         private static TagKey<Item> modKey(String path) {
             return TagKey.create(Registries.ITEM, LibConstants.res(path));
         }
@@ -52,6 +54,7 @@ public class ExtraTags {
          */
         TagKey<EntityType<?>> ENDER_MOBS = forgeKey("ender_mobs");
 
+        @SuppressWarnings("SameParameterValue")
         private static TagKey<EntityType<?>> forgeKey(String path) {
             return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath("c", path));
         }

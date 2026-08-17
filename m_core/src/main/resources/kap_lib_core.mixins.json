@@ -3,11 +3,11 @@
   "minVersion": "0.8.5",
   "compatibilityLevel": "JAVA_21",
   "package": "net.kapitencraft.kap_lib.core.mixin.classes",
-  "refmap": "kap_lib_core.mixin-refmap.json",
   "client": [
     "client.ChatScreenMixin",
     "client.ClientTooltipPositionerMixin",
-    "client.FontManagerMixin"
+    "client.FontManagerMixin",
+    "client.ItemStackClientMixin"
   ],
   "mixins": [
     "AbstractArrowMixin",

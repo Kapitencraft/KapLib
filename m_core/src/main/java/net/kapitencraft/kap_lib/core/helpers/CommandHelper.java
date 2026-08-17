@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.core.helpers;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
-import net.kapitencraft.kap_lib.core.config.ServerModConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.commands.CommandSourceStack;

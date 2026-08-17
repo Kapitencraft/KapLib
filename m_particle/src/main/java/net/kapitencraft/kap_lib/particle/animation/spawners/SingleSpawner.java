@@ -12,9 +12,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.UUID;
-
 public class SingleSpawner extends VisibleSpawner {
     private final PositionTarget positionTarget;
 

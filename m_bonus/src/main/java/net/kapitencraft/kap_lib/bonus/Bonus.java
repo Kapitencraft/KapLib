@@ -4,7 +4,6 @@ import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.bonus.registry.BonusRegistries;
 import net.kapitencraft.kap_lib.cooldown.Cooldown;
-import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.core.io.serialization.RegistrySerializer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -31,7 +30,9 @@ public interface Bonus<T extends Bonus<T>> {
     }
 
     /**
-     * called whenever an entity un-equips this bonus
+     * called whenever an entity un-equips this bonus. <br>
+     * this will also be called when the bonus was never added due to being disabled
+     * via {@link AbstractBonusElement#isActive(LivingEntity)}
      * @param living the entity this bonus was previously applied to
      */
     default void onRemove(LivingEntity living) {
@@ -76,7 +77,7 @@ public interface Bonus<T extends Bonus<T>> {
 
     /**
      * @param living the entity applied to
-     * @return all attribute modifiers this bonus should apply to the given entity
+     * @return all attribute modifiers this bonus should apply to the given entity. should always return an equal value
      */
     default @Nullable Multimap<Holder<Attribute>, AttributeModifier> getModifiers(LivingEntity living) {return null;}
 

@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.item.mixin.classes;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.kapitencraft.kap_lib.core.mixin.duck.MixinSelfProvider;
 import net.kapitencraft.kap_lib.item.entity.fishing.AbstractFishingHook;
 import net.kapitencraft.kap_lib.item.entity.fishing.IFishingHook;
 import net.kapitencraft.kap_lib.item.event.custom.ModifyFishingHookStatsEvent;
@@ -20,11 +21,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(FishingRodItem.class)
-public class FishingRodMixin extends Item {
-
-    FishingRodItem self() {
-        return (FishingRodItem) (Object) this;
-    }
+public class FishingRodMixin extends Item implements MixinSelfProvider<FishingRodItem> {
 
     public FishingRodMixin(Properties p_41383_) {
         super(p_41383_);

@@ -14,6 +14,5 @@ file("./modules").eachFile { File it ->
     include(":${folderName}")
     project(":${folderName}").projectDir = file("m_${folderName}")
 }
-include(":aggregate")
 
-rootProject.name = "KapLib"
+rootProject.name = "KapLib${mc_version}"

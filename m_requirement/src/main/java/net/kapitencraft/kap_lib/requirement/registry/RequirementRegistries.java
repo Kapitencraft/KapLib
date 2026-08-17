@@ -19,6 +19,7 @@ public interface RequirementRegistries {
 
     Registry<RegistrySerializer<? extends ReqCondition<?>>> REQUIREMENT_TYPES = syncReg(Keys.REQ_CONDITIONS);
 
+    @SuppressWarnings("SameParameterValue")
     private static <T> Registry<T> syncReg(ResourceKey<Registry<T>> key) {
         Registry<T> registry = new RegistryBuilder<>(key).sync(true)
                 .create();
@@ -34,6 +35,7 @@ public interface RequirementRegistries {
     interface Keys {
         ResourceKey<Registry<RegistrySerializer<? extends ReqCondition<?>>>> REQ_CONDITIONS = createRegistry("requirement_conditions");
 
+        @SuppressWarnings("SameParameterValue")
         private static <T> ResourceKey<Registry<T>> createRegistry(String id) {
             return ResourceKey.createRegistryKey(LibConstants.res(id));
         }

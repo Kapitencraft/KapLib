@@ -36,6 +36,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class TextHelper {
     public static final Component EMPTY = Component.literal("");
@@ -275,20 +278,17 @@ public class TextHelper {
         return fromVec3(new Vec3(pos.getX(), pos.getY(), pos.getZ()));
     }
 
+    public static String capitalize(String in) {
+        return Character.toUpperCase(in.charAt(0)) + in.substring(1);
+    }
+
     /**
      * converts the given {@code snake_case} type string into a humanly readable name
      */
-    public static String makeGrammar(String toName) {
-        char[] chars = toName.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            if (i == 0) {
-                chars[0] = Character.toUpperCase(chars[0]);
-            } else if (chars[i] == '_') {
-                chars[i++] = ' ';
-                chars[i] = Character.toUpperCase(chars[i]);
-            }
-        }
-        return new String(chars);
+    public static String langify(final String serializedName) throws IllegalArgumentException {
+        if (serializedName.contains("/"))
+            throw new IllegalArgumentException("Only 'flat' serialized names permitted (no path separators '/'). '" + serializedName + "'");
+        return Arrays.stream(serializedName.split("_")).map(TextHelper::capitalize).collect(Collectors.joining(" "));
     }
 
     public static String convertId(String name) {
@@ -350,4 +350,17 @@ public class TextHelper {
         return latin;
     }
     //endregion
+
+    public static List<String> getAllMatches(String v, Pattern pattern) {
+        List<String> matches = new ArrayList<>();
+        consumeAllMatches(v, pattern, matches);
+        return matches;
+    }
+
+    public static void consumeAllMatches(String v, Pattern pattern, List<String> sink) {
+        Matcher matcher = pattern.matcher(v);
+        for (int i = 0; matcher.find(i); i = matcher.end()) {
+            sink.add(matcher.group());
+        }
+    }
 }

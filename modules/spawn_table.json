@@ -1,6 +1,5 @@
 {
-  "asMod": true,
-  "data": [
-    ""
-  ]
+  "type": "mod",
+  "at": true,
+  "mixin": false
 }

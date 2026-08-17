@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.mana.event.handler;
 
 import net.kapitencraft.kap_lib.mana.ManaAttachmentTypes;
 import net.kapitencraft.kap_lib.mana.ManaAttributes;
+import net.kapitencraft.kap_lib.mana.ManaModule;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.EntityType;
@@ -12,7 +13,7 @@ import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = ManaModule.MODULE_ID)
 public class ManaEvents {
 
     @SubscribeEvent

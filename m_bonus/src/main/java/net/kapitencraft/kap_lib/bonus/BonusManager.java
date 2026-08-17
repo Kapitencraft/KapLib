@@ -91,8 +91,11 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         instance.getLookup(attacked).ifPresent(
                 bonusLookup -> {
                     bonusLookup.activeBonuses.keySet().forEach(
-                            abstractBonusElement -> abstractBonusElement.getBonus()
-                                    .onTakeDamage(attacked, attacker, damage)
+                            abstractBonusElement -> {
+                                if (abstractBonusElement.isActive(attacked))
+                                    abstractBonusElement.getBonus()
+                                        .onTakeDamage(attacked, attacker, damage);
+                            }
                     );
                     bonusLookup.getEntityBound().forEach(b -> b.onTakeDamage(attacked, attacker, damage));
                 }
@@ -100,8 +103,12 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         if (attacker != null) instance.getLookup(attacker).ifPresent(
                 bonusLookup -> {
                     bonusLookup.activeBonuses.keySet().forEach(
-                            abstractBonusElement -> abstractBonusElement.getBonus()
-                                    .onEntityHurt(attacked, attacker, damage)
+                            abstractBonusElement -> {
+                                if (abstractBonusElement.isActive(attacker)) {
+                                    abstractBonusElement.getBonus()
+                                            .onEntityHurt(attacked, attacker, damage);
+                                }
+                            }
                     );
                     bonusLookup.getEntityBound().forEach(b -> b.onEntityHurt(attacked, attacker, damage));
                 }
@@ -114,8 +121,12 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         if (attacker != null) instance.getLookup(attacker).ifPresent(
                 bonusLookup -> {
                     bonusLookup.activeBonuses.keySet().forEach(
-                            abstractBonusElement -> abstractBonusElement.getBonus()
-                                    .onEntityKilled(toDie, attacker, source)
+                            abstractBonusElement -> {
+                                if (abstractBonusElement.isActive(attacker)) {
+                                    abstractBonusElement.getBonus()
+                                            .onEntityKilled(toDie, attacker, source);
+                                }
+                            }
                     );
                     bonusLookup.getEntityBound().forEach(b -> b.onEntityKilled(toDie, attacker, source));
                 }
@@ -271,18 +282,18 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
         }
 
         private BonusLookup(LivingEntity target) {
-            getActiveBonuses(target).values().forEach(element -> {
-                activeBonuses.put(element, new AtomicInteger());
-            });
+            getActiveBonuses(target).values().forEach(element -> activeBonuses.put(element, new AtomicInteger()));
             this.target = target;
         }
 
         public void tick() {
             this.activeBonuses.forEach((element, integer) -> {
-                Bonus<?> bonus = element.getBonus();
-                if (bonus.isEffectTick(integer.get(), target))
-                    bonus.onTick(integer.get(), target);
-                integer.getAndIncrement();
+                if (element.isActive(target)) {
+                    Bonus<?> bonus = element.getBonus();
+                    if (bonus.isEffectTick(integer.get(), target))
+                        bonus.onTick(integer.get(), target);
+                    integer.getAndIncrement();
+                }
             });
         }
 
@@ -319,11 +330,13 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                             continue;
                         }
                     }
-                    Bonus<?> bonus = element.getBonus();
-                    bonus.onApply(target);
-                    Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(target);
-                    if (modifiers != null && !modifiers.isEmpty())
-                        target.getAttributes().addTransientAttributeModifiers(modifiers);
+                    if (element.isActive(target)) {
+                        Bonus<?> bonus = element.getBonus();
+                        bonus.onApply(target);
+                        Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(target);
+                        if (modifiers != null && !modifiers.isEmpty())
+                            target.getAttributes().addTransientAttributeModifiers(modifiers);
+                    }
                     activeBonuses.put(element, new AtomicInteger());
                 }
             }
@@ -364,11 +377,13 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
                             continue;
                         }
                     }
-                    Bonus<?> bonus = element.getBonus();
-                    bonus.onApply(target);
-                    Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(target);
-                    if (modifiers != null && !modifiers.isEmpty())
-                        target.getAttributes().addTransientAttributeModifiers(modifiers);
+                    if (element.isActive(target)) {
+                        Bonus<?> bonus = element.getBonus();
+                        bonus.onApply(target);
+                        Multimap<Holder<Attribute>, AttributeModifier> modifiers = bonus.getModifiers(target);
+                        if (modifiers != null && !modifiers.isEmpty())
+                            target.getAttributes().addTransientAttributeModifiers(modifiers);
+                    }
                     activeBonuses.put(element, new AtomicInteger());
                 }
             }
@@ -580,7 +595,7 @@ public class BonusManager extends SimpleJsonResourceReloadListener {
 
     private List<Component> decorateBonus(@Nullable LivingEntity living, AbstractBonusElement element) {
         List<Component> decoration = new ArrayList<>();
-        boolean enabled = !Modules.isRequirementsActive() || RequirementManager.instance.meetsRequirements(BonusRequirementType.INSTANCE, element, living);
+        boolean enabled = element.isActive(living);
         String nameKey = element.getNameId();
         decoration.add(getBonusTitle(enabled, living, nameKey, element));
         decoration.addAll(TextHelper.getDescriptionOrEmpty(nameKey, null));

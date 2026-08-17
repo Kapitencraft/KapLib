@@ -2,19 +2,24 @@ package net.kapitencraft.kap_lib.item.event.handler;
 
 import net.kapitencraft.kap_lib.core.helpers.InventoryHelper;
 import net.kapitencraft.kap_lib.core.network.S2C.DisplayTotemActivationPacket;
+import net.kapitencraft.kap_lib.item.ItemModule;
 import net.kapitencraft.kap_lib.item.combat.totem.AbstractTotemItem;
+import net.kapitencraft.kap_lib.item.creative_tab.TabGroup;
+import net.kapitencraft.kap_lib.item.misc.AnvilUses;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Collection;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = ItemModule.MODULE_ID)
 public class ItemEvents {
 
     @SubscribeEvent
@@ -33,5 +38,15 @@ public class ItemEvents {
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void commonSetup(FMLCommonSetupEvent event) {
+        AnvilUses.registerUses();
+    }
+
+    @SubscribeEvent
+    public static void addToTabs(BuildCreativeModeTabContentsEvent event) {
+        TabGroup.registerAll(event);
     }
 }

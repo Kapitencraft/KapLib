@@ -115,9 +115,7 @@ public class MapStream<K, V> {
 
     private static <T, K> MapStream<T, K> of(List<StreamEntry<T, K>> list) {
         Map<T, K> map = new HashMap<>();
-        list.forEach(entry -> {
-            map.put(entry.k(), entry.v());
-        });
+        list.forEach(entry -> map.put(entry.k(), entry.v()));
         return of(map);
     }
 

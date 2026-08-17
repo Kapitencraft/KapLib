@@ -1,5 +1,7 @@
 package net.kapitencraft.kap_lib.bonus.event.handler;
 
+import net.kapitencraft.kap_lib.bonus.BonusModule;
+import net.kapitencraft.kap_lib.bonus.registry.BonusRegistries;
 import net.kapitencraft.kap_lib.core.helpers.MiscHelper;
 import net.kapitencraft.kap_lib.bonus.network.S2C.SyncBonusesPacket;
 import net.kapitencraft.kap_lib.bonus.BonusManager;
@@ -12,8 +14,9 @@ import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = BonusModule.MODULE_ID)
 public class BonusEvents {
 
     @SubscribeEvent
@@ -24,7 +27,7 @@ public class BonusEvents {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST) //need to load BonusManager before any other in case of access
     public static void addBonusListener(AddReloadListenerEvent event) {
         event.addListener(BonusManager.updateInstance());
     }
@@ -41,5 +44,10 @@ public class BonusEvents {
         event.getRelevantPlayers().forEach(p -> PacketDistributor.sendToPlayer(p,
                 new SyncBonusesPacket(BonusManager.instance.createData())
         ));
+    }
+
+    @SubscribeEvent
+    public static void addRegistries(NewRegistryEvent event) {
+        BonusRegistries.registerAll(event::register);
     }
 }

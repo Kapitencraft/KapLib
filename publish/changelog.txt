@@ -1,16 +1,7 @@
+# Two-Handed Module
 
-core:
-    added `array` ExtraStreamCodec operation
-    added FontSetsEvent with subclasses $Register and $Update. used to register custom FontSets
-    fixed MultiLineTextBoxes suggestions not disappearing when inserting
-    removed core.util.Reference and IntegerReference. use Atomic classes instead
+added new module two-handed, allowing you to attack with weapons from the offhand with independent attack cooldown.
 
-component:
-    removed GlyphEffects registry in favor of event based system to fix possible crash stacking
+# Publish Module
 
-attribute:
-    fixed life steal particle animation disable config not working
-    bonus attack speed is now implemented via the damage event instead of a mixin, increasing compatibility
-
-enchantment:
-    fixed enchantment info also being shown on applied items instead of just enchanted books
+fixed plain-changelog not including line breaks

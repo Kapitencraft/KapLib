@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Useful for quick animations
- * Feel free to suggest more animations on the discord or on github
+ * Feel free to suggest more animations on the discord or on GitHub
  */
 public interface AnimationUtils {
 

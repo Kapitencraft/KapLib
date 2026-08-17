@@ -82,6 +82,7 @@ public abstract class Element implements Renderable {
         }, this::endHovering);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void onHover(double mouseX, double mouseY, boolean includeChildren, Runnable ifHovered, Runnable onNotHovered) {
         double relativeX = mouseX - this.x;
         double relativeY = mouseY - this.y;
@@ -112,6 +113,7 @@ public abstract class Element implements Renderable {
         return focused;
     }
 
+    @SuppressWarnings("EmptyMethod")
     public void hide() {
     }
 

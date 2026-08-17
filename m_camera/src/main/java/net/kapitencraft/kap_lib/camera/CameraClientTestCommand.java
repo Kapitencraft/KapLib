@@ -6,8 +6,8 @@ import com.mojang.brigadier.context.CommandContext;
 import net.kapitencraft.kap_lib.camera.core.CameraController;
 import net.kapitencraft.kap_lib.camera.core.TrackingShot;
 import net.kapitencraft.kap_lib.camera.modifiers.GlideTowardsModifier;
-import net.kapitencraft.kap_lib.particle.animation.target.pos.EntityPositionTarget;
-import net.kapitencraft.kap_lib.particle.animation.target.pos.StaticPositionTarget;
+import net.kapitencraft.kap_lib.camera.target.pos.EntityPositionTarget;
+import net.kapitencraft.kap_lib.camera.target.pos.StaticPositionTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -59,6 +59,7 @@ public class CameraClientTestCommand {
         return shake(.01f, .5f, 1.5f);
     }
 
+    @SuppressWarnings("SameReturnValue")
     private static int shake(float intensity, float strength, float speed) {
         CameraController.INSTANCE.shake(intensity, strength, speed);
         return 1;

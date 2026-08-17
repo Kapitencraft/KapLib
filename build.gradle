@@ -1,6 +1,7 @@
 //file:noinspection GroovyAssignabilityCheck
-
 import groovy.json.JsonSlurper
+
+import java.nio.file.Files
 
 plugins {
     id 'idea'
@@ -22,13 +23,50 @@ base {
     archivesName = mod_id
 }
 
+java {
+    withSourcesJar()
+}
+
 println("Discovered ${subprojects.size()} modules: ${subprojects.name}")
+
+ext.createRequiredClasses = { Project project, String name ->
+    String[] files = [
+            "src/main/java/net/kapitencraft/kap_lib/${name}",
+            "src/main/resources/META-INF"
+    ]
+
+    for (final def s in files) {
+        File f = project.file(s)
+
+        if (!f.exists()) {
+            f.mkdirs()
+        }
+    }
+
+    String[] sources = [
+            "neoforge.mods.toml"
+    ]
+    File target = project.file("src/main/resources/META-INF")
+
+    for (final def s in sources) {
+        File it = rootProject.file("src/main/resources/META-INF/${s}")
+        File out = new File(target, it.getName())
+        if (!out.exists())
+            Files.copy(it.toPath(), out.toPath())
+    }
+}
 
 subprojects { Project proj ->
 
-    Object data = name == 'aggregate' ? [] : new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
+    Object moduleData = new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
+    proj.ext.data = moduleData
+
+    if (moduleData.type == 'mod')
+        rootProject.ext.createRequiredClasses(proj, name)
 
     String moduleId = mod_id + "_" + name
+
+    String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
 
     apply plugin: 'idea'
     apply plugin: 'com.vanniktech.maven.publish'
@@ -45,6 +83,62 @@ subprojects { Project proj ->
         archivesName = mod_id + "-" + name
     }
 
+    repositories {
+        mavenCentral()
+
+        if (name == 'recipe') {
+            maven { url 'https://maven.blamejared.com' }
+        }
+        if (name == 'enchantment') {
+            exclusiveContent {
+                forRepository {
+                    maven {
+                        name = "Modrinth"
+                        url = "https://api.modrinth.com/maven"
+                    }
+                }
+                filter {
+                    includeGroup "maven.modrinth"
+                }
+            }
+        }
+    }
+
+    dependencies {
+        if (name != "core" && moduleData.type == 'mod') {
+            api(project(":core"))
+        }
+
+        if (name == 'enchantment') {
+            implementation('maven.modrinth:sorted-enchantments:2.0.0+1.21+neoforge')
+        } else if (name == 'recipe') {
+            compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
+            compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
+            runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
+        } else if (name == 'publish') {
+            implementation('com.google.code.gson:gson:2.10.1')
+            implementation('com.google.guava:guava:32.1.2-jre')
+            implementation('com.mojang:logging:1.2.7')
+            implementation('org.slf4j:slf4j-api:2.0.9')
+            implementation('org.jetbrains:annotations:24.1.0')
+            api(project(":core"))
+        } else if (name == 'datagen') {
+            api(project(":core"))
+        }
+
+        if (moduleData.compat != null) {
+            moduleData.compat.each { String dep ->
+                compileOnly(project(":${dep}"))
+            }
+        }
+
+        if (moduleData.dependencies != null) {
+            moduleData.dependencies.each { String dep ->
+                api(project(":${dep}"))
+            }
+        }
+    }
+
     mavenPublishing {
         signAllPublications()
         publishToMavenCentral()
@@ -54,24 +148,12 @@ subprojects { Project proj ->
 
             pom {
                 name = "${mod_name} Aggregate Library"
-
-                withXml {
-                    def deps = asNode().appendNode("dependencies")
-
-                    rootProject.subprojects { Project p ->
-                        def dep = deps.appendNode("dependency")
-                        dep.appendNode("groupId", project.group)
-                        dep.appendNode("artifactId", "kap_lib-${p.name}")
-                        dep.appendNode("version", project.version)
-                        dep.appendNode("scope", "compile")
-                    }
-                }
             }
         } else {
             coordinates(group, mod_id + "-" + name, version)
 
             pom {
-                name = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
+                name = modName
             }
         }
 
@@ -102,58 +184,12 @@ subprojects { Project proj ->
         }
     }
 
-    if (hasProperty("signingKey")) {
+    if (rootProject.hasProperty("signingKey")) {
         signing {
             useInMemoryPgpKeys(
-                    new String(Base64.decoder.decode((String) findProperty("signingKey"))),
-                    findProperty("signingPassword")
+                    new String(Base64.decoder.decode((String) rootProject.findProperty("signingKey"))),
+                    rootProject.findProperty("signingPassword")
             )
-        }
-    }
-
-    repositories {
-        mavenCentral()
-
-        if (name == 'recipe' || name == 'aggregate') {
-            maven { url 'https://maven.blamejared.com' }
-        }
-    }
-
-    dependencies {
-        if (name != "core" && data.asMod) {
-            api(project(":core"))
-        }
-
-        if (name == 'recipe') {
-            compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-            compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
-            runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-        } else if (name == 'publish') {
-            implementation('com.google.code.gson:gson:2.10.1')
-            implementation('com.google.guava:guava:32.1.2-jre')
-            implementation('com.mojang:logging:1.2.7')
-            implementation('org.slf4j:slf4j-api:2.0.9')
-            implementation('org.jetbrains:annotations:24.1.0')
-            api(project(":core"))
-        } else if (name == 'datagen') {
-            api(project(":core"))
-        } else if (name == 'aggregate') {
-            subprojects.each { Project project ->
-                if (project.name != 'aggregate')
-                    api(project)
-            }
-        }
-
-        if (data.compat != null) {
-            data.compat.each { String dep ->
-                compileOnly(project(":${dep}"))
-            }
-        }
-
-        if (data.dependencies != null) {
-            data.dependencies.each { String dep ->
-                api(project(":${dep}"))
-            }
         }
     }
 
@@ -163,7 +199,7 @@ subprojects { Project proj ->
             neo_version            : neo_version,
             neo_version_range      : neo_version_range,
             loader_version_range   : loader_version_range,
-            mod_id                 : moduleId, mod_name: mod_name,
+            mod_id                 : moduleId, mod_name: modName,
             mod_license            : mod_license, mod_version: mod_version,
             mod_authors            : mod_authors, mod_description: mod_description,
     ]
@@ -178,22 +214,13 @@ subprojects { Project proj ->
         filesMatching(['META-INF/neoforge.mods.toml']) { FileCopyDetails fCD ->
             fCD.expand metaProperties
         }
-
-        var publishProperties = [
-                mod_id     : mod_id, mod_name: mod_name,
-                mod_version: mod_version, minecraft_version: mc_version,
-                neo_version: neo_version
-        ]
-
-        inputs.properties publishProperties
-        filesMatching(['publish_config.json']) {
-            expand publishProperties
-        }
     }
 
-    if (data.asMod || name == 'datagen') {
+    if (moduleData.type == 'mod' || moduleData.type == 'game_lib') {
         neoForge {
             version = rootProject.neo_version
+
+            addModdingDependenciesTo sourceSets.test
 
             parchment {
                 mappingsVersion = rootProject.parchment_version
@@ -241,19 +268,31 @@ subprojects { Project proj ->
                     programArgument '--nogui'
                 }
 
-                //data {
-                //    data()
-                //    // example of overriding the workingDirectory set in configureEach above
-//
-                //    sourceSet = proj.sourceSets.main
-//
-                //    // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-                //    programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-                //}
+                data {
+                    data()
+                    // example of overriding the workingDirectory set in configureEach above
+                    logLevel = org.slf4j.event.Level.DEBUG
+
+                    // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+                    programArguments.addAll '--mod', moduleId, '--all', '--output', proj.file('src/generated/resources/').getAbsolutePath(), '--existing', proj.file('src/main/resources/').getAbsolutePath()
+                }
             }
 
-            if (name == 'enchantment')
+            if (moduleData.interfaceInjection) {
                 interfaceInjectionData.from 'interfaces.json'
+                interfaceInjectionData {
+                    publish file('interfaces.json')
+                }
+            }
+        }
+    }
+    if (moduleData.type == 'game_lib') {
+        jar {
+            manifest {
+                attributes([
+                        "FMLModType": "GAMELIBRARY"
+                ])
+            }
         }
     }
 }
@@ -293,20 +332,29 @@ tasks.register('gitUpdate', Task) {
 
 repositories {
     maven { url 'https://maven.blamejared.com' }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {
-    subprojects.each {
-        api(it)
+    runtimeOnly(project(':publish'))
+
+    subprojects.forEach {
+        jarJar(implementation(it))
     }
 
     compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
     runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
-    //implementation(project(":core"))
-    //implementation(project(":cooldown"))
-    //implementation(project(":inventory_page"))
-    //implementation(project(":item"))
 }
 
 neoForge {
@@ -370,18 +418,98 @@ neoForge {
     }
 }
 
+tasks.named('processResources', ProcessResources) {
+    filesMatching('publish_config.json') {
+        expand(
+                'mod_id': mod_id,
+                'mod_name': mod_name,
+                'mod_version': mod_version,
+                'minecraft_version': mc_version,
+                'neo_version': neo_version
+        )
+    }
+}
+
 tasks.named('assemble').configure {
     dependsOn(subprojects.collect {
         it.tasks.named("build")
     })
 }
 
-tasks.named('jar', Jar) {
-    exclude("**/*") //keep empty
+jar {
+    manifest {
+        attributes([
+                "FMLModType": "GAMELIBRARY"
+        ])
+    }
+}
+
+//tasks.named('javadoc', Javadoc) {
+//    for (final def proj in subprojects) {
+//        if (proj.ext.data.type != 'mod') continue
+//
+//        it.source(proj.sourceSets.main.allJava)
+//    }
+//}
+
+tasks.named('processResources', ProcessResources) {
+    var publishProperties = [
+            mod_id     : mod_id, mod_name: mod_name,
+            mod_version: mod_version, minecraft_version: mc_version,
+            neo_version: neo_version
+    ]
+
+    inputs.properties publishProperties
+    filesMatching(['publish_config.json']) {
+        expand publishProperties
+    }
+}
+
+tasks.withType(Javadoc).configureEach {
+    exclude('**/mixin/classes/**/*.java') //exclude mixins from javadoc
+}
+
+tasks.withType(ProcessResources).configureEach {
+    exclude("**/.cache/**")
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+mavenPublishing {
+    signAllPublications()
+    publishToMavenCentral()
+
+    coordinates(group, mod_id, version)
+
+    pom {
+        name = "${mod_name} Aggregate Library"
+        description = "Library for (almost) any occasion"
+        url = "https://github.com/kapitencraft/kapLib"
+
+        licenses {
+            license {
+                name = "MIT License"
+                url = "https://opensource.org/license/mit"
+            }
+        }
+
+        developers {
+            developer {
+                id = "kapitencraft"
+                name = "Kapitencraft"
+                url = "https://github.com/Kapitencraft/"
+            }
+        }
+
+        scm {
+            url = "https://github.com/Kapitencraft/kapLib/"
+            connection = "scm:git:git://github.com/Kapitencraft/kapLib.git"
+            developerConnection = "scm:git:ssh://git@github.com/Kapitencraft/kapLib.git"
+        }
+    }
+
 }
 
 if (hasProperty("signingKey")) {

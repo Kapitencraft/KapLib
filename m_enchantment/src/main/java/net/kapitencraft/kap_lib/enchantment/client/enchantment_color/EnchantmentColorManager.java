@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EnchantmentColorManager {
-    static Codec<EnchantmentColorManager> CODEC = EnchantmentColor.CODEC.listOf().xmap(EnchantmentColorManager::new, EnchantmentColorManager::getColors);
+    static final Codec<EnchantmentColorManager> CODEC = EnchantmentColor.CODEC.listOf().xmap(EnchantmentColorManager::new, EnchantmentColorManager::getColors);
     @ApiStatus.Internal
     private static EnchantmentColorManager instance = load();
 
