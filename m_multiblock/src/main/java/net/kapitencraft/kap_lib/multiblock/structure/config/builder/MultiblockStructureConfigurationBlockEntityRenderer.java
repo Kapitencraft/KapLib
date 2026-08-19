@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
@@ -50,7 +51,6 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
     private void renderInvisibleBlocks(MultiblockStructureConfigurationBlockEntity blockEntity, MultiBufferSource bufferSource, PoseStack poseStack) {
         DebugRenderer.renderFloatingText(poseStack, bufferSource, "test", 0, 5, 0, 0xFFFF0000);
         BlockGetter blockgetter = blockEntity.getLevel();
-        VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
         BlockPos renderOrigin = blockEntity.getBlockPos().offset(blockEntity.getStructurePos());
 
         for (BlockPos blockpos2 : BlockPos.betweenClosed(renderOrigin, renderOrigin.offset(blockEntity.getStructureSize()).offset(-1, -1, -1))) {

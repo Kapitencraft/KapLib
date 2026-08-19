@@ -80,11 +80,11 @@ public class ConfigureGroupsWidget extends ScrollableWidget {
                 guiGraphics,
                 minecraft.font,
                 ADD_TEXT,
-                getFGColor(),
                 this.getX(),
-                this.getX() + width / 2 - 5,
                 buttonYEnd - 20,
-                buttonYEnd
+                this.getX() + width / 2 - 5,
+                buttonYEnd,
+                -1
         );
         //remove button
         guiGraphics.blitSprite(
@@ -105,29 +105,27 @@ public class ConfigureGroupsWidget extends ScrollableWidget {
         renderScrollingString(guiGraphics,
                 minecraft.font,
                 REMOVE_TEXT,
-                getFGColor(),
                 this.getX() + width / 2 + 5,
-                this.getX() + width,
                 buttonYEnd - 20,
-                buttonYEnd
+                this.getX() + width,
+                buttonYEnd,
+                -1
         );
         //offset = 1
 
         guiGraphics.enableScissor(this.getX() + 1, this.getY() + 1, this.getX() + this.getWidth() - 1, this.getY() + this.getHeight() - 23);
 
-        for (int i = 0; i < this.entries.size(); i++) {
-            int y = (int) scrollY + this.getY() + 1 + i * 20;
-            Entry entry = this.entries.get(i);
+        int y = this.getY() + (int) scrollY + 1;
+        for (Entry entry : this.entries) {
             entry.render(guiGraphics, this.getX() + 1, y, mouseX, mouseY);
+            y += entry.height();
         }
 
         guiGraphics.disableScissor();
     }
 
     @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-
-    }
+    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {}
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -141,15 +139,18 @@ public class ConfigureGroupsWidget extends ScrollableWidget {
             //remove
             if (selectedIndex > -1) {
                 this.entries.remove(selectedIndex);
-                selectedIndex = -1;
             }
             return true;
         }
 
+        int y = this.getY() + 1;
         for (int i = 0; i < this.entries.size(); i++) {
-            int y = this.getY() + 1 + i * 20;
             Entry entry = this.entries.get(i);
-
+            if (mouseY > y && mouseY < y + entry.height()) {
+                this.selectedIndex = i;
+                entry.mouseClicked(mouseX - getX(), mouseY - y, button);
+            }
+            y += entry.height();
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
@@ -170,9 +171,17 @@ public class ConfigureGroupsWidget extends ScrollableWidget {
 
         public void mouseClicked(double mouseX, double mouseY, int button) {
             int width = ConfigureGroupsWidget.this.width;
-            if (MathHelper.is2dBetween(mouseX, mouseY, width - 10, 0, width, 10)) {
-                this.extended = !this.extended;
+            if (mouseY > 0 && mouseY < 10) {
+                if (mouseX > 0 && mouseX < width - 10) {
+                    this.extended = !this.extended;
+                } else {
+                    //change name
+                }
             }
+        }
+
+        public int height() {
+            return !extended ? 20 : 20;
         }
     }
 }

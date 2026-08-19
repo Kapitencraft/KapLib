@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.LevelResource;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;
@@ -56,6 +57,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     private Mode mode = Mode.SAVE;
     private final Map<BlockPos, MultiblockStructureConfiguration.BlockInstance> instances = new HashMap<>();
     private final Map<String, MultiblockStructureConfiguration.BlockGroup> groups = new HashMap<>();
+    private final List<MultiblockStructureConfiguration.QuantifierInstance> quantifiers = new ArrayList<>();
 
     public MultiblockStructureConfigurationBlockEntity(BlockPos pos, BlockState blockState) {
         super(MBBlockEntityTypes.MULTIBLOCK_STRUCTURE_CONFIG.get(), pos, blockState);
@@ -279,7 +281,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     }
 
     public boolean withinBounds(BlockPos pos) {
-        BlockPos structureOrigin = this.getBlockPos().offset(this.structurePos);
+        BlockPos structureOrigin = getStructureOrigin();
         BlockPos end = structureOrigin.offset(this.structureSize);
         return pos.getX() >= structureOrigin.getX() && pos.getY() <= end.getX() &&
                 pos.getY() >= structureOrigin.getY() && pos.getY() <= end.getY() &&
@@ -287,7 +289,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     }
 
     public void cycleState(BlockPos pos, Player player) {
-        BlockPos structureOrigin = this.getBlockPos().offset(this.structurePos);
+        BlockPos structureOrigin = getStructureOrigin();
         BlockPos relative = pos.subtract(structureOrigin);
         MultiblockStructureConfiguration.BlockInstance instance = this.instances.get(relative);
         BlockState state = this.level.getBlockState(pos);
@@ -303,6 +305,10 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
                 this.instances.put(relative, instance);
         }
         this.setChanged();
+    }
+
+    public @NotNull BlockPos getStructureOrigin() {
+        return this.getBlockPos().offset(this.structurePos);
     }
 
     public Map<String, MultiblockStructureConfiguration.BlockGroup> getGroups() {

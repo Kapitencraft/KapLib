@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config;
 
+import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -285,6 +286,34 @@ public class MultiblockStructureConfiguration {
 
         private static void displayGroupMessage(Player player, String s) {
             player.displayClientMessage(Component.translatable("mb.structure.configurator.select_group", s), true);
+        }
+    }
+
+    public interface Quantifier {
+        Quantifier AT_MOST_ONCE = c -> c <= 1;
+        Quantifier ANY = c -> true;
+        Quantifier AT_LEAST_ONCE = c -> c >= 1;
+
+        static Quantifier range(int min, int max) {
+            return c -> c >= min && c <= max;
+        }
+
+        static Quantifier atLeast(int min) {
+            return c -> c >= min;
+        }
+
+        boolean allows(int count);
+    }
+
+    public static class QuantifierInstance {
+        private final Quantifier quantifier;
+        private final Axis axis;
+        private final int position;
+
+        public QuantifierInstance(Quantifier quantifier, Axis axis, int position) {
+            this.quantifier = quantifier;
+            this.axis = axis;
+            this.position = position;
         }
     }
 }

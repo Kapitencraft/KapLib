@@ -22,19 +22,28 @@ public class MultiblockStructureConfiguratorItem extends Item {
         BlockPos structureConfigurationLocation = context.getItemInHand().get(MBItemComponentTypes.MB_STRUCTURE_CONFIGURATION_ANCHOR);
         Level level = context.getLevel();
         Player player = context.getPlayer();
-        if (structureConfigurationLocation != null && level.getBlockEntity(structureConfigurationLocation) instanceof MultiblockStructureConfigurationBlockEntity configurationBlockEntity) {
-            if (configurationBlockEntity.withinBounds(pos)) {
-                configurationBlockEntity.cycleState(pos, player);
+        if (player != null) {
+            if (player.isShiftKeyDown()) {
+                if (structureConfigurationLocation != null && level.getBlockEntity(structureConfigurationLocation) instanceof MultiblockStructureConfigurationBlockEntity configurationBlockEntity) {
+                    BlockPos offset = pos.subtract(configurationBlockEntity.getStructureOrigin());
+                    
+                }
             } else {
-                player.displayClientMessage(Component.translatable("mb.structure.configurator.out_of_bounds"), true);
+                if (structureConfigurationLocation != null && level.getBlockEntity(structureConfigurationLocation) instanceof MultiblockStructureConfigurationBlockEntity configurationBlockEntity) {
+                    if (configurationBlockEntity.withinBounds(pos)) {
+                        configurationBlockEntity.cycleState(pos, player);
+                    } else {
+                        player.displayClientMessage(Component.translatable("mb.structure.configurator.out_of_bounds"), true);
+                    }
+                } else if (level.getBlockEntity(pos) instanceof MultiblockStructureConfigurationBlockEntity e && e.getMode() == MultiblockStructureConfigurationBlockEntity.Mode.SAVE) {
+                    context.getItemInHand().set(MBItemComponentTypes.MB_STRUCTURE_CONFIGURATION_ANCHOR, pos);
+                    player.displayClientMessage(Component.translatable("mb.structure.configurator.select_block", TextHelper.fromBlockPos(pos)), true);
+                    return InteractionResult.SUCCESS;
+                } else {
+                    player.displayClientMessage(Component.translatable("mb.structure.configurator.not_connected"), true);
+                    return InteractionResult.SUCCESS_NO_ITEM_USED;
+                }
             }
-        } else if (level.getBlockEntity(pos) instanceof MultiblockStructureConfigurationBlockEntity e && e.getMode() == MultiblockStructureConfigurationBlockEntity.Mode.SAVE) {
-            context.getItemInHand().set(MBItemComponentTypes.MB_STRUCTURE_CONFIGURATION_ANCHOR, pos);
-            player.displayClientMessage(Component.translatable("mb.structure.configurator.select_block", TextHelper.fromBlockPos(pos)), true);
-            return InteractionResult.SUCCESS;
-        } else {
-            player.displayClientMessage(Component.translatable("mb.structure.configurator.not_connected"), true);
-            return InteractionResult.SUCCESS_NO_ITEM_USED;
         }
         return super.useOn(context);
     }
