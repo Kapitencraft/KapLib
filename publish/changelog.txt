@@ -1,3 +1,15 @@
+# Attribute Module
+
+fixed missing damage type for ferocity
+
+# Datagen Module
+
+fixed color masking of TextureProvider also updating texture pixels that aren't part of the texture mask
+
+# Item Module
+
+added (simple) support for dyed custom armor models via the new `DyedArmorClientExtension` and a method to get armor textures dependant of the used layers' suffix named `AbstractArmorItem#makeCustomLayeredTextureLocation`
+
 # Two-Handed Module
 
 added new module two-handed, allowing you to attack with weapons from the offhand with independent attack cooldown.

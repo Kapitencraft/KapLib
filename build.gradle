@@ -83,6 +83,8 @@ subprojects { Project proj ->
         archivesName = mod_id + "-" + name
     }
 
+    sourceSets.main.resources { srcDir 'src/generated/resources' }
+
     repositories {
         mavenCentral()
 

@@ -1,6 +1,5 @@
 package net.kapitencraft.kap_lib.item.combat.armor;
 
-import net.kapitencraft.kap_lib.item.combat.armor.client.provider.ArmorModelProvider;
 import net.kapitencraft.kap_lib.item.creative_tab.TabGroup;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
@@ -28,6 +27,7 @@ public abstract class AbstractArmorItem extends ArmorItem {
 
     /**
      * checks if the given entity has a fullset of this item
+     *
      * @param living the given entity
      * @return whether there is a fullset or not
      */
@@ -38,7 +38,8 @@ public abstract class AbstractArmorItem extends ArmorItem {
 
     /**
      * checks if the given entity has a fullset of the given material
-     * @param living the given entity
+     *
+     * @param living   the given entity
      * @param material the material to check for
      * @return whether the given entity has a fullset or not
      */
@@ -70,15 +71,26 @@ public abstract class AbstractArmorItem extends ArmorItem {
         return ResourceLocation.fromNamespaceAndPath(nameSpace, "textures/models/armor/custom/" + id + ".png");
     }
 
+    /**
+     * creates a custom texture for your armor in
+     * <br>{@code <nameSpace>:textures/models/armor/custom/<id><layer_suffix>.png}
+     * the layers' suffix is used to differentiate between textures when using different layers, for example when using tinting
+     */
+    @SuppressWarnings("unused")
+    public static ResourceLocation makeCustomLayeredTextureLocation(String nameSpace, String id, ArmorMaterial.Layer layer) {
+        return ResourceLocation.fromNamespaceAndPath(nameSpace, "textures/models/armor/custom/" + id + layer + ".png");
+    }
+
     //endregion
 
     /**
      * creates a type mapped registry entry for the given armor
+     *
      * @param registry the Register to add to
      * @param baseName the base name of the armor
-     * @param creator a lambda function to create an instance of the armor, mostly a method reference to the constructor
-     * @param group the tab group to register there
-     * @param <T> armor item class type
+     * @param creator  a lambda function to create an instance of the armor, mostly a method reference to the constructor
+     * @param group    the tab group to register there
+     * @param <T>      armor item class type
      * @return a Map mapping the ArmorType to the RegObj for the slot
      */
     @SuppressWarnings("unused")

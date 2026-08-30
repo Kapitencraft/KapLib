@@ -235,6 +235,20 @@ public abstract class TextureProvider implements DataProvider {
         List<Color> patternPalette = getPalette(patternSource, maskSource);
 
         IntUnaryOperator mapper = makeColorMapper(patternPalette, sourcePalette);
+        if (maskSource != null) {
+            NativeImage image = new NativeImage(patternSource.getWidth(), patternSource.getHeight(), false);
+            for (int x = 0; x < patternSource.getWidth(); x++) {
+                for (int y = 0; y < patternSource.getHeight(); y++) {
+                    if ((maskSource.getPixelRGBA(x, y) >> 24 & 0xFF) > 0) {
+                        //if mask texture has pixel
+                        image.setPixelRGBA(x, y, mapper.applyAsInt(patternSource.getPixelRGBA(x, y)));
+                    } else {
+                        image.setPixelRGBA(x, y, patternSource.getPixelRGBA(x, y));
+                    }
+                }
+            }
+            return image;
+        }
         return patternSource.mappedCopy(mapper);
     }
 
