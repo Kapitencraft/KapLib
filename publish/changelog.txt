@@ -1,6 +1,7 @@
 # Attribute Module
 
 fixed missing damage type for ferocity
+fixed Ferocity, Life Steal and Strength executing on thorns attacks
 
 # Datagen Module
 

@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -133,7 +134,7 @@ public class AttributeEvents {
         LivingEntity attacked = event.getEntity();
         DamageSource source = event.getSource();
         LivingEntity attacker = MiscHelper.getAttacker(source);
-        if (attacker == null || !source.isDirect()) {
+        if (attacker == null || !source.isDirect() || source.is(DamageTypes.THORNS)) {
             return;
         }
         double ferocity = source instanceof FerociousDamageSource damageSource ? damageSource.ferocity : attacker.getAttributeValue(ExtraAttributes.FEROCITY);
@@ -153,7 +154,7 @@ public class AttributeEvents {
         DamageSource source = event.getSource();
         @Nullable LivingEntity attacker = MiscHelper.getAttacker(source);
         if (attacker == null) return;
-        if (source.isDirect() && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {
+        if (source.isDirect() && !source.is(DamageTypes.THORNS) && attacker.getAttributes().hasAttribute(ExtraAttributes.STRENGTH)) {
             double strength = AttributeHelper.getSaveAttributeValue(ExtraAttributes.STRENGTH, attacker);
             event.setNewDamage(event.getNewDamage() * (float) (1 + strength / 100));
         }
@@ -171,7 +172,7 @@ public class AttributeEvents {
             }
         }
         double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIFE_STEAL, attacker);
-        if (source.isDirect() && liveSteal > 0) {
+        if (source.isDirect() && !source.is(DamageTypes.THORNS) && liveSteal > 0) {
             if (attacker.level() instanceof ServerLevel && Modules.isParticleActive()) {
                 ParticleCompat.sendLifeStealAnimation(attacked, attacker);
             }
