@@ -21,7 +21,6 @@ public abstract class InventoryMixin implements InventoryClearOffhand {
 
     @Shadow @Final public Player player;
 
-    //TODO fix voiding items when placing item into offhand slot while holding a two handed item
     @Inject(method = "addResource(ILnet/minecraft/world/item/ItemStack;)I", at = @At("HEAD"), cancellable = true)
     private void blockOffhandAddIfApplicable(int slot, ItemStack stack, CallbackInfoReturnable<Integer> cir) {
         if (slot == TwoHandedModule.OFFHAND_SLOT_ID && TwoHandedModule.isTwoHanded(getSelected(), player)) {
