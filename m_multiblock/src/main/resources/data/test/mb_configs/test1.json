@@ -1,0 +1,103 @@
+{
+  "groups": {},
+  "quantifiers": [
+    {
+      "quantifier": {
+        "type": "at_least_once"
+      },
+      "axis": "x",
+      "fromPosition": 1,
+      "toPosition": 1
+    },
+    {
+      "quantifier": {
+        "type": "at_least_once"
+      },
+      "axis": "y",
+      "fromPosition": 1,
+      "toPosition": 1
+    },
+    {
+      "quantifier": {
+        "type": "at_least_once"
+      },
+      "axis": "z",
+      "fromPosition": 1,
+      "toPosition": 1
+    }
+  ],
+  "data": {
+    "size": [
+      3,
+      3,
+      3
+    ],
+    "entries": [
+      {
+        "state": {
+          "Name": "minecraft:glass"
+        },
+        "type": "state"
+      },
+      {
+        "state": {
+          "Name": "minecraft:diamond_block"
+        },
+        "type": "state"
+      }
+    ],
+    "data": [
+      [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          2,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ],
+      [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    ]
+  }
+}

@@ -7,7 +7,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 @EventBusSubscriber
-public class MBModClientEvents {
+public class MBClientEvents {
 
     @SubscribeEvent
     public static void onEntityRenderersRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {

@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.multiblock.structure.config;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Vec3i;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,28 +16,34 @@ public class SpacialData<T> {
 
     public static <T> Codec<SpacialData<T>> codec(Codec<T> entryCodec, T fallback) {
         return RecordCodecBuilder.create(i -> i.group(
+                Vec3i.CODEC.fieldOf("size").forGetter(sD -> sD.size),
                 entryCodec.listOf().fieldOf("entries").forGetter(sD -> sD.lookup),
                 SPACIAL_DATA_CODEC.fieldOf("data").forGetter(sD -> sD.data)
-        ).apply(i, (l, d) -> new SpacialData<>(d, l, fallback)));
+        ).apply(i, (v, l, d) -> new SpacialData<>(v, d, l, fallback)));
     }
 
+    private final Vec3i size;
     private final int[][][] data;
     private final List<T> lookup;
     private final T fallback;
 
-    public SpacialData(int[][][] data, T fallback) {
+    public SpacialData(Vec3i size, int[][][] data, T fallback) {
+        this.size = size;
         this.data = data;
         this.lookup = new ArrayList<>();
         this.fallback = fallback;
     }
 
-    private SpacialData(int[][][] data, List<T> lookup, T fallback) {
-        this(data, fallback);
+    private SpacialData(Vec3i size, int[][][] data, List<T> lookup, T fallback) {
+        this(size, data, fallback);
         this.lookup.addAll(lookup);
     }
 
     public T get(int x, int y, int z) {
-        return lookup.get(data[x][y][z]);
+        int i = data[x][y][z];
+        if (i == 0)
+            return fallback;
+        return lookup.get(i - 1);
     }
 
     public void set(int x, int y, int z, T value) {
@@ -48,7 +55,11 @@ public class SpacialData<T> {
                 idx = lookup.size();
                 lookup.add(value);
             }
-            data[x][y][z] = idx;
+            data[x][y][z] = idx + 1;
         }
+    }
+
+    public Vec3i getSize() {
+        return size;
     }
 }

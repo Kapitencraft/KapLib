@@ -1,9 +1,10 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config;
 
-import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -21,15 +22,26 @@ import java.util.Map;
 public class MultiblockStructureConfiguration {
     public static final Codec<MultiblockStructureConfiguration> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.unboundedMap(Codec.STRING, BlockGroup.CODEC).fieldOf("groups").forGetter(c -> c.groups),
+            QuantifierInstance.CODEC.listOf().fieldOf("quantifiers").forGetter(c -> c.quantifiers),
             SpacialData.codec(BlockInstance.CODEC, BlockInstance.EmptyBlockInstance.INSTANCE).fieldOf("data").forGetter(c -> c.spacialData)
     ).apply(i, MultiblockStructureConfiguration::new));
 
     private final Map<String, BlockGroup> groups;
+    private final List<QuantifierInstance> quantifiers;
     private final SpacialData<BlockInstance> spacialData;
 
-    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, SpacialData<BlockInstance> spacialData) {
+    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, List<QuantifierInstance> quantifiers, SpacialData<BlockInstance> spacialData) {
         this.groups = groups;
+        this.quantifiers = quantifiers;
         this.spacialData = spacialData;
+    }
+
+    public boolean matches(int x, int y, int z, BlockState state) {
+        return spacialData.get(x, y, z).isValid(state);
+    }
+
+    public Vec3i getSize() {
+        return spacialData.getSize();
     }
 
     public static class BlockGroup {
@@ -146,6 +158,11 @@ public class MultiblockStructureConfiguration {
             public @Nullable TagKey<Block> getTag() {
                 return null;
             }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof StateBlockInstance stateBlockInstance && this.state == stateBlockInstance.state;
+            }
         }
 
         private static class TagBlockInstance extends BlockInstance {
@@ -203,6 +220,11 @@ public class MultiblockStructureConfiguration {
             public @Nullable TagKey<Block> getTag() {
                 return this.tagKey;
             }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof TagBlockInstance that && that.tagKey.equals(this.tagKey);
+            }
         }
 
         private static class GroupBlockInstance extends BlockInstance {
@@ -244,6 +266,11 @@ public class MultiblockStructureConfiguration {
             public @Nullable TagKey<Block> getTag() {
                 return null;
             }
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof GroupBlockInstance that && that.groupName.equals(this.groupName);
+            }
         }
 
         private static class EmptyBlockInstance extends BlockInstance {
@@ -262,7 +289,7 @@ public class MultiblockStructureConfiguration {
 
             @Override
             public boolean isValid(BlockState state) {
-                return false;
+                return true;
             }
 
             @Override
@@ -289,31 +316,12 @@ public class MultiblockStructureConfiguration {
         }
     }
 
-    public interface Quantifier {
-        Quantifier AT_MOST_ONCE = c -> c <= 1;
-        Quantifier ANY = c -> true;
-        Quantifier AT_LEAST_ONCE = c -> c >= 1;
-
-        static Quantifier range(int min, int max) {
-            return c -> c >= min && c <= max;
-        }
-
-        static Quantifier atLeast(int min) {
-            return c -> c >= min;
-        }
-
-        boolean allows(int count);
-    }
-
-    public static class QuantifierInstance {
-        private final Quantifier quantifier;
-        private final Axis axis;
-        private final int position;
-
-        public QuantifierInstance(Quantifier quantifier, Axis axis, int position) {
-            this.quantifier = quantifier;
-            this.axis = axis;
-            this.position = position;
-        }
+    public record QuantifierInstance(Quantifier quantifier, Direction.Axis axis, int fromPosition, int toPosition) {
+        public static final Codec<QuantifierInstance> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Quantifier.CODEC.fieldOf("quantifier").forGetter(QuantifierInstance::quantifier),
+                Direction.Axis.CODEC.fieldOf("axis").forGetter(QuantifierInstance::axis),
+                Codec.INT.fieldOf("fromPosition").forGetter(QuantifierInstance::fromPosition),
+                Codec.INT.fieldOf("toPosition").forGetter(QuantifierInstance::toPosition)
+        ).apply(i, QuantifierInstance::new));
     }
 }
