@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -13,6 +15,13 @@ file("./modules").eachFile { File it ->
     String folderName = it.name.replace(".json", "")
     include(":${folderName}")
     project(":${folderName}").projectDir = file("m_${folderName}")
+}
+
+//region bundles
+file("./bundles").eachFile { File it ->
+    String folderName = it.name.replace(".json", "")
+    include(":bundle-${folderName}")
+    project(":bundle-${folderName}").projectDir = file("bundle/${folderName}")
 }
 
 rootProject.name = "KapLib${mc_version}"

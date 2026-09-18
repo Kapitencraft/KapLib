@@ -28,13 +28,13 @@ public class ModrinthPublish {
             HttpRequest.Builder builder = HttpRequest.newBuilder()
                     .uri(URI.create(API_URL));
             builder.header("Content-Type", "multipart/form-data; boundary=" + boundary);
-            builder.header("User-Agent", String.format(config.authorInfo().name() + "/%s/%s (%s)", modName, modVersion, config.authorInfo().email()));
+            builder.header("User-Agent", String.format("%s/%s/%s (%s)", config.authorInfo().name(), modName, modVersion, config.authorInfo().email()));
             builder.header("Authorization", AutoPublisher.getAuth(true));
 
             ByteAccumulator accumulator = new ByteAccumulator();
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(accumulator, StandardCharsets.UTF_8), true);
             // Add text part
-            addData(writer, boundary, config.modInfo(), mcVersion, loaderVersion, config.modrinthId(), fillModules(config.modules(), config.withSources()), config.dependencies());
+            addData(writer, boundary, config.modInfo(), mcVersion, loaderVersion, config.modrinthId(), fillModules(config.archives(), config.withSources()), config.dependencies());
 
             // Add file part
             for (AutoPublisher.Source source : sources) {

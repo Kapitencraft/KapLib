@@ -11,6 +11,7 @@
     "version": "${mod_version}",
     "artifact_version": "v${mod_version}-mc${minecraft_version}"
   },
+  "artifacts": ${artifacts},
   "mc_version": "${minecraft_version}",
   "loader_version": "${neo_version}",
   "with_sources": true,

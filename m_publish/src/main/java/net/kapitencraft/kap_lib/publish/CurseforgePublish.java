@@ -79,7 +79,7 @@ public class CurseforgePublish {
             String boundary = "----Boundary" + UUID.randomUUID();
 
             // Add text part
-            String requestData = getData(boundary, modInfo.name(), modInfo.version(), config.modules(), config.dependencies(), versions);
+            String requestData = getData(boundary, modInfo.name(), modInfo.version(), config.archives(), config.dependencies(), versions);
 
             // Add file part
             String fileHeader = getFileHeader(boundary, mainFile);
@@ -95,7 +95,7 @@ public class CurseforgePublish {
                     fileFooter.getBytes()
             );
 
-            for (String extraFile : config.modules()) {
+            for (String extraFile : config.archives()) {
                 File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
                 //addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
             }

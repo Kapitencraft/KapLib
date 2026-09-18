@@ -2,6 +2,7 @@
 import groovy.json.JsonSlurper
 
 import java.nio.file.Files
+import java.util.stream.Collectors
 
 plugins {
     id 'idea'
@@ -27,7 +28,9 @@ java {
     withSourcesJar()
 }
 
-println("Discovered ${subprojects.size()} modules: ${subprojects.name}")
+List<Project> modules = subprojects.stream().filter {!it.name.startsWith('bundle') }.toList()
+List<Project> bundles = subprojects.stream().filter {it.name.startsWith('bundle') }.toList()
+println("Discovered ${modules.size()} modules: ${modules.name} \nand ${bundles.size()} bundles: ${bundles.name}")
 
 ext.createRequiredClasses = { Project project, String name ->
     String[] files = [
@@ -57,7 +60,46 @@ ext.createRequiredClasses = { Project project, String name ->
 }
 
 subprojects { Project proj ->
+    apply plugin: 'idea'
+    apply plugin: 'com.vanniktech.maven.publish'
+    apply plugin: 'net.neoforged.moddev'
 
+    group = rootProject.group
+    version = rootProject.version
+
+    if (proj.name.startsWith('bundle')) {
+
+        base {
+            archivesName = "${mod_id}-${name}"
+        }
+
+        List<String> moduleData = new JsonSlurper().parse(rootProject.file("bundles/${name.substring(7)}.json"))
+
+        repositories {}
+
+        dependencies {
+            jarJar(implementation(rootProject.project(':core')))
+            for (final def m in moduleData) {
+                jarJar(implementation(rootProject.project(":${m}")))
+            }
+        }
+
+        jar {
+            manifest {
+                attributes([
+                        "FMLModType": "GAMELIBRARY"
+                ])
+            }
+        }
+
+        tasks.named("jar", Jar) {
+            it.destinationDirectory = rootProject.tasks.getByName('jar').destinationDirectory
+        }
+
+        return
+    }
+
+    //region configuration
     Object moduleData = new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
     proj.ext.data = moduleData
 
@@ -67,13 +109,6 @@ subprojects { Project proj ->
     String moduleId = mod_id + "_" + name
 
     String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
-
-    apply plugin: 'idea'
-    apply plugin: 'com.vanniktech.maven.publish'
-    apply plugin: 'net.neoforged.moddev'
-
-    group = rootProject.group
-    version = rootProject.version
 
     java {
         withSourcesJar()
@@ -140,6 +175,7 @@ subprojects { Project proj ->
             }
         }
     }
+    //endregion
 
     mavenPublishing {
         signAllPublications()
@@ -422,12 +458,16 @@ neoForge {
 
 tasks.named('processResources', ProcessResources) {
     filesMatching('publish_config.json') {
+        String artifactData =
+                bundles.stream().map {"\"kap_lib-bundle-${it.name.substring(7)}-${version}\""}.collect(Collectors.joining(', ', '[', ']'))
+
         expand(
                 'mod_id': mod_id,
                 'mod_name': mod_name,
                 'mod_version': mod_version,
                 'minecraft_version': mc_version,
-                'neo_version': neo_version
+                'neo_version': neo_version,
+                'artifacts': artifactData
         )
     }
 }
@@ -445,14 +485,6 @@ jar {
         ])
     }
 }
-
-//tasks.named('javadoc', Javadoc) {
-//    for (final def proj in subprojects) {
-//        if (proj.ext.data.type != 'mod') continue
-//
-//        it.source(proj.sourceSets.main.allJava)
-//    }
-//}
 
 tasks.named('processResources', ProcessResources) {
     var publishProperties = [
@@ -511,7 +543,6 @@ mavenPublishing {
             developerConnection = "scm:git:ssh://git@github.com/Kapitencraft/kapLib.git"
         }
     }
-
 }
 
 if (hasProperty("signingKey")) {

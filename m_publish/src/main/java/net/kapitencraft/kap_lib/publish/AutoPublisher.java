@@ -41,7 +41,7 @@ public class AutoPublisher {
                   String loaderVersion,
                   String modrinthId,
                   String curseforgeId,
-                  String[] modules,
+                  String[] archives,
                   boolean withSources,
                   DependencyInfo[] dependencies,
                   ChangelogInfo changelogInfo,
@@ -59,12 +59,12 @@ public class AutoPublisher {
                 String loaderVersion = GsonHelper.getAsString(object, "loader_version");
                 String modrinthId = GsonHelper.getOptionalAsString(object, "modrinth_id");
                 String curseforgeId = GsonHelper.getOptionalAsString(object, "curseforge_id");
-                String[] modules = object.has("modules") ? jsonDeserializationContext.deserialize(object.get("modules"), String[].class) : new String[0];
+                String[] archives = object.has("archives") ? jsonDeserializationContext.deserialize(object.get("archives"), String[].class) : new String[0];
                 boolean withSources = GsonHelper.getOptionalAsBoolean(object, "with_sources", false);
                 DependencyInfo[] infos = jsonDeserializationContext.deserialize(object.get("dependencies"), DependencyInfo[].class);
                 ChangelogInfo changelogInfo = object.has("changelog") ? jsonDeserializationContext.deserialize(object.get("changelog"), ChangelogInfo.class) : ChangelogInfo.DEFAULT;
                 AssetsInfo assetsInfo = object.has("assets") ? jsonDeserializationContext.deserialize(object.get("assets"), AssetsInfo.class) : AssetsInfo.DEFAULT;
-                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, modules, withSources, infos, changelogInfo, assetsInfo);
+                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, archives, withSources, infos, changelogInfo, assetsInfo);
             }
         }
     }
@@ -251,7 +251,7 @@ public class AutoPublisher {
         }
 
         LOGGER.debug("Verifying file existence...");
-        List<Source> source = verifyFileExistence(config.modInfo.id, config.modInfo.artifactVersion, config.assetsInfo.sourcePath, config.modules, config.withSources);
+        List<Source> source = verifyFileExistence(config.modInfo.id, config.modInfo.artifactVersion, config.assetsInfo.sourcePath, config.archives, config.withSources);
         LOGGER.debug("successfully verified {} files", source.size());
 
         LOGGER.debug("Compiling Changelog...");
@@ -291,23 +291,23 @@ public class AutoPublisher {
     /**
      * returns a list of all files, including main, module and source if enabled
      */
-    private static List<Source> verifyFileExistence(String modId, String artifactVersion, String sourcePath, String[] modules, boolean withSources) {
+    private static List<Source> verifyFileExistence(String modId, String artifactVersion, String sourcePath, String[] archives, boolean withSources) {
         List<Source> sources = new ArrayList<>();
-        String fileBase = String.format("%s/%s-", sourcePath, modId) + artifactVersion;
-        sources.add(new Source("primary", checkFileExistence(fileBase)));
+        String fileBase = modId + "-" + artifactVersion;
+        sources.add(new Source("primary", checkFileExistence(sourcePath, fileBase)));
         if (withSources)
-            sources.add(new Source("primary-sources", checkFileExistence(fileBase + "-sources")));
-        for (String module : modules) {
-            sources.add(new Source(module, checkFileExistence(fileBase + "-" + module)));
+            sources.add(new Source("primary-sources", checkFileExistence(sourcePath, fileBase + "-sources")));
+        for (String archive : archives) {
+            sources.add(new Source(archive, checkFileExistence(sourcePath, archive)));
             if (withSources)
-                sources.add(new Source(module + "-sources", checkFileExistence(String.format("%s-%s-sources", fileBase, module))));
+                sources.add(new Source(archive + "-sources", checkFileExistence(sourcePath, String.format("%s-sources", archive))));
         }
 
         return sources;
     }
 
-    private static File checkFileExistence(String fileBase) {
-        File file = new File(fileBase + ".jar");
+    private static File checkFileExistence(String sourcePath, String fileBase) {
+        File file = new File(sourcePath + "/" + fileBase + ".jar");
         if (!file.exists()) throw new NullPointerException("missing jar at " + file.getPath());
         return file;
     }

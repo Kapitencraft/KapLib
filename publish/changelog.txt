@@ -19,3 +19,4 @@ added new module two-handed, allowing you to attack with weapons from the offhan
 # Publish Module
 
 fixed plain-changelog not including line breaks
+renamed `modules` to `archives` and made them independent of the main archive name
