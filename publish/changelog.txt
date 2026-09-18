@@ -1,5 +1,6 @@
 # Attribute Module
 
+ranged damage attribute is now additive, fixing a bug causing the crossbow to not deal damage
 fixed missing damage type for ferocity
 fixed Ferocity, Life Steal and Strength executing on thorns attacks
 

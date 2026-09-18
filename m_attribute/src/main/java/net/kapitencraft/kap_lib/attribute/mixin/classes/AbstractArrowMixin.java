@@ -34,6 +34,8 @@ abstract class AbstractArrowMixin extends Projectile {
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)V", at = @At("TAIL"))
     private void changeDamage(EntityType<? extends Projectile> entityType, LivingEntity owner, Level level, ItemStack pickupItemStack, ItemStack firedFromWeapon, CallbackInfo ci) {
-        this.baseDamage = owner.getAttributeValue(ExtraAttributes.RANGED_DAMAGE);
+        if (owner.getAttributes().hasAttribute(ExtraAttributes.RANGED_DAMAGE)) {
+            this.baseDamage += owner.getAttributeValue(ExtraAttributes.RANGED_DAMAGE);
+        }
     }
 }
