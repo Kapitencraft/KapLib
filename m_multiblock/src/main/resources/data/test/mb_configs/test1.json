@@ -2,25 +2,19 @@
   "groups": {},
   "quantifiers": [
     {
-      "quantifier": {
-        "type": "at_least_once"
-      },
+      "minCount": 1,
       "axis": "x",
       "fromPosition": 1,
       "toPosition": 1
     },
     {
-      "quantifier": {
-        "type": "at_least_once"
-      },
+      "minCount": 1,
       "axis": "y",
       "fromPosition": 1,
       "toPosition": 1
     },
     {
-      "quantifier": {
-        "type": "at_least_once"
-      },
+      "minCount": 1,
       "axis": "z",
       "fromPosition": 1,
       "toPosition": 1

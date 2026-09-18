@@ -22,22 +22,26 @@ import java.util.Map;
 public class MultiblockStructureConfiguration {
     public static final Codec<MultiblockStructureConfiguration> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.unboundedMap(Codec.STRING, BlockGroup.CODEC).fieldOf("groups").forGetter(c -> c.groups),
-            QuantifierInstance.CODEC.listOf().fieldOf("quantifiers").forGetter(c -> c.quantifiers),
+            Codec.unboundedMap(Direction.Axis.CODEC, Quantifier.CODEC.listOf()).fieldOf("quantifiers").forGetter(c -> c.quantifiers),
             SpacialData.codec(BlockInstance.CODEC, BlockInstance.EmptyBlockInstance.INSTANCE).fieldOf("data").forGetter(c -> c.spacialData)
     ).apply(i, MultiblockStructureConfiguration::new));
 
     private final Map<String, BlockGroup> groups;
-    private final List<QuantifierInstance> quantifiers;
+    private final Map<Direction.Axis, List<Quantifier>> quantifiers;
     private final SpacialData<BlockInstance> spacialData;
 
-    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, List<QuantifierInstance> quantifiers, SpacialData<BlockInstance> spacialData) {
+    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, Map<Direction.Axis, List<Quantifier>> quantifiers, SpacialData<BlockInstance> spacialData) {
         this.groups = groups;
         this.quantifiers = quantifiers;
         this.spacialData = spacialData;
     }
 
-    public boolean matches(int x, int y, int z, BlockState state) {
-        return spacialData.get(x, y, z).isValid(state);
+    public BlockInstance getInstanceAt(int x, int y, int z) {
+        return spacialData.get(x, y, z);
+    }
+
+    public Map<Direction.Axis, List<Quantifier>> getQuantifiers() {
+        return quantifiers;
     }
 
     public Vec3i getSize() {
@@ -314,14 +318,5 @@ public class MultiblockStructureConfiguration {
         private static void displayGroupMessage(Player player, String s) {
             player.displayClientMessage(Component.translatable("mb.structure.configurator.select_group", s), true);
         }
-    }
-
-    public record QuantifierInstance(Quantifier quantifier, Direction.Axis axis, int fromPosition, int toPosition) {
-        public static final Codec<QuantifierInstance> CODEC = RecordCodecBuilder.create(i -> i.group(
-                Quantifier.CODEC.fieldOf("quantifier").forGetter(QuantifierInstance::quantifier),
-                Direction.Axis.CODEC.fieldOf("axis").forGetter(QuantifierInstance::axis),
-                Codec.INT.fieldOf("fromPosition").forGetter(QuantifierInstance::fromPosition),
-                Codec.INT.fieldOf("toPosition").forGetter(QuantifierInstance::toPosition)
-        ).apply(i, QuantifierInstance::new));
     }
 }

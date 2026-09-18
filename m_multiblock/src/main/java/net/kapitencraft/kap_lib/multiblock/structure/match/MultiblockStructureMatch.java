@@ -1,4 +1,4 @@
-package net.kapitencraft.kap_lib.multiblock.structure;
+package net.kapitencraft.kap_lib.multiblock.structure.match;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
