@@ -274,8 +274,8 @@ public class AutoPublisher {
                 if (
                     //  (config.curseforgeId == null || CurseforgePublish.publish(config, client, source)) &&
                         (config.modrinthId == null || ModrinthPublish.publish(config, client, source))) {
-                    saveDataCache(modVersion);
                     clearChangelog();
+                    saveDataCache(modVersion);
                 }
             }
         } catch (Exception e) {
@@ -314,6 +314,7 @@ public class AutoPublisher {
     //endregion
 
     private static void saveDataCache(String modVersion) throws IOException {
+        Files.createFile(DATA_CACHE.toPath());
         FileWriter writer = new FileWriter(DATA_CACHE);
         writer.write(modVersion);
         writer.close();
