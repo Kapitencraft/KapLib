@@ -8,6 +8,8 @@ import net.kapitencraft.kap_lib.multiblock.registry.MBItems;
 import net.kapitencraft.kap_lib.multiblock.test.registry.TestBlockEntityTypes;
 import net.kapitencraft.kap_lib.multiblock.test.registry.TestBlocks;
 import net.kapitencraft.kap_lib.multiblock.test.registry.TestItems;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;

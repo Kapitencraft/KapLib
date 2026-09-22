@@ -8,11 +8,13 @@ import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlockEntityTypes;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
+import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
 import net.kapitencraft.kap_lib.multiblock.structure.config.SpacialData;
 import net.kapitencraft.kap_lib.multiblock.structure.config.builder.client.MultiblockStructureConfigurationEditScreen;
 import net.minecraft.FileUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -234,7 +236,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     public boolean saveStructure() {
         if (this.structureName != null && this.level instanceof ServerLevel serverLevel) {
             SpacialData<MultiblockStructureConfiguration.BlockInstance> data = createData();
-            List<MultiblockStructureConfiguration.QuantifierInstance> quantifierInstances = new ArrayList<>();
+            Map<Direction.Axis, List<Quantifier>> quantifierInstances = new EnumMap<>(Direction.Axis.class);
             MultiblockStructureConfiguration configuration = new MultiblockStructureConfiguration(this.groups, quantifierInstances, data);
             Path dirPath = serverLevel.getServer().getWorldPath(CONFIGURATION_STORAGE)
                     .resolve(this.structureName.getNamespace())

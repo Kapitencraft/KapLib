@@ -7,133 +7,43 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
 public class MultiblockStructurePattern {
+    private final Map<Direction.Axis, BlockPattern> sizeAgents;
+
+    private MultiblockStructurePattern(Map<Direction.Axis, BlockPattern> sizeAgents) {
+        this.sizeAgents = sizeAgents;
+    }
+
+    /**
+     * builds a pattern from the structure.
+     */
     public static MultiblockStructurePattern build(MultiblockStructureConfiguration structure) {
         Map<Direction.Axis, List<Quantifier>> quantifiers = structure.getQuantifiers();
 
         Vec3i size = structure.getSize();
 
-        Node rootX = null;
-        for (int x = 0; x < size.getX(); x++) {
-            Node rootY = null;
-            for (int y = 0; y < size.getY(); y++) {
-
-                Quantifier quantifier = findQuantifier(y, quantifiers.get(Direction.Axis.Y));
-                Node rootZ = null;
-                for (int z = 0; z < size.getZ(); z++) {
-                    Quantifier quantifier = findQuantifier(z, quantifiers.get(Direction.Axis.Z));
-                    if (quantifier != null) {
-                        Node n = null;
-                        while (z <= quantifier.toPosition()) {
-                            Node next = new LiteralNode(null, structure.getInstanceAt(x, y, z));
-                            if (n != null) {
-                                n.next = next;
-                            }
-                            n = next;
-                            z++;
-                        }
-                        QuantifiedNode node = new QuantifiedNode(null, n, quantifier);
-                        if (rootZ != null)
-                            rootZ.next = node;
-                        rootZ = node;
-                    } else {
-                        Node next = new LiteralNode(null, structure.getInstanceAt(x, y, z));
-                        if (rootZ != null) {
-                            rootZ.next = next;
-                        }
-                        rootZ = next;
-                    }
-                }
-                BranchNode n = new BranchNode(null, rootZ);
-                if (rootY != null)
-                    rootY.next = n;
-                rootY = n;
-            }
+        Map<Direction.Axis, BlockPattern> sizeGatherer = new EnumMap<>(Direction.Axis.class);
+        for (Direction.Axis value : Direction.Axis.values()) {
+            List<Quantifier> list = quantifiers.get(value);
+            int sizeDim = size.get(value);
+            sizeGatherer.put(value, BlockPattern.build(list, i -> {
+                BlockPos pos = BlockPos.ZERO.relative(value, i);
+                return structure.getInstanceAt(pos.getX(), pos.getY(), pos.getZ());
+            }, sizeDim));
         }
+        return new MultiblockStructurePattern(sizeGatherer);
     }
 
-    private static Quantifier findQuantifier(int offset, List<Quantifier> quantifiers) {
-        for (Quantifier quantifier : quantifiers) {
-            if (quantifier.fromPosition() == offset && quantifier.toPosition() == offset) {
-                return quantifier;
-            }
+    public MultiblockStructureMatch match(Level level, BlockPos origin) {
+        for (Direction.Axis value : Direction.Axis.values()) {
+            BlockPattern node = this.sizeAgents.get(value);
+            node.matcher(level);
         }
+
         return null;
     }
-
-    /**
-     * base pattern node. stores the next node for the next element
-     */
-    private abstract static class Node {
-        protected Node next;
-
-        protected Node(Node next) {
-            this.next = next;
-        }
-
-        protected abstract boolean matches(BlockPos.MutableBlockPos pos, Level level);
-    }
-
-    /**
-     * branch node to increase dimensions
-     */
-    private static class BranchNode extends Node {
-        private Node branch;
-
-        protected BranchNode(Node next, Node branch) {
-            super(next);
-            this.branch = branch;
-        }
-
-        @Override
-        protected boolean matches(BlockPos.MutableBlockPos pos, Level level) {
-
-            return false;
-        }
-    }
-
-    /**
-     * simple literal node
-     */
-    private static class LiteralNode extends Node {
-        private final MultiblockStructureConfiguration.BlockInstance blockInstance;
-
-        protected LiteralNode(Node next, MultiblockStructureConfiguration.BlockInstance blockInstance) {
-            super(next);
-            this.blockInstance = blockInstance;
-        }
-
-        @Override
-        public boolean matches(BlockPos.MutableBlockPos pos, Level level) {
-            return blockInstance.isValid(level.getBlockState(pos));
-        }
-    }
-
-    /**
-     * quantified node
-     */
-    private static class QuantifiedNode extends Node {
-        private final Node element;
-        private final Quantifier instance;
-
-        protected QuantifiedNode(Node next, Node element, Quantifier instance) {
-            super(next);
-            this.element = element;
-            this.instance = instance;
-        }
-
-        @Override
-        protected boolean matches(BlockPos.MutableBlockPos pos, Level level) {
-            int c = 0;
-            while (c < instance.maxCount() || instance.maxCount() == -1) {
-
-                c++;
-            }
-            return false;
-        }
-    }
-
 }
