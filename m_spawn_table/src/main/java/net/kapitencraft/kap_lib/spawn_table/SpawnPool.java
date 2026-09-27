@@ -36,7 +36,7 @@ public class SpawnPool {
                    LootItemCondition.DIRECT_CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(p_297992_ -> p_297992_.conditions),
                    SpawnEntityFunctions.ROOT_CODEC.listOf().optionalFieldOf("functions", List.of()).forGetter(p_297994_ -> p_297994_.functions),
                    NumberProviders.CODEC.fieldOf("rolls").forGetter(p_297993_ -> p_297993_.rolls),
-                   NumberProviders.CODEC.fieldOf("bonus_rolls").orElse(ConstantValue.exactly(0.0F)).forGetter(p_297997_ -> p_297997_.bonusRolls),
+                   NumberProviders.CODEC.optionalFieldOf("bonus_rolls", ConstantValue.exactly(0.0F)).forGetter(p_297997_ -> p_297997_.bonusRolls),
                    Codec.STRING.optionalFieldOf("name").forGetter(pool -> java.util.Optional.ofNullable(pool.name).filter(name -> !name.startsWith("custom#")))
            ).apply(inst, SpawnPool::new)
    );

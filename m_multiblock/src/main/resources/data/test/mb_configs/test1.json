@@ -1,25 +1,28 @@
 {
   "groups": {},
-  "quantifiers": [
-    {
-      "minCount": 1,
-      "axis": "x",
-      "fromPosition": 1,
-      "toPosition": 1
-    },
-    {
-      "minCount": 1,
-      "axis": "y",
-      "fromPosition": 1,
-      "toPosition": 1
-    },
-    {
-      "minCount": 1,
-      "axis": "z",
-      "fromPosition": 1,
-      "toPosition": 1
-    }
-  ],
+  "quantifiers": {
+    "x": [
+      {
+        "minCount": 1,
+        "fromPosition": 1,
+        "toPosition": 1
+      }
+    ],
+    "y": [
+      {
+        "minCount": 1,
+        "fromPosition": 1,
+        "toPosition": 1
+      }
+    ],
+    "z": [
+      {
+        "minCount": 1,
+        "fromPosition": 1,
+        "toPosition": 1
+      }
+    ]
+  },
   "data": {
     "size": [
       3,

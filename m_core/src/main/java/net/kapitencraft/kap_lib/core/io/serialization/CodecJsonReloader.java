@@ -71,8 +71,8 @@ public abstract class CodecJsonReloader<T> extends SimplePreparableReloadListene
                 if (oldElement != null) {
                     throw new IllegalStateException("Duplicate data file ignored with ID " + idLocation);
                 }
-            } catch (IOException | JsonParseException | IllegalArgumentException exception) {
-                LOGGER.error("Couldn't parse data file {} from {}", idLocation, fileLocation, exception);
+            } catch (Exception exception) {
+                LOGGER.warn("Couldn't parse data file {} from {}: {}", idLocation, fileLocation, exception.getMessage());
             }
         }
     }

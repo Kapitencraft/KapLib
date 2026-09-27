@@ -24,5 +24,6 @@ public class RenderTypeMixin {
         objects.add(e5);
         BlockRenderTypes.register();
         objects.addAll(BlockRenderTypes.RENDER_TYPES);
-        return ImmutableList.copyOf(objects);    }
+        return ImmutableList.copyOf(objects);
+    }
 }

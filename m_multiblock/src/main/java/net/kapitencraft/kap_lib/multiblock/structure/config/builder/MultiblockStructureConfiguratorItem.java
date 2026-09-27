@@ -1,9 +1,16 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
+import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.multiblock.registry.MBItemComponentTypes;
+import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructureConfigurationManager;
+import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
+import net.kapitencraft.kap_lib.multiblock.structure.match.BlockMatcher;
+import net.kapitencraft.kap_lib.multiblock.structure.match.BlockPattern;
+import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructurePattern;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -27,9 +34,12 @@ public class MultiblockStructureConfiguratorItem extends Item {
         Player player = context.getPlayer();
         if (player != null) {
             if (player.isShiftKeyDown()) {
+                MultiblockStructurePattern pattern  = MultiblockStructurePattern.build(MultiblockStructureConfigurationManager.INSTANCE.getStructure(ResourceLocation.fromNamespaceAndPath("test", "test1")));
+                pattern.match(level, pos);
+
                 if (structureConfigurationLocation != null && level.getBlockEntity(structureConfigurationLocation) instanceof MultiblockStructureConfigurationBlockEntity configurationBlockEntity) {
                     BlockPos offset = pos.subtract(configurationBlockEntity.getStructureOrigin());
-                    
+
                 }
             } else {
                 if (structureConfigurationLocation != null && level.getBlockEntity(structureConfigurationLocation) instanceof MultiblockStructureConfigurationBlockEntity configurationBlockEntity) {

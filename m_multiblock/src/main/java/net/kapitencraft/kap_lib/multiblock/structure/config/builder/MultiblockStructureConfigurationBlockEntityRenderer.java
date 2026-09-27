@@ -61,14 +61,14 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
             MultiblockStructureConfiguration.BlockInstance instance = blockEntity.getInfo(relativeStructure);
             if (!blockstate.isAir()) {
                 if (instance == null || instance.isState()) {
-                    AABB pos = AABB.encapsulatingFullBlocks(relative, relative);
-                    DebugRenderer.renderFilledBox(poseStack, bufferSource,
-                            pos,
-                            0,
-                            0,
-                            1,
-                            .5f
-                    );
+                    //AABB pos = AABB.encapsulatingFullBlocks(relative, relative);
+                    //DebugRenderer.renderFilledBox(poseStack, bufferSource,
+                    //        pos,
+                    //        0,
+                    //        0,
+                    //        1,
+                    //        .5f
+                    //);
                 } else if (instance.getTag() != null) {
                     renderFloatingText(poseStack, bufferSource,
                             instance.getTag().location().toString(),

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockMatcher {
-    private final List<Integer>[] quantifierList;
+    final List<Integer>[] quantifierList;
     private final BlockPattern definingPattern;
     private final Level blockAccessor;
 
@@ -21,8 +21,8 @@ public class BlockMatcher {
         }
     }
 
-    public boolean matches(Direction.Axis axis, BlockPos pos) {
-        BlockPattern.BlockAccessor accessor = new BlockPattern.BlockAccessor(axis, pos, blockAccessor);
-        definingPattern.root.matches(accessor, 0);
+    public boolean matches(Direction direction, BlockPos pos) {
+        BlockPattern.BlockAccessor accessor = new BlockPattern.BlockAccessor(direction, pos, blockAccessor);
+        return definingPattern.root.matches(this, accessor, 0);
     }
 }

@@ -7,15 +7,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
 public class BlockPattern {
+
     private final int quantifierCount;
     final Node root;
 
-    public BlockPattern(int quantifierCount, Node root) {
+    BlockPattern(int quantifierCount, Node root) {
         this.quantifierCount = quantifierCount;
         this.root = root;
     }
@@ -68,10 +68,10 @@ public class BlockPattern {
         return new BlockMatcher(quantifierCount, this, level);
     }
 
-    public record BlockAccessor(Direction.Axis axis, BlockPos origin, Level level) {
+    public record BlockAccessor(Direction direction, BlockPos origin, Level level) {
 
         public BlockState getBlock(int idx) {
-            return level.getBlockState(origin.relative(axis, idx));
+            return level.getBlockState(origin.relative(direction, idx));
         }
     }
 
@@ -88,7 +88,7 @@ public class BlockPattern {
          * @param idx      index in the folded 1d space
          * @return whether this node found a match
          */
-        abstract boolean matches(BlockAccessor accessor, int idx);
+        abstract boolean matches(BlockMatcher matcher, BlockAccessor accessor, int idx);
     }
 
     /**
@@ -102,8 +102,8 @@ public class BlockPattern {
         }
 
         @Override
-        public boolean matches(BlockAccessor accessor, int idx) {
-            return blockInstance.isValid(accessor.getBlock(idx)) && next == null || next.matches(accessor, idx + 1);
+        public boolean matches(BlockMatcher matcher, BlockAccessor accessor, int idx) {
+            return blockInstance.isValid(accessor.getBlock(idx)) && (next == null || next.matches(matcher, accessor, idx + 1));
         }
     }
 
@@ -122,15 +122,18 @@ public class BlockPattern {
         }
 
         @Override
-        protected boolean matches(BlockAccessor accessor, int idx) {
+        protected boolean matches(BlockMatcher matcher, BlockAccessor accessor, int idx) {
             int c = 0;
-            List<Integer> calculatedIndexes = new ArrayList<>();
-            while (c < instance.maxCount() || instance.maxCount() == -1) {
-                int oIdx = idx;
-                if (!this.element.matches(accessor, oIdx)) {
-                    return c >= instance.minCount() && next == null || next.matches(accessor, oIdx);
+            List<Integer> calculatedIndexes = matcher.quantifierList[ordinal];
+            while (c <= instance.maxCount() || instance.maxCount() == -1) {
+                if (c >= instance.minCount() && (next == null || next.matches(matcher, accessor, idx))) {
+                    calculatedIndexes.add(c);
+                }
+                if (!this.element.matches(matcher, accessor, idx)) {
+                    return !calculatedIndexes.isEmpty();
                 }
                 c++;
+                idx++;
             }
             return false;
         }
