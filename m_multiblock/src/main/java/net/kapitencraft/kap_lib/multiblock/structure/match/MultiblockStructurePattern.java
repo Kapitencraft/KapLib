@@ -73,13 +73,10 @@ public class MultiblockStructurePattern {
     }
 
     private boolean checkMatch(int[][] quantifierData, BlockPos pos, Level level) {
-        for (int i = 0; i < Direction.Axis.values().length; i++) {
-            Direction.Axis value = Direction.Axis.values()[i];
-            List<Quantifier> quantifiers = this.structureConfiguration.getQuantifiers().get(value);
-            int[] quantifierPermutation = quantifierData[i];
-            for (int elementIdx = 0; elementIdx < this.structureConfiguration.getSize().get(value); elementIdx++) {
+        List<Quantifier> quantifiers = this.structureConfiguration.getQuantifiers().get(Direction.Axis.X);
+        int[] quantifierPermutation = quantifierData[0];
+        for (int elementIdx = 0; elementIdx < this.structureConfiguration.getSize().get(Direction.Axis.X); elementIdx++) {
 
-            }
         }
         return false;
     }
