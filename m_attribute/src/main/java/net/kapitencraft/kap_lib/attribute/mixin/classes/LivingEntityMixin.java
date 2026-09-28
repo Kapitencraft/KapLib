@@ -6,15 +6,12 @@ import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.core.mixin.duck.MixinSelfProvider;
 import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
 import net.minecraft.core.Holder;
-import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,7 +26,7 @@ class LivingEntityMixin implements MixinSelfProvider<LivingEntity> {
             ExtraAttributes.DODGE,
             ExtraAttributes.MAGIC_DEFENCE,
             ExtraAttributes.TRUE_DEFENCE,
-            ExtraAttributes.DOUBLE_JUMP,
+            ExtraAttributes.MULTI_JUMP,
             ExtraAttributes.VITALITY,
             ExtraAttributes.BONUS_ATTACK_SPEED,
             ExtraAttributes.STRENGTH,

@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.attribute.event.handler;
 
+import net.kapitencraft.kap_lib.attribute.AMEntityTypeTags;
 import net.kapitencraft.kap_lib.attribute.AttributeAttachmentTypes;
 import net.kapitencraft.kap_lib.attribute.AttributeModule;
 import net.kapitencraft.kap_lib.attribute.ExtraAttributes;
@@ -23,7 +24,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.Arrow;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -87,8 +87,8 @@ public class AttributeEvents {
     private static void onPlayerTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (entity instanceof LivingEntity living) {
-            if (living.getAttributes().hasAttribute(ExtraAttributes.DOUBLE_JUMP) && !entity.onGround()) {
-                if (canJump(entity) && living.getData(AttributeAttachmentTypes.DOUBLE_JUMPS) < living.getAttributeValue(ExtraAttributes.DOUBLE_JUMP)) {
+            if (living.getAttributes().hasAttribute(ExtraAttributes.MULTI_JUMP) && !entity.onGround()) {
+                if (canJump(entity) && living.getData(AttributeAttachmentTypes.DOUBLE_JUMPS) < living.getAttributeValue(ExtraAttributes.MULTI_JUMP)) {
                     if (living.jumping && living.noJumpDelay <= 0) {
                         ParticleHelper.sendAlwaysVisibleParticles(ParticleTypes.CLOUD, entity.level(), entity.getX(), entity.getY(), entity.getZ(), 0.25, 0.0, 0.25, 0, 0, 0, 15);
                         living.noJumpDelay = 10;
@@ -171,12 +171,14 @@ public class AttributeEvents {
                 }
             }
         }
-        double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIFE_STEAL, attacker);
-        if (source.isDirect() && !source.is(DamageTypes.THORNS) && liveSteal > 0) {
-            if (attacker.level() instanceof ServerLevel && Modules.isParticleActive()) {
-                ParticleCompat.sendLifeStealAnimation(attacked, attacker);
+        if (!attacked.getType().is(AMEntityTypeTags.IMMUNE_TO_LIFE_STEAL)) {
+            double liveSteal = AttributeHelper.getSaveAttributeValue(ExtraAttributes.LIFE_STEAL, attacker);
+            if (source.isDirect() && !source.is(DamageTypes.THORNS) && liveSteal > 0) {
+                if (attacker.level() instanceof ServerLevel && Modules.isParticleActive()) {
+                    ParticleCompat.sendLifeStealAnimation(attacked, attacker);
+                }
+                attacker.heal(Math.min((float) liveSteal, event.getNewDamage()));
             }
-            attacker.heal(Math.min((float) liveSteal, event.getNewDamage()));
         }
     }
 }

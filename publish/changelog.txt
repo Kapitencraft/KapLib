@@ -1,22 +1,4 @@
 # Attribute Module
 
-ranged damage attribute is now additive, fixing a bug causing the crossbow to not deal damage
-fixed missing damage type for ferocity
-fixed Ferocity, Life Steal and Strength executing on thorns attacks
-
-# Datagen Module
-
-fixed color masking of TextureProvider also updating texture pixels that aren't part of the texture mask
-
-# Item Module
-
-added (simple) support for dyed custom armor models via the new `DyedArmorClientExtension` and a method to get armor textures dependant of the used layers' suffix named `AbstractArmorItem#makeCustomLayeredTextureLocation`
-
-# Two-Handed Module
-
-added new module two-handed, allowing you to attack with weapons from the offhand with independent attack cooldown.
-
-# Publish Module
-
-fixed plain-changelog not including line breaks
-renamed `modules` to `archives` and made them independent of the main archive name
+renamed `double_jump` -> `multi_jump` because it allows for more than two jumps, and I'm as pedantic as the person suggesting it
+added `immune_to_life_steal` tag to disable life steal effect on selected entity types

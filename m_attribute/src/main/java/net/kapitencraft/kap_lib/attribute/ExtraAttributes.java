@@ -1,7 +1,6 @@
 package net.kapitencraft.kap_lib.attribute;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.core.helpers.AttributeHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +55,7 @@ public interface ExtraAttributes {
     /**
      * double jump. lets you jump in the air
      */
-    Holder<Attribute> DOUBLE_JUMP = register("double_jump", 0, 0, 20, null);
+    Holder<Attribute> MULTI_JUMP = register("multi_jump", 0, 0, 20, null);
     /**
      * health regeneration scale
      */
