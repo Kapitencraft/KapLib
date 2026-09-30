@@ -24,39 +24,45 @@ public class BlockPattern {
 
         int quantifierOrdinal = 0;
         Node root = null;
+        Node current = root;
         for (int i = 0; i < size; i++) {
 
             //we'll be doing recursive quantifiers later
             Quantifier quantifier = findQuantifier(i, quantifiers);
+            Node n = null;
             if (quantifier != null) {
-                Node qNode = null;
+                Node qRoot = null;
+                Node qCurrent = null;
                 while (i <= quantifier.toPosition()) {
                     LiteralNode literalNode = new LiteralNode(blockAccessor.apply(i));
-                    if (qNode != null) {
-                        qNode.next = literalNode;
+                    if (qCurrent != null) {
+                        qCurrent.next = literalNode;
                     }
-                    qNode = literalNode;
+                    if (qRoot == null) {
+                        qRoot = literalNode;
+                    }
+                    qCurrent = literalNode;
                     i++;
                 }
-                QuantifiedNode n = new QuantifiedNode(qNode, quantifier, quantifierOrdinal++);
-                if (root != null) {
-                    root.next = n;
-                }
-                root = n;
+                n = new QuantifiedNode(qRoot, quantifier, quantifierOrdinal++);
+                i--; //move back for the for loop
             } else {
-                LiteralNode literalNode = new LiteralNode(blockAccessor.apply(i));
-                if (root != null) {
-                    root.next = literalNode;
-                }
-                root = literalNode;
+                n = new LiteralNode(blockAccessor.apply(i));
             }
+            if (current != null) {
+                current.next = n;
+            }
+            if (root == null) {
+                root = n;
+            }
+            current = n;
         }
         return new BlockPattern(quantifierOrdinal, root);
     }
 
     private static Quantifier findQuantifier(int offset, List<Quantifier> quantifiers) {
         for (Quantifier quantifier : quantifiers) {
-            if (quantifier.fromPosition() == offset && quantifier.toPosition() == offset) {
+            if (quantifier.fromPosition() == offset && quantifier.toPosition() >= offset) {
                 return quantifier;
             }
         }
@@ -103,6 +109,7 @@ public class BlockPattern {
 
         @Override
         public boolean matches(BlockMatcher matcher, BlockAccessor accessor, int idx) {
+            matcher.last = idx;
             return blockInstance.isValid(accessor.getBlock(idx)) && (next == null || next.matches(matcher, accessor, idx + 1));
         }
     }
@@ -132,8 +139,8 @@ public class BlockPattern {
                 if (!this.element.matches(matcher, accessor, idx)) {
                     return !calculatedIndexes.isEmpty();
                 }
+                idx = matcher.last + 1;
                 c++;
-                idx++;
             }
             return false;
         }

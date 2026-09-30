@@ -9,6 +9,7 @@ import java.util.List;
 
 public class BlockMatcher {
     final List<Integer>[] quantifierList;
+    int last = 0;
     private final BlockPattern definingPattern;
     private final Level blockAccessor;
 

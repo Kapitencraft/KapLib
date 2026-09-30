@@ -9,6 +9,7 @@ import com.mojang.serialization.DataResult;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -274,7 +275,7 @@ public class TextHelper {
         return "Pos: [" + vec3.x + ", " + vec3.y + ", " + vec3.z + "]";
     }
 
-    public static String fromBlockPos(BlockPos pos) {
+    public static String positionToText(Vec3i pos) {
         return fromVec3(new Vec3(pos.getX(), pos.getY(), pos.getZ()));
     }
 

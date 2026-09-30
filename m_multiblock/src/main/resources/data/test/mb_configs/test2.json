@@ -1,0 +1,159 @@
+{
+  "groups": {},
+  "quantifiers": {
+    "x": [
+      {
+        "minCount": 1,
+        "fromPosition": 1,
+        "toPosition": 2
+      }
+    ],
+    "y": [
+      {
+        "minCount": 1,
+        "fromPosition": 1,
+        "toPosition": 2
+      }
+    ],
+    "z": [
+      {
+        "minCount": 1,
+        "fromPosition": 1,
+        "toPosition": 2
+      }
+    ]
+  },
+  "data": {
+    "size": [
+      4,
+      4,
+      4
+    ],
+    "entries": [
+      {
+        "state": {
+          "Name": "minecraft:glass"
+        },
+        "type": "state"
+      },
+      {
+        "state": {
+          "Name": "minecraft:emerald_block"
+        },
+        "type": "state"
+      },
+      {
+        "state": {
+          "Name": "minecraft:gold_block"
+        },
+        "type": "state"
+      }
+    ],
+    "data": [
+      [
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ]
+      ],
+      [
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          2,
+          3,
+          1
+        ],
+        [
+          1,
+          3,
+          2,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ]
+      ],
+      [
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          3,
+          2,
+          1
+        ],
+        [
+          1,
+          2,
+          3,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ]
+      ],
+      [
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          1
+        ]
+      ]
+    ]
+  }
+}

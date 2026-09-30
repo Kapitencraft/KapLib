@@ -1,22 +1,17 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
-import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.multiblock.registry.MBItemComponentTypes;
 import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructureConfigurationManager;
-import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
-import net.kapitencraft.kap_lib.multiblock.structure.match.BlockMatcher;
-import net.kapitencraft.kap_lib.multiblock.structure.match.BlockPattern;
+import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructureMatch;
 import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructurePattern;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
@@ -33,9 +28,14 @@ public class MultiblockStructureConfiguratorItem extends Item {
         Level level = context.getLevel();
         Player player = context.getPlayer();
         if (player != null) {
-            if (player.isShiftKeyDown()) {
-                MultiblockStructurePattern pattern  = MultiblockStructurePattern.build(MultiblockStructureConfigurationManager.INSTANCE.getStructure(ResourceLocation.fromNamespaceAndPath("test", "test1")));
-                pattern.match(level, pos);
+            if (player.isShiftKeyDown() && player.level() instanceof ServerLevel sL) {
+                MultiblockStructurePattern pattern = MultiblockStructurePattern.build(MultiblockStructureConfigurationManager.INSTANCE.getStructure(ResourceLocation.fromNamespaceAndPath("test", "test2")));
+                MultiblockStructureMatch match = pattern.match(sL, pos);
+
+                if (match != null) {
+                    player.sendSystemMessage(Component.literal(TextHelper.positionToText(match.getSize())));
+                } else
+                    player.sendSystemMessage(Component.literal("no match"));
 
                 if (structureConfigurationLocation != null && level.getBlockEntity(structureConfigurationLocation) instanceof MultiblockStructureConfigurationBlockEntity configurationBlockEntity) {
                     BlockPos offset = pos.subtract(configurationBlockEntity.getStructureOrigin());
@@ -50,7 +50,7 @@ public class MultiblockStructureConfiguratorItem extends Item {
                     }
                 } else if (level.getBlockEntity(pos) instanceof MultiblockStructureConfigurationBlockEntity e && e.getMode() == MultiblockStructureConfigurationBlockEntity.Mode.SAVE) {
                     context.getItemInHand().set(MBItemComponentTypes.MB_STRUCTURE_CONFIGURATION_ANCHOR, pos);
-                    player.displayClientMessage(Component.translatable("mb.structure.configurator.select_block", TextHelper.fromBlockPos(pos)), true);
+                    player.displayClientMessage(Component.translatable("mb.structure.configurator.select_block", TextHelper.positionToText(pos)), true);
                     return InteractionResult.SUCCESS;
                 } else {
                     player.displayClientMessage(Component.translatable("mb.structure.configurator.not_connected"), true);

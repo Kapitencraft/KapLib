@@ -1,15 +1,18 @@
 package net.kapitencraft.kap_lib.multiblock.structure.match;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MultiblockStructureMatch {
 
     private final BlockState[][][] states;
+    private final Vec3i size;
 
-    public MultiblockStructureMatch(BlockState[][][] states) {
+    public MultiblockStructureMatch(BlockState[][][] states, Vec3i size) {
         this.states = states;
+        this.size = size;
     }
 
     public BlockState getStateAt(BlockPos pos) {
@@ -18,6 +21,10 @@ public class MultiblockStructureMatch {
 
     public BlockState getStateAt(int x, int y, int z) {
         return states[x][y][z];
+    }
+
+    public Vec3i getSize() {
+        return this.size;
     }
 
     public static MultiblockStructureMatch of(ServerLevel level, BlockPos start, BlockPos end) {
@@ -30,6 +37,6 @@ public class MultiblockStructureMatch {
                 }
             }
         }
-        return new MultiblockStructureMatch(states);
+        return new MultiblockStructureMatch(states, size);
     }
 }
