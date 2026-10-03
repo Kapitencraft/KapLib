@@ -75,52 +75,28 @@ public class MultiblockStructurePattern {
     }
 
     private BlockPos getPermutationSize(int[][] permutation2) {
-        Vec3i configurationSize = this.structureConfiguration.getSize();
+        return new BlockPos(
+                getPermutationSize(Direction.Axis.X, permutation2),
+                getPermutationSize(Direction.Axis.Y, permutation2),
+                getPermutationSize(Direction.Axis.Z, permutation2)
+        );
+    }
 
-        int x = 0;
-        int[] permutationsX = permutation2[0];
-        List<Quantifier> quantifiersX = this.structureConfiguration.getQuantifiers().get(Direction.Axis.X);
+    private int getPermutationSize(Direction.Axis axis, int[][] permutations) {
+        int value = 0;
+        int[] axisPermutations = permutations[axis.ordinal()];
+        List<Quantifier> axisQuantifiers = this.structureConfiguration.getQuantifiers().get(axis);
 
-        for (int i = 0; i < configurationSize.getX(); i++) {
-            int q = findQuantifierIndex(i, quantifiersX);
+        for (int i = 0; i < this.structureConfiguration.getSize().get(axis); i++) {
+            int q = findQuantifierIndex(i, axisQuantifiers);
             if (q != -1) {
-                int length = quantifiersX.get(q).toPosition() - quantifiersX.get(q).fromPosition() + 1;
-                x += permutationsX[q] * length;
-                i = quantifiersX.get(q).toPosition();
+                int length = axisQuantifiers.get(q).toPosition() - axisQuantifiers.get(q).fromPosition() + 1;
+                value += axisPermutations[q] * length;
+                i = axisQuantifiers.get(q).toPosition();
             } else
-                x++;
-
+                value++;
         }
-
-        int y = 0;
-        int[] permutationsY = permutation2[1];
-        List<Quantifier> quantifiersY = this.structureConfiguration.getQuantifiers().get(Direction.Axis.Y);
-
-        for (int i = 0; i < configurationSize.getY(); i++) {
-            int q = findQuantifierIndex(y, quantifiersY);
-            if (q != -1) {
-                int length = quantifiersY.get(q).toPosition() - quantifiersY.get(q).fromPosition() + 1;
-                y += permutationsY[q] * length;
-                i = quantifiersY.get(q).toPosition();
-            } else
-                y++;
-        }
-
-        int z = 0;
-        int[] permutationsZ = permutation2[2];
-        List<Quantifier> quantifiersZ = this.structureConfiguration.getQuantifiers().get(Direction.Axis.Z);
-
-        for (int i = 0; i < configurationSize.getZ(); i++) {
-            int q = findQuantifierIndex(z, quantifiersZ);
-            if (q != -1) {
-                int length = quantifiersZ.get(q).toPosition() - quantifiersZ.get(q).fromPosition() + 1;
-                z += permutationsZ[q] * length;
-                i = quantifiersZ.get(q).toPosition();
-            } else
-                z++;
-        }
-
-        return new BlockPos(x, y, z);
+        return value;
     }
 
     private boolean checkMatch(int[][] quantifierData, BlockPos pos, Level level) {
@@ -128,7 +104,7 @@ public class MultiblockStructurePattern {
         int x = 0;
         //quantifiers = quantifiers for the given dimension
         List<Quantifier> quantifiersX = this.structureConfiguration.getQuantifiers().get(Direction.Axis.X);
-        //quantifierPermutation = repetitions per group, indexed in the same order than the quantifiers
+        //quantifierPermutation = repetitions per group, indexed in the same order then the quantifiers
         int[] quantifierPermutationX = quantifierData[0];
         int sizeX = this.structureConfiguration.getSize().get(Direction.Axis.X);
         //elementIdx = idx into the structure configuration spacial data

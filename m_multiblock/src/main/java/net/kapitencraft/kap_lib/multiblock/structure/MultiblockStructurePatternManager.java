@@ -1,14 +1,13 @@
 package net.kapitencraft.kap_lib.multiblock.structure;
 
+import com.google.common.collect.ImmutableMap;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
 import net.kapitencraft.kap_lib.core.io.serialization.CodecJsonReloader;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
-import net.minecraft.core.RegistryAccess;
+import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructurePattern;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,21 +21,25 @@ import java.util.Map;
  * 3. add multiblock setup block similar to structure block to build multiblock structures
  * 4. make multiblock generate like {@link java.util.regex.Pattern}
  */
-public class MultiblockStructureConfigurationManager extends CodecJsonReloader<MultiblockStructureConfiguration> {
+public class MultiblockStructurePatternManager extends CodecJsonReloader<MultiblockStructureConfiguration> {
     //do we need to sync this?
-    public static final MultiblockStructureConfigurationManager INSTANCE = new MultiblockStructureConfigurationManager();
-    private @NotNull Map<ResourceLocation, MultiblockStructureConfiguration> structures = Map.of();
+    public static final MultiblockStructurePatternManager INSTANCE = new MultiblockStructurePatternManager();
+    private @NotNull Map<ResourceLocation, MultiblockStructurePattern> structures = Map.of();
 
-    private MultiblockStructureConfigurationManager() {
+    private MultiblockStructurePatternManager() {
         super(MultiblockStructureConfiguration.CODEC, JsonHelper.GSON, "mb_configs");
     }
 
     @Override
     protected void apply(Map<ResourceLocation, MultiblockStructureConfiguration> structureConfigurations, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
-        this.structures = structureConfigurations;
+        ImmutableMap.Builder<ResourceLocation, MultiblockStructurePattern> patternBuilder = ImmutableMap.builder();
+        structureConfigurations.forEach((key, structureConfiguration) -> {
+            patternBuilder.put(key, MultiblockStructurePattern.build(structureConfiguration));
+        });
+        this.structures = patternBuilder.build();
     }
 
-    public @Nullable MultiblockStructureConfiguration getStructure(ResourceLocation location) {
+    public @Nullable MultiblockStructurePattern getStructure(ResourceLocation location) {
         return this.structures.get(location);
     }
 }

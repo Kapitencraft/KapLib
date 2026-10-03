@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.multiblock.registry.MBItemComponentTypes;
-import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructureConfigurationManager;
+import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructurePatternManager;
 import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructureMatch;
 import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructurePattern;
 import net.minecraft.core.BlockPos;
@@ -29,7 +29,7 @@ public class MultiblockStructureConfiguratorItem extends Item {
         Player player = context.getPlayer();
         if (player != null) {
             if (player.isShiftKeyDown() && player.level() instanceof ServerLevel sL) {
-                MultiblockStructurePattern pattern = MultiblockStructurePattern.build(MultiblockStructureConfigurationManager.INSTANCE.getStructure(ResourceLocation.fromNamespaceAndPath("test", "test2")));
+                MultiblockStructurePattern pattern = MultiblockStructurePatternManager.INSTANCE.getStructure(ResourceLocation.fromNamespaceAndPath("test", "test2"));
                 MultiblockStructureMatch match = pattern.match(sL, pos);
 
                 if (match != null) {
