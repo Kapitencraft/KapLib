@@ -15,8 +15,8 @@ import org.jetbrains.annotations.ApiStatus;
 @OnlyIn(Dist.CLIENT)
 public interface UsefulTextures {
     ResourceLocation CHECK_MARK = ResourceLocation.withDefaultNamespace("icon/checkmark");
-    ResourceLocation CROSS = LibConstants.res("textures/gui/red_cross.png");
-    ResourceLocation SLOT = LibConstants.res("textures/gui/slot_background.png");
+    ResourceLocation CROSS = LibConstants.res("red_cross");
+    ResourceLocation SLOT = LibConstants.res("slot_background");
     ResourceLocation SLIDER = getGuiLocation("container/loom.png");
     ResourceLocation ARROW_DOWN = ResourceLocation.withDefaultNamespace("transferable_list/move_down");
     ResourceLocation ARROW_DOWN_HIGHLIGHT = ResourceLocation.withDefaultNamespace("transferable_list/move_down_highlighted");
@@ -49,7 +49,7 @@ public interface UsefulTextures {
         graphics.pose().pushPose();
         graphics.pose().translate(x, y, 0);
         graphics.pose().scale(size / 8f, size / 7f, 0);
-        graphics.blit(CROSS, 0, 0, 0, 0, 0, 8, 7, 8, 7);
+        graphics.blitSprite(CROSS, 8, 7, 0, 0, 0, 0, 0, 8, 7);
         graphics.pose().popPose();
     }
 
@@ -166,6 +166,6 @@ public interface UsefulTextures {
      * @param slotX the x position of the slot.
      */
     static void renderSlotBackground(GuiGraphics graphics, int slotX, int slotY) {
-        graphics.blit(SLOT, slotX - 1, slotY - 1, 0, 0, 18, 18, 18, 18);
+        graphics.blitSprite(SLOT, 18, 18, 0, 0,  slotX - 1, slotY - 1,  18, 18);
     }
 }
