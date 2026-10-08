@@ -311,6 +311,16 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
+if (hasProperty("signingKey")) {
+    signing {
+        useInMemoryPgpKeys(
+                new String(Base64.decoder.decode((String) findProperty("signingKey"))),
+                findProperty("signingPassword")
+        )
+    }
+} else
+println "Signing Keys not configured!"
+
 tasks.register('autoPublish', JavaExec) {
     mainClass = 'net.kapitencraft.kap_lib.publish.AutoPublisher'
 
@@ -518,13 +528,4 @@ mavenPublishing {
         }
     }
 
-}
-
-if (hasProperty("signingKey")) {
-    signing {
-        useInMemoryPgpKeys(
-                new String(Base64.decoder.decode((String) findProperty("signingKey"))),
-                findProperty("signingPassword")
-        )
-    }
 }
