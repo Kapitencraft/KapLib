@@ -42,4 +42,8 @@ public class MultiblockStructurePatternManager extends CodecJsonReloader<Multibl
     public @Nullable MultiblockStructurePattern getStructure(ResourceLocation location) {
         return this.structures.get(location);
     }
+
+    public Map<ResourceLocation, MultiblockStructurePattern> getAll() {
+        return structures;
+    }
 }
