@@ -368,7 +368,8 @@ dependencies {
     runtimeOnly(project(':publish'))
 
     subprojects.forEach {
-        jarJar(implementation(it))
+        if (!it.name.startsWith('bundle'))
+            jarJar(implementation(it))
     }
 
     compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
