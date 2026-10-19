@@ -8,7 +8,7 @@ plugins {
     id 'idea'
     id 'com.vanniktech.maven.publish' version '0.33.0'
     id 'signing'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 ext.convertModuleName = { String moduleName ->
@@ -146,9 +146,7 @@ subprojects { Project proj ->
             api(project(":core"))
         }
 
-        if (name == 'enchantment') {
-            implementation('maven.modrinth:sorted-enchantments:2.0.0+1.21+neoforge')
-        } else if (name == 'recipe') {
+        if (name == 'recipe') {
             compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
             compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
             runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"

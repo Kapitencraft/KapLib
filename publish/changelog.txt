@@ -1,4 +1,12 @@
+# General
+
+bumped neoforge version to .262
+
 # Attribute Module
 
 renamed `double_jump` -> `multi_jump` because it allows for more than two jumps, and I'm as pedantic as the person suggesting it
 added `immune_to_life_steal` tag to disable life steal effect on selected entity types
+
+# Core Module
+
+fixed MathHelper using Mth#clamp to check for values in a range

@@ -149,11 +149,11 @@ public interface MathHelper {
      * @return if the given {@code val} value is between {@code start} and {@code end}
      */
     static boolean isBetween(double val, int start, int end) {
-        return Mth.clamp(val, start, end) == val;
+        return val >= start && val <= end;
     }
 
     static boolean isBetween(double val, double start, double end) {
-        return Mth.clamp(val, start, end) == val;
+        return val >= start && val <= end;
     }
 
     /**

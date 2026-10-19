@@ -12,6 +12,8 @@ import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 public class SelectItemWidget extends SelectRegistryElementWidget<Item> {
+    //TODO add search
+
     private static final int ITEM_WIDTH_WITH_OFFSET = 18;
     private static final List<ItemStack> itemsCache = StreamSupport.stream(BuiltInRegistries.ITEM.spliterator(), false).map(Item::getDefaultInstance).toList();
     private final int xOffset = (this.width - 2) % 18 / 2;
