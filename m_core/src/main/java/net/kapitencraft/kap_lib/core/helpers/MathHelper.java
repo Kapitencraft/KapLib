@@ -22,7 +22,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -56,6 +55,7 @@ public interface MathHelper {
     /**
      * creates a vector in clockwise order perpendicular to the original one
      */
+    @SuppressWarnings("SuspiciousNameCombination")
     static Vec2 normal(Vec2 og) {
         return new Vec2(og.y, -1 / og.x);
     }
@@ -102,7 +102,9 @@ public interface MathHelper {
 
     /**
      * rotates the given vector around the given pivot on the x-axis
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static Vec3 rotateXAxis(@NotNull Vec3 source, Vec3 pivot, float angle) {
         double y = (source.y - pivot.y) * Mth.cos(angle) - (source.z - pivot.z) * Mth.sin(angle) + pivot.y;
         double z = (source.y - pivot.y) * Mth.sin(angle) + (source.z - pivot.z) * Mth.cos(angle) + pivot.z;
@@ -111,7 +113,9 @@ public interface MathHelper {
 
     /**
      * rotates the given vector around the given pivot on the y-axis
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static Vec3 rotateHorizontalYAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
         double x = (source.x - pivot.x) * Mth.cos(angle) - (source.z - pivot.z) * Mth.sin(angle) + pivot.x;
         double z = (source.x - pivot.x) * Mth.sin(angle) + (source.z - pivot.z) * Mth.cos(angle) + pivot.z;
@@ -120,7 +124,9 @@ public interface MathHelper {
 
     /**
      * rotates the given vector around the given pivot on the z-axis
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static Vec3 rotateZAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle) {
         double x = (source.x - pivot.x) * Mth.cos(angle) - (source.y - pivot.y) * Mth.sin(angle) + pivot.x;
         double y = (source.x - pivot.x) * Mth.sin(angle) + (source.y - pivot.y) * Mth.cos(angle) + pivot.y;
@@ -135,13 +141,15 @@ public interface MathHelper {
      * @param angle  the angle in degree
      * @param axis   the axis to rotate around
      * @return the rotated angle
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static Vec3 rotateAroundAxis(@NotNull Vec3 source, @NotNull Vec3 pivot, float angle, @NotNull Direction.Axis axis) {
         angle *= Mth.DEG_TO_RAD;
         return switch (axis) {
-            case X -> rotateXAxis(source, pivot, angle);
-            case Y -> rotateHorizontalYAxis(source, pivot, angle);
-            case Z -> rotateZAxis(source, pivot, angle);
+            case X -> source.rotateXAxis(pivot, angle);
+            case Y -> source.rotateHorizontalYAxis(pivot, angle);
+            case Z -> source.rotateZAxis(pivot, angle);
         };
     }
 
@@ -188,11 +196,12 @@ public interface MathHelper {
 
     /**
      * @return a list of entities that surround the given source in a {@code range} radius and is an instance of {@code tClass}
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static <T extends Entity> List<T> getEntitiesAround(Class<T> tClass, Entity source, double range) {
-        return getEntitiesAround(tClass, source.level(), source.getBoundingBox(), range);
+        return source.getEntitiesAround(tClass, range);
     }
-
 
     @Contract("_, null, _ -> fail; null, _, _ -> fail")
     static void add(Supplier<Integer> getter, Consumer<Integer> setter, int change) {
@@ -201,7 +210,9 @@ public interface MathHelper {
 
     /**
      * @return a list of locations in the line of sight ot the given entity
+     * @deprecated use patch method instead
      */
+    @Deprecated
     @Contract("null, _, _ -> fail; _, _, _ -> new")
     static ArrayList<Vec3> lineOfSight(Entity entity, double range, double scaling) {
         Vec3 viewVec = entity.calculateViewVector(entity.getXRot(), entity.getYRot());
@@ -242,11 +253,14 @@ public interface MathHelper {
 
     /**
      * get all positions between the 2 given block positions
+     * @param a starting position
+     * @param b ending position
+     * @param thickness thickness of the line
      */
-    static List<BlockPos> makeLine(BlockPos a, BlockPos b, LineSize size) {
+    static List<BlockPos> makeLine(BlockPos a, BlockPos b, LineThickness thickness) {
         BlockPos diff = b.subtract(a);
         double horizontal = Mth.sqrt((diff.getX() * diff.getX()) + (diff.getZ() * diff.getZ()) + (diff.getY() * diff.getY()));
-        int numPoints = (int) (size == LineSize.THIN ? horizontal * 20 : horizontal * 50);
+        int numPoints = (int) (thickness == LineThickness.THIN ? horizontal * 20 : horizontal * 50);
         List<BlockPos> list = new ArrayList<>();
         for (int i = 0; i < numPoints; i++) {
             double t = i / (numPoints - 1.);
@@ -291,18 +305,18 @@ public interface MathHelper {
         return new Vec3(rotation.x, rotation.y, roll);
     }
 
-    enum LineSize {
+    enum LineThickness {
         THIN,
         THICK
     }
 
     /**
      * moves the given {@code source} vector towards {@code target}
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static Vec3 moveTowards(Vec3 source, Vec3 target, double range, boolean percentage) {
-        Vec3 change = source.subtract(target);
-        double dist = source.distanceTo(target);
-        return percentage ? clampLength(change, dist * range) : clampLength(change, range);
+        return source.moveTowards(target, range, percentage);
     }
 
     /**
@@ -340,28 +354,33 @@ public interface MathHelper {
 
     /**
      * gets all entities inside the given AABB source of the given class inside the given level
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static <T extends Entity> List<T> getEntitiesAround(Class<T> tClass, Level level, AABB source, double range) {
-        return level.getEntitiesOfClass(tClass, source.inflate(range));
+        return level.getEntitiesAround(tClass, source, range);
     }
 
     /**
      * @return the closest entity of the given type, or null if none could be found within the given range
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static <T extends Entity> @Nullable T getClosestEntity(Class<T> tClass, Entity source, double range) {
-        return getClosestEntity(tClass, source, range, v -> true);
+        return source.getClosestEntity(tClass, range);
     }
 
+    /**
+     * @param type the type of entity to search for
+     * @param origin the entity to search from
+     * @param range the maximum distance to check in
+     * @param filter filter for which entities are eligible
+     * @return the closest entity, or null, if no eligible entity was found
+     * @deprecated use patch method instead
+     */
+    @Deprecated
     static <T extends Entity> @Nullable T getClosestEntity(Class<T> type, Entity origin, double range, Predicate<T> filter) {
-        List<T> entities = getEntitiesAround(type, origin, range).stream().filter(t -> !t.is(origin) && filter.test(t)).toList();
-        if (entities.isEmpty()) return null;
-        T val = entities.getFirst();
-        for (int i = 1; i < entities.size(); i++) {
-            if (val.distanceTo(origin) > entities.get(i).distanceTo(origin)) {
-                val = entities.get(i);
-            }
-        }
-        return val;
+        return origin.getClosestEntity(type, range, filter);
     }
 
     /**
@@ -370,7 +389,7 @@ public interface MathHelper {
      * @see MathHelper#getClosestEntity(Class, Entity, double)
      */
     static LivingEntity getClosestLiving(Entity source, double range) {
-        return getClosestEntity(LivingEntity.class, source, range);
+        return source.getClosestLiving(range);
     }
 
     /**
@@ -380,7 +399,7 @@ public interface MathHelper {
      */
 
     static List<LivingEntity> getLivingAround(Entity source, double range) {
-        return getEntitiesAround(LivingEntity.class, source, range);
+        return source.getLivingAround(range);
     }
 
     /**
@@ -464,55 +483,54 @@ public interface MathHelper {
 
     /**
      * checks whether the given source entity is behind the given target entity
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static boolean isBehind(Entity source, Entity target) {
-        Vec3 vec32 = source.position();
-        Vec3 vec31 = vec32.vectorTo(target.position()).normalize();
-        vec31 = new Vec3(vec31.x, 0.0D, vec31.z);
-        return !(vec31.dot(target.getViewVector(1)) < 0.0D);
+        return source.isBehind(target);
     }
 
+    /**
+     * ensures the given vectors length is never below the given value
+     * @param source the vector to clamp
+     * @param minimum the maximum allowed length
+     * @return the new vec
+     * @deprecated use patch method instead
+     */
+    @Deprecated
     @Contract("null, _ -> fail")
     static Vec3 minimiseLength(Vec3 source, double minimum) {
-        if (source.length() > minimum) {
-            return source;
-        } else {
-            double scale = minimum / source.length();
-            return source.scale(scale);
-        }
+        return source.minLength(minimum);
     }
 
+    /**
+     * ensures the given vectors length never exceeds the given value
+     * @param source the vector to clamp
+     * @param maximum the maximum allowed length
+     * @return the new vec
+     * @deprecated use patch method instead
+     */
+    @Deprecated
     @Contract("null, _ -> fail")
     static Vec3 maximiseLength(Vec3 source, double maximum) {
-        if (source.length() < maximum) {
-            return source;
-        } else {
-            double scale = maximum / source.length();
-            return source.scale(scale);
-        }
+        return source.maxLength(maximum);
     }
 
     @Contract("null, _ -> fail")
     static Vec3 clampLength(Vec3 source, double value) {
-        if (source.length() > value) {
-            return maximiseLength(source, value);
-        }
-        return minimiseLength(source, value);
+        return source.clampLength(value);
     }
 
-    static Vec3 getRandomOffsetForPos(Entity target, double dist, double maxOffset) {
-        maxOffset *= 2;
-        RandomSource source = RandomSource.create();
-        Vec2 rot = target.getRotationVector();
-        Vec3 targetPos = calculateViewVector(rot.x, rot.y).scale(dist);
-        Vec3 secPos = removeByScale(calculateViewVector(rot.x - 90, rot.y).scale(maxOffset * source.nextFloat()), 0.5);
-        Vec3 thirdPos = removeByScale(calculateViewVector(rot.x, rot.y - 90).scale(maxOffset * source.nextFloat()), 0.5);
-        return targetPos.add(secPos).add(thirdPos);
-    }
-
+    /**
+     * @param vec3 the position to remove from
+     * @param scale the percentage to remove
+     * @return the scaled vec
+     * @deprecated use patch method instead
+     */
+    @Deprecated
     @Contract("null, _ -> fail")
     static Vec3 removeByScale(Vec3 vec3, double scale) {
-        return new Vec3(vec3.x * (1 - scale), vec3.y * (1 - scale), vec3.z * (1 - scale));
+        return vec3.removeScaled(scale);
     }
 
     /**
@@ -542,13 +560,11 @@ public interface MathHelper {
 
     /**
      * returns a random position within the given bounding box
+     * @deprecated use patch method instead
      */
+    @Deprecated
     static Vec3 randomIn(RandomSource source, AABB box) {
-        return new Vec3(
-                randomBetween(source, box.minX, box.maxX),
-                randomBetween(source, box.minY, box.maxY),
-                randomBetween(source, box.minZ, box.maxZ)
-        );
+        return box.randomIn(source);
     }
 
     /**

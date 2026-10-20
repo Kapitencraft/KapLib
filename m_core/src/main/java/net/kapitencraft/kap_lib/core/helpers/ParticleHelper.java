@@ -9,6 +9,11 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
+/**
+ * different methods to send particles under different circumstances
+ * @deprecated use patch method instead
+ */
+@Deprecated
 public class ParticleHelper {
 
     public static <T extends ParticleOptions> int sendParticles(Level level, T type, boolean force, double x, double y, double z, int amount, double deltaX, double deltaY, double deltaZ, double speed) {

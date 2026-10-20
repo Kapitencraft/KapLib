@@ -144,6 +144,7 @@ subprojects { Project proj ->
     dependencies {
         if (name != "core" && moduleData.type == 'mod') {
             api(project(":core"))
+            interfaceInjectionData(project(":core"))
         }
 
         if (name == 'recipe') {
@@ -229,6 +230,7 @@ subprojects { Project proj ->
         }
     }
 
+    //region properties
     var metaProperties = [
             minecraft_version      : mc_version,
             minecraft_version_range: minecraft_version_range,
@@ -251,6 +253,7 @@ subprojects { Project proj ->
             fCD.expand metaProperties
         }
     }
+    //endregion
 
     if (moduleData.type == 'mod' || moduleData.type == 'game_lib') {
         neoForge {

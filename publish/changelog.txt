@@ -10,3 +10,4 @@ added `immune_to_life_steal` tag to disable life steal effect on selected entity
 # Core Module
 
 fixed MathHelper using Mth#clamp to check for values in a range
+removed MathHelper#getRandomOffsetForPos

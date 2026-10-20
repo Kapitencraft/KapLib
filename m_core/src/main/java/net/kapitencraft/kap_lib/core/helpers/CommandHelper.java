@@ -33,9 +33,11 @@ public class CommandHelper {
 
     /**
      * send a success message to the given {@link CommandSourceStack} automatically coloring it green
+     * @deprecated use patch method instead
      */
+    @Deprecated
     public static void sendSuccess(CommandSourceStack stack, String msg, Object... args) {
-        stack.sendSuccess(() -> Component.translatable(msg, args).withStyle(ChatFormatting.GREEN), true);
+        stack.sendSuccess(msg, args);
     }
 
     /**
@@ -52,29 +54,37 @@ public class CommandHelper {
 
     /**
      * check if the given stack has Moderator permission
+     * @deprecated use patch method instead
      */
+    @Deprecated
     public static boolean isModerator(CommandSourceStack stack) {
-        return stack.hasPermission(1);
+        return stack.isModerator();
     }
 
     /**
      * check if the given stack has GameMaster permission
+     * @deprecated use patch method instead
      */
+    @Deprecated
     public static boolean isGameMaster(CommandSourceStack stack) {
-        return stack.hasPermission(2);
+        return stack.isGameMaster();
     }
 
     /**
      * check if the given stack has Admin permission
+     * @deprecated use patch method instead
      */
+    @Deprecated
     public static boolean isAdmin(CommandSourceStack stack) {
-        return stack.hasPermission(3);
+        return stack.isAdmin();
     }
 
     /**
      * check if the given stack has Owner permission
+     * @deprecated use patch method instead
      */
+    @Deprecated
     public static boolean isOwner(CommandSourceStack stack) {
-        return stack.hasPermission(4);
+        return stack.isOwner();
     }
 }

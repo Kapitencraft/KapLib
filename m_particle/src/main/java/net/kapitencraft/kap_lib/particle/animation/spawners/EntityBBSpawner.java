@@ -51,7 +51,7 @@ public class EntityBBSpawner extends VisibleSpawner {
         float bbRadius = target.getBbWidth() / 2;
         AABB box = target.getBoundingBox();
         for (int i = 0; i < perTick; i++) {
-            Vec3 pos = MathHelper.randomIn(sink.random, box);
+            Vec3 pos = box.randomIn(sink.random);
             if (onlyOutline) {
                 float c = sink.random.nextFloat();
                 if (c < 1f / 3) {

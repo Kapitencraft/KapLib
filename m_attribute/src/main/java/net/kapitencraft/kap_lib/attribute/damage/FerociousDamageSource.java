@@ -24,7 +24,7 @@ public class FerociousDamageSource extends DamageSource {
     @ApiStatus.Internal
     public static FerociousDamageSource create(Entity causer, double ferocity, float ferocityDamage) {
         return new FerociousDamageSource(
-                MiscHelper.lookupDamageTypeHolder(causer.level(), AttributeDamageTypes.FEROCITY),
+                causer.level().lookupDamageTypeHolder(AttributeDamageTypes.FEROCITY),
                 causer,
                 (float) ferocity,
                 ferocityDamage
