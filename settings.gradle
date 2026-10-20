@@ -14,7 +14,7 @@ pluginManagement {
 file("./modules").eachFile { File it ->
     String folderName = it.name.replace(".json", "")
     include(":${folderName}")
-    project(":${folderName}").projectDir = file("m_${folderName}")
+    project(":${folderName}").projectDir = file("module/${folderName}")
 }
 
 //region bundles
