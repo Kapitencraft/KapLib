@@ -111,6 +111,7 @@ public class ClientHelper {
      * @param color the color
      * @deprecated use patch method instead
      */
+    @Deprecated
     public static void drawCenteredString(GuiGraphics graphics, int xStart, int yStart, int xEnd, int yEnd, Component toDraw, int color) {
         Font font = Minecraft.getInstance().font;
         int height = yEnd - yStart;
@@ -166,6 +167,7 @@ public class ClientHelper {
      * <br>but uses floats as positioning
      * @deprecated use patch method instead
      */
+    @Deprecated
     public static void fill(GuiGraphics graphics, float xStart, float yStart, float xEnd, float yEnd, int color, int blitOffset) {
         innerFill(graphics.pose().last().pose(), xStart, yStart, xEnd, yEnd, color, blitOffset);
     }

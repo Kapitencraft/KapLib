@@ -7,7 +7,7 @@ plugins {
     id 'idea'
     id 'com.vanniktech.maven.publish' version '0.33.0'
     id 'signing'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 ext.convertModuleName = { String moduleName ->
@@ -290,15 +290,6 @@ subprojects { Project proj ->
         }
     }
     if (moduleData.type == 'game_lib') {
-        jar {
-            manifest {
-                attributes([
-                        "FMLModType": "GAMELIBRARY"
-                ])
-            }
-        }
-    }
-    if (data.type == 'game_lib') {
         jar {
             manifest {
                 attributes([

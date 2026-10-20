@@ -203,6 +203,7 @@ public class TextHelper {
      * sets the actionbar message
      * @deprecated use {@link Player#displayClientMessage(Component, boolean)} instead
      */
+    @Deprecated
     public static void setActionbar(Player player, Component display) {
         player.displayClientMessage(display, true);
     }
@@ -211,9 +212,10 @@ public class TextHelper {
      * sends the given Component as the title for the given player
      * @deprecated use patch method instead
      */
+    @Deprecated
     public static void sendTitle(Player player, Component title) {
         if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
+            serverPlayer.sendTitle(title);
         }
     }
 
@@ -221,9 +223,10 @@ public class TextHelper {
      * sets the subtitle to the given Component on the given player
      * @deprecated use patch method instead
      */
+    @Deprecated
     public static void sendSubTitle(Player player, Component subtitle) {
         if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
+            serverPlayer.sendSubTitle(subtitle);
         }
     }
 
