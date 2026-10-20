@@ -37,6 +37,7 @@ public class MultiblockStructurePatternManager extends CodecJsonReloader<Multibl
             patternBuilder.put(key, MultiblockStructurePattern.build(structureConfiguration));
         });
         this.structures = patternBuilder.build();
+        MultiblockStructureManager.INSTANCE.rebuild(this);
     }
 
     public @Nullable MultiblockStructurePattern getStructure(ResourceLocation location) {

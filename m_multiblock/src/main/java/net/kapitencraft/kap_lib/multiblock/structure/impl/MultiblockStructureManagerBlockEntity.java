@@ -5,7 +5,7 @@ import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructureMa
 /**
  * handles
  */
-public interface MultiblockStructureManager {
+public interface MultiblockStructureManagerBlockEntity {
 
     /**
      * called whenever

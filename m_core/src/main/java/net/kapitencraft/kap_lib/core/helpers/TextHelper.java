@@ -179,6 +179,7 @@ public class TextHelper {
         return builder.toString();
     }
 
+    @SuppressWarnings("unchecked")
     @ApiStatus.Internal
     private static <T> void appendComponent(StringBuilder builder, Map.Entry<DataComponentType<?>, Optional<?>> entry, StringTagVisitor visitor) {
         Codec<T> codec = (Codec<T>) entry.getKey().codecOrThrow();
@@ -224,14 +225,14 @@ public class TextHelper {
     }
 
     /**
-     * converts an item to it's ResourceLocation
+     * converts an item to its ResourceLocation
      */
     public static String getTextId(Item toGet) {
         return BuiltInRegistries.ITEM.getKey(toGet).toString();
     }
 
     /**
-     * converts a ResourceLocation to it's dedicated item
+     * converts a ResourceLocation to its dedicated item
      */
     public static Item getFromId(String id) {
         return BuiltInRegistries.ITEM.get(ResourceLocation.parse(id));
@@ -272,7 +273,7 @@ public class TextHelper {
      * converts the given vector into a humanly readable string representation
      */
     public static String fromVec3(Vec3 vec3) {
-        return "Pos: [" + vec3.x + ", " + vec3.y + ", " + vec3.z + "]";
+        return "[" + vec3.x + ", " + vec3.y + ", " + vec3.z + "]";
     }
 
     public static String positionToText(Vec3i pos) {

@@ -5,6 +5,7 @@ import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
@@ -69,12 +70,12 @@ public class BlockPattern {
         return null;
     }
 
-    public BlockMatcher matcher(Level level) {
+    public BlockMatcher matcher(LevelAccessor level) {
 
         return new BlockMatcher(quantifierCount, this, level);
     }
 
-    public record BlockAccessor(Direction direction, BlockPos origin, Level level) {
+    public record BlockAccessor(Direction direction, BlockPos origin, LevelAccessor level) {
 
         public BlockState getBlock(int idx) {
             return level.getBlockState(origin.relative(direction, idx));

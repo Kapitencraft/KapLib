@@ -1,10 +1,14 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -16,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +45,34 @@ public class MultiblockStructureConfiguration {
         return spacialData.get(x, y, z);
     }
 
-    public Map<Direction.Axis, List<Quantifier>> getQuantifiers() {
-        return quantifiers;
+    public BlockInstance getInstanceAt(Vec3i pos) {
+        return this.getInstanceAt(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public List<Quantifier> getQuantifiers(Direction.Axis axis) {
+        return quantifiers.get(axis);
     }
 
     public Vec3i getSize() {
         return spacialData.getSize();
+    }
+
+    public Multimap<BlockState, Vec3i> buildInfo() {
+        Multimap<BlockState, Vec3i> multimap = HashMultimap.create();
+        Vec3i size = spacialData.getSize();
+        for (int x = 0; x < size.getX(); x++) {
+            for (int y = 0; y < size.getY(); y++) {
+                for (int z = 0; z < size.getZ(); z++) {
+                    BlockInstance blockInstance = this.spacialData.get(x, y, z);
+                    List<BlockState> validStates = blockInstance.getValidStates();
+                    Vec3i offset = new Vec3i(x, y, z);
+                    for (BlockState validState : validStates) {
+                        multimap.put(validState, offset);
+                    }
+                }
+            }
+        }
+        return multimap;
     }
 
     public static class BlockGroup {
@@ -88,6 +115,8 @@ public class MultiblockStructureConfiguration {
         public Tag toNbt() {
             return null;
         }
+
+        public abstract List<BlockState> getValidStates();
 
         protected enum Type implements StringRepresentable {
             STATE(StateBlockInstance.CODEC),
@@ -134,6 +163,11 @@ public class MultiblockStructureConfiguration {
             @Override
             public boolean isValid(BlockState state) {
                 return this.state == state;
+            }
+
+            @Override
+            public List<BlockState> getValidStates() {
+                return List.of(this.state);
             }
 
             @Override
@@ -186,6 +220,15 @@ public class MultiblockStructureConfiguration {
             @Override
             public boolean isValid(BlockState state) {
                 return state.is(this.tagKey);
+            }
+
+            @Override
+            public List<BlockState> getValidStates() {
+                List<BlockState> states = new ArrayList<>();
+                for (Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(this.tagKey)) {
+                    states.add(holder.value().defaultBlockState());
+                }
+                return states;
             }
 
             @Override
@@ -262,6 +305,11 @@ public class MultiblockStructureConfiguration {
             }
 
             @Override
+            public List<BlockState> getValidStates() {
+                return List.of();
+            }
+
+            @Override
             public @Nullable String getGroupId() {
                 return this.groupName;
             }
@@ -294,6 +342,11 @@ public class MultiblockStructureConfiguration {
             @Override
             public boolean isValid(BlockState state) {
                 return true;
+            }
+
+            @Override
+            public List<BlockState> getValidStates() {
+                return List.of();
             }
 
             @Override
