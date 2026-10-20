@@ -46,7 +46,7 @@ public class MoveTowardsBBElement implements AnimationElement {
 
     @Override
     public void initialize(ParticleConfig object) {
-        object.setProperty("target", MathHelper.randomIn(MathHelper.RANDOM_SOURCE, ClientHelper.getEntity(entity).getBoundingBox()).subtract(ClientHelper.getEntity(entity).position()));
+        object.setProperty("target", ClientHelper.getEntity(entity).getBoundingBox().randomIn(MathHelper.RANDOM_SOURCE).subtract(ClientHelper.getEntity(entity).position()));
         object.setProperty("origin", object.pos());
     }
 

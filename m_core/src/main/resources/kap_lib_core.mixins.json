@@ -7,15 +7,22 @@
     "client.ChatScreenMixin",
     "client.ClientTooltipPositionerMixin",
     "client.FontManagerMixin",
+    "client.GuiGraphicsMixin",
     "client.ItemStackClientMixin"
   ],
   "mixins": [
+    "AABBMixin",
     "AbstractArrowMixin",
     "AnvilMenuMixin",
     "AttributeMixin",
+    "BlockPosMixin",
     "CarvedPumpkinMixin",
     "ClientboundAddEntityPacketMixin",
-    "ClientboundSetEntityMotionPacketMixin"
+    "ClientboundSetEntityMotionPacketMixin",
+    "EntityMixin",
+    "LevelMixin",
+    "LivingEntityMixin",
+    "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

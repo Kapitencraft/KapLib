@@ -1,22 +1,15 @@
 package net.kapitencraft.kap_lib.core.helpers;
 
-import net.kapitencraft.kap_lib.core.util.Color;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.AdvancementProgress;
+import net.kapitencraft.kap_lib.core.util.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.PlayerAdvancements;
-import net.minecraft.server.ServerAdvancementManager;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -40,7 +33,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -202,7 +194,9 @@ public class MiscHelper {
      * @param entity   entity to teleport
      * @param maxRange maximal range of the teleport, reduced when hitting a block
      * @return if the entity has been teleported
+     * @deprecated use patch method instead
      */
+    @Deprecated
     public static boolean saveTeleport(Entity entity, double maxRange) {
         try {
             Vec3 targetPos = entity.getLookAngle().scale(maxRange);
@@ -221,7 +215,9 @@ public class MiscHelper {
      *
      * @param entity           entity to teleport
      * @param teleportPosition target teleportation location
+     * @deprecated use patch method instead
      */
+    @Deprecated
     public static void teleport(Entity entity, Vec3 teleportPosition) {
         entity.teleportTo(teleportPosition.x, teleportPosition.y, teleportPosition.z);
         entity.fallDistance = 0;
@@ -264,6 +260,7 @@ public class MiscHelper {
         return stand;
     }
 
+    @SuppressWarnings("unchecked")
     @Nullable
     public static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_, BlockEntityType<E> p_152134_, BlockEntityTicker<? super E> p_152135_) {
         return p_152134_ == p_152133_ ? (BlockEntityTicker<A>) p_152135_ : null;
@@ -272,11 +269,15 @@ public class MiscHelper {
     private static Vec3 getUpdateForPos(Vec3 cam, LivingEntity living) {
         Vec3 livingPos = living.position();
         Vec3 delta = cam.subtract(livingPos);
-        return MathHelper.clampLength(delta, 0.5);
+        return delta.clampLength(.5);
     }
 
     public static final char HEART = '♡';
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public static ArmorStand createHealthIndicator(LivingEntity target) {
         ArmorStand marker = createMarker(target.position().add(0, 0.5, 0), target.level(), true);
         CompoundTag tag = marker.getPersistentData();
@@ -316,6 +317,14 @@ public class MiscHelper {
         return false;
     }
 
+    /**
+     * sets the effect duration of the given effect to at least minTicks
+     *
+     * @param effect   the effect to set the duration for
+     * @param minTicks the minimum remaining tick count to be set for the effect
+     * @deprecated use patch method instead
+     */
+    @Deprecated
     public static void maxEffectDuration(LivingEntity living, Holder<MobEffect> effect, int minTicks) {
         if (living.hasEffect(effect)) {
             MobEffectInstance oldInstance = living.getEffect(effect);
@@ -334,8 +343,8 @@ public class MiscHelper {
     }
 
     /**
-     * @param drops the drops to remove from
-     * @param item the item to remove
+     * @param drops  the drops to remove from
+     * @param item   the item to remove
      * @param amount the amount of said item to remove
      * @return the modified list
      */
@@ -361,21 +370,39 @@ public class MiscHelper {
     /**
      * gets an array of all items in the given tag
      *
-     * @param access access to
-     * @param tag    the tag to get all elements of
+     * @param tag the tag to get all elements of
      * @return an array of all items in the tag
      */
-    public static Item[] getItemsFromTag(RegistryAccess access, TagKey<Item> tag) {
-        return access.registryOrThrow(Registries.ITEM)
+    public static Item[] getItemsFromTag(TagKey<Item> tag) {
+        return BuiltInRegistries.ITEM
                 .getTag(tag).orElseThrow(NullPointerException::new).stream().map(Holder::value)
                 .toArray(Item[]::new);
     }
 
+    /**
+     * @param level the level to get the registries from
+     * @param key   the key of the damage type
+     * @return the Holder of the damage type
+     * @throws IllegalStateException if the key doesn't exist
+     * @deprecated use patch method instead
+     */
+    @Deprecated
     public static Holder<DamageType> lookupDamageTypeHolder(Level level, ResourceKey<DamageType> key) {
-        return level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key);
+        return level.lookupDamageTypeHolder(key);
     }
 
+    /**
+     * modifies a specific property of the block at the given position in the given level
+     *
+     * @param level    the level
+     * @param pos      the position to update on
+     * @param property the property to change
+     * @param value    the new value to change to
+     * @param flags    the change flags
+     * @deprecated use patch method instead
+     */
+    @Deprecated
     public static <C extends Comparable<C>> void updateState(Level level, BlockPos pos, Property<C> property, C value, int flags) {
-        level.setBlock(pos, level.getBlockState(pos).setValue(property, value), flags);
+        level.updateState(pos, property, value, flags);
     }
 }

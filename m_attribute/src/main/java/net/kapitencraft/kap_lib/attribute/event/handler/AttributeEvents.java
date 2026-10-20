@@ -89,7 +89,7 @@ public class AttributeEvents {
             if (living.getAttributes().hasAttribute(ExtraAttributes.DOUBLE_JUMP) && !entity.onGround()) {
                 if (canJump(entity) && living.getData(AttributeAttachmentTypes.DOUBLE_JUMPS) < living.getAttributeValue(ExtraAttributes.DOUBLE_JUMP)) {
                     if (living.jumping && living.noJumpDelay <= 0) {
-                        ParticleHelper.sendAlwaysVisibleParticles(ParticleTypes.CLOUD, entity.level(), entity.getX(), entity.getY(), entity.getZ(), 0.25, 0.0, 0.25, 0, 0, 0, 15);
+                        entity.level().sendAlwaysVisibleParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY(), entity.getZ(), 0.25, 0.0, 0.25, 0, 0, 0, 15);
                         living.noJumpDelay = 10;
                         entity.fallDistance = 0;
                         living.jumpFromGround();

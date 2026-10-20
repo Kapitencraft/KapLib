@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class IOHelper {
-    private static final String LENGTH_ID = "Length";
+    public static final String LENGTH_ID = "Length";
     private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
@@ -160,7 +160,9 @@ public class IOHelper {
 
     /**
      * create a UUID -> Integer map compoundtag implementation
+     * @deprecated use {@link Codec}s instead
      */
+    @Deprecated
     public static @NotNull CompoundTag putHashMapTag(@NotNull HashMap<UUID, Integer> hashMap) {
         CompoundTag mapTag = new CompoundTag();
         List<Integer> IntArray = CollectionHelper.fromAny(hashMap.values());
@@ -195,11 +197,17 @@ public class IOHelper {
 
     /**
      * read a CompoundTag list from the given tag
+     * @deprecated use {@link Codec}s instead
      */
+    @Deprecated
     public static Stream<CompoundTag> readCompoundList(CompoundTag tag, String name) {
         return readList(tag, name, CompoundTag.class, Function.identity(), 10);
     }
 
+    /**
+     * @deprecated use {@link Codec}s instead
+     */
+    @Deprecated
     public static <K, T extends Tag> Stream<K> readList(CompoundTag tag, String name, Class<T> tClass, Function<T, K> creator, int elementId) {
         ListTag listTag = tag.getList(name, elementId);
         return listTag.stream().filter(tClass::isInstance)
@@ -220,7 +228,10 @@ public class IOHelper {
         }
     }
 
-
+    /**
+     * @deprecated use {@link Codec}s instead
+     */
+    @Deprecated
     public static @NotNull HashMap<UUID, Integer> getHashMapTag(@Nullable CompoundTag tag) {
         HashMap<UUID, Integer> hashMap = new HashMap<>();
         if (tag == null) {
@@ -236,6 +247,10 @@ public class IOHelper {
         return hashMap;
     }
 
+    /**
+     * @deprecated use {@link Codec}s instead
+     */
+    @Deprecated
     public static UUID[] getUuidArray(CompoundTag arrayTag) {
         if (!arrayTag.contains(LENGTH_ID)) {
             LOGGER.warn("tried to load UUID Array from Tag but Tag isn`t Array Tag");
@@ -250,6 +265,10 @@ public class IOHelper {
         return null;
     }
 
+    /**
+     * @deprecated use {@link Codec}s instead
+     */
+    @Deprecated
     public static CompoundTag putUuidList(List<UUID> list) {
         CompoundTag arrayTag = new CompoundTag();
         for (int i = 0; i < list.size(); i++) {
@@ -265,8 +284,10 @@ public class IOHelper {
      * @param keyWriter the key writer
      * @param valueWriter the value writer
      * @return a list tag containing the written map
+     * @deprecated use {@link Codec}s instead
      * @see IOHelper#readMap(ListTag, BiFunction, BiFunction) readMap
      */
+    @Deprecated
     public static <K, V> ListTag writeMap(Map<K, V> map, DataWriter<K> keyWriter, DataWriter<V> valueWriter) {
         ListTag listTag = new ListTag();
         map.forEach((k, v) -> {
@@ -308,7 +329,9 @@ public class IOHelper {
      * @param keyExtractor the function that extracts each key out of their entry
      * @param valueExtractor the function that extracts each value out of their entry
      * @return a MapStream containing all extracted map entries
+     * @deprecated use {@link Codec}s instead
      */
+    @Deprecated
     public static <K, V> MapStream<K, V> readMap(ListTag tag, BiFunction<CompoundTag, String, K> keyExtractor, BiFunction<CompoundTag, String, V> valueExtractor) {
         HashMap<K, V> map = new HashMap<>();
         tag.stream()
@@ -324,7 +347,9 @@ public class IOHelper {
      * @param valueMapper a function to convert each value of the map into an JsonElement
      * @return an JsonArray containing each entry of the map
      * @see IOHelper#readMap(JsonArray, BiFunction, BiFunction)
+     * @deprecated use {@link Codec}s instead
      */
+    @Deprecated
     public static <K, V> JsonArray writeMap(Map<K, V> map, Function<K, JsonElement> keyMapper, Function<V, JsonElement> valueMapper) {
         JsonArray array = new JsonArray(map.size());
         map.forEach((k, v) -> {
@@ -340,7 +365,9 @@ public class IOHelper {
      * @param keyExtractor a function that extracts each map key out of the entry
      * @param valueExtractor a function that extracts each map value out of the entry
      * @return a MapStream containing all the entries extracted
+     * @deprecated use {@link Codec}s instead
      */
+    @Deprecated
     public static <K, V> MapStream<K, V> readMap(JsonArray array, BiFunction<JsonObject, String, K> keyExtractor, BiFunction<JsonObject, String, V> valueExtractor) {
         HashMap<K, V> map = new HashMap<>();
         JsonHelper.castToObjects(array)
@@ -348,11 +375,19 @@ public class IOHelper {
         return MapStream.of(map);
     }
 
+    /**
+     * @deprecated use {@link Codec}s instead
+     */
+    @Deprecated
     public static <K, V> MapStream<K, V> readMap(JsonArray array, Function<JsonElement, K> keyMapper, Function<JsonElement, V> valueMapper) {
         return readMap(array, (object, string) -> keyMapper.apply(object.get(string)), (object, string) -> valueMapper.apply(object.get(string)));
     }
 
 
+    /**
+     * @deprecated use {@link Codec}s instead
+     */
+    @Deprecated
     public static <T> ListTag writeList(List<T> list, Function<T, Tag> mapper) {
         ListTag tag = new ListTag();
         list.stream().map(mapper).forEach(tag::add);

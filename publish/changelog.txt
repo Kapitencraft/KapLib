@@ -1,3 +1,7 @@
+# Core Module
+
+removed MathHelper#getRandomOffsetForPos
+
 # Two-Handed Module
 
 added new module two-handed, allowing you to attack with weapons from the offhand with independent attack cooldown.

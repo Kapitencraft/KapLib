@@ -46,15 +46,6 @@ public class TextHelper {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     /**
-     * sends the given Component as the title for the given player
-     */
-    public static void sendTitle(Player player, Component title) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
-        }
-    }
-
-    /**
      * chains the given list of Components as you'd when enumerating something
      *
      * @param or whether it is a {@code or} or {@code and} list
@@ -210,13 +201,25 @@ public class TextHelper {
 
     /**
      * sets the actionbar message
+     * @deprecated use {@link Player#displayClientMessage(Component, boolean)} instead
      */
     public static void setActionbar(Player player, Component display) {
         player.displayClientMessage(display, true);
     }
 
     /**
+     * sends the given Component as the title for the given player
+     * @deprecated use patch method instead
+     */
+    public static void sendTitle(Player player, Component title) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.connection.send(new ClientboundSetTitleTextPacket(title));
+        }
+    }
+
+    /**
      * sets the subtitle to the given Component on the given player
+     * @deprecated use patch method instead
      */
     public static void sendSubTitle(Player player, Component subtitle) {
         if (player instanceof ServerPlayer serverPlayer) {

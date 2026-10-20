@@ -49,9 +49,7 @@ public class RotateElement implements AnimationElement {
     @Override
     public void tick(ParticleConfig object, int tick, double percentage) {
         Vec3 pv = pivot.get();
-        object.setPos(
-                MathHelper.rotateAroundAxis(object.pos(), pv, degreePerTick, axis)
-        );
+        object.setPos(object.pos().rotateAroundAxis(pv, degreePerTick, axis));
     }
 
     public static class Builder implements AnimationElement.Builder<RotateElement> {

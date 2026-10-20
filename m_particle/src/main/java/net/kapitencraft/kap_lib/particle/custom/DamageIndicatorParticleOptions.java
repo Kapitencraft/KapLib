@@ -79,7 +79,11 @@ public class DamageIndicatorParticleOptions extends ParticleType<DamageIndicator
     public static void create(LivingEntity entity, float amount, String type) {
         if (entity.level() instanceof ServerLevel serverLevel) {
             float rangeOffset = entity.getBbHeight() / 2;
-            ParticleHelper.sendParticles(serverLevel, new DamageIndicatorParticleOptions(damageIndicatorCoder(type), amount, rangeOffset), false, entity.getX(), entity.getY(), entity.getZ(), 1, 0, 0, 0, 0);
+            serverLevel.sendParticles(
+                    new DamageIndicatorParticleOptions(damageIndicatorCoder(type), amount, rangeOffset),
+                    false, entity.getX(), entity.getY(), entity.getZ(),
+                    1, 0, 0, 0, 0
+            );
         }
     }
 

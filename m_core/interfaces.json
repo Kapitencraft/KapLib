@@ -1,0 +1,32 @@
+{
+  "net/minecraft/world/phys/AABB": [
+    "net/kapitencraft/kap_lib/core/patch/AABBPatch"
+  ],
+  "net/minecraft/core/BlockPos": [
+    "net/kapitencraft/kap_lib/core/patch/BlockPosPatch"
+  ],
+  "net/minecraft/commands/CommandSourceStack": [
+    "net/kapitencraft/kap_lib/core/patch/CommandSourceStackPatch"
+  ],
+  "net/minecraft/world/entity/Entity": [
+    "net/kapitencraft/kap_lib/core/patch/EntityPatch"
+  ],
+  "net/minecraft/client/gui/GuiGraphics": [
+    "net/kapitencraft/kap_lib/core/patch/GuiGraphicsPatch"
+  ],
+  "net/minecraft/world/level/Level": [
+    "net/kapitencraft/kap_lib/core/patch/LevelPatch"
+  ],
+  "net/minecraft/world/entity/LivingEntity": [
+    "net/kapitencraft/kap_lib/core/patch/LivingEntityPatch"
+  ],
+  "net/minecraft/world/entity/player/Player": [
+    "net/kapitencraft/kap_lib/core/patch/PlayerPatch"
+  ],
+  "net/minecraft/server/level/ServerPlayer": [
+    "net/kapitencraft/kap_lib/core/patch/ServerPlayerPatch"
+  ],
+  "net/minecraft/world/phys/Vec3": [
+    "net/kapitencraft/kap_lib/core/patch/Vec3Patch"
+  ]
+}

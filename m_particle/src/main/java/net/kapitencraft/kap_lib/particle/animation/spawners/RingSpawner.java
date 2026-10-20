@@ -60,8 +60,8 @@ public class RingSpawner extends VisibleSpawner {
         Vec2 rot = rotation.get();
         for (int i = 0; i < spawnerCount; i++) {
             Vec3 targetOffset = getTargetOffset(i);
-            targetOffset = MathHelper.rotateXAxis(targetOffset, Vec3.ZERO, -rot.x * Mth.DEG_TO_RAD);
-            targetOffset = MathHelper.rotateHorizontalYAxis(targetOffset, Vec3.ZERO, -rot.y * Mth.DEG_TO_RAD);
+            targetOffset = targetOffset.rotateXAxis(Vec3.ZERO, -rot.x * Mth.DEG_TO_RAD);
+            targetOffset = targetOffset.rotateHorizontalYAxis(Vec3.ZERO, -rot.y * Mth.DEG_TO_RAD);
             Vec3 targetPos = targetOffset.add(Vec3.ZERO.with(axis, curHeightChange)).add(target.get());
             sink.accept(particle, targetPos);
             curRot += rotPerTick;

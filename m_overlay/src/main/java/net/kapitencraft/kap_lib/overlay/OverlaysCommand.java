@@ -21,7 +21,7 @@ public class OverlaysCommand {
 
     private static int reset(CommandContext<CommandSourceStack> context) {
         OverlayManager.resetAll();
-        CommandHelper.sendSuccess(context.getSource(), "command.overlays.reset.success");
+        context.getSource().sendSuccess("command.overlays.reset.success");
         return 1;
     }
 }

@@ -28,7 +28,7 @@ public class EntityBBPositionTarget implements PositionTarget {
 
     @Override
     public Vec3 get() {
-        return MathHelper.randomIn(MathHelper.RANDOM_SOURCE, ClientHelper.getEntity(entity).getBoundingBox());
+        return ClientHelper.getEntity(entity).getBoundingBox().randomIn(MathHelper.RANDOM_SOURCE);
     }
 
     @Override

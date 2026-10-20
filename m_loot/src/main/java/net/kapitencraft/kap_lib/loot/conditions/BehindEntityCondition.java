@@ -20,6 +20,6 @@ public class BehindEntityCondition implements LootItemCondition {
 
     @Override
     public boolean test(LootContext lootContext) {
-        return lootContext.hasParam(LootContextParams.DIRECT_ATTACKING_ENTITY) && MathHelper.isBehind(lootContext.getParam(LootContextParams.DIRECT_ATTACKING_ENTITY), lootContext.getParam(LootContextParams.THIS_ENTITY));
+        return lootContext.hasParam(LootContextParams.DIRECT_ATTACKING_ENTITY) && lootContext.getParam(LootContextParams.DIRECT_ATTACKING_ENTITY).isBehind(lootContext.getParam(LootContextParams.THIS_ENTITY));
     }
 }
