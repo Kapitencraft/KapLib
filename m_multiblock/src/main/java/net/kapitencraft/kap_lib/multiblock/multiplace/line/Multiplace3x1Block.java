@@ -38,20 +38,20 @@ public abstract class Multiplace3x1Block extends Block implements MultiplaceBloc
         BlockState state = level.getBlockState(pos);
         Part part = state.getValue(PART);
         Direction direction = getDirection(state);
-        MiscHelper.updateState(level, pos, property, value, flags);
+        level.updateState(pos, property, value, flags);
         switch (part) {
             case LEFT -> {
-                MiscHelper.updateState(level, pos.relative(direction), property, value, flags);
-                MiscHelper.updateState(level, pos.relative(direction, 2), property, value, flags);
+                level.updateState(pos.relative(direction), property, value, flags);
+                level.updateState(pos.relative(direction, 2), property, value, flags);
             }
             case MIDDLE -> {
-                MiscHelper.updateState(level, pos.relative(direction.getOpposite()), property, value, flags);
-                MiscHelper.updateState(level, pos.relative(direction), property, value, flags);
+                level.updateState(pos.relative(direction.getOpposite()), property, value, flags);
+                level.updateState(pos.relative(direction), property, value, flags);
             }
             case RIGHT -> {
                 Direction opposite = direction.getOpposite();
-                MiscHelper.updateState(level, pos.relative(opposite), property, value, flags);
-                MiscHelper.updateState(level, pos.relative(opposite, 2), property, value, flags);
+                level.updateState(pos.relative(opposite), property, value, flags);
+                level.updateState(pos.relative(opposite, 2), property, value, flags);
             }
         }
     }

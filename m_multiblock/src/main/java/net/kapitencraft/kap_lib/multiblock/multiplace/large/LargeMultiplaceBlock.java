@@ -186,7 +186,7 @@ public abstract class LargeMultiplaceBlock<O extends MultiblockOrientation<O>, P
         BlockPos origin = getOriginPositionFromState(state, pos);
         O orientation = getOrientation(state);
         for (P p : this.getPartValues()) {
-            MiscHelper.updateState(level, origin.offset(orientation.getPos(p)), property, value, flags);
+            level.updateState(origin.offset(orientation.getPos(p)), property, value, flags);
         }
     }
 
