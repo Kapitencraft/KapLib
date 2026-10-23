@@ -210,7 +210,7 @@ public class MultiblockStructurePattern {
             searchPotentialOrigins(posInStructure.get(value) - 1, -1, (structureIndex, worldPositionOffset) ->
                     structureConfiguration.getInstanceAt(
                             posInStructure.relative(value, structureIndex - posInStructure.get(value)))
-                            .isValid(level.getBlockState(pos.offset(Vec3i.ZERO.relative(value, -worldPositionOffset)))),
+                            .isValid(level.getBlockState(pos.relative(value, worldPositionOffset))),
                     quantifiers, positionOffsets
             );
             //no potential offset found for the given axis, returning
@@ -243,19 +243,20 @@ public class MultiblockStructurePattern {
         }
         Quantifier q = findQuantifierInRange(quantifiers, structureIndex);
         if (q != null) {
-            while (structureIndex >= q.fromPosition()) {
+            while (structureIndex > q.fromPosition()) {
                 structureIndex--;
                 worldPositionOffset--;
                 if (!blockValidityCheck.test(structureIndex, worldPositionOffset)) {
                     //quantifier doesn't match.
                     return;
                 }
-                //successfully searched through the entire quantifier.
-                //check if there's more repetitions and check if the match is successful without
-                searchPotentialOrigins(structureIndex, worldPositionOffset, blockValidityCheck, quantifiers, results);
             }
+            worldPositionOffset--;
+            //successfully searched through the entire quantifier.
+            //check if there's more repetitions and check if the match is successful without
+            searchPotentialOrigins(structureIndex - 1, worldPositionOffset, blockValidityCheck, quantifiers, results);
             //one for the exit from the current iteration
-            for (int quantifierIterations = 1; quantifierIterations <= q.maxCount(); quantifierIterations++) {
+            for (int quantifierIterations = 1; q.maxCount() == -1 || quantifierIterations <= q.maxCount(); quantifierIterations++) {
                 for (structureIndex = q.toPosition(); structureIndex >= q.fromPosition(); structureIndex--) {
                     if (!blockValidityCheck.test(structureIndex, worldPositionOffset)) {
                         //quantifier doesn't match again
@@ -264,6 +265,7 @@ public class MultiblockStructurePattern {
 
                     worldPositionOffset--;
                 }
+                searchPotentialOrigins(structureIndex, worldPositionOffset, blockValidityCheck, quantifiers, results);
             }
         } else {
             if (blockValidityCheck.test(structureIndex, worldPositionOffset))
