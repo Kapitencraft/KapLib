@@ -4,7 +4,7 @@ import net.kapitencraft.kap_lib.shader.chroma.ChromaOrigin;
 import net.kapitencraft.kap_lib.shader.chroma.ChromaType;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class ShaderClientModConfig {
+public class ShaderModuleClientConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

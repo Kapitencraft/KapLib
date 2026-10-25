@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.enchantment.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class EnchantmentClientModConfig {
+public class EnchantmentModuleClientConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

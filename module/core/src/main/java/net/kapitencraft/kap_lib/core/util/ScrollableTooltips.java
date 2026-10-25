@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.core.util;
 
 import net.kapitencraft.kap_lib.core.CoreModule;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.core.config.CoreModuleClientConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -69,7 +69,7 @@ public class ScrollableTooltips {
         if (active != null && active.hasItem() && allowScroll) {
             event.setCanceled(true);
             float scrollDelta = (float) event.getScrollDeltaY();
-            int scrollOffset = Mth.floor(scrollDelta * CoreClientModConfig.getScrollScale());
+            int scrollOffset = Mth.floor(scrollDelta * CoreModuleClientConfig.getScrollScale());
             if (Screen.hasControlDown()) {
                 scale += scrollOffset;
             } else {

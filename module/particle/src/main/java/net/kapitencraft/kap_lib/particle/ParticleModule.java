@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.particle;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.particle.config.ParticleClientModConfig;
+import net.kapitencraft.kap_lib.particle.config.ParticleModuleClientConfig;
 import net.kapitencraft.kap_lib.particle.registry.ExtraParticleTypes;
 import net.kapitencraft.kap_lib.particle.registry.particle_animation.*;
 import net.minecraft.commands.CommandSourceStack;
@@ -31,7 +31,7 @@ public class ParticleModule {
         NeoForge.EVENT_BUS.addListener(ParticleModule::registerClient);
         NeoForge.EVENT_BUS.addListener(ParticleModule::registerServer);
 
-        container.registerConfig(ModConfig.Type.CLIENT, ParticleClientModConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, ParticleModuleClientConfig.SPEC);
     }
 
     /**

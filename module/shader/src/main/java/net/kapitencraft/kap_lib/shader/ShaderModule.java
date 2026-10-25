@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.shader;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.shader.config.ShaderClientModConfig;
+import net.kapitencraft.kap_lib.shader.config.ShaderModuleClientConfig;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -13,6 +13,6 @@ public class ShaderModule {
 
     public ShaderModule(IEventBus modEventBus, ModContainer container) {
 
-        container.registerConfig(ModConfig.Type.CLIENT, ShaderClientModConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, ShaderModuleClientConfig.SPEC);
     }
 }

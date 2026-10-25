@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.core.client.widget.text;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.client.widget.ScrollableWidget;
 import net.kapitencraft.kap_lib.core.client.widget.background.WidgetBackground;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.core.config.CoreModuleClientConfig;
 import net.kapitencraft.kap_lib.core.helpers.ClientHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
@@ -1075,7 +1075,7 @@ public class MultiLineTextBox extends ScrollableWidget {
             if (!ignoreCursor) {
                 if ((this.cursorPos2d.y + 1) * 10 + this.scrollY >= this.height) {
                     this.scrollY = this.height - (this.cursorPos2d.y + 1) * 10;
-                } else if (this.cursorPos2d.y * 10 + this.scrollY < CoreClientModConfig.getCursorMoveOffset() * 10) {
+                } else if (this.cursorPos2d.y * 10 + this.scrollY < CoreModuleClientConfig.getCursorMoveOffset() * 10) {
                     this.scrollY += 10;
                 }
             }

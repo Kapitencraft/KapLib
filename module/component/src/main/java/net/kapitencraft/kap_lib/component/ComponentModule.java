@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.component;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.kapitencraft.kap_lib.component.config.ComponentClientModConfig;
+import net.kapitencraft.kap_lib.component.config.ComponentModuleClientConfig;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.neoforged.bus.api.IEventBus;
@@ -21,7 +21,7 @@ public class ComponentModule {
 
         NeoForge.EVENT_BUS.addListener(ComponentModule::registerClient);
 
-        container.registerConfig(ModConfig.Type.CLIENT, ComponentClientModConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, ComponentModuleClientConfig.SPEC);
     }
 
     /**

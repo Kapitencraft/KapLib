@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.core.client.widget.select;
 
 import net.kapitencraft.kap_lib.core.client.UsefulTextures;
 import net.kapitencraft.kap_lib.core.client.widget.PositionedWidget;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.core.config.CoreModuleClientConfig;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -94,7 +94,7 @@ public abstract class SelectRegistryElementWidget<T> extends PositionedWidget {
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double scrollX, double scrollY) {
         if (MathHelper.is2dBetween(pMouseX, pMouseY, this.x + 1, this.y + 11, getMaxX() - 1, this.getMaxY() - 11)) {
-            this.scroll += (float) (scrollY * CoreClientModConfig.getScrollScale());
+            this.scroll += (float) (scrollY * CoreModuleClientConfig.getScrollScale());
             this.scroll = Mth.clamp(scroll, -maxScroll, 0);
             return true;
         }

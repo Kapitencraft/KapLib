@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements;
 
 import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.DropDownMenu;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.core.config.CoreModuleClientConfig;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -34,7 +34,7 @@ public abstract class Element implements Renderable {
         if (this.parent != null) {
             int maxX = x + effectiveWidth();
             int maxY = y + OFFSET_PER_ELEMENT;
-            switch (CoreClientModConfig.getFocusType()) {
+            switch (CoreModuleClientConfig.getFocusType()) {
                 case OUTLINE -> {
                     if (this.focused) {
                         graphics.fill(x, y, maxX, maxY, FOCUS_COLOR);

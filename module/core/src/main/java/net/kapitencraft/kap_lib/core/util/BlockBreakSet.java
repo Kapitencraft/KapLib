@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.core.util;
 
-import net.kapitencraft.kap_lib.core.config.ServerModConfig;
+import net.kapitencraft.kap_lib.core.config.CoreModuleServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -84,7 +84,7 @@ public class BlockBreakSet {
     }
 
     public static void tickAll() {
-        for (int i = 0; i < ServerModConfig.getMaxBrokenBlocks(); i++) {
+        for (int i = 0; i < CoreModuleServerConfig.getMaxBrokenBlocks(); i++) {
             ticking = true;
             ALL.removeIf(BlockBreakSet::tick);
             ticking = false;

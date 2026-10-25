@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.enchantment.client.enchantment_applicable.EnchantmentApplicableAllocator;
-import net.kapitencraft.kap_lib.enchantment.config.EnchantmentClientModConfig;
+import net.kapitencraft.kap_lib.enchantment.config.EnchantmentModuleClientConfig;
 import net.kapitencraft.kap_lib.enchantment.event.custom.RegisterEnchantmentApplicableCharsEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -120,7 +120,7 @@ public class EnchantmentDescriptionManager {
 
     public static void appendInfoDisplay(MutableComponent component, Holder<Enchantment> enchantment) {
         Component space = CommonComponents.space().withStyle(Style.EMPTY.withStrikethrough(false).withUnderlined(false));
-        if (EnchantmentClientModConfig.showObtainDisplay()) {
+        if (EnchantmentModuleClientConfig.showObtainDisplay()) {
             String display = EnchantmentDescriptionManager.addObtainDisplay(enchantment);
             if (!display.isEmpty()) {
                 component.append(space);
@@ -130,7 +130,7 @@ public class EnchantmentDescriptionManager {
                 );
             }
         }
-        if (EnchantmentClientModConfig.showApplyDisplay()) {
+        if (EnchantmentModuleClientConfig.showApplyDisplay()) {
             String applicable = getApplicable(enchantment.value());
             if (!applicable.isEmpty()) {
                 component.append(space);

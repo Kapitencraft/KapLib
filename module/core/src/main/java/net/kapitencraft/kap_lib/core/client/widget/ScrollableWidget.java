@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.core.client.widget;
 
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.core.config.CoreModuleClientConfig;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ public abstract class ScrollableWidget extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        float scrollOffset = (float) (CoreClientModConfig.getScrollScale() * scrollY);
+        float scrollOffset = (float) (CoreModuleClientConfig.getScrollScale() * scrollY);
         if (canScroll(false)) {
             this.scrollY += scrollOffset;
         } else if (canScroll(true) && Screen.hasControlDown()) {

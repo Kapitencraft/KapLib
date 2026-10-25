@@ -15,7 +15,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.component.config.ComponentClientModConfig;
+import net.kapitencraft.kap_lib.component.config.ComponentModuleClientConfig;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
@@ -291,7 +291,7 @@ public class PlayerHeadAllocator extends FontSet {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void shutDown() {
-        if (ComponentClientModConfig.cachePlayerHeads() && this.index > 0) {
+        if (ComponentModuleClientConfig.cachePlayerHeads() && this.index > 0) {
             File root = new File(LibConstants.ROOT, "player_heads");
             File image = new File(root, "image.png");
             root.mkdirs();

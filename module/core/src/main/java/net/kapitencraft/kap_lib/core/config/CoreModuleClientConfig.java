@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.core.config;
 import net.kapitencraft.kap_lib.core.client.menu.widget.drop_down.elements.Element;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class CoreClientModConfig {
+public class CoreModuleClientConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

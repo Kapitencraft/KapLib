@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.core.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class ServerModConfig {
+public class CoreModuleServerConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
