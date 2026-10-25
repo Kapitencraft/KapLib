@@ -2,6 +2,7 @@
 import groovy.json.JsonSlurper
 
 import java.nio.file.Files
+import java.util.stream.Collectors
 
 plugins {
     id 'idea'
@@ -27,7 +28,9 @@ java {
     withSourcesJar()
 }
 
-println("Discovered ${subprojects.size()} modules: ${subprojects.name}")
+List<Project> modules = subprojects.stream().filter {!it.name.startsWith('bundle') }.toList()
+List<Project> bundles = subprojects.stream().filter {it.name.startsWith('bundle') }.toList()
+println("Discovered ${modules.size()} modules: ${modules.name} \nand ${bundles.size()} bundles: ${bundles.name}")
 
 ext.createRequiredClasses = { Project project, String name ->
     String[] files = [
@@ -57,8 +60,14 @@ ext.createRequiredClasses = { Project project, String name ->
 }
 
 subprojects { Project proj ->
+    apply plugin: 'idea'
+    apply plugin: 'com.vanniktech.maven.publish'
+    apply plugin: 'net.neoforged.moddev'
 
-    Object moduleData = new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
+    group = rootProject.group
+    version = rootProject.version
+
+    Object moduleData = new JsonSlurper().parse(proj.file("settings.json"))
     proj.ext.data = moduleData
 
     if (moduleData.type == 'mod')
@@ -68,13 +77,6 @@ subprojects { Project proj ->
 
     String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
 
-    apply plugin: 'idea'
-    apply plugin: 'com.vanniktech.maven.publish'
-    apply plugin: 'net.neoforged.moddev'
-
-    group = rootProject.group
-    version = rootProject.version
-
     java {
         withSourcesJar()
     }
@@ -82,6 +84,8 @@ subprojects { Project proj ->
     base {
         archivesName = mod_id + "-" + name
     }
+
+    sourceSets.main.resources { srcDir 'src/generated/resources' }
 
     repositories {
         mavenCentral()
@@ -110,9 +114,7 @@ subprojects { Project proj ->
             interfaceInjectionData(project(":core"))
         }
 
-        if (name == 'enchantment') {
-            implementation('maven.modrinth:sorted-enchantments:2.0.0+1.21+neoforge')
-        } else if (name == 'recipe') {
+        if (name == 'recipe') {
             compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
             compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
             runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
@@ -139,23 +141,16 @@ subprojects { Project proj ->
             }
         }
     }
+    //endregion
 
     mavenPublishing {
         signAllPublications()
         publishToMavenCentral()
 
-        if (name == 'aggregate') {
-            coordinates(group, mod_id, version)
+        coordinates(group, mod_id + "-" + name, version)
 
-            pom {
-                name = "${mod_name} Aggregate Library"
-            }
-        } else {
-            coordinates(group, mod_id + "-" + name, version)
-
-            pom {
-                name = modName
-            }
+        pom {
+            name = modName
         }
 
         pom {
@@ -305,16 +300,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 
-if (hasProperty("signingKey")) {
-    signing {
-        useInMemoryPgpKeys(
-                new String(Base64.decoder.decode((String) findProperty("signingKey"))),
-                findProperty("signingPassword")
-        )
-    }
-} else
-println "Signing Keys not configured!"
-
 tasks.register('autoPublish', JavaExec) {
     mainClass = 'net.kapitencraft.kap_lib.publish.AutoPublisher'
 
@@ -384,61 +369,20 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
-
-    runs {
-        configureEach {
-
-            systemProperty 'forge.enabledGameTestNamespaces', mod_id
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            systemProperty 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            logLevel = org.slf4j.event.Level.WARN
-        }
-
-        client {
-            client()
-
-            programArguments.addAll '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
-        }
-
-        kaupenClient {
-            client()
-
-            programArguments.addAll '--username', 'Kaupenjoe', '--uuid', '665ad10f-5548-4985-986b-b642732ddce0'
-        }
-
-        server {
-            server()
-            programArgument '--nogui'
-        }
-
-        data {
-            data()
-            // example of overriding the workingDirectory set in configureEach above
-
-            sourceSet = sourceSets.main
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
-    }
 }
 
 tasks.named('processResources', ProcessResources) {
     filesMatching('publish_config.json') {
+        String artifactData =
+                bundles.stream().map {"\"kap_lib-bundle-${it.name.substring(7)}-${version}\""}.collect(Collectors.joining(', ', '[', ']'))
+
         expand(
                 'mod_id': mod_id,
                 'mod_name': mod_name,
                 'mod_version': mod_version,
                 'minecraft_version': mc_version,
-                'neo_version': neo_version
+                'neo_version': neo_version,
+                'artifacts': artifactData
         )
     }
 }
@@ -454,27 +398,6 @@ jar {
         attributes([
                 "FMLModType": "GAMELIBRARY"
         ])
-    }
-}
-
-//tasks.named('javadoc', Javadoc) {
-//    for (final def proj in subprojects) {
-//        if (proj.ext.data.type != 'mod') continue
-//
-//        it.source(proj.sourceSets.main.allJava)
-//    }
-//}
-
-tasks.named('processResources', ProcessResources) {
-    var publishProperties = [
-            mod_id     : mod_id, mod_name: mod_name,
-            mod_version: mod_version, minecraft_version: mc_version,
-            neo_version: neo_version
-    ]
-
-    inputs.properties publishProperties
-    filesMatching(['publish_config.json']) {
-        expand publishProperties
     }
 }
 
@@ -522,5 +445,13 @@ mavenPublishing {
             developerConnection = "scm:git:ssh://git@github.com/Kapitencraft/kapLib.git"
         }
     }
+}
 
+if (hasProperty("signingKey")) {
+    signing {
+        useInMemoryPgpKeys(
+                new String(Base64.decoder.decode((String) findProperty("signingKey"))),
+                findProperty("signingPassword")
+        )
+    }
 }

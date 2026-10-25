@@ -1,0 +1,5 @@
+{
+  "type": "mod",
+  "dependencies": ["shader"],
+  "interfaceInjection": true
+}

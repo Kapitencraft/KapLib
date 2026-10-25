@@ -1,0 +1,9 @@
+{
+  "type": "mod",
+  "extensions": false,
+  "at": false,
+  "mixin": true,
+  "compat": [
+    "inventory_page", "cooldown", "particle", "requirement", "item"
+  ]
+}

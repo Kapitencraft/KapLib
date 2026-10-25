@@ -1,0 +1,5 @@
+{
+  "type": "mod",
+  "compat": ["component", "shader"],
+  "interfaceInjection": true
+}

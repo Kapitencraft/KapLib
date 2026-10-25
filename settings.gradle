@@ -9,10 +9,18 @@ pluginManagement {
     }
 }
 
-file("./modules").eachFile { File it ->
+file("./module").eachFile { File it ->
+    if (it.isDirectory() && new File(it, "settings.json").exists()) {
+        String folderName = it.name
+        include(":${folderName}")
+        project(":${folderName}").projectDir = file("module/${folderName}")
+    }
+}
+
+file("./bundles").eachFile { File it ->
     String folderName = it.name.replace(".json", "")
-    include(":${folderName}")
-    project(":${folderName}").projectDir = file("module/${folderName}")
+    include(":bundle-${folderName}")
+    project(":bundle-${folderName}").projectDir = file("bundle/${folderName}")
 }
 
 rootProject.name = "KapLib${mc_version}"
