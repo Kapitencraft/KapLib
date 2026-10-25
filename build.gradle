@@ -100,7 +100,7 @@ subprojects { Project proj ->
     }
 
     //region configuration
-    Object moduleData = new JsonSlurper().parse(rootProject.file("modules/${name}.json"))
+    Object moduleData = new JsonSlurper().parse(proj.file("settings.json"))
     proj.ext.data = moduleData
 
     if (moduleData.type == 'mod')
@@ -180,18 +180,10 @@ subprojects { Project proj ->
         signAllPublications()
         publishToMavenCentral()
 
-        if (name == 'aggregate') {
-            coordinates(group, mod_id, version)
+        coordinates(group, mod_id + "-" + name, version)
 
-            pom {
-                name = "${mod_name} Aggregate Library"
-            }
-        } else {
-            coordinates(group, mod_id + "-" + name, version)
-
-            pom {
-                name = modName
-            }
+        pom {
+            name = modName
         }
 
         pom {
@@ -410,52 +402,6 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
-
-    runs {
-        // applies to all the run configs below
-        configureEach {
-
-            systemProperty 'forge.enabledGameTestNamespaces', mod_id
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            systemProperty 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            logLevel = org.slf4j.event.Level.WARN
-        }
-
-        client {
-            client()
-
-            programArguments.addAll '--username', 'Kapitencraft', '--uuid', '00c930fd-9d29-44ca-b614-e5ce6e8bd457'
-        }
-
-        kaupenClient {
-            client()
-
-            programArguments.addAll '--username', 'Kaupenjoe', '--uuid', '665ad10f-5548-4985-986b-b642732ddce0'
-        }
-
-        server {
-            server()
-            programArgument '--nogui'
-        }
-
-        data {
-            data()
-            // example of overriding the workingDirectory set in configureEach above
-
-            sourceSet = sourceSets.main
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
-    }
 }
 
 tasks.named('processResources', ProcessResources) {
@@ -485,19 +431,6 @@ jar {
         attributes([
                 "FMLModType": "GAMELIBRARY"
         ])
-    }
-}
-
-tasks.named('processResources', ProcessResources) {
-    var publishProperties = [
-            mod_id     : mod_id, mod_name: mod_name,
-            mod_version: mod_version, minecraft_version: mc_version,
-            neo_version: neo_version
-    ]
-
-    inputs.properties publishProperties
-    filesMatching(['publish_config.json']) {
-        expand publishProperties
     }
 }
 
