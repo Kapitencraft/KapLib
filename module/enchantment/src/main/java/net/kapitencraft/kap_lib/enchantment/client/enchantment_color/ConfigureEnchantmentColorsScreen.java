@@ -6,7 +6,7 @@ import net.kapitencraft.kap_lib.core.client.widget.select.HolderByNameRegistryEl
 import net.kapitencraft.kap_lib.core.client.widget.select.SelectChatColorWidget;
 import net.kapitencraft.kap_lib.core.client.widget.select.SelectCountWidget;
 import net.kapitencraft.kap_lib.core.client.widget.select.SelectEnumWidget;
-import net.kapitencraft.kap_lib.core.config.CoreClientModConfig;
+import net.kapitencraft.kap_lib.core.config.CoreModuleClientConfig;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.kapitencraft.kap_lib.core.range.simple.IntegerNumberRange;
 import net.minecraft.ChatFormatting;
@@ -153,7 +153,7 @@ public class ConfigureEnchantmentColorsScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (selector != null) return selector.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         if (MathHelper.is2dBetween(mouseX, mouseY, this.leftPos + 2, this.topPos + 12, this.leftPos + WIDTH - 2, this.topPos + HEIGHT - 2)) {
-            this.scrollY += (int) (scrollY * CoreClientModConfig.getScrollScale());
+            this.scrollY += (int) (scrollY * CoreModuleClientConfig.getScrollScale());
             this.scrollY = Mth.clamp(this.scrollY, -maxScroll, 0);
             return true;
         }

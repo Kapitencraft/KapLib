@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.component.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class ComponentClientModConfig {
+public class ComponentModuleClientConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

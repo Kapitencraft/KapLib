@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.enchantment;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
-import net.kapitencraft.kap_lib.enchantment.config.EnchantmentClientModConfig;
+import net.kapitencraft.kap_lib.enchantment.config.EnchantmentModuleClientConfig;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -14,6 +14,6 @@ public class EnchantmentModule {
     public EnchantmentModule(IEventBus modEventBus, ModContainer container) {
         ExtraEnchantmentEffectComponents.REGISTRY.register(modEventBus);
 
-        container.registerConfig(ModConfig.Type.CLIENT, EnchantmentClientModConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, EnchantmentModuleClientConfig.SPEC);
     }
 }

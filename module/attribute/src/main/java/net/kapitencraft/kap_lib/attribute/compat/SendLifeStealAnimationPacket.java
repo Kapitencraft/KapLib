@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.attribute.compat;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.particle.animation.core.ClientParticleAnimationManager;
 import net.kapitencraft.kap_lib.particle.animation.core.ParticleAnimation;
-import net.kapitencraft.kap_lib.particle.config.ParticleClientModConfig;
+import net.kapitencraft.kap_lib.particle.config.ParticleModuleClientConfig;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -19,7 +19,7 @@ public record SendLifeStealAnimationPacket(ParticleAnimation animation) implemen
     }
 
     public void handle(IPayloadContext context) {
-        if (ParticleClientModConfig.lifeStealParticleEnabled())
+        if (ParticleModuleClientConfig.lifeStealParticleEnabled())
             context.enqueueWork(() -> ClientParticleAnimationManager.INSTANCE.accept(animation));
     }
 }

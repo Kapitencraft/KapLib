@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.particle.config;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class ParticleClientModConfig {
+public class ParticleModuleClientConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

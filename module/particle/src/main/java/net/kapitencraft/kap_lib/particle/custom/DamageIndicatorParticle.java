@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.particle.config.ParticleClientModConfig;
+import net.kapitencraft.kap_lib.particle.config.ParticleModuleClientConfig;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -35,7 +35,7 @@ public class DamageIndicatorParticle extends Particle {
         this.color = DamageIndicatorParticleOptions.damageIndicatorColorFromDouble(damageType).getColor();
         this.setColor(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color));
         this.darkColor = FastColor.ARGB32.color(255, (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25f), (int) (this.rCol * 0.25));
-        this.lifetime = ParticleClientModConfig.getIndicatorLifetime();
+        this.lifetime = ParticleModuleClientConfig.getIndicatorLifetime();
 
         this.yd = rangeOffset;
         this.xd = Mth.nextDouble(MathHelper.RANDOM_SOURCE, -MAX_MOVEMENT, MAX_MOVEMENT) * rangeOffset;
@@ -143,7 +143,7 @@ public class DamageIndicatorParticle extends Particle {
         @Nullable
         @Override
         public DamageIndicatorParticle createParticle(@NotNull DamageIndicatorParticleOptions particleType, @NotNull ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            if (!ParticleClientModConfig.isIndicatorEnabled()) return null;
+            if (!ParticleModuleClientConfig.isIndicatorEnabled()) return null;
             return new DamageIndicatorParticle(level, x, y, z, particleType.getDamage(), particleType.getDamageType(), particleType.getRangeOffset());
         }
     }

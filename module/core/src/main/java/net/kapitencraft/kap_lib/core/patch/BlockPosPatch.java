@@ -58,4 +58,9 @@ public interface BlockPosPatch {
         int z = axis == Direction.Axis.Z ? value : self.getZ();
         return new BlockPos(x, y, z);
     }
+
+    default int volume() {
+        BlockPos self = (BlockPos) this;
+        return Math.abs(self.getX() * self.getY() * self.getZ());
+    }
 }
