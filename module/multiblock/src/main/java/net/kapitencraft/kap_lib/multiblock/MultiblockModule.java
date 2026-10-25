@@ -13,6 +13,7 @@ import net.minecraft.core.registries.Registries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.gametest.GameTestHooks;
 
 @Mod(MultiblockModule.MODULE_ID)
@@ -24,6 +25,8 @@ public class MultiblockModule {
         MBBlocks.REGISTRY.register(modEventBus);
         MBItems.REGISTRY.register(modEventBus);
         MBItemComponentTypes.REGISTRY.register(modEventBus);
+
+        container.registerConfig(ModConfig.Type.SERVER, MultiblockModuleServerConfig.SPEC);
 
         if (GameTestHooks.isGametestEnabled()) {
             TestBlockEntityTypes.REGISTRY.register(modEventBus);

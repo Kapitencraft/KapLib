@@ -1,6 +1,8 @@
 package net.kapitencraft.kap_lib.multiblock.structure.match;
 
 import com.google.common.collect.Multimap;
+import com.mojang.datafixers.util.Pair;
+import net.kapitencraft.kap_lib.multiblock.MultiblockModuleServerConfig;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
 import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
 import net.minecraft.core.BlockPos;
@@ -12,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiPredicate;
 
 public class MultiblockStructurePattern {
@@ -49,23 +52,33 @@ public class MultiblockStructurePattern {
             BlockMatcher matcher = node.matcher(level);
             if (!matcher.matches(Direction.fromAxisAndDirection(value, Direction.AxisDirection.POSITIVE), origin))
                 return null;
-            List<Integer>[] quantifiers = matcher.quantifierList;
-            List<int[]> dimensionalPermutations = new ArrayList<>();
-            int[] permutation = new int[quantifiers.length];
-            collectQuantifiers(quantifiers, 0, permutation, dimensionalPermutations);
-            groupData[i] = dimensionalPermutations;
+            if (matcher.quantifierList.length > 0) {
+                List<Integer>[] quantifiers = matcher.quantifierList;
+                List<int[]> dimensionalPermutations = new ArrayList<>();
+                int[] permutation = new int[quantifiers.length];
+                collectQuantifiers(quantifiers, 0, permutation, dimensionalPermutations);
+                groupData[i] = dimensionalPermutations;
+            } else {
+                groupData[i] = List.of(new int[0]);
+            }
         }
 
         List<int[][]> totalPermutations = new ArrayList<>();
 
         int[][] permutationData = new int[3][];
         collectCombinedQuantifiers(groupData, 0, permutationData, totalPermutations);
+        int volume = 0;
+        for (int[][] permutation : totalPermutations) {
+            volume += getPermutationSize(permutation).volume();
+        }
+        if (volume > MultiblockModuleServerConfig.getAsyncPatternMatchingThreshold()) {
+        }
 
         for (int i = totalPermutations.size() - 1; i >= 0; i--) {
             int[][] permutation2 = totalPermutations.get(i);
             if (checkMatch(permutation2, origin, level)) {
                 BlockPos permutationSize = getPermutationSize(permutation2);
-                return MultiblockStructureMatch.of(level, origin, origin.offset(permutationSize));
+                return MultiblockStructureMatch.of(level, structureConfiguration, origin, origin.offset(permutationSize));
             }
         }
 
@@ -90,6 +103,23 @@ public class MultiblockStructurePattern {
             } else value++;
         }
         return value;
+    }
+
+    private @Nullable MultiblockStructureMatch matchAsync(List<int[][]> totalPermutations) {
+        List<Pair<int[][], Integer>> permutationVolumeData = new ArrayList<>();
+        for (int[][] permutation : totalPermutations) {
+            permutationVolumeData.add(Pair.of(permutation, getPermutationSize(permutation).volume()));
+        }
+        permutationVolumeData.sort(Comparator.comparingInt(Pair::getSecond));
+        //TODO
+        //need to
+        // 1. create a data-structure that is able to order the elements by size (which we already have in form of the array list)
+        // 2. make a checker method to test all matches async
+        // 3. ensure that if an match is found
+        //    a) if all larger structure potentials have been checked, exit the async task and return the value
+        //    b) if not all larger structure potentials have been checked, mark all smaller structure potentials as irrelevant
+
+        return null;
     }
 
     private boolean checkMatch(int[][] quantifierData, BlockPos pos, LevelAccessor level) {
@@ -207,7 +237,7 @@ public class MultiblockStructurePattern {
         for (Direction.Axis value : Direction.Axis.values()) {
             List<Quantifier> quantifiers = this.structureConfiguration.getQuantifiers(value);
             List<Integer> positionOffsets = new ArrayList<>();
-            searchPotentialOrigins(posInStructure.get(value) - 1, -1, (structureIndex, worldPositionOffset) ->
+            searchPotentialOrigins(posInStructure.get(value), 0, (structureIndex, worldPositionOffset) ->
                     structureConfiguration.getInstanceAt(
                             posInStructure.relative(value, structureIndex - posInStructure.get(value)))
                             .isValid(level.getBlockState(pos.relative(value, worldPositionOffset))),
@@ -225,7 +255,7 @@ public class MultiblockStructurePattern {
 
         List<BlockPos> origins = new ArrayList<>();
         for (int[] offset : offsets) {
-            BlockPos origin = pos.offset(new BlockPos(offset[0], offset[1], offset[2]));
+            BlockPos origin = pos.offset(offset[0], offset[1], offset[2]);
             if (!structureConfiguration.getInstanceAt(0, 0, 0).isValid(level.getBlockState(origin)))
                 continue;
 

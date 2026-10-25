@@ -1,0 +1,60 @@
+{
+  "groups": {},
+  "quantifiers": {
+    "x": [
+      {
+        "minCount": 1,
+        "fromPosition": 1,
+        "toPosition": 1
+      }
+    ],
+    "z": [
+      {
+        "minCount": 1,
+        "fromPosition": 1,
+        "toPosition": 1
+      }
+    ]
+  },
+  "data": {
+    "size": [
+      2,
+      1,
+      2
+    ],
+    "entries": [
+      {
+        "state": {
+          "Name": "minecraft:iron_block"
+        },
+        "type": "state"
+      },
+      {
+        "state": {
+          "Name": "minecraft:diamond_block"
+        },
+        "type": "state"
+      },
+      {
+        "state": {
+          "Name": "minecraft:redstone_block"
+        },
+        "type": "state"
+      }
+    ],
+    "data": [
+      [
+        [
+          1,
+          2
+        ]
+      ],
+      [
+        [
+          3,
+          0
+        ]
+      ]
+    ]
+  }
+}

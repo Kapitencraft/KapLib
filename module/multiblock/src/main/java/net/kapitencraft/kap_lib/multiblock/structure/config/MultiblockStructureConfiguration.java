@@ -50,7 +50,7 @@ public class MultiblockStructureConfiguration {
     }
 
     public List<Quantifier> getQuantifiers(Direction.Axis axis) {
-        return quantifiers.get(axis);
+        return quantifiers.getOrDefault(axis, List.of());
     }
 
     public Vec3i getSize() {

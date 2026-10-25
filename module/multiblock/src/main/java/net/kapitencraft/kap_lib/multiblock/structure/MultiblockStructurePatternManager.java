@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.multiblock.structure;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
 import net.kapitencraft.kap_lib.core.io.serialization.CodecJsonReloader;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
@@ -10,6 +11,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.Map;
 
@@ -22,6 +24,8 @@ import java.util.Map;
  * 4. make multiblock generate like {@link java.util.regex.Pattern}
  */
 public class MultiblockStructurePatternManager extends CodecJsonReloader<MultiblockStructureConfiguration> {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     //do we need to sync this?
     public static final MultiblockStructurePatternManager INSTANCE = new MultiblockStructurePatternManager();
     private @NotNull Map<ResourceLocation, MultiblockStructurePattern> structures = Map.of();
@@ -34,7 +38,11 @@ public class MultiblockStructurePatternManager extends CodecJsonReloader<Multibl
     protected void apply(Map<ResourceLocation, MultiblockStructureConfiguration> structureConfigurations, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
         ImmutableMap.Builder<ResourceLocation, MultiblockStructurePattern> patternBuilder = ImmutableMap.builder();
         structureConfigurations.forEach((key, structureConfiguration) -> {
-            patternBuilder.put(key, MultiblockStructurePattern.build(structureConfiguration));
+            try {
+                patternBuilder.put(key, MultiblockStructurePattern.build(structureConfiguration));
+            } catch (Exception e) {
+                LOGGER.warn("unable to parse multiblock structure pattern {}: {}", key, e.getMessage());
+            }
         });
         this.structures = patternBuilder.build();
         MultiblockStructureManager.INSTANCE.rebuild(this);
