@@ -3,19 +3,26 @@ package net.kapitencraft.kap_lib.multiblock.structure.match;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.multiblock.MultiblockModuleServerConfig;
+import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructureManager;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
 import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 
 public class MultiblockStructurePattern {
     private final Map<Direction.Axis, BlockPattern> sizeAgents;
@@ -72,13 +79,14 @@ public class MultiblockStructurePattern {
             volume += getPermutationSize(permutation).volume();
         }
         if (volume > MultiblockModuleServerConfig.getAsyncPatternMatchingThreshold()) {
+            return matchAsync(totalPermutations, origin, level);
         }
 
         for (int i = totalPermutations.size() - 1; i >= 0; i--) {
             int[][] permutation2 = totalPermutations.get(i);
-            if (checkMatch(permutation2, origin, level)) {
+            if (checkMatch(permutation2, origin, level::getBlockState)) {
                 BlockPos permutationSize = getPermutationSize(permutation2);
-                return MultiblockStructureMatch.of(level, structureConfiguration, origin, origin.offset(permutationSize));
+                return MultiblockStructureMatch.of(level::getBlockState, structureConfiguration, origin, origin.offset(permutationSize));
             }
         }
 
@@ -105,24 +113,75 @@ public class MultiblockStructurePattern {
         return value;
     }
 
-    private @Nullable MultiblockStructureMatch matchAsync(List<int[][]> totalPermutations) {
+    private @Nullable MultiblockStructureMatch matchAsync(List<int[][]> totalPermutations, BlockPos pos, LevelAccessor level) {
+        //TODO
+        //need to collect required level chunk instances before starting the executor, otherwise the thread will deadlock itself
+
+        //no need to do anything if there's nothing to do. quit early to prevent unnecessary work
+        if (totalPermutations.isEmpty())
+            return null;
+
+        BlockPos maxOffset = null;
+
         List<Pair<int[][], Integer>> permutationVolumeData = new ArrayList<>();
         for (int[][] permutation : totalPermutations) {
-            permutationVolumeData.add(Pair.of(permutation, getPermutationSize(permutation).volume()));
+            BlockPos permutationSize = getPermutationSize(permutation);
+            if (maxOffset == null) {
+                maxOffset = permutationSize;
+            } else {
+                maxOffset = BlockPos.max(maxOffset, permutationSize);
+            }
+            permutationVolumeData.add(Pair.of(permutation, permutationSize.volume()));
         }
         permutationVolumeData.sort(Comparator.comparingInt(Pair::getSecond));
-        //TODO
-        //need to
-        // 1. create a data-structure that is able to order the elements by size (which we already have in form of the array list)
-        // 2. make a checker method to test all matches async
-        // 3. ensure that if an match is found
-        //    a) if all larger structure potentials have been checked, exit the async task and return the value
-        //    b) if not all larger structure potentials have been checked, mark all smaller structure potentials as irrelevant
 
-        return null;
+        AsyncChunkCache asyncChunkCache = AsyncChunkCache.create(level, pos, maxOffset);
+
+        ExecutorService executor = Executors.newFixedThreadPool(10, new PatternMatcherThreadFactory());
+
+        try {
+            AtomicInteger matchedVolume = new AtomicInteger();
+            AtomicReference<MultiblockStructureMatch> objRef = new AtomicReference<>();
+            List<CompletableFuture<MultiblockStructureMatch>> futures = new ArrayList<>();
+            for (int i = permutationVolumeData.size() - 1; i >= 0; i--) {
+                Pair<int[][], Integer> value = permutationVolumeData.get(i);
+                int[][] permutations = value.getFirst();
+                futures.add(CompletableFuture.supplyAsync(() -> {
+                    //ensure a match is only checked for if there isn't a larger one already confirmed
+                    if (matchedVolume.get() < value.getSecond()) {
+                        if (checkMatch(permutations, pos, asyncChunkCache::getBlockState)) {
+                            BlockPos size = getPermutationSize(permutations);
+                            return MultiblockStructureMatch.of(asyncChunkCache::getBlockState, this.structureConfiguration, pos, pos.offset(size));
+                        }
+                    }
+                    return null;
+                }, executor).whenComplete((u, throwable) -> {
+                    if (throwable != null) {
+                        MultiblockStructureManager.LOGGER.warn("error matching multiblock structure: {}", throwable.getMessage());
+                    }
+                    if (u != null && matchedVolume.get() < value.getSecond()) {
+                        objRef.set(u);
+                        matchedVolume.set(value.getSecond());
+                    }
+                }));
+            }
+            CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+            return objRef.get();
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
-    private boolean checkMatch(int[][] quantifierData, BlockPos pos, LevelAccessor level) {
+    private static class PatternMatcherThreadFactory implements ThreadFactory {
+        AtomicInteger id = new AtomicInteger();
+
+        @Override
+        public Thread newThread(@NotNull Runnable r) {
+            return new Thread(r, "MultiblockStructurePatternMatchWorker#" + id.incrementAndGet());
+        }
+    }
+
+    private boolean checkMatch(int[][] quantifierData, BlockPos pos, Function<BlockPos, BlockState> stateGetter) {
         //<dim> = offset of the checked position in the world
         int x = 0;
         //quantifiers = quantifiers for the given dimension
@@ -175,7 +234,7 @@ public class MultiblockStructurePattern {
                                     for (int iZ = 0; iZ < countZ; iZ++) {
 
                                         for (int sIdxZ = 0; sIdxZ < sectionLengthZ; sIdxZ++) {
-                                            if (!this.structureConfiguration.getInstanceAt(elementIdxX + sIdxX, elementIdxY + sIdxY, elementIdxZ + sIdxZ).isValid(level.getBlockState(pos.offset(x, y, z))))
+                                            if (!this.structureConfiguration.getInstanceAt(elementIdxX + sIdxX, elementIdxY + sIdxY, elementIdxZ + sIdxZ).isValid(stateGetter.apply(pos.offset(x, y, z))))
                                                 return false;
                                             z++;
                                         }

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MultiblockStructureManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger("MultiblockStructureManager");
+    public static final Logger LOGGER = LoggerFactory.getLogger("MultiblockStructureManager");
 
     private Multimap<BlockState, StructurePositionEntry> entries;
     private MultiblockStructurePatternManager patternManager;

@@ -8,6 +8,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Function;
+
 public class MultiblockStructureMatch {
 
     private final BlockState[][][] states;
@@ -33,13 +35,13 @@ public class MultiblockStructureMatch {
         return this.size;
     }
 
-    public static MultiblockStructureMatch of(LevelAccessor level, MultiblockStructureConfiguration configuration, BlockPos start, BlockPos end) {
+    public static MultiblockStructureMatch of(Function<BlockPos, BlockState> stateGetter, MultiblockStructureConfiguration configuration, BlockPos start, BlockPos end) {
         BlockPos size = end.subtract(start);
         BlockState[][][] states = new BlockState[size.getX()][size.getY()][size.getZ()];
         for (int x = 0; x < size.getX(); x++) {
             for (int y = 0; y < size.getY(); y++) {
                 for (int z = 0; z < size.getZ(); z++) {
-                    states[x][y][z] = level.getBlockState(start.offset(x,y,z));
+                    states[x][y][z] = stateGetter.apply(start.offset(x,y,z));
                 }
             }
         }
