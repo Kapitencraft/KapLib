@@ -9,16 +9,16 @@ import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
@@ -50,7 +50,9 @@ public class MultiblockStructurePattern {
         return new MultiblockStructurePattern(sizeGatherer, structure);
     }
 
+    //region match
     public MultiblockStructureMatch match(LevelAccessor level, BlockPos origin) {
+        @SuppressWarnings("unchecked")
         List<int[]>[] groupData = new List[3];
         Direction.Axis[] values = Direction.Axis.values();
         for (int i = 0; i < values.length; i++) {
@@ -78,44 +80,49 @@ public class MultiblockStructurePattern {
         for (int[][] permutation : totalPermutations) {
             volume += getPermutationSize(permutation).volume();
         }
+
         if (volume > MultiblockModuleServerConfig.getAsyncPatternMatchingThreshold()) {
             return matchAsync(totalPermutations, origin, level);
         }
 
         for (int i = totalPermutations.size() - 1; i >= 0; i--) {
             int[][] permutation2 = totalPermutations.get(i);
-            if (checkMatch(permutation2, origin, level::getBlockState)) {
-                BlockPos permutationSize = getPermutationSize(permutation2);
-                return MultiblockStructureMatch.of(level::getBlockState, structureConfiguration, origin, origin.offset(permutationSize));
+
+            MultiblockStructureMatch match = checkAndCollectMatch(permutation2, origin, level::getBlockState);
+            if (match != null) {
+                return match;
             }
         }
 
         return null;
     }
 
-    private BlockPos getPermutationSize(int[][] permutation2) {
-        return new BlockPos(getPermutationSize(Direction.Axis.X, permutation2), getPermutationSize(Direction.Axis.Y, permutation2), getPermutationSize(Direction.Axis.Z, permutation2));
-    }
-
-    private int getPermutationSize(Direction.Axis axis, int[][] permutations) {
-        int value = 0;
-        int[] axisPermutations = permutations[axis.ordinal()];
-        List<Quantifier> axisQuantifiers = this.structureConfiguration.getQuantifiers(axis);
-
-        for (int i = 0; i < this.structureConfiguration.getSize().get(axis); i++) {
-            int q = findQuantifierIndex(i, axisQuantifiers);
-            if (q != -1) {
-                int length = axisQuantifiers.get(q).toPosition() - axisQuantifiers.get(q).fromPosition() + 1;
-                value += axisPermutations[q] * length;
-                i = axisQuantifiers.get(q).toPosition();
-            } else value++;
+    private void collectQuantifiers(List<Integer>[] quantifiers, int idx, int[] permutation, List<int[]> dimensionalPermutations) {
+        for (Integer i : quantifiers[idx]) {
+            permutation[idx] = i;
+            if (idx + 1 < quantifiers.length)
+                collectQuantifiers(quantifiers, idx + 1, Arrays.copyOf(permutation, permutation.length), dimensionalPermutations);
+            else {
+                dimensionalPermutations.add(Arrays.copyOf(permutation, permutation.length));
+            }
         }
-        return value;
     }
 
+    private void collectCombinedQuantifiers(List<int[]>[] groupData, int idx, int[][] permutation, List<int[][]> totalPermutations) {
+        for (int[] i : groupData[idx]) {
+            permutation[idx] = i;
+            if (idx + 1 < groupData.length)
+                collectCombinedQuantifiers(groupData, idx + 1, Arrays.copyOf(permutation, permutation.length), totalPermutations);
+            else {
+                totalPermutations.add(Arrays.copyOf(permutation, permutation.length));
+            }
+        }
+    }
+
+    //endregion match
+
+    //region async
     private @Nullable MultiblockStructureMatch matchAsync(List<int[][]> totalPermutations, BlockPos pos, LevelAccessor level) {
-        //TODO
-        //need to collect required level chunk instances before starting the executor, otherwise the thread will deadlock itself
 
         //no need to do anything if there's nothing to do. quit early to prevent unnecessary work
         if (totalPermutations.isEmpty())
@@ -149,10 +156,7 @@ public class MultiblockStructurePattern {
                 futures.add(CompletableFuture.supplyAsync(() -> {
                     //ensure a match is only checked for if there isn't a larger one already confirmed
                     if (matchedVolume.get() < value.getSecond()) {
-                        if (checkMatch(permutations, pos, asyncChunkCache::getBlockState)) {
-                            BlockPos size = getPermutationSize(permutations);
-                            return MultiblockStructureMatch.of(asyncChunkCache::getBlockState, this.structureConfiguration, pos, pos.offset(size));
-                        }
+                        return checkAndCollectMatch(permutations, pos, asyncChunkCache::getBlockState);
                     }
                     return null;
                 }, executor).whenComplete((u, throwable) -> {
@@ -179,6 +183,38 @@ public class MultiblockStructurePattern {
         public Thread newThread(@NotNull Runnable r) {
             return new Thread(r, "MultiblockStructurePatternMatchWorker#" + id.incrementAndGet());
         }
+    }
+    //endregion
+
+    //region permutation
+    private BlockPos getPermutationSize(int[][] permutation2) {
+        return new BlockPos(getPermutationSize(Direction.Axis.X, permutation2), getPermutationSize(Direction.Axis.Y, permutation2), getPermutationSize(Direction.Axis.Z, permutation2));
+    }
+
+    private int getPermutationSize(Direction.Axis axis, int[][] permutations) {
+        int value = 0;
+        int[] axisPermutations = permutations[axis.ordinal()];
+        List<Quantifier> axisQuantifiers = this.structureConfiguration.getQuantifiers(axis);
+
+        for (int i = 0; i < this.structureConfiguration.getSize().get(axis); i++) {
+            int q = findQuantifierIndex(i, axisQuantifiers);
+            if (q != -1) {
+                int length = axisQuantifiers.get(q).toPosition() - axisQuantifiers.get(q).fromPosition() + 1;
+                value += axisPermutations[q] * length;
+                i = axisQuantifiers.get(q).toPosition();
+            } else value++;
+        }
+        return value;
+    }
+    //endregion
+
+    //region check
+    private @Nullable MultiblockStructureMatch checkAndCollectMatch(int[][] permutation, BlockPos origin, Function<BlockPos, BlockState> blockGetter) {
+        if (checkMatch(permutation, origin, blockGetter)) {
+            BlockPos permutationSize = getPermutationSize(permutation);
+            return MultiblockStructureMatch.of(blockGetter, permutation, structureConfiguration, origin, origin.offset(permutationSize));
+        }
+        return null;
     }
 
     private boolean checkMatch(int[][] quantifierData, BlockPos pos, Function<BlockPos, BlockState> stateGetter) {
@@ -253,6 +289,7 @@ public class MultiblockStructurePattern {
         }
         return true;
     }
+    //endregion
 
     private static int findQuantifierIndex(int offset, List<Quantifier> quantifiers) {
         for (int i = 0; i < quantifiers.size(); i++) {
@@ -264,42 +301,21 @@ public class MultiblockStructurePattern {
         return -1;
     }
 
-    private void collectQuantifiers(List<Integer>[] quantifiers, int idx, int[] permutation, List<int[]> dimensionalPermutations) {
-        for (Integer i : quantifiers[idx]) {
-            permutation[idx] = i;
-            if (idx + 1 < quantifiers.length)
-                collectQuantifiers(quantifiers, idx + 1, Arrays.copyOf(permutation, permutation.length), dimensionalPermutations);
-            else {
-                dimensionalPermutations.add(Arrays.copyOf(permutation, permutation.length));
-            }
-        }
-    }
-
-    private void collectCombinedQuantifiers(List<int[]>[] groupData, int idx, int[][] permutation, List<int[][]> totalPermutations) {
-        for (int[] i : groupData[idx]) {
-            permutation[idx] = i;
-            if (idx + 1 < groupData.length)
-                collectCombinedQuantifiers(groupData, idx + 1, Arrays.copyOf(permutation, permutation.length), totalPermutations);
-            else {
-                totalPermutations.add(Arrays.copyOf(permutation, permutation.length));
-            }
-        }
-    }
-
     public Multimap<BlockState, Vec3i> buildInfo() {
         return this.structureConfiguration.buildInfo();
     }
 
     @NotNull
     public List<BlockPos> findPotentialOrigins(LevelAccessor level, BlockPos pos, Vec3i posInStructure) {
+        @SuppressWarnings("unchecked")
         List<Integer>[] dimensionalPosOffsets = new List[3];
         for (Direction.Axis value : Direction.Axis.values()) {
             List<Quantifier> quantifiers = this.structureConfiguration.getQuantifiers(value);
             List<Integer> positionOffsets = new ArrayList<>();
             searchPotentialOrigins(posInStructure.get(value), 0, (structureIndex, worldPositionOffset) ->
-                    structureConfiguration.getInstanceAt(
-                            posInStructure.relative(value, structureIndex - posInStructure.get(value)))
-                            .isValid(level.getBlockState(pos.relative(value, worldPositionOffset))),
+                            structureConfiguration.getInstanceAt(
+                                            posInStructure.relative(value, structureIndex - posInStructure.get(value)))
+                                    .isValid(level.getBlockState(pos.relative(value, worldPositionOffset))),
                     quantifiers, positionOffsets
             );
             //no potential offset found for the given axis, returning
