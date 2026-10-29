@@ -1,3 +1,5 @@
+#moj_import <kap_lib:extras.glsl>
+
 const float DEFAULT_COLOR_WIDTH = 10.0;
 
 float chromaPos(float chromaType, vec2 stage, float spacing) {

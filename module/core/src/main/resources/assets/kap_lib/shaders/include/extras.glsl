@@ -14,20 +14,8 @@ vec3 hsb2rgb( in vec3 c ){
 }
 
 vec2 filterStage(in vec2 stage, int type) {
-    bool x = type % 2 == 0;
-    bool y = type % 4  < 2;
+    bool x = (type & 1) == 0;
+    bool y = (type & 2) == 0;
     float yVal = stage.y * (stage.x / stage.y);
     return vec2(x ? 1. - stage.x : stage.x, y ? 1. - stage.y : stage.y);
-}
-
-float max(float a, float b, float c) {
-    return max(max(a, b), c);
-}
-
-float max(vec2 pos) {
-    return max(pos.x, pos.y);
-}
-
-float max(vec3 pos) {
-    return max(pos.x, pos.y, pos.z);
 }
