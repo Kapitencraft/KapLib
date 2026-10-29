@@ -61,7 +61,6 @@ ext.createRequiredClasses = { Project project, String name ->
 
 subprojects { Project proj ->
     apply plugin: 'idea'
-    apply plugin: 'com.vanniktech.maven.publish'
     apply plugin: 'net.neoforged.moddev'
 
     group = rootProject.group
@@ -98,6 +97,8 @@ subprojects { Project proj ->
 
         return
     }
+
+    apply plugin: 'com.vanniktech.maven.publish'
 
     //region configuration
     Object moduleData = new JsonSlurper().parse(proj.file("settings.json"))
