@@ -77,9 +77,9 @@ subprojects { Project proj ->
         repositories {}
 
         dependencies {
-            jarJar(implementation(rootProject.project(':core')))
+            jarJar(api(rootProject.project(':core')))
             for (final def m in moduleData) {
-                jarJar(implementation(rootProject.project(":${m}")))
+                jarJar(api(rootProject.project(":${m}")))
             }
         }
 
@@ -382,7 +382,7 @@ dependencies {
 
     subprojects.forEach {
         if (!it.name.startsWith('bundle'))
-            jarJar(implementation(it))
+            jarJar(api(it))
     }
 
     compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
