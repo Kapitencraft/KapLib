@@ -61,12 +61,46 @@ ext.createRequiredClasses = { Project project, String name ->
 
 subprojects { Project proj ->
     apply plugin: 'idea'
-    apply plugin: 'com.vanniktech.maven.publish'
     apply plugin: 'net.neoforged.moddev'
 
     group = rootProject.group
     version = rootProject.version
 
+    if (proj.name.startsWith('bundle')) {
+
+        base {
+            archivesName = "${mod_id}-${name}"
+        }
+
+        List<String> moduleData = new JsonSlurper().parse(rootProject.file("bundles/${name.substring(7)}.json"))
+
+        repositories {}
+
+        dependencies {
+            jarJar(implementation(rootProject.project(':core')))
+            for (final def m in moduleData) {
+                jarJar(implementation(rootProject.project(":${m}")))
+            }
+        }
+
+        jar {
+            manifest {
+                attributes([
+                        "FMLModType": "GAMELIBRARY"
+                ])
+            }
+        }
+
+        tasks.named("jar", Jar) {
+            it.destinationDirectory = rootProject.tasks.getByName('jar').destinationDirectory
+        }
+
+        return
+    }
+
+    apply plugin: 'com.vanniktech.maven.publish'
+
+    //region configuration
     Object moduleData = new JsonSlurper().parse(proj.file("settings.json"))
     proj.ext.data = moduleData
 
