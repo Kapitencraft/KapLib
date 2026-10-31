@@ -18,4 +18,9 @@ public class ParamStorage {
         }
         return p;
     }
+
+    public float getFloatParam(float fallback, String... names) {
+        String p = getParam(names);
+        return p != null ? Float.parseFloat(p) : fallback;
+    }
 }

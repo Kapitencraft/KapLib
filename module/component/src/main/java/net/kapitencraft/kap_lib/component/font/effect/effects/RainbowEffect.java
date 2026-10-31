@@ -26,14 +26,12 @@ public class RainbowEffect extends GlyphEffect<RainbowEffect.RainbowEffectInstan
     @Override
     public RainbowEffectInstance createInstance(ParamStorage params) {
         String origin = params.getParam("origin", "o");
-        String spacing = params.getParam("spacing", "sg");
-        String speed = params.getParam("speed", "sd");
         String type = params.getParam("type", "t");
 
         return new RainbowEffectInstance(
                 origin != null ? ChromaOrigin.CODEC.byName(origin, ChromaOrigin.BOTTOM_RIGHT) : ChromaOrigin.BOTTOM_RIGHT,
-                spacing != null ? Float.parseFloat(spacing) : 2f,
-                speed != null ? Float.parseFloat(speed) : 4,
+                params.getFloatParam(2f, "spacing", "sg"),
+                params.getFloatParam(4, "speed", "sd"),
                 type != null ? ChromaType.CODEC.byName(type, ChromaType.LINEAR) : ChromaType.LINEAR
         );
     }

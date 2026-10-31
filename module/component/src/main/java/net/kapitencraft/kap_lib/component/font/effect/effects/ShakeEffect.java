@@ -22,11 +22,9 @@ public class ShakeEffect extends GlyphEffect<ShakeEffect.ShakeEffectInstance> {
 
     @Override
     public ShakeEffectInstance createInstance(ParamStorage params) {
-        String scale = params.getParam("scale", "s");
-        String amplitude = params.getParam("amplitude", "a");
         return new ShakeEffectInstance(
-                scale != null ? Float.parseFloat(scale) : .01f,
-                amplitude != null ? Float.parseFloat(amplitude) : 2
+                params.getFloatParam(.01f, "scale", "s"),
+                params.getFloatParam(2, "amplitude", "a")
         );
     }
 

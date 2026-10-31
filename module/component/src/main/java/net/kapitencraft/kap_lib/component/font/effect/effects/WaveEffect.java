@@ -22,11 +22,9 @@ public class WaveEffect extends GlyphEffect<WaveEffect.WaveEffectInstance> {
 
     @Override
     public WaveEffectInstance createInstance(ParamStorage params) {
-        String scale = params.getParam("spacing", "s");
-        String amplitude = params.getParam("amplitude", "a");
         return new WaveEffectInstance(
-                scale != null ? Float.parseFloat(scale) : .01f,
-                amplitude != null ? Float.parseFloat(amplitude) : 2
+                params.getFloatParam(.01f, "scale", "s"),
+                params.getFloatParam(2, "amplitude", "a")
         );
     }
 
