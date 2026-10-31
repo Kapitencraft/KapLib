@@ -23,7 +23,7 @@ public class ComponentClientTestCommand {
                 ).then(Commands.literal("glyph").executes(ComponentClientTestCommand::testGlyphs)
                         .then(Commands.literal("reset").executes(ComponentClientTestCommand::resetGlyphs)
                         )
-                )
+                ).then(Commands.literal("format").executes(ComponentClientTestCommand::testFormattedGlyph))
         );
     }
 
@@ -43,7 +43,13 @@ public class ComponentClientTestCommand {
 
     private static int testChroma(CommandContext<CommandSourceStack> commandContext) {
         for (int i = 0; i < 10; i++)
-            commandContext.getSource().sendSystemMessage(Component.literal("EEEEEEEEEEEEEEEEEE").setStyle(GlyphEffects.RAINBOW.apply(Style.EMPTY)));
+            commandContext.getSource().sendSystemMessage(Component.literal("EEEEEEEEEEEEEEEEEE")
+                    .setStyle(Style.EMPTY));
+        return 1;
+    }
+
+    private static int testFormattedGlyph(CommandContext<CommandSourceStack> context) {
+        context.getSource().sendSystemMessage(Component.translatable("glyph.test"));
         return 1;
     }
 }

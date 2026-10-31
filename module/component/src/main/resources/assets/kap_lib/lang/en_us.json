@@ -154,5 +154,7 @@
 
   "bonus_type.simple_mob_effect.def": "Adds following Effects each tick:",
   "command.server_test.spawn_table.not_found": "Spawn Table \"test:test\" not found",
-  "inventory.page.equipment": "Equipment"
+  "inventory.page.equipment": "Equipment",
+
+  "glyph.test": "<kap_lib:shake a=6><kap_lib:wave s=.2>SHAKE</kap_lib:wave></kap_lib:shake>"
 }

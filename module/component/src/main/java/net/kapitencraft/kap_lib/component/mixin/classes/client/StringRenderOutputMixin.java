@@ -3,75 +3,61 @@ package net.kapitencraft.kap_lib.component.mixin.classes.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.component.font.effect.EffectSettings;
-import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Style;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Font.StringRenderOutput.class)
 public abstract class StringRenderOutputMixin {
-
     @Shadow
-    float x;
-
-    @Shadow
-    float y;
-
-    @Shadow @Final private boolean dropShadow;
-
-    @Shadow
-    private float r;
-
-    @Shadow
-    private float g;
-
-    @Shadow
-    private float b;
+    @Final
+    private boolean dropShadow;
 
     @WrapOperation(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;renderType(Lnet/minecraft/client/gui/Font$DisplayMode;)Lnet/minecraft/client/renderer/RenderType;"))
     public RenderType changeRender(BakedGlyph instance, Font.DisplayMode displayMode, Operation<RenderType> original, @Local(argsOnly = true) Style style) {
-        if (EffectsStyle.of(style).hasEffect(GlyphEffects.RAINBOW) && !this.dropShadow) {
+        if (style.hasEffect(GlyphEffects.RAINBOW) && !this.dropShadow) {
             return instance.getChromaType();
         }
-        return instance.renderType(displayMode);
+        return original.call(instance, displayMode);
     }
 
-    @Inject(method = "accept", at = @At("HEAD"))
-    public void accept(int index, Style style, int i, CallbackInfoReturnable<Boolean> returnable) {
-        EffectsStyle effects = (EffectsStyle) style;
-        if (effects.hasEffects()) {
+    @WrapOperation(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;renderChar(Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;ZZFFFLorg/joml/Matrix4f;Lcom/mojang/blaze3d/vertex/VertexConsumer;FFFFI)V"))
+    private void injectEffects(Font instance, BakedGlyph glyph, boolean bold, boolean italic,
+                               float boldOffset, float x, float y, Matrix4f matrix,
+                               VertexConsumer buffer, float red, float green, float blue,
+                               float alpha, int packedLight, Operation<Void> original,
+                               @Local(argsOnly = true) Style style,
+                               @Local(argsOnly = true, ordinal = 0) int index
+    ) {
+        if (style.hasEffects()) {
             EffectSettings settings = new EffectSettings();
-            float r,g,b;
-            r = this.r;
-            g = this.g;
-            b = this.b;
-            settings.r = this.r;
-            settings.g = this.g;
-            settings.b = this.b;
-            settings.x = this.x;
-            settings.y = this.y;
-            settings.isShadow = this.dropShadow;
+            settings.r = red;
+            settings.g = green;
+            settings.b = blue;
+            settings.x = x;
+            settings.y = y;
+            settings.isShadow = dropShadow;
             settings.index = index;
 
-            for (GlyphEffect effect : effects.getEffects()) effect.apply(settings);
-            this.x = settings.x;
-            this.y = settings.y;
-            if (r != settings.r || g != settings.g || b != settings.b) {
-                this.r = settings.r;
-                this.g = settings.g;
-                this.b = settings.b;
-                style.color = null;
-            }
+            for (GlyphEffect.EffectInstance effectInstance : style.getEffects())
+                effectInstance.apply(settings);
+
+            x = settings.x;
+            y = settings.y;
+            red = settings.r;
+            green = settings.g;
+            blue = settings.b;
         }
+        original.call(instance, glyph, bold, italic, boldOffset, x, y, matrix, buffer, red, green, blue, alpha, packedLight);
     }
 }

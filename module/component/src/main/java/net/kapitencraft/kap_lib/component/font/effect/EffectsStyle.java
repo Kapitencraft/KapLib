@@ -5,6 +5,8 @@ import org.checkerframework.dataflow.qual.Pure;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Supplier;
+
 /**
  * interface (or <i>duck-class</i> into {@link Style}) for {@link GlyphEffect}s
  */
@@ -14,31 +16,25 @@ public interface EffectsStyle {
      * adds an effect to the {@link Style}
      * @param effect the effect to add
      */
-    Style addEffect(GlyphEffect effect);
+    Style addEffect(GlyphEffect.EffectInstance effect);
 
-    void setEffects(GlyphEffect[] s);
+    Style removeEffect(GlyphEffect<?> effect);
 
+    void setEffects(GlyphEffect.EffectInstance[] s);
 
     /**
      * @return all effects applied
      */
     @Pure
-    GlyphEffect @NotNull [] getEffects();
+    GlyphEffect.EffectInstance @NotNull [] getEffects();
 
-    /**
-     * converts (or casts) a {@code  Style} to an {@code EffectsStyle} to use above methods
-     * @param style the style to convert
-     * @return the {@code EffectsStyle} that the Style contains
-     * //@apiNote use {@link GlyphEffect#apply(Style)} instead
-     */
-    @ApiStatus.Internal
-    static EffectsStyle of(Style style) {
-        return (EffectsStyle) style;
+    default boolean hasEffect(Supplier<? extends GlyphEffect<?>> effect) {
+        return hasEffect(effect.get());
     }
 
-    default boolean hasEffect(GlyphEffect effect) {
-        for (GlyphEffect effect1 : this.getEffects()) {
-            if (effect == effect1) return true;
+    default boolean hasEffect(GlyphEffect<?> effect) {
+        for (GlyphEffect.EffectInstance effect1 : this.getEffects()) {
+            if (effect == effect1.getEffect()) return true;
         }
         return false;
     }
@@ -46,4 +42,5 @@ public interface EffectsStyle {
     default boolean hasEffects() {
         return this.getEffects().length > 0;
     }
+
 }

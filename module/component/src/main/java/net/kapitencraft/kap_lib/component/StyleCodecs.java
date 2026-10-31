@@ -2,10 +2,10 @@ package net.kapitencraft.kap_lib.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -26,13 +26,13 @@ public interface StyleCodecs {
             Codec.BOOL.optionalFieldOf("obfuscated", false).forGetter(Style::isObfuscated),
             Codec.STRING.optionalFieldOf("insertion").forGetter((p_237269_) -> Optional.ofNullable(p_237269_.getInsertion())),
             ResourceLocation.CODEC.optionalFieldOf("font", Style.DEFAULT_FONT).forGetter(Style::getFont),
-            GlyphEffects.CODEC.listOf().optionalFieldOf("effects", List.of()).forGetter(style -> List.of(EffectsStyle.of(style).getEffects()))
+            GlyphEffects.CODEC.listOf().optionalFieldOf("effects", List.of()).forGetter(style -> List.of(style.getEffects()))
     ).apply(styleInstance, StyleCodecs::createStyleFromCodec));
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    static Style createStyleFromCodec(Optional<TextColor> color, Boolean bold, Boolean italic, Boolean underlined, Boolean strikethrough, Boolean obfuscated, Optional<String> insertion, ResourceLocation font, List<GlyphEffect> effects) {
+    static Style createStyleFromCodec(Optional<TextColor> color, Boolean bold, Boolean italic, Boolean underlined, Boolean strikethrough, Boolean obfuscated, Optional<String> insertion, ResourceLocation font, List<GlyphEffect.EffectInstance> effects) {
         Style style = new Style(color.orElse(null), bold, italic, underlined, strikethrough, obfuscated, null, null, insertion.orElse(null), font);
-        EffectsStyle.of(style).setEffects(effects.toArray(GlyphEffect[]::new));
+        style.setEffects(effects.toArray(GlyphEffect.EffectInstance[]::new));
         return style;
     }
 }

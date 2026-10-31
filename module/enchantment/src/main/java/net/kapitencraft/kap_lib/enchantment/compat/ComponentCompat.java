@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.enchantment.compat;
 
-import net.kapitencraft.kap_lib.component.font.effect.EffectsStyle;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
+import net.kapitencraft.kap_lib.component.font.effect.effects.RainbowEffect;
 import net.kapitencraft.kap_lib.core.client.widget.select.SelectChatColorWidget;
 import net.kapitencraft.kap_lib.shader.ModRenderTypes;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,12 +16,11 @@ public class ComponentCompat {
     }
 
     public static boolean checkRainbowActive(Style style) {
-        EffectsStyle effectsStyle = EffectsStyle.of(style);
-        return effectsStyle.hasEffect(GlyphEffects.RAINBOW);
+        return style.hasEffect(GlyphEffects.RAINBOW);
     }
 
     private static class ChromaColorType implements SelectChatColorWidget.ColorType {
-        private static final Style CHROMA_STYLE = GlyphEffects.RAINBOW.apply(Style.EMPTY);
+        private static final Style CHROMA_STYLE = Style.EMPTY.addEffect(new RainbowEffect.RainbowEffectInstance());
 
         @Override
         public void render(GuiGraphics graphics, int x, int y, int width) {
