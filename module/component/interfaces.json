@@ -4,5 +4,8 @@
   ],
   "net/minecraft/client/gui/font/FontTexture": [
     "net/kapitencraft/kap_lib/component/mixin/duck/IChromatic"
+  ],
+  "net/minecraft/network/chat/Style": [
+    "net/kapitencraft/kap_lib/component/font/effect/EffectsStyle"
   ]
 }

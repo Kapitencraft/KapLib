@@ -369,4 +369,8 @@ public class TextHelper {
             sink.add(matcher.group());
         }
     }
+
+    public static boolean isDigitOrDot(char c) {
+        return (c >= '0' && c <= '9') || c == '.';
+    }
 }

@@ -74,31 +74,48 @@ public abstract class StyleMixin implements EffectsStyle, MixinSelfProvider<Styl
     @Nullable
     ResourceLocation font;
 
-    @Shadow
-    @Final
-    public static ResourceLocation DEFAULT_FONT;
-
     @SuppressWarnings("all")
     @NotNull
-    private GlyphEffect[] effects = new GlyphEffect[0];
+    private GlyphEffect.EffectInstance[] effects = new GlyphEffect.EffectInstance[0];
 
     @SuppressWarnings("all")
-    public Style addEffect(GlyphEffect effect) {
+    public Style addEffect(GlyphEffect.EffectInstance effect) {
         Style style = new Style(this.color, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font);
-        GlyphEffect[] s = new GlyphEffect[this.effects.length + 1];
+        GlyphEffect.EffectInstance[] s = new GlyphEffect.EffectInstance[this.effects.length + 1];
         System.arraycopy(this.effects, 0, s, 0, this.effects.length);
         s[this.effects.length] = effect;
-        EffectsStyle.of(style).setEffects(s);
+        style.setEffects(s);
         return style;
     }
 
     @Override
-    public void setEffects(GlyphEffect[] effects) {
+    public Style removeEffect(GlyphEffect<?> effect) {
+        int idx = -1;
+        for (int i = 0; i < this.effects.length; i++) {
+            if (this.effects[i].getEffect() == effect) {
+                idx = i;
+                break;
+            }
+        }
+        if (idx == -1) return self();
+        Style style = new Style(this.color, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font);
+        if (this.effects.length - 1 > 0) {
+            GlyphEffect.EffectInstance[] s = new GlyphEffect.EffectInstance[this.effects.length - 1];
+            System.arraycopy(this.effects, 0, s, 0, idx);
+            if (this.effects.length - idx > 1)
+                System.arraycopy(this.effects, idx + 1, s, idx + 1, this.effects.length - idx - 1);
+            style.setEffects(s);
+        }
+        return style;
+    }
+
+    @Override
+    public void setEffects(GlyphEffect.EffectInstance[] effects) {
         this.effects = effects;
     }
 
     @Unique
-    public GlyphEffect @NotNull [] getEffects() {
+    public GlyphEffect.EffectInstance @NotNull [] getEffects() {
         return effects;
     }
 
@@ -106,7 +123,7 @@ public abstract class StyleMixin implements EffectsStyle, MixinSelfProvider<Styl
     public StringBuilder toString(StringBuilder instance, String str, Operation<StringBuilder> original) {
         original.call(instance, str);
         if (this.effects.length > 0)
-            instance.append("{special: ").append(Arrays.stream(this.effects).map(GlyphEffects::getKey).filter(Objects::nonNull).map(ResourceLocation::toString).collect(Collectors.joining(", "))).append("}");
+            instance.append("{special: ").append(Arrays.stream(this.effects).map(GlyphEffect.EffectInstance::getEffect).map(GlyphEffects::getKey).filter(Objects::nonNull).map(ResourceLocation::toString).collect(Collectors.joining(", "))).append("}");
         return instance;
     }
 
@@ -125,7 +142,7 @@ public abstract class StyleMixin implements EffectsStyle, MixinSelfProvider<Styl
     }, at = @At(value = "NEW", target = "(Lnet/minecraft/network/chat/TextColor;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Lnet/minecraft/network/chat/ClickEvent;Lnet/minecraft/network/chat/HoverEvent;Ljava/lang/String;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/network/chat/Style;"))
     private Style makeNewStyle(TextColor color, Boolean bold, Boolean italic, Boolean underlined, Boolean strikethrough, Boolean obfuscated, ClickEvent clickEvent, HoverEvent hoverEvent, String insertion, ResourceLocation font, Operation<Style> original) {
         Style style = original.call(color, bold, italic, underlined, strikethrough, obfuscated, clickEvent, hoverEvent, insertion, font);
-        EffectsStyle.of(style).setEffects(this.effects);
+        style.setEffects(this.effects);
         return style;
     }
 }

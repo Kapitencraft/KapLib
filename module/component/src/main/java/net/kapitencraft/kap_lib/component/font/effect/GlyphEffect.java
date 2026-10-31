@@ -1,34 +1,35 @@
 package net.kapitencraft.kap_lib.component.font.effect;
 
-import net.minecraft.network.chat.Style;
+import com.mojang.serialization.MapCodec;
+import net.kapitencraft.kap_lib.component.ParamStorage;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * base class for the glyph effect
  */
-public abstract class GlyphEffect {
+public abstract class GlyphEffect<T extends GlyphEffect.EffectInstance> {
 
-    public GlyphEffect() {
+    protected GlyphEffect() {
     }
 
     /**
      * method to modify the {@link EffectSettings} for changing behaviour of the glyph rendering
+     *
      * @param settings the settings of the current glyph being applied
+     * @param instance the settings of the effect to be processed
      */
-    public abstract void apply(EffectSettings settings);
+    public abstract void apply(EffectSettings settings, T instance);
 
-    /**
-     * @return the unique char associated to this Effect
-     * <br>mustn't match any {@link net.minecraft.ChatFormatting ChatFormatting} key
-     */
-    public abstract char getKey();
+    public abstract T createInstance(ParamStorage params);
 
+    public abstract MapCodec<T> codec();
 
+    public interface EffectInstance {
+        @NotNull GlyphEffect<?> getEffect();
 
-    /**
-     * @param in the Style to add this effect to
-     * @return the new style with applied effect
-     */
-    public final Style apply(Style in) {
-        return EffectsStyle.of(in).addEffect(this);
+        @SuppressWarnings("unchecked")
+        default <T extends GlyphEffect.EffectInstance> void apply(EffectSettings settings) {
+            ((GlyphEffect<T>) this.getEffect()).apply(settings, (T) this);
+        }
     }
 }

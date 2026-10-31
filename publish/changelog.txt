@@ -7,6 +7,13 @@ bumped neoforge version to .262
 renamed `double_jump` -> `multi_jump` because it allows for more than two jumps, and I'm as pedantic as the person suggesting it
 added `immune_to_life_steal` tag to disable life steal effect on selected entity types
 
+# Component Module
+
+reworked Glyph effects to use a registry instead of event based registration.
+changed Glyph Effects to only be available from translated component instead of everything
+changed Glyph Effect format from `§<key>` to HTML format: `<[location] (paramKey=paramValue)*>(styledText)</[location]>`
+added Glyph Effect parameters (amplitude and scale for wave and shake)
+
 # Core Module
 
 fixed MathHelper using Mth#clamp to check for values in a range

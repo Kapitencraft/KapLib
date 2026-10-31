@@ -27,7 +27,9 @@ public abstract class StringRenderOutputMixin {
     @Shadow
     float y;
 
-    @Shadow @Final private boolean dropShadow;
+    @Shadow
+    @Final
+    private boolean dropShadow;
 
     @Shadow
     private float r;
@@ -40,7 +42,7 @@ public abstract class StringRenderOutputMixin {
 
     @WrapOperation(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;renderType(Lnet/minecraft/client/gui/Font$DisplayMode;)Lnet/minecraft/client/renderer/RenderType;"))
     public RenderType changeRender(BakedGlyph instance, Font.DisplayMode displayMode, Operation<RenderType> original, @Local(argsOnly = true) Style style) {
-        if (EffectsStyle.of(style).hasEffect(GlyphEffects.RAINBOW) && !this.dropShadow) {
+        if (style.hasEffect(GlyphEffects.RAINBOW) && !this.dropShadow) {
             return instance.getChromaType();
         }
         return instance.renderType(displayMode);
@@ -48,10 +50,9 @@ public abstract class StringRenderOutputMixin {
 
     @Inject(method = "accept", at = @At("HEAD"))
     public void accept(int index, Style style, int i, CallbackInfoReturnable<Boolean> returnable) {
-        EffectsStyle effects = (EffectsStyle) style;
-        if (effects.hasEffects()) {
+        if (style.hasEffects()) {
             EffectSettings settings = new EffectSettings();
-            float r,g,b;
+            float r, g, b;
             r = this.r;
             g = this.g;
             b = this.b;
@@ -63,7 +64,8 @@ public abstract class StringRenderOutputMixin {
             settings.isShadow = this.dropShadow;
             settings.index = index;
 
-            for (GlyphEffect effect : effects.getEffects()) effect.apply(settings);
+            for (GlyphEffect.EffectInstance effectInstance : style.getEffects())
+                effectInstance.apply(settings);
             this.x = settings.x;
             this.y = settings.y;
             if (r != settings.r || g != settings.g || b != settings.b) {

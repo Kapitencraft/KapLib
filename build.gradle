@@ -166,6 +166,7 @@ subprojects { Project proj ->
         if (moduleData.compat != null) {
             moduleData.compat.each { String dep ->
                 compileOnly(project(":${dep}"))
+                interfaceInjectionData(project(":${dep}"))
             }
         }
 

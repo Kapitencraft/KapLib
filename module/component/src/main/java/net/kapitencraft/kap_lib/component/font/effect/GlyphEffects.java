@@ -1,53 +1,33 @@
 package net.kapitencraft.kap_lib.component.font.effect;
 
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.component.event.custom.RegisterGlyphEffectsEvent;
+import net.kapitencraft.kap_lib.component.ComponentRegistries;
 import net.kapitencraft.kap_lib.component.font.effect.effects.RainbowEffect;
 import net.kapitencraft.kap_lib.component.font.effect.effects.ShakeEffect;
 import net.kapitencraft.kap_lib.component.font.effect.effects.WaveEffect;
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModLoader;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
-public class GlyphEffects {
-    private static final Map<ResourceLocation, GlyphEffect> EFFECT_BY_NAME_MAP = new HashMap<>();
-    private static final Map<GlyphEffect, ResourceLocation> NAME_BY_EFFECT_MAP = new HashMap<>();
-    private static final Map<Character, GlyphEffect> EFFECT_BY_KEY_MAP = new HashMap<>();
-    public static final Codec<GlyphEffect> CODEC = ResourceLocation.CODEC.xmap(EFFECT_BY_NAME_MAP::get, NAME_BY_EFFECT_MAP::get);
+public interface GlyphEffects {
+    DeferredRegister<GlyphEffect<?>> REGISTRY = LibConstants.registry(ComponentRegistries.Keys.GLYPH_EFFECTS);
+    Codec<GlyphEffect.EffectInstance> CODEC = ComponentRegistries.GLYPH_EFFECTS.byNameCodec().dispatch(GlyphEffect.EffectInstance::getEffect, GlyphEffect::codec);
 
-    public static final RainbowEffect RAINBOW = register("rainbow", RainbowEffect::new);
-    public static final WaveEffect WAVE = register("wave", WaveEffect::new);
-    public static final ShakeEffect SHAKE = register("shake", ShakeEffect::new);
+    Supplier<RainbowEffect> RAINBOW = register("rainbow", RainbowEffect::new);
+    Supplier<WaveEffect> WAVE = register("wave", WaveEffect::new);
+    Supplier<ShakeEffect> SHAKE = register("shake", ShakeEffect::new);
 
-    static {
-        RegisterGlyphEffectsEvent event = new RegisterGlyphEffectsEvent(EFFECT_BY_NAME_MAP, NAME_BY_EFFECT_MAP);
-        ModLoader.postEvent(event);
+    private static <T extends GlyphEffect<?>> Supplier<T> register(String name, Supplier<T> provider) {
+        return REGISTRY.register(name, provider);
     }
 
-    private static <T extends GlyphEffect> T register(String name, Supplier<T> provider) {
-        T value = provider.get();
-        ResourceLocation location = LibConstants.res(name);
-        EFFECT_BY_NAME_MAP.put(location, value);
-        NAME_BY_EFFECT_MAP.put(value, location);
-        EFFECT_BY_KEY_MAP.put(value.getKey(), value);
-        return value;
-    }
-
-    public static @Nullable ResourceLocation getKey(@NotNull GlyphEffect effect) {
-        return NAME_BY_EFFECT_MAP.get(effect);
-    }
-
-    public static boolean exists(char key) {
-        return EFFECT_BY_KEY_MAP.containsKey(key);
-    }
-
-    public static GlyphEffect getForKey(char key) {
-        return EFFECT_BY_KEY_MAP.get(key);
+    static @Nullable ResourceLocation getKey(@NotNull GlyphEffect<?> effect) {
+        return ComponentRegistries.GLYPH_EFFECTS.getKey(effect);
     }
 }
