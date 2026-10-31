@@ -1,9 +1,9 @@
 {
   "net/minecraft/client/gui/font/glyphs/BakedGlyph": [
-    "net/kapitencraft/kap_lib/component/mixin/duck/IChromatic"
+    "net/kapitencraft/kap_lib/component/mixin/duck/GlyphTextureLookup"
   ],
   "net/minecraft/client/gui/font/FontTexture": [
-    "net/kapitencraft/kap_lib/component/mixin/duck/IChromatic"
+    "net/kapitencraft/kap_lib/component/mixin/duck/GlyphTextureLookup"
   ],
   "net/minecraft/network/chat/Style": [
     "net/kapitencraft/kap_lib/component/font/effect/EffectsStyle"

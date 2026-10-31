@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class GlyphEffect<T extends GlyphEffect.EffectInstance> {
 
+
     protected GlyphEffect() {
     }
 

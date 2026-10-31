@@ -156,5 +156,6 @@
   "command.server_test.spawn_table.not_found": "Spawn Table \"test:test\" not found",
   "inventory.page.equipment": "Equipment",
 
-  "glyph.test": "<kap_lib:shake a=6><kap_lib:wave s=.2>SHAKE</kap_lib:wave></kap_lib:shake>"
+  "glyph.test": "<kap_lib:shake a=6><kap_lib:wave s=.2>SHAKE</kap_lib:wave></kap_lib:shake>",
+  "glyph.test1": "<kap_lib:rainbow o=top_right sd=2 sg=2>RAINBOW</kap_lib:rainbow>"
 }

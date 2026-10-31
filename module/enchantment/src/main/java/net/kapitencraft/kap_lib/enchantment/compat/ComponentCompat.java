@@ -3,7 +3,7 @@ package net.kapitencraft.kap_lib.enchantment.compat;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
 import net.kapitencraft.kap_lib.component.font.effect.effects.RainbowEffect;
 import net.kapitencraft.kap_lib.core.client.widget.select.SelectChatColorWidget;
-import net.kapitencraft.kap_lib.shader.ModRenderTypes;
+import net.kapitencraft.kap_lib.shader.ShaderRenderTypes;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Style;
 
@@ -24,7 +24,7 @@ public class ComponentCompat {
 
         @Override
         public void render(GuiGraphics graphics, int x, int y, int width) {
-            graphics.fill(ModRenderTypes.FILL_CHROMA, x, y, x + width, y + width, 0);
+            graphics.fill(ShaderRenderTypes.FILL_CHROMA, x, y, x + width, y + width, 0);
         }
 
         @Override

@@ -13,10 +13,13 @@ import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.regex.Pattern;
+
 @ApiStatus.Internal
 @Mod(ComponentModule.MODULE_ID)
 public class ComponentModule {
     public static final String MODULE_ID = LibConstants.MOD_ID + "_component";
+    public static final Pattern EFFECT_MARKER_PATTERN = Pattern.compile("<(?<key>([a-z0-9_.-]+:)?[a-z0-9_.-]+)(?<args>( [a-z]+=[a-z0-9._-]+)*)>(?<text>.*?)</\\k<key>");
 
     public ComponentModule(IEventBus modEventBus, ModContainer container) {
 

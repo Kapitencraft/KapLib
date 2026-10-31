@@ -7,8 +7,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.component.font.effect.EffectSettings;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffect;
 import net.kapitencraft.kap_lib.component.font.effect.GlyphEffects;
+import net.kapitencraft.kap_lib.shader.ShaderRenderTypes;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Style;
 import org.joml.Matrix4f;
@@ -23,13 +25,9 @@ public abstract class StringRenderOutputMixin {
     @Final
     private boolean dropShadow;
 
-    @WrapOperation(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;renderType(Lnet/minecraft/client/gui/Font$DisplayMode;)Lnet/minecraft/client/renderer/RenderType;"))
-    public RenderType changeRender(BakedGlyph instance, Font.DisplayMode displayMode, Operation<RenderType> original, @Local(argsOnly = true) Style style) {
-        if (style.hasEffect(GlyphEffects.RAINBOW) && !this.dropShadow) {
-            return instance.getChromaType();
-        }
-        return original.call(instance, displayMode);
-    }
+    @Shadow
+    @Final
+    private MultiBufferSource bufferSource;
 
     @WrapOperation(method = "accept", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;renderChar(Lnet/minecraft/client/gui/font/glyphs/BakedGlyph;ZZFFFLorg/joml/Matrix4f;Lcom/mojang/blaze3d/vertex/VertexConsumer;FFFFI)V"))
     private void injectEffects(Font instance, BakedGlyph glyph, boolean bold, boolean italic,
@@ -48,6 +46,7 @@ public abstract class StringRenderOutputMixin {
             settings.y = y;
             settings.isShadow = dropShadow;
             settings.index = index;
+            settings.texture = glyph.getTextureLocation();
 
             for (GlyphEffect.EffectInstance effectInstance : style.getEffects())
                 effectInstance.apply(settings);
@@ -57,6 +56,10 @@ public abstract class StringRenderOutputMixin {
             red = settings.r;
             green = settings.g;
             blue = settings.b;
+
+            if (settings.renderType != null) {
+                buffer = bufferSource.getBuffer(settings.renderType);
+            }
         }
         original.call(instance, glyph, bold, italic, boldOffset, x, y, matrix, buffer, red, green, blue, alpha, packedLight);
     }

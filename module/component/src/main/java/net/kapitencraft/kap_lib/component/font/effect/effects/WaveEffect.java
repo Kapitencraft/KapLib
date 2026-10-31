@@ -22,7 +22,7 @@ public class WaveEffect extends GlyphEffect<WaveEffect.WaveEffectInstance> {
 
     @Override
     public WaveEffectInstance createInstance(ParamStorage params) {
-        String scale = params.getParam("scale", "s");
+        String scale = params.getParam("spacing", "s");
         String amplitude = params.getParam("amplitude", "a");
         return new WaveEffectInstance(
                 scale != null ? Float.parseFloat(scale) : .01f,
@@ -37,7 +37,7 @@ public class WaveEffect extends GlyphEffect<WaveEffect.WaveEffectInstance> {
 
     public record WaveEffectInstance(float scale, float amplitude) implements EffectInstance {
         private static final MapCodec<WaveEffectInstance> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                        Codec.FLOAT.optionalFieldOf("scale", .01f).forGetter(WaveEffectInstance::scale),
+                        Codec.FLOAT.optionalFieldOf("spacing", .01f).forGetter(WaveEffectInstance::scale),
                         Codec.FLOAT.optionalFieldOf("amplitude", 2f).forGetter(WaveEffectInstance::amplitude)
                 ).apply(i, WaveEffectInstance::new)
         );

@@ -49,7 +49,7 @@ public class ComponentClientTestCommand {
     }
 
     private static int testFormattedGlyph(CommandContext<CommandSourceStack> context) {
-        context.getSource().sendSystemMessage(Component.translatable("glyph.test"));
+        context.getSource().sendSystemMessage(Component.translatable("glyph.test1"));
         return 1;
     }
 }
