@@ -7,7 +7,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = ShaderModule.MODULE_ID)
+//TODO
+//@EventBusSubscriber(value = Dist.CLIENT, modid = ShaderModule.MODULE_ID)
 public class ShaderClientEvents {
 
     @SubscribeEvent

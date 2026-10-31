@@ -7,4 +7,5 @@ import org.jetbrains.annotations.ApiStatus;
 public interface ModShaderStateShards {
     RenderStateShard.ShaderStateShard CHROMATIC = new RenderStateShard.ShaderStateShard(ModShaders::getRendertypeChromaShader);
     RenderStateShard.ShaderStateShard GUI_CHROMA = new RenderStateShard.ShaderStateShard(ModShaders::getGuiChromaShader);
+
 }

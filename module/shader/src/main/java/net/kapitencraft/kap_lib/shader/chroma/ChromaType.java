@@ -11,6 +11,8 @@ public enum ChromaType implements StringRepresentable, IShaderConfig {
     CIRCLE("circle", 0),
     RECTANGLE("rectangle", 2);
 
+    public static final EnumCodec<ChromaType> CODEC = StringRepresentable.fromEnum(ChromaType::values);
+
     private final String name;
     private final int byteId;
 

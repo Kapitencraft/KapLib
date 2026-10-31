@@ -13,6 +13,8 @@ public enum ChromaOrigin implements IShaderConfig, StringRepresentable {
     BOTTOM_RIGHT("bottom_right"),
     TOP_RIGHT("top_right");
 
+    public static final EnumCodec<ChromaOrigin> CODEC = StringRepresentable.fromEnum(ChromaOrigin::values);
+
     private final String name;
 
     ChromaOrigin(String name) {

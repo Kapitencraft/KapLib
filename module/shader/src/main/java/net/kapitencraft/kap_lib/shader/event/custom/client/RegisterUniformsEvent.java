@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.shader.event.custom.client;
 
+import net.kapitencraft.kap_lib.shader.UniformRenderStateShard;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.Event;
@@ -11,7 +12,9 @@ import java.util.function.Supplier;
 /**
  * used for registering custom Uniforms for shaders to use <br>
  * only clientside, can not be canceled
+ * use {@link net.kapitencraft.kap_lib.shader.patch.CompositeStateBuilderPatch#setUniformsStateShard(UniformRenderStateShard) CompositeStateBuilder#setUniformsStateShard} instead
  */
+@Deprecated
 @OnlyIn(Dist.CLIENT)
 public class RegisterUniformsEvent extends Event implements IModBusEvent {
     private final HashMap<String, Supplier<float[]>> vecSuppliers;

@@ -1,0 +1,5 @@
+{
+  "net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder": [
+    "net/kapitencraft/kap_lib/shader/patch/CompositeStateBuilderPatch"
+  ]
+}

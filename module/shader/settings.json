@@ -1,6 +1,7 @@
 {
   "type": "mod",
   "extensions": false,
-  "at": false,
-  "mixin": true
+  "at": true,
+  "mixin": true,
+  "interfaceInjection": true
 }

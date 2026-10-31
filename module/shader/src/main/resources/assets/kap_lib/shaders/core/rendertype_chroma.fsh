@@ -8,6 +8,10 @@ const float GAME_TIME_SCALE = 200.0;
 
 uniform sampler2D Sampler0;
 
+//r = stage filter type
+//g = spacing
+//b = speed
+//a = chroma type
 uniform vec4 ChromaConfig;
 uniform vec4 ColorModulator;
 uniform float FogStart;
@@ -27,7 +31,6 @@ void main() {
     if (color.a < 0.1) {
         discard;
     }
-
 
     vec2 stage = filterStage(gl_FragCoord.xy / ScreenSize.xy, int(ChromaConfig.r));
     float l = chromaPos(ChromaConfig.a, stage, ChromaConfig.g);
