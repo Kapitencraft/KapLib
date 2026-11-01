@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-
 public class EnchantmentDescriptionManager {
 
     private static final Style INFO_STYLE = Style.EMPTY.withColor(ChatFormatting.WHITE).withBold(false).withStrikethrough(false).withItalic(false).withObfuscated(false).withUnderlined(false);

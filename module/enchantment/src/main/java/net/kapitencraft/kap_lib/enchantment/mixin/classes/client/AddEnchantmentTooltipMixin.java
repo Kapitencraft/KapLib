@@ -4,6 +4,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.kapitencraft.kap_lib.enchantment.extras.EnchantmentDescriptionManager;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -20,6 +22,13 @@ import java.util.function.Consumer;
 
 @Mixin(ItemEnchantments.class)
 public abstract class AddEnchantmentTooltipMixin {
+
+    @Inject(method = "addToTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/Item$TooltipContext;registries()Lnet/minecraft/core/HolderLookup$Provider;"))
+    private void addShiftNotice(Item.TooltipContext context, Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag, CallbackInfo ci) {
+        if (!Screen.hasShiftDown()) {
+            tooltipAdder.accept(Component.translatable("ench_desc.shift"));
+        }
+    }
 
     @Inject(method = "addToTooltip", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V", shift = At.Shift.AFTER))
     private void injectTranslations(Item.TooltipContext context, Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag, CallbackInfo ci, @Local Holder<Enchantment> enchantmentHolder) {

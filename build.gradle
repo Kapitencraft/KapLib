@@ -340,8 +340,10 @@ tasks.register('autoPublish', JavaExec) {
 
     classpath = sourceSets.main.runtimeClasspath
 
-    systemProperty('modrinthAuth', getProperty('modrinthAuth'))
-    systemProperty('curseforgeAuth', getProperty('curseforgeAuth'))
+    if (hasProperty('modrinthAuth'))
+        systemProperty('modrinthAuth', getProperty('modrinthAuth'))
+    if (hasProperty('curseforgeAuth'))
+        systemProperty('curseforgeAuth', getProperty('curseforgeAuth'))
 }
 
 tasks.register('gitUpdate', Task) {

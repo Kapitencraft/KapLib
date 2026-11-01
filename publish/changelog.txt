@@ -18,3 +18,7 @@ added Glyph Effect parameters (amplitude and scale for wave and shake)
 
 fixed MathHelper using Mth#clamp to check for values in a range
 removed MathHelper#getRandomOffsetForPos
+
+# Enchantment Module
+
+fixed description shift notice not being shown

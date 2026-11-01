@@ -112,7 +112,6 @@ public class RequirementManager extends SimpleJsonResourceReloadListener {
         }
     }
 
-
     /**
      * checks if the given entity matches the given value for the given type
      */

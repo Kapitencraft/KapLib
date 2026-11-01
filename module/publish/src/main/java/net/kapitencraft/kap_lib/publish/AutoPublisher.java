@@ -15,7 +15,6 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class AutoPublisher {
     static final Gson GSON = new GsonBuilder()
@@ -487,26 +486,38 @@ public class AutoPublisher {
     }
 
     private static final class PlainChangelog implements Changelog {
-        private String content;
+        private String[] content;
+
+        //add HTML / MD line feed character
+        private static String makeLineFeedFormatting(String[] lines) {
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i];
+                builder.append(line);
+                if (!line.startsWith("#") && !line.isEmpty() && i < line.length() - 1)
+                    builder.append("<br>\n");
+            }
+            return builder.toString();
+        }
 
         @Override
         public String toHtml() {
-            return content;
+            return makeLineFeedFormatting(content);
         }
 
         @Override
         public String toMd() {
-            return content;
+            return makeLineFeedFormatting(content);
         }
 
         @Override
         public String toPlainText() {
-            return content;
+            return String.join("\n", content);
         }
 
         @Override
         public void parse(BufferedReader reader) {
-            content = reader.lines().collect(Collectors.joining("<br>\n")); //add HTML / MD line feed character
+            content = reader.lines().toArray(String[]::new);
         }
 
         @Override
@@ -525,9 +536,8 @@ public class AutoPublisher {
         @Override
         public String toString() {
             return "PlainChangelog[" +
-                    "content=" + content + ']';
+                    "content=" + Arrays.toString(content) + ']';
         }
-
     }
     //endregion
 
