@@ -1,12 +1,8 @@
 {
-  "alignment.x.top": "Left",
-  "alignment.x.middle": "Middle",
-  "alignment.x.bottom": "Right",
-  "alignment.y.top": "Top",
-  "alignment.y.middle": "Middle",
-  "alignment.y.bottom": "Bottom",
 
   "command.failed.console": "Can not perform this command from the console",
+
+  "desc.missing": "No Description found :C",
 
   "component_chain.or": " or ",
   "component_chain.and": " and ",

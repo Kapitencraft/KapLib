@@ -21,6 +21,9 @@
   "attribute.name.generic.vitality": "§4Vitality",
   "attribute.name.generic.wisdom": "Wisdom",
 
+  "death.attack.ferocity": "%1$s was ferociously murdered by %2$s",
+  "death.attack.ferocity.item": "%1$s was ferociously murdered by %2$s using %3$s",
+
   "generic.ability_damage": "§cAbility Damage",
   "generic.armor_shredder": "Armor Shredding",
   "generic.arrow_count": "Arrow Count",

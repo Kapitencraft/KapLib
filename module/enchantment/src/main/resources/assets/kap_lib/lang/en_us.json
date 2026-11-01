@@ -19,8 +19,6 @@
   "command.cec.reset": "Successfully reset Enchantment Colors",
   "command.cec.reload": "Successfully reloaded Enchantment Colors",
 
-  "desc.missing": "No Description found :C",
-
   "enchantment_colors.curse": "Curse",
   "enchantment_colors.max_level": "Max Level",
   "enchantment_colors.over_level": "Over Level",
