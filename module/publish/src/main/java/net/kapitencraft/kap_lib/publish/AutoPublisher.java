@@ -495,7 +495,8 @@ public class AutoPublisher {
                 String line = lines[i];
                 builder.append(line);
                 if (!line.startsWith("#") && !line.isEmpty() && i < line.length() - 1)
-                    builder.append("<br>\n");
+                    builder.append("<br>");
+                builder.append("\n");
             }
             return builder.toString();
         }
