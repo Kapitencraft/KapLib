@@ -3,13 +3,16 @@ package net.kapitencraft.kap_lib.requirement.conditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.core.io.serialization.RegistrySerializer;
 import net.kapitencraft.kap_lib.requirement.conditions.abstracts.ReqCondition;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -25,9 +28,14 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
             Codec.BOOL.optionalFieldOf("inverted", false).forGetter(i -> i.inverted)
             ).apply(instance, DimensionReqCondition::new)
     );
+    private static final StreamCodec<ByteBuf, DimensionReqCondition> STREAM_CODEC = StreamCodec.composite(
+            ResourceKey.streamCodec(Registries.DIMENSION).apply(ByteBufCodecs.list()), i -> i.dimensions,
+            ByteBufCodecs.BOOL, i -> i.inverted,
+            DimensionReqCondition::new
+    );
 
     public static final RegistrySerializer<DimensionReqCondition> SERIALIZER = new RegistrySerializer<>(
-            CODEC, StreamCodec.of(DimensionReqCondition::toNetwork, DimensionReqCondition::fromNetwork)
+            CODEC, STREAM_CODEC
     );
 
     private final List<ResourceKey<Level>> dimensions;
@@ -49,15 +57,6 @@ public class DimensionReqCondition extends ReqCondition<DimensionReqCondition> {
         if (inverted) key += ".inverted";
         List<MutableComponent> dimensionsBaked = dimensions.stream().map(ResourceKey::location).map(ResourceLocation::toString).map(s -> s.replace(':', '.')).map(s -> Component.translatable("dimension." + s)).toList();
         return Component.translatable(key, TextHelper.chain(dimensionsBaked, true));
-    }
-
-    public static void toNetwork(FriendlyByteBuf buf, DimensionReqCondition condition) {
-        buf.writeCollection(condition.dimensions, FriendlyByteBuf::writeResourceKey);
-        buf.writeBoolean(condition.inverted);
-    }
-
-    public static DimensionReqCondition fromNetwork(FriendlyByteBuf buf) {
-        return new DimensionReqCondition(buf.readList(buf1 -> buf1.readResourceKey(Registries.DIMENSION)), buf.readBoolean());
     }
 
     @Override

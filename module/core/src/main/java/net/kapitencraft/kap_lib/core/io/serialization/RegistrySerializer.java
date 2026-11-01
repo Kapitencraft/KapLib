@@ -12,7 +12,7 @@ import java.util.function.Function;
  * @param streamCodec the stream codec. use inside {@link StreamCodec#dispatch(Function, Function) }
  * @param <L> the type of the serializer
  */
-public record RegistrySerializer<L>(MapCodec<L> codec, StreamCodec<RegistryFriendlyByteBuf, L> streamCodec) {
+public record RegistrySerializer<L>(MapCodec<L> codec, StreamCodec<? super RegistryFriendlyByteBuf, L> streamCodec) {
 
     /**
      * creates a registry serializer that always returns the given value

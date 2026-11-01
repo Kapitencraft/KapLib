@@ -15,9 +15,6 @@ public abstract class CountCondition<T extends CountCondition<T>> extends ReqCon
         this.minLevel = minLevel;
     }
 
-
-
-
     protected abstract Component getCountedDisplay();
 
     @Override

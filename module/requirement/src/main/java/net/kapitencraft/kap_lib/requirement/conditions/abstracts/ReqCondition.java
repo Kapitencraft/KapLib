@@ -27,5 +27,4 @@ public abstract class ReqCondition<T extends ReqCondition<T>> {
     public @NotNull Component display() {
         return displayCache == null ? displayCache = cacheDisplay() : displayCache;
     }
-
 }
