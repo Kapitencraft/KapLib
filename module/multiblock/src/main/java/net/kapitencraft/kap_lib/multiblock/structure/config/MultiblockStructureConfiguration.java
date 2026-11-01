@@ -75,11 +75,53 @@ public class MultiblockStructureConfiguration {
         return multimap;
     }
 
-    public static class BlockGroup {
-        public static final Codec<BlockGroup> CODEC = Codec.unit(BlockGroup::new);
+    public boolean isEmptyAt(int[][] permutation, int x, int y, int z) {
+        Vec3i pos = findPositionInStructure(permutation, x, y, z);
+        return this.getInstanceAt(pos).isEmpty();
+    }
 
-        public boolean matches(Block block) {
-            return true;
+    private Vec3i findPositionInStructure(int[][] permutation, int x, int y, int z) {
+        return new Vec3i(
+                findPositionInStructure(permutation, Direction.Axis.X, x),
+                findPositionInStructure(permutation, Direction.Axis.Y, y),
+                findPositionInStructure(permutation, Direction.Axis.Z, z)
+        );
+    }
+
+    private int findPositionInStructure(int[][] permutation, Direction.Axis axis, int value) {
+        List<Quantifier> quantifiers = this.getQuantifiers(axis);
+        int offset = 0;
+        while (offset < value) {
+            int qIndex = Quantifier.findQuantifierIndex(offset, quantifiers);
+            if (qIndex == -1) {
+                offset++;
+            } else {
+                Quantifier quantifier = quantifiers.get(qIndex);
+                if (offset + quantifier.length() * permutation[axis.ordinal()][qIndex] < value) {
+                    offset = quantifier.toPosition() + 1;
+                } else {
+                    value -= offset;
+                    value %= quantifier.length();
+                    return offset + value;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public static class BlockGroup {
+        public static final Codec<BlockGroup> CODEC = BlockInstance.CODEC.xmap(BlockGroup::new, bg -> bg.instance);
+
+        private final BlockInstance instance;
+
+        public BlockGroup(BlockInstance instance) {
+            if (instance instanceof BlockInstance.GroupBlockInstance)
+                throw new IllegalArgumentException("block groups can not use group instances at block provider");
+            this.instance = instance;
+        }
+
+        public boolean matchesBlock(BlockState state) {
+            return instance.isValid(state);
         }
     }
 
@@ -108,13 +150,13 @@ public class MultiblockStructureConfiguration {
             return false;
         }
 
+        public boolean isEmpty() {
+            return false;
+        }
+
         public abstract @Nullable TagKey<Block> getTag();
 
         public abstract @Nullable String getGroupId();
-
-        public Tag toNbt() {
-            return null;
-        }
 
         public abstract List<BlockState> getValidStates();
 
@@ -357,6 +399,11 @@ public class MultiblockStructureConfiguration {
             @Override
             public @Nullable TagKey<Block> getTag() {
                 return null;
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return true;
             }
         }
 

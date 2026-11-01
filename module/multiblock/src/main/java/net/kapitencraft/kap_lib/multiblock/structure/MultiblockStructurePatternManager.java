@@ -35,14 +35,16 @@ public class MultiblockStructurePatternManager extends CodecJsonReloader<Multibl
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, MultiblockStructureConfiguration> structureConfigurations, ResourceManager resourceManager, ProfilerFiller profilerFiller) {
+    protected void apply(Map<ResourceLocation, MultiblockStructureConfiguration> structureConfigurations, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerFiller) {
         ImmutableMap.Builder<ResourceLocation, MultiblockStructurePattern> patternBuilder = ImmutableMap.builder();
         structureConfigurations.forEach((key, structureConfiguration) -> {
+            profilerFiller.push("multiblock structure pattern " + key + " building");
             try {
                 patternBuilder.put(key, MultiblockStructurePattern.build(structureConfiguration));
             } catch (Exception e) {
                 LOGGER.warn("unable to parse multiblock structure pattern {}: {}", key, e.getMessage());
             }
+            profilerFiller.pop();
         });
         this.structures = patternBuilder.build();
         MultiblockStructureManager.INSTANCE.rebuild(this);

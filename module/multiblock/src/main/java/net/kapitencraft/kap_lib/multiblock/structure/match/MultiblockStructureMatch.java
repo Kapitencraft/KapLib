@@ -44,13 +44,18 @@ public class MultiblockStructureMatch {
         return this.size;
     }
 
-    public static MultiblockStructureMatch of(Function<BlockPos, BlockState> stateGetter, int[][] permutation, MultiblockStructureConfiguration configuration, BlockPos start, BlockPos end) {
+    public static MultiblockStructureMatch of(
+            Function<BlockPos, BlockState> stateGetter, int[][] permutation,
+            MultiblockStructureConfiguration configuration, BlockPos start, BlockPos end
+    ) {
         BlockPos size = end.subtract(start);
         BlockState[][][] states = new BlockState[size.getX()][size.getY()][size.getZ()];
         for (int x = 0; x < size.getX(); x++) {
             for (int y = 0; y < size.getY(); y++) {
                 for (int z = 0; z < size.getZ(); z++) {
-                    states[x][y][z] = stateGetter.apply(start.offset(x, y, z));
+                    if (!configuration.isEmptyAt(permutation, x, y, z)) {
+                        states[x][y][z] = stateGetter.apply(start.offset(x, y, z));
+                    }
                 }
             }
         }

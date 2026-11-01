@@ -4,7 +4,6 @@ import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureC
 import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -25,12 +24,12 @@ public class BlockPattern {
 
         int quantifierOrdinal = 0;
         Node root = null;
-        Node current = root;
+        Node current = null;
         for (int i = 0; i < size; i++) {
 
             //we'll be doing recursive quantifiers later
-            Quantifier quantifier = findQuantifier(i, quantifiers);
-            Node n = null;
+            Quantifier quantifier = Quantifier.findQuantifier(i, quantifiers);
+            Node n;
             if (quantifier != null) {
                 Node qRoot = null;
                 Node qCurrent = null;
@@ -61,14 +60,6 @@ public class BlockPattern {
         return new BlockPattern(quantifierOrdinal, root);
     }
 
-    private static Quantifier findQuantifier(int offset, List<Quantifier> quantifiers) {
-        for (Quantifier quantifier : quantifiers) {
-            if (quantifier.fromPosition() == offset && quantifier.toPosition() >= offset) {
-                return quantifier;
-            }
-        }
-        return null;
-    }
 
     public BlockMatcher matcher(LevelAccessor level) {
 

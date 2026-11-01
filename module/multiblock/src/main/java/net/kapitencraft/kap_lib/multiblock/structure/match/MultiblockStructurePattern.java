@@ -197,9 +197,9 @@ public class MultiblockStructurePattern {
         List<Quantifier> axisQuantifiers = this.structureConfiguration.getQuantifiers(axis);
 
         for (int i = 0; i < this.structureConfiguration.getSize().get(axis); i++) {
-            int q = findQuantifierIndex(i, axisQuantifiers);
+            int q = Quantifier.findQuantifierIndex(i, axisQuantifiers);
             if (q != -1) {
-                int length = axisQuantifiers.get(q).toPosition() - axisQuantifiers.get(q).fromPosition() + 1;
+                int length = axisQuantifiers.get(q).length();
                 value += axisPermutations[q] * length;
                 i = axisQuantifiers.get(q).toPosition();
             } else value++;
@@ -229,7 +229,7 @@ public class MultiblockStructurePattern {
         for (int elementIdxX = 0; elementIdxX < sizeX; ) {
 
             //qEIdx = idx of the currently used index
-            int qEIdxX = findQuantifierIndex(elementIdxX, quantifiersX);
+            int qEIdxX = Quantifier.findQuantifierIndex(elementIdxX, quantifiersX);
             //count = repetitions of the quantifier, or one if there's no quantifier
             int countX = qEIdxX != -1 ? quantifierPermutationX[qEIdxX] : 1;
             //length of the quantifier
@@ -245,7 +245,7 @@ public class MultiblockStructurePattern {
                     int sizeY = this.structureConfiguration.getSize().get(Direction.Axis.Y);
                     for (int elementIdxY = 0; elementIdxY < sizeY; ) {
 
-                        int qEIdxY = findQuantifierIndex(elementIdxY, quantifiersY);
+                        int qEIdxY = Quantifier.findQuantifierIndex(elementIdxY, quantifiersY);
 
                         int countY = qEIdxY != -1 ? quantifierPermutationY[qEIdxY] : 1;
                         //length of the quantifier
@@ -261,7 +261,7 @@ public class MultiblockStructurePattern {
                                 int sizeZ = this.structureConfiguration.getSize().get(Direction.Axis.Z);
                                 for (int elementIdxZ = 0; elementIdxZ < sizeZ; ) {
 
-                                    int qEIdxZ = findQuantifierIndex(elementIdxZ, quantifiersZ);
+                                    int qEIdxZ = Quantifier.findQuantifierIndex(elementIdxZ, quantifiersZ);
 
                                     int countZ = qEIdxZ != -1 ? quantifierPermutationZ[qEIdxZ] : 1;
                                     //length of the quantifier
@@ -270,7 +270,10 @@ public class MultiblockStructurePattern {
                                     for (int iZ = 0; iZ < countZ; iZ++) {
 
                                         for (int sIdxZ = 0; sIdxZ < sectionLengthZ; sIdxZ++) {
-                                            if (!this.structureConfiguration.getInstanceAt(elementIdxX + sIdxX, elementIdxY + sIdxY, elementIdxZ + sIdxZ).isValid(stateGetter.apply(pos.offset(x, y, z))))
+                                            BlockPos wPos = pos.offset(x, y, z);
+                                            if (!this.structureConfiguration
+                                                    .getInstanceAt(elementIdxX + sIdxX, elementIdxY + sIdxY, elementIdxZ + sIdxZ)
+                                                    .isValid(stateGetter.apply(wPos)))
                                                 return false;
                                             z++;
                                         }
@@ -290,16 +293,6 @@ public class MultiblockStructurePattern {
         return true;
     }
     //endregion
-
-    private static int findQuantifierIndex(int offset, List<Quantifier> quantifiers) {
-        for (int i = 0; i < quantifiers.size(); i++) {
-            Quantifier quantifier = quantifiers.get(i);
-            if (quantifier.fromPosition() == offset && quantifier.toPosition() >= offset) {
-                return i;
-            }
-        }
-        return -1;
-    }
 
     public Multimap<BlockState, Vec3i> buildInfo() {
         return this.structureConfiguration.buildInfo();
