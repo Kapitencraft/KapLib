@@ -12,13 +12,23 @@ added `immune_to_life_steal` tag to disable life steal effect on selected entity
 reworked Glyph effects to use a registry instead of event based registration.
 changed Glyph Effects to only be available from translated component instead of everything
 changed Glyph Effect format from `§<key>` to HTML format: `<[location] (paramKey=paramValue)*>(styledText)</[location]>`
-added Glyph Effect parameters (amplitude and scale for wave and shake)
+added Glyph Effect parameters (amplitude and scale for wave and shake as well as origin, type, speed and spacing for rainbow)
 
 # Core Module
 
 fixed MathHelper using Mth#clamp to check for values in a range
 removed MathHelper#getRandomOffsetForPos
+moved considerable amounts of helper methods into interface injected patches. prefer those over the helper methods
 
 # Enchantment Module
 
 fixed description shift notice not being shown
+
+# Publish Module
+
+fixed changelog text being formatted wrongly
+
+# Shader Module
+
+added `UniformRenderStateShard` allowing you to set uniforms directly from the RenderType.
+deprecated `RegisterUniformsEvent` in favor of the StateShard
