@@ -11,9 +11,9 @@ public abstract class TextToNumConverter<T extends Number> extends TextConverter
 
     @Override
     protected boolean isArg(String s) {
-        return PREFERRED_ARGS.contains(s) || OTHER_ARGS.contains(s);
+        return PRIORITY_ARGS.contains(s) || OTHER_ARGS.contains(s);
     }
 
-    public static final List<String> PREFERRED_ARGS = List.of("*", "/", "%");
+    public static final List<String> PRIORITY_ARGS = List.of("*", "/", "%");
     public static final List<String> OTHER_ARGS = List.of("+", "-");
 }

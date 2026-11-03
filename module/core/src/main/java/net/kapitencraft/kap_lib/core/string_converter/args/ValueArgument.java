@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.core.string_converter.args;
 
-public record ValueArgument<T>(T value) implements TransferArg<T> {
+public record ValueArgument<T>(T value) implements Operation<T> {
 
     public static <T> ValueArgument<T> create(CalculationArgument<T> calcArg, ValueArgument<T> arg1, ValueArgument<T> arg2) {
         return new ValueArgument<>(calcArg.apply(arg1.value, arg2.value));

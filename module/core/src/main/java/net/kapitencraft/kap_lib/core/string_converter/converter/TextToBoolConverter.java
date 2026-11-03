@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.core.string_converter.converter;
 
 import com.mojang.serialization.Codec;
 import net.kapitencraft.kap_lib.core.string_converter.args.BoolCalcArg;
-import net.kapitencraft.kap_lib.core.string_converter.args.CalculationArgument;
 
 import java.util.List;
 

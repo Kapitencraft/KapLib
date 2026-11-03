@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.core.string_converter.args;
 
 import net.kapitencraft.kap_lib.core.string_converter.converter.TextToBoolConverter;
 
-public class BoolCalcArg implements CalculationArgument<Boolean> {
+public class BoolCalcArg implements Operation<Boolean> {
     private final String name;
 
     public BoolCalcArg(String name) {
