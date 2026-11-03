@@ -29,16 +29,9 @@ public class MultiblockStructureConfiguratorItem extends Item {
         Player player = context.getPlayer();
         if (player != null) {
             if (player.isShiftKeyDown() && player.level() instanceof ServerLevel sL) {
-                MultiblockStructurePattern pattern = MultiblockStructurePatternManager.INSTANCE.getStructure(ResourceLocation.fromNamespaceAndPath("test", "test2"));
-                MultiblockStructureMatch match = pattern.match(sL, pos);
-
-                if (match != null) {
-                    player.sendSystemMessage(Component.literal(TextHelper.positionToText(match.getSize())));
-                } else
-                    player.sendSystemMessage(Component.literal("no match"));
 
                 if (structureConfigurationLocation != null && level.getBlockEntity(structureConfigurationLocation) instanceof MultiblockStructureConfigurationBlockEntity configurationBlockEntity) {
-                    BlockPos offset = pos.subtract(configurationBlockEntity.getStructureOrigin());
+                    BlockPos structureRelative = pos.subtract(configurationBlockEntity.getStructureOrigin());
 
                 }
             } else {

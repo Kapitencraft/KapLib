@@ -3,14 +3,15 @@ package net.kapitencraft.kap_lib.multiblock.structure.config;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.kapitencraft.kap_lib.multiblock.structure.impl.MultiblockStructureBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
@@ -23,22 +24,35 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class MultiblockStructureConfiguration {
+    private static final Codec<MultiblockStructureBlock<?>> BLOCK_PROVIDER_CODEC = BuiltInRegistries.BLOCK.byNameCodec().comapFlatMap(
+            block -> {
+                if (block instanceof MultiblockStructureBlock<?> multiblockStructureBlock) {
+                    return DataResult.success(multiblockStructureBlock);
+                }
+                return DataResult.error(() -> "not a multiblock-structure block: " + block.getClass());
+            }, Function.identity()
+    );
+
     public static final Codec<MultiblockStructureConfiguration> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.unboundedMap(Codec.STRING, BlockGroup.CODEC).fieldOf("groups").forGetter(c -> c.groups),
             Codec.unboundedMap(Direction.Axis.CODEC, Quantifier.CODEC.listOf()).fieldOf("quantifiers").forGetter(c -> c.quantifiers),
-            SpacialData.codec(BlockInstance.CODEC, BlockInstance.EmptyBlockInstance.INSTANCE).fieldOf("data").forGetter(c -> c.spacialData)
-    ).apply(i, MultiblockStructureConfiguration::new));
+            SpacialData.codec(BlockInstance.CODEC, BlockInstance.EmptyBlockInstance.INSTANCE).fieldOf("data").forGetter(c -> c.spacialData),
+            BLOCK_PROVIDER_CODEC.fieldOf("block").forGetter(c -> c.block)
+            ).apply(i, MultiblockStructureConfiguration::new));
 
     private final Map<String, BlockGroup> groups;
     private final Map<Direction.Axis, List<Quantifier>> quantifiers;
     private final SpacialData<BlockInstance> spacialData;
+    private final MultiblockStructureBlock<?> block;
 
-    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, Map<Direction.Axis, List<Quantifier>> quantifiers, SpacialData<BlockInstance> spacialData) {
+    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, Map<Direction.Axis, List<Quantifier>> quantifiers, SpacialData<BlockInstance> spacialData, MultiblockStructureBlock<?> block) {
         this.groups = groups;
         this.quantifiers = quantifiers;
         this.spacialData = spacialData;
+        this.block = block;
     }
 
     public BlockInstance getInstanceAt(int x, int y, int z) {

@@ -12,6 +12,7 @@ import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
 import net.kapitencraft.kap_lib.multiblock.structure.config.SpacialData;
 import net.kapitencraft.kap_lib.multiblock.structure.config.builder.client.MultiblockStructureConfigurationEditScreen;
 import net.minecraft.FileUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -43,6 +44,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
+@MethodsReturnNonnullByDefault
 public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     private static final LevelResource CONFIGURATION_STORAGE = new LevelResource("generated");
     private static final Codec<Map<String, MultiblockStructureConfiguration.BlockGroup>> GROUPS_CODEC = Codec.unboundedMap(
@@ -168,12 +170,12 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+    public CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
         return this.saveCustomOnly(registries);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putString("name", this.getStructureName());
         tag.putInt("sizeX", this.structureSize.getX());
@@ -191,7 +193,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
         this.setStructureName(tag.getString("name"));
         int i = Mth.clamp(tag.getInt("posX"), -48, 48);

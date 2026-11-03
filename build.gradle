@@ -214,6 +214,7 @@ subprojects { Project proj ->
         }
     }
 
+    //TODO add `test` file paths and exclude them from jar
     if (rootProject.hasProperty("signingKey")) {
         signing {
             useInMemoryPgpKeys(
