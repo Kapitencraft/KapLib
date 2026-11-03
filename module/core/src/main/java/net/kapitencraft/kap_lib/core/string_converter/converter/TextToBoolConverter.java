@@ -1,23 +1,27 @@
 package net.kapitencraft.kap_lib.core.string_converter.converter;
 
 import com.mojang.serialization.Codec;
-import net.kapitencraft.kap_lib.core.string_converter.args.Operation;
-import net.kapitencraft.kap_lib.core.string_converter.param_storage.ParamStorage;
+import net.kapitencraft.kap_lib.core.string_converter.args.BoolCalcArg;
+
+import java.util.List;
 
 public class TextToBoolConverter extends TextConverter<Boolean> {
     public static final Codec<TextToBoolConverter> CODEC = createCodec(TextToBoolConverter::new);
 
     protected TextToBoolConverter(String args) {
-        super(new Operation<Boolean>() {
-            @Override
-            public Boolean value(ParamStorage<Boolean> params) {
-                return true;
-            }
-
-            @Override
-            public String literal() {
-                return "true";
-            }
-        });
+        super(Boolean::valueOf, args);
     }
+
+    @Override
+    protected CalculationArgument<Boolean> getCalcArg(String value) {
+        return new BoolCalcArg(value);
+    }
+
+    @Override
+    protected boolean isArg(String s) {
+        return PREFERRED_ARGS.contains(s) || OTHER_ARGS.contains(s);
+    }
+
+    public static final List<String> PREFERRED_ARGS = List.of("==", "!=", "<=", ">=");
+    public static final List<String> OTHER_ARGS = List.of("||", "&&");
 }
