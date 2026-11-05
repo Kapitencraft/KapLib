@@ -9,4 +9,9 @@ public record DoubleMulArgument(Operation<Double> left, Operation<Double> right)
     public Double value(ParamStorage<Double> params) {
         return left.value(params) * right.value(params);
     }
+
+    @Override
+    public String literal() {
+        return left.literal() + " * " + right.literal();
+    }
 }
