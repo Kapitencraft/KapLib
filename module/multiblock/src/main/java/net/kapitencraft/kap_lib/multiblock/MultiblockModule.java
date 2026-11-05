@@ -27,11 +27,5 @@ public class MultiblockModule {
         MBItemComponentTypes.REGISTRY.register(modEventBus);
 
         container.registerConfig(ModConfig.Type.SERVER, MultiblockModuleServerConfig.SPEC);
-
-        if (GameTestHooks.isGametestEnabled()) {
-            TestBlockEntityTypes.REGISTRY.register(modEventBus);
-            TestBlocks.REGISTRY.register(modEventBus);
-            TestItems.REGISTRY.register(modEventBus);
-        }
     }
 }
