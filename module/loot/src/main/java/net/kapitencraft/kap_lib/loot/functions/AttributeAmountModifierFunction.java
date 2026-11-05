@@ -53,6 +53,7 @@ public class AttributeAmountModifierFunction extends LootItemConditionalFunction
 
     public interface Formula {
         String getName();
+
         ItemStack provide(ItemStack stack, double d);
     }
 
@@ -90,7 +91,7 @@ public class AttributeAmountModifierFunction extends LootItemConditionalFunction
     }
 
     @Override
-    public LootItemFunctionType<? extends LootItemConditionalFunction> getType() {
+    public @NotNull LootItemFunctionType<? extends LootItemConditionalFunction> getType() {
         return ExtraLootItemFunctions.ATTRIBUTE_MODIFIER.get();
     }
 }

@@ -107,6 +107,10 @@ subprojects { Project proj ->
     if (moduleData.type == 'mod')
         rootProject.ext.createRequiredClasses(proj, name)
 
+    jar {
+        exclude("**/test/**") //exclude all test files to ensure they aren't accidentally loaded at production
+    }
+
     String moduleId = mod_id + "_" + name
 
     String modName = "${mod_name} ${rootProject.ext.convertModuleName(proj.name)} Module"
@@ -148,6 +152,9 @@ subprojects { Project proj ->
             interfaceInjectionData(project(":core"))
         }
 
+        testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
         if (name == 'recipe') {
             compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
             compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
@@ -177,6 +184,10 @@ subprojects { Project proj ->
         }
     }
     //endregion
+
+    test {
+        useJUnitPlatform()
+    }
 
     mavenPublishing {
         signAllPublications()
@@ -264,6 +275,11 @@ subprojects { Project proj ->
                 "${mod_id}" {
                     sourceSet(proj.sourceSets.main)
                 }
+            }
+
+            unitTest {
+                enable()
+                testedMod = mods."${mod_id}"
             }
 
             runs {

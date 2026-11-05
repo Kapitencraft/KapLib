@@ -28,7 +28,7 @@ public class EnchantmentAddItemModifier extends AddItemModifier {
             addItemCodecStart(enchantmentAddItemModifierInstance).and(
                     Enchantment.CODEC.fieldOf("enchantment").forGetter(i -> i.enchantment)
             ).and(
-                    Codec.STRING.fieldOf("provider").forGetter(i -> i.chanceProvider.getArgs())
+                    Codec.STRING.fieldOf("provider").forGetter(i -> "") //TODO
             ).apply(enchantmentAddItemModifierInstance, EnchantmentAddItemModifier::new)
     );
     private final Holder<Enchantment> enchantment;
