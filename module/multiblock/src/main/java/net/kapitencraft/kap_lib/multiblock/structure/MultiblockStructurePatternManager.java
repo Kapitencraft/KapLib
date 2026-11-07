@@ -47,6 +47,7 @@ public class MultiblockStructurePatternManager extends CodecJsonReloader<Multibl
             profilerFiller.pop();
         });
         this.structures = patternBuilder.build();
+        LOGGER.info("loaded {} multiblock structure patterns", this.structures.size());
         MultiblockStructureManager.INSTANCE.rebuild(this);
     }
 

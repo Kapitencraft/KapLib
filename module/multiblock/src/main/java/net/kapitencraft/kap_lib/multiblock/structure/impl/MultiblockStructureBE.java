@@ -18,7 +18,15 @@ import org.slf4j.Logger;
 public class MultiblockStructureBE extends BlockEntity {
     private final static Logger LOGGER = LogUtils.getLogger();
 
+    /**
+     * stores the BlockState that was placed in the world position before the structure formed.
+     * the structure ensures to reset the world back to the old state when the structure gets destroyed
+     */
     private BlockState original;
+    /**
+     * the in-world (absolute) position of the manager BE of this multiblock structure.
+     * all logic should be handled on the manager and not on any other of the BEs as this may cause desync
+     */
     private BlockPos managerPos;
 
     public MultiblockStructureBE(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -50,6 +58,11 @@ public class MultiblockStructureBE extends BlockEntity {
         ));
     }
 
+    /**
+     * provides the manager BE for this BE. this may be itself if the {@link #managerPos} points to this world position
+     * @param <T> the class type of this BE
+     * @return the manager block entity. delegate to this BE when IO operations are executed (such as item, fluid or energy transfer)
+     */
     protected <T extends MultiblockStructureBE> T getManager() {
         return (T) this.level.getBlockEntity(managerPos);
     }
@@ -57,14 +70,25 @@ public class MultiblockStructureBE extends BlockEntity {
     /**
      * used to remember the original state to be placed back when the structure is destroyed
      * @param original the original state
+     * @apiNote this method should generally be avoided. it can however be used if the BE makes changes to the blocks used in the original structure (i.e. changing logs to coal for a furnace)
      */
-    @ApiStatus.Internal
     public void setOriginal(BlockState original) {
         this.original = original;
     }
 
     /**
+     * sets the position of the manager of this multiblock structure
+     * @param managerPos the absolute position of the manager (might be current)
+     * @apiNote internal. the manager position for any BE should not be changed.
+     */
+    @ApiStatus.Internal
+    public void setManagerPos(BlockPos managerPos) {
+        this.managerPos = managerPos;
+    }
+
+    /**
      * used to reset state back to the original
+     * @apiNote internal. destruction for multiblock BEs is handled by the API and mustn't be done manually
      */
     @ApiStatus.Internal
     protected void destruct() {

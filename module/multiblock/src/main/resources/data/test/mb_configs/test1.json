@@ -56,5 +56,6 @@
         ]
       ]
     ]
-  }
+  },
+  "block": "test:mbs_test"
 }

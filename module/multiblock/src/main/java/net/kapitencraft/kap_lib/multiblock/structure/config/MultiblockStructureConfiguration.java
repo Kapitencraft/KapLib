@@ -109,9 +109,11 @@ public class MultiblockStructureConfiguration {
     private int findPositionInStructure(int[][] permutation, Direction.Axis axis, int value) {
         List<Quantifier> quantifiers = this.getQuantifiers(axis);
         int offset = 0;
-        while (offset < value) {
+        while (offset <= value) {
             int qIndex = Quantifier.findQuantifierIndex(offset, quantifiers);
             if (qIndex == -1) {
+                if (offset == value)
+                    return offset;
                 offset++;
             } else {
                 Quantifier quantifier = quantifiers.get(qIndex);
