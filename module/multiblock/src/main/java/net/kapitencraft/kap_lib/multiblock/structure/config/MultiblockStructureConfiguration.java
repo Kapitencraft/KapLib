@@ -71,6 +71,10 @@ public class MultiblockStructureConfiguration {
         return spacialData.getSize();
     }
 
+    public MultiblockStructureBlock<?> block() {
+        return this.block;
+    }
+
     public Multimap<BlockState, Vec3i> buildInfo() {
         Multimap<BlockState, Vec3i> multimap = HashMultimap.create();
         Vec3i size = spacialData.getSize();
@@ -193,7 +197,7 @@ public class MultiblockStructureConfiguration {
             }
 
             @Override
-            public String getSerializedName() {
+            public @NotNull String getSerializedName() {
                 return this.name().toLowerCase();
             }
         }

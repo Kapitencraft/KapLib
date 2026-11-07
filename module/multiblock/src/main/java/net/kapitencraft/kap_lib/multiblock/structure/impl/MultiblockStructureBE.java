@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 
 public class MultiblockStructureBE extends BlockEntity {
@@ -49,10 +50,23 @@ public class MultiblockStructureBE extends BlockEntity {
         ));
     }
 
-    protected <T extends MultiblockStructureBE> T getOwner() {
+    protected <T extends MultiblockStructureBE> T getManager() {
         return (T) this.level.getBlockEntity(managerPos);
     }
 
+    /**
+     * used to remember the original state to be placed back when the structure is destroyed
+     * @param original the original state
+     */
+    @ApiStatus.Internal
+    public void setOriginal(BlockState original) {
+        this.original = original;
+    }
+
+    /**
+     * used to reset state back to the original
+     */
+    @ApiStatus.Internal
     protected void destruct() {
         this.level.setBlockAndUpdate(this.worldPosition, this.original);
         //TODO send data

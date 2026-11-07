@@ -239,7 +239,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         if (this.structureName != null && this.level instanceof ServerLevel serverLevel) {
             SpacialData<MultiblockStructureConfiguration.BlockInstance> data = createData();
             Map<Direction.Axis, List<Quantifier>> quantifierInstances = new EnumMap<>(Direction.Axis.class);
-            MultiblockStructureConfiguration configuration = new MultiblockStructureConfiguration(this.groups, quantifierInstances, data);
+            MultiblockStructureConfiguration configuration = new MultiblockStructureConfiguration(this.groups, quantifierInstances, data, null); //TODO
             Path dirPath = serverLevel.getServer().getWorldPath(CONFIGURATION_STORAGE)
                     .resolve(this.structureName.getNamespace())
                     .resolve("mb_configs");

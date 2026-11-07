@@ -8,6 +8,8 @@ import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructurePa
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
@@ -40,7 +42,14 @@ public class MultiblockStructureManager {
 
     public void notifyChange(LevelAccessor level, BlockPos pos, BlockState newState) {
         if (entries.containsKey(newState)) {
+            ProfilerFiller profiler = null;
+            if (level instanceof Level l) {
+                profiler = l.getProfiler();
+            }
             Collection<StructurePositionEntry> structurePositions = entries.get(newState);
+            if (profiler != null) {
+                profiler.push("scanning multiblock match");
+            }
             for (StructurePositionEntry structurePosition : structurePositions) {
                 MultiblockStructurePattern pattern = this.patternManager.getStructure(structurePosition.structureLocation);
                 List<BlockPos> origins = pattern.findPotentialOrigins(level, pos, structurePosition.posInStructure);
@@ -51,9 +60,16 @@ public class MultiblockStructureManager {
                                 structurePosition.structureLocation, TextHelper.positionToText(origin),
                                 TextHelper.positionToText(match.getSize())
                         );
+                        if (profiler != null)
+                            profiler.push("placing multiblock structure");
+                        match.place(level);
+                        if (profiler != null)
+                            profiler.pop();
                     }
                 }
             }
+            if (profiler != null)
+                profiler.pop();
         }
     }
 

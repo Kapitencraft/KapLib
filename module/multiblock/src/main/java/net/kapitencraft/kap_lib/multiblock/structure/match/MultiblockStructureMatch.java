@@ -1,11 +1,15 @@
 package net.kapitencraft.kap_lib.multiblock.structure.match;
 
 import com.google.common.collect.ImmutableMap;
+import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
 import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
+import net.kapitencraft.kap_lib.multiblock.structure.impl.MultiblockStructureBE;
+import net.kapitencraft.kap_lib.multiblock.structure.impl.MultiblockStructureBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,12 +23,14 @@ public class MultiblockStructureMatch {
     private final Map<String, Integer> namedQuantifierSizes;
     private final Vec3i size;
     private final MultiblockStructureConfiguration configuration;
+    private final BlockPos posOrigin;
 
-    private MultiblockStructureMatch(BlockState[][][] states, Map<String, Integer> namedQuantifierSizes, Vec3i size, MultiblockStructureConfiguration configuration) {
+    private MultiblockStructureMatch(BlockState[][][] states, Map<String, Integer> namedQuantifierSizes, Vec3i size, MultiblockStructureConfiguration configuration, BlockPos posOrigin) {
         this.states = states;
         this.namedQuantifierSizes = namedQuantifierSizes;
         this.size = size;
         this.configuration = configuration;
+        this.posOrigin = posOrigin;
     }
 
     @Nullable
@@ -64,7 +70,7 @@ public class MultiblockStructureMatch {
         for (Direction.Axis value : Direction.Axis.values()) {
             collectNamedQuantifier(builder, configuration, permutation, value);
         }
-        return new MultiblockStructureMatch(states, builder.build(), size, configuration);
+        return new MultiblockStructureMatch(states, builder.build(), size, configuration, start);
     }
 
     private static void collectNamedQuantifier(ImmutableMap.Builder<String, Integer> sink, MultiblockStructureConfiguration configuration, int[][] permutation, Direction.Axis axis) {
@@ -77,4 +83,40 @@ public class MultiblockStructureMatch {
         }
     }
 
+    public void place(LevelAccessor level) {
+        BlockPos pos = this.posOrigin;
+        MultiblockStructureBlock<?> block = configuration.block();
+        BlockState structureState = block.defaultBlockState();
+
+        for (int x = 0; x < this.size.getX(); x++) {
+            for (int y = 0; y < this.size.getY(); y++) {
+                for (int z = 0; z < this.size.getZ(); z++) {
+                    BlockState state = states[x][y][z];
+                    if (state != null) {
+                        BlockPos sPos = pos.offset(x, y, z);
+                        MultiblockStructureBE be = block.newBlockEntity(sPos, structureState);
+                        if (be == null)
+                            throw new NullPointerException("failed to create BE for block at " + TextHelper.positionToText(sPos));
+                        int flags = 1; //do update
+                        if (isOutline(x, y, z))
+                            flags |= 16; //update neighbours only if necessary //TODO test effectiveness
+                        be.setOriginal(state);
+                        level.setBlock(sPos, structureState, flags);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isOutline(int x, int y, int z) {
+        BlockPos pos = new BlockPos(x, y, z);
+        for (Direction value : Direction.values()) {
+            BlockPos offset = pos.offset(value.getNormal());
+            if (offset.within(Vec3i.ZERO, this.size)) {
+                if (states[x][y][z] == null)
+                    return true;
+            }
+        }
+        return false;
+    }
 }

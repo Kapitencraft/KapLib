@@ -3,6 +3,7 @@ package net.kapitencraft.kap_lib.core.patch;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 
@@ -62,5 +63,12 @@ public interface BlockPosPatch {
     default int volume() {
         BlockPos self = (BlockPos) this;
         return Math.abs(self.getX() * self.getY() * self.getZ());
+    }
+
+    default boolean within(Vec3i min, Vec3i max) {
+        BlockPos self = (BlockPos) this;
+        return min.getX() <= self.getX() && self.getX() <= max.getX() &&
+                min.getY() <= self.getY() && self.getY() <= max.getY() &&
+                min.getZ() <= self.getZ() && self.getZ() <= max.getZ();
     }
 }

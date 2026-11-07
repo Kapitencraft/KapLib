@@ -1,6 +1,7 @@
 package net.kapitencraft.kap_lib.multiblock.test.registry;
 
 import net.kapitencraft.kap_lib.multiblock.test.multiblock.*;
+import net.kapitencraft.kap_lib.multiblock.test.multiblock.structure.TestMultiblockStructureBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -23,6 +24,7 @@ public interface TestBlocks {
     DeferredBlock<Mp2x3BlockTest> MP_2X3_TEST = registerBlock("mp_2x3_test", Mp2x3BlockTest::new);
     DeferredBlock<Mp3x3BlockTest> MP_3X3_TEST = registerBlock("mp_3x3_test", Mp3x3BlockTest::new);
     DeferredBlock<Mp2CubedEntityBlockTest> MP_2_CUBED_TEST = registerBlock("mp_2_cubed_test", Mp2CubedEntityBlockTest::new);
+    DeferredBlock<TestMultiblockStructureBlock> MBS_TEST = registerBlock("mbs_test", TestMultiblockStructureBlock::new);
 
     private static <T extends Block, K extends BlockItem> DeferredBlock<T> registerBlock(String name, Function<BlockBehaviour.Properties, T> block) {
         DeferredBlock<T> toReturn = REGISTRY.registerBlock(name, block);
