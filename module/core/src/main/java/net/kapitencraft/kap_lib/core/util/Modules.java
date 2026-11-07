@@ -33,4 +33,9 @@ public class Modules {
         ModList list = ModList.get();
         return list.isLoaded("kap_lib") || list.isLoaded("kap_lib_component");
     }
+
+    public static boolean isOverlayActive() {
+        ModList list = ModList.get();
+        return list.isLoaded("kap_lib") || list.isLoaded("kap_lib_overlay");
+    }
 }

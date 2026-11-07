@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.bonus.event.custom;
 
 import net.kapitencraft.kap_lib.bonus.AbstractBonusElement;
-import net.kapitencraft.kap_lib.bonus.Bonus;
+import net.kapitencraft.kap_lib.bonus.BonusEffect;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -39,13 +39,13 @@ public class RegisterBonusProvidersEvent {
 
     /**
      * event to register entity bound bonus providers to the Manager
-     * <br>those provided bonuses will not fire lifecycle events (such as {@link Bonus#onApply(LivingEntity)} and {@link Bonus#onRemove(LivingEntity)} nor will they tick or apply modifiers
+     * <br>those provided bonuses will not fire lifecycle events (such as {@link BonusEffect#onApply(LivingEntity)} and {@link BonusEffect#onRemove(LivingEntity)} nor will they tick or apply modifiers
      */
     public static class EntityBound extends Event {
-        private final Map<ResourceLocation, Function<LivingEntity, Bonus<?>>> providers;
+        private final Map<ResourceLocation, Function<LivingEntity, BonusEffect>> providers;
 
         @ApiStatus.Internal
-        public EntityBound(Map<ResourceLocation, Function<LivingEntity, Bonus<?>>> providers) {
+        public EntityBound(Map<ResourceLocation, Function<LivingEntity, BonusEffect>> providers) {
             this.providers = providers;
         }
 
@@ -54,7 +54,7 @@ public class RegisterBonusProvidersEvent {
          * @param location the unique location of the provider. will be used by requirements to get the location
          * @param provider the provider
          */
-        public void register(ResourceLocation location, Function<LivingEntity, @Nullable Bonus<?>> provider) {
+        public void register(ResourceLocation location, Function<LivingEntity, @Nullable BonusEffect> provider) {
             if (providers.putIfAbsent(location, provider) != null) {
                 throw new IllegalStateException("duplicate entity bound provider with ID: " + location);
             }

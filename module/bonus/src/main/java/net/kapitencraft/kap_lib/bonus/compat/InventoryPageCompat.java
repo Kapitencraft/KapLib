@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.bonus.compat;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import net.kapitencraft.kap_lib.bonus.Bonus;
+import net.kapitencraft.kap_lib.bonus.BonusEffect;
 import net.kapitencraft.kap_lib.bonus.BonusManager;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.inventory_page.event.custom.WearableSlotChangeEvent;
@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class InventoryPageCompat {
 
-    public static BonusManager.SetBonusElement parseWithSlots(boolean hidden, Bonus<?> bonus, ResourceLocation location, Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot, JsonArray array, long required) {
+    public static BonusManager.SetBonusElement parseWithSlots(boolean hidden, BonusEffect bonusEffect, ResourceLocation location, Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot, JsonArray array, long required) {
         Map<WearableSlot, TagKey<Item>> itemsForWearableSlot = new HashMap<>();
         for (JsonElement element : array) {
             ResourceLocation location1 = ResourceLocation.parse(element.getAsString());
@@ -35,13 +35,13 @@ public class InventoryPageCompat {
             itemsForWearableSlot.put(slot, TagKey.create(Registries.ITEM, location.withPath(s -> "set/" + s + "/wearable/" + location1.getNamespace() + "/" + location1.getPath())));
         }
 
-        return new WearableSlotSetBonusElement(hidden, bonus, location, itemsForEquipmentSlot, itemsForWearableSlot, required);
+        return new WearableSlotSetBonusElement(hidden, bonusEffect, location, itemsForEquipmentSlot, itemsForWearableSlot, required);
     }
 
     public static class WearableSlotSetBonusElement extends BonusManager.SetBonusElement {
         public static final StreamCodec<RegistryFriendlyByteBuf, ? super WearableSlotSetBonusElement> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.BOOL, BonusManager.BonusElement::isHidden,
-                Bonus.STREAM_CODEC, BonusManager.BonusElement::getBonus,
+                BonusEffect.STREAM_CODEC, BonusManager.BonusElement::getBonus,
                 ResourceLocation.STREAM_CODEC, BonusManager.BonusElement::getId,
                 ByteBufCodecs.map(HashMap::new, ExtraStreamCodecs.EQUIPMENT_SLOT, ExtraStreamCodecs.tagKey(Registries.ITEM)), e -> e.itemsForEquipmentSlot,
                 ByteBufCodecs.map(HashMap::new, WearableSlot.STREAM_CODEC, ExtraStreamCodecs.tagKey(Registries.ITEM)), e -> e.itemsForWearableSlot,
@@ -51,8 +51,8 @@ public class InventoryPageCompat {
 
         private final Map<WearableSlot, TagKey<Item>> itemsForWearableSlot;
 
-        private WearableSlotSetBonusElement(boolean hidden, Bonus<?> bonus, ResourceLocation location, Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot, Map<WearableSlot, TagKey<Item>> itemsForWearableSlot, long requiredMask) {
-            super(hidden, bonus, location, itemsForEquipmentSlot, requiredMask);
+        private WearableSlotSetBonusElement(boolean hidden, BonusEffect bonusEffect, ResourceLocation location, Map<EquipmentSlot, TagKey<Item>> itemsForEquipmentSlot, Map<WearableSlot, TagKey<Item>> itemsForWearableSlot, long requiredMask) {
+            super(hidden, bonusEffect, location, itemsForEquipmentSlot, requiredMask);
             this.itemsForWearableSlot = itemsForWearableSlot;
         }
 

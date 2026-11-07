@@ -22,7 +22,7 @@ public interface AbstractBonusElement {
      * supplies the bonus
      * @return the bonus this element contains
      */
-    Bonus<?> getBonus();
+    BonusEffect getBonus();
 
     /**
      * supplies the location of this element, useful for identifying the element

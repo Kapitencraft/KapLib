@@ -1,4 +1,5 @@
 {
   "type": "mod",
-  "extensions": false
+  "extensions": false,
+  "compat": ["overlay"]
 }

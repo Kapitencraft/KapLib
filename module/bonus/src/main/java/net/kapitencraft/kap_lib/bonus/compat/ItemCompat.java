@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.bonus.compat;
 
-import net.kapitencraft.kap_lib.bonus.type.AttributeModifiersBonus;
+import net.kapitencraft.kap_lib.bonus.type.AttributeModifiersBonusEffect;
 import net.kapitencraft.kap_lib.item.modifier_display.DisplayExtension;
 import net.kapitencraft.kap_lib.item.modifier_display.EquipmentDisplayExtension;
 import net.minecraft.network.chat.Style;
@@ -11,7 +11,7 @@ public class ItemCompat {
     /**
      * creates a display extension for the given attribute modifier bonus
      */
-    public static EquipmentDisplayExtension extensionFor(AttributeModifiersBonus bonus, Style style, DisplayExtension.Type type) {
+    public static EquipmentDisplayExtension extensionFor(AttributeModifiersBonusEffect bonus, Style style, DisplayExtension.Type type) {
         return new EquipmentDisplayExtension() {
             @Override
             public ResourceLocation getModifiersLocation() {

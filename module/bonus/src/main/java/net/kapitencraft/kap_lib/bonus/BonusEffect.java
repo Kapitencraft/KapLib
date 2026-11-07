@@ -18,12 +18,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public interface Bonus<T extends Bonus<T>> {
-    Codec<Bonus<?>> CODEC = BonusRegistries.SERIALIZERS.byNameCodec().dispatchStable(Bonus::getSerializer, RegistrySerializer::codec);
-    StreamCodec<RegistryFriendlyByteBuf, Bonus<?>> STREAM_CODEC = ByteBufCodecs.registry(BonusRegistries.Keys.SERIALIZERS).dispatch(Bonus::getSerializer, RegistrySerializer::streamCodec);
+public interface BonusEffect {
+    Codec<BonusEffect> CODEC = BonusRegistries.EFFECT_SERIALIZERS.byNameCodec().dispatchStable(BonusEffect::getSerializer, RegistrySerializer::codec);
+    StreamCodec<RegistryFriendlyByteBuf, BonusEffect> STREAM_CODEC = ByteBufCodecs.registry(BonusRegistries.Keys.EFFECT_SERIALIZERS).dispatch(BonusEffect::getSerializer, RegistrySerializer::streamCodec);
 
     /**
      * called whenever a LivingEntity equips an item with this bonus
+     *
      * @param living the entity this bonus applied to
      */
     default void onApply(LivingEntity living) {
@@ -33,6 +34,7 @@ public interface Bonus<T extends Bonus<T>> {
      * called whenever an entity un-equips this bonus. <br>
      * this will also be called when the bonus was never added due to being disabled
      * via {@link AbstractBonusElement#isActive(LivingEntity)}
+     *
      * @param living the entity this bonus was previously applied to
      */
     default void onRemove(LivingEntity living) {
@@ -45,13 +47,13 @@ public interface Bonus<T extends Bonus<T>> {
 
     /**
      * @return the serializer for this bonus type.
-     * <br>must be registered to the {@link BonusRegistries#SERIALIZERS} registry
+     * <br>must be registered to the {@link BonusRegistries#EFFECT_SERIALIZERS} registry
      */
-    RegistrySerializer<T> getSerializer();
+    RegistrySerializer<? extends BonusEffect> getSerializer();
 
     /**
      * @param tickCount the count of ticks since this bonus has been activated
-     * @param living the entity the bonus is applied to
+     * @param living    the entity the bonus is applied to
      * @return if this tick should apply a tick (similar to how the actual {@link net.minecraft.world.effect.MobEffect MobEffect} works)
      */
     default boolean isEffectTick(int tickCount, LivingEntity living) {
@@ -59,40 +61,53 @@ public interface Bonus<T extends Bonus<T>> {
     }
 
     /**
-     * applied each tick that {@link Bonus#isEffectTick(int, LivingEntity)} returns true
+     * applied each tick that {@link BonusEffect#isEffectTick(int, LivingEntity)} returns true
      * only called serverside
+     *
      * @param tickCount count of ticks since this bonus has been activated
-     * @param entity the entity the bonus is applied to
+     * @param entity    the entity the bonus is applied to
      */
     default void onTick(int tickCount, @NotNull LivingEntity entity) {
     }
 
     /**
+     * called when the holder of this bonus kills another entity.
+     *
      * @param killed the entity that has been killed
-     * @param user the entity that killed the target and owner of this bonus
+     * @param holder the holder of this bonus that killed the target
      * @param source the damage source that was used to kill this entity
      */
-    default void onEntityKilled(LivingEntity killed, LivingEntity user, DamageSource source) {
+    default void onEntityKilled(LivingEntity killed, LivingEntity holder, DamageSource source) {
     }
 
     /**
+     * provides modifiers this bonus should add to the entity it is hold by.
+     *
      * @param living the entity applied to
      * @return all attribute modifiers this bonus should apply to the given entity. should always return an equal value
      */
-    default @Nullable Multimap<Holder<Attribute>, AttributeModifier> getModifiers(LivingEntity living) {return null;}
+    default @Nullable Multimap<Holder<Attribute>, AttributeModifier> getModifiers(LivingEntity living) {
+        return null;
+    }
 
     /**
-     * @param attacked the attack target
-     * @param attacker the attacker and source entity of this bonus
+     * called when the holder of this bonus attacks another entity
+     *
+     * @param attacked  the attack target
+     * @param attacker  the holder of this bonus and attacker in this attack
      * @param container damage container handling modification
      */
-    default void onEntityHurt(LivingEntity attacked, LivingEntity attacker, DamageContainer container) {}
+    default void onEntityHurt(LivingEntity attacked, LivingEntity attacker, DamageContainer container) {
+    }
 
 
     /**
-     * @param attacked the attack target and source entity of this bonus
-     * @param attacker the attacker
+     * called when an entity attacks the holder of this owner
+     *
+     * @param attacked  the holder of this bonus and target of the attack
+     * @param attacker  the attacker
      * @param container damage container handling modification
      */
-    default void onTakeDamage(LivingEntity attacked, LivingEntity attacker, DamageContainer container) {}
+    default void onHolderTakeDamage(LivingEntity attacked, LivingEntity attacker, DamageContainer container) {
+    }
 }

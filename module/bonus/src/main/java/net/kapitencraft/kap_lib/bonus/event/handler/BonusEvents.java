@@ -48,6 +48,6 @@ public class BonusEvents {
 
     @SubscribeEvent
     public static void addRegistries(NewRegistryEvent event) {
-        event.register(BonusRegistries.SERIALIZERS);
+        event.register(BonusRegistries.EFFECT_SERIALIZERS);
     }
 }

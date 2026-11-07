@@ -5,8 +5,6 @@ import net.kapitencraft.kap_lib.core.util.Modules;
 import net.kapitencraft.kap_lib.overlay.holder.MultiLineOverlay;
 import net.kapitencraft.kap_lib.overlay.holder.SimpleOverlay;
 import net.kapitencraft.kap_lib.core.helpers.MathHelper;
-import net.kapitencraft.kap_lib.mana.ManaAttributes;
-import net.kapitencraft.kap_lib.mana.ManaHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -29,18 +27,6 @@ public class OverlaysRegister {
                         player -> Component.translatable("overlay.stats.speed", cancelGravityMovement(player)).withStyle(ChatFormatting.YELLOW)
                 )
         ));
-        if (Modules.isManaActive()) {
-            manager.createRenderer(LibConstants.res("mana"), OverlayPositions.MANA, properties -> new SimpleOverlay(
-                    Component.translatable("overlay.mana"),
-                    properties,
-                    player -> Component.translatable(
-                            "overlay.mana.display",
-                            MathHelper.shortRound(ManaHandler.getMana(player)),
-                            player.getAttributeValue(ManaAttributes.MAX_MANA),
-                            MathHelper.defRound(player.getAttributeValue(ManaAttributes.MANA_REGEN) * 20)
-                    ).withStyle(ChatFormatting.BLUE)
-            ));
-        }
     }
 
     private static double getDamageProtection(LivingEntity living) {

@@ -17,7 +17,7 @@ public class TimedModifierUtils {
      * adds a new timed modifier to the given entity. timed modifiers expire after the given duration
      * @param living the entity to add the modifier to
      * @param baseLocation the base modifier location
-     * @param duration the duration the modifier should exist for
+     * @param duration the duration the modifier should exist for in ticks
      * @param attribute the attribute the modifier is applied to
      * @param amount the amount of the modifier
      * @param operation the operation of the modifier

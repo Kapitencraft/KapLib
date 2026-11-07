@@ -2,7 +2,7 @@ package net.kapitencraft.kap_lib.bonus.type;
 
 import com.mojang.serialization.MapCodec;
 import net.kapitencraft.kap_lib.core.io.serialization.RegistrySerializer;
-import net.kapitencraft.kap_lib.bonus.Bonus;
+import net.kapitencraft.kap_lib.bonus.BonusEffect;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,15 +17,15 @@ import java.util.List;
  * adds one or more effect to the player
  * recommended to use at least 30 ticks because of flickering
  */
-public class EffectsBonus implements Bonus<EffectsBonus> {
+public class EffectsBonusEffect implements BonusEffect {
 
-    private static final MapCodec<EffectsBonus> CODEC = MobEffectInstance.CODEC.listOf().xmap(EffectsBonus::new, EffectsBonus::getEffects).fieldOf("effects");
+    private static final MapCodec<EffectsBonusEffect> CODEC = MobEffectInstance.CODEC.listOf().xmap(EffectsBonusEffect::new, EffectsBonusEffect::getEffects).fieldOf("effects");
 
-    private static final StreamCodec<RegistryFriendlyByteBuf, EffectsBonus> STREAM_CODEC = MobEffectInstance.STREAM_CODEC.apply(ByteBufCodecs.list()).map(EffectsBonus::new, EffectsBonus::getEffects);
+    private static final StreamCodec<RegistryFriendlyByteBuf, EffectsBonusEffect> STREAM_CODEC = MobEffectInstance.STREAM_CODEC.apply(ByteBufCodecs.list()).map(EffectsBonusEffect::new, EffectsBonusEffect::getEffects);
 
-    public static final RegistrySerializer<EffectsBonus> SERIALIZER = new RegistrySerializer<>(CODEC, STREAM_CODEC);
+    public static final RegistrySerializer<EffectsBonusEffect> SERIALIZER = new RegistrySerializer<>(CODEC, STREAM_CODEC);
 
-    public EffectsBonus(List<MobEffectInstance> effects) {
+    public EffectsBonusEffect(List<MobEffectInstance> effects) {
         this.effects.addAll(effects);
     }
 
@@ -36,7 +36,7 @@ public class EffectsBonus implements Bonus<EffectsBonus> {
     private final List<MobEffectInstance> effects = new ArrayList<>();
 
     @Override
-    public RegistrySerializer<EffectsBonus> getSerializer() {
+    public RegistrySerializer<EffectsBonusEffect> getSerializer() {
         return SERIALIZER;
     }
 

@@ -6,7 +6,7 @@ import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.kapitencraft.kap_lib.bonus.Bonus;
+import net.kapitencraft.kap_lib.bonus.BonusEffect;
 import net.kapitencraft.kap_lib.core.helpers.CollectionHelper;
 import net.kapitencraft.kap_lib.core.helpers.ExtraStreamCodecs;
 import net.kapitencraft.kap_lib.core.io.serialization.RegistrySerializer;
@@ -28,18 +28,18 @@ import java.util.Optional;
  * a bonus that modifies attributes in some way
  * all modifiers are expected to use the same location
  */
-public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus> {
+public class AttributeModifiersBonusEffect implements BonusEffect {
     private static final Codec<Multimap<Holder<Attribute>, AttributeModifier>> ENTRIES_CODEC = Codec.unboundedMap(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), AttributeModifier.CODEC.listOf()).xmap(CollectionHelper::fromListMap, CollectionHelper::fromMultimap);
-    private static final MapCodec<AttributeModifiersBonus> CODEC = RecordCodecBuilder.mapCodec(attributeModifiersBonusInstance -> attributeModifiersBonusInstance.group(
-            ENTRIES_CODEC.fieldOf("entries").forGetter(AttributeModifiersBonus::getModifiers)
-    ).apply(attributeModifiersBonusInstance, AttributeModifiersBonus::new));
+    private static final MapCodec<AttributeModifiersBonusEffect> CODEC = RecordCodecBuilder.mapCodec(attributeModifiersBonusInstance -> attributeModifiersBonusInstance.group(
+            ENTRIES_CODEC.fieldOf("entries").forGetter(AttributeModifiersBonusEffect::getModifiers)
+    ).apply(attributeModifiersBonusInstance, AttributeModifiersBonusEffect::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, AttributeModifiersBonus> STREAM_CODEC = StreamCodec.composite(
-            ExtraStreamCodecs.multimap(ByteBufCodecs.holderRegistry(Registries.ATTRIBUTE), AttributeModifier.STREAM_CODEC), AttributeModifiersBonus::getModifiers,
-            AttributeModifiersBonus::new
+    public static final StreamCodec<RegistryFriendlyByteBuf, AttributeModifiersBonusEffect> STREAM_CODEC = StreamCodec.composite(
+            ExtraStreamCodecs.multimap(ByteBufCodecs.holderRegistry(Registries.ATTRIBUTE), AttributeModifier.STREAM_CODEC), AttributeModifiersBonusEffect::getModifiers,
+            AttributeModifiersBonusEffect::new
     );
 
-    public static final RegistrySerializer<AttributeModifiersBonus> SERIALIZER = new RegistrySerializer<>(
+    public static final RegistrySerializer<AttributeModifiersBonusEffect> SERIALIZER = new RegistrySerializer<>(
             CODEC,
             STREAM_CODEC
     );
@@ -47,7 +47,7 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus> {
     private final Multimap<Holder<Attribute>, AttributeModifier> modifiers;
     private final ResourceLocation location;
 
-    public AttributeModifiersBonus(Multimap<Holder<Attribute>, AttributeModifier> modifiers) {
+    public AttributeModifiersBonusEffect(Multimap<Holder<Attribute>, AttributeModifier> modifiers) {
         this.modifiers = modifiers;
         Optional<AttributeModifier> first = modifiers.values().stream().findFirst();
         if (first.isPresent()) {
@@ -62,7 +62,7 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus> {
     }
 
     @Override
-    public RegistrySerializer<AttributeModifiersBonus> getSerializer() {
+    public RegistrySerializer<AttributeModifiersBonusEffect> getSerializer() {
         return SERIALIZER;
     }
 
@@ -91,8 +91,8 @@ public class AttributeModifiersBonus implements Bonus<AttributeModifiersBonus> {
             return this.addModifier(attribute, new AttributeModifier(name, amount, operation));
         }
 
-        public AttributeModifiersBonus build() {
-            return new AttributeModifiersBonus(ImmutableMultimap.copyOf(modifiers));
+        public AttributeModifiersBonusEffect build() {
+            return new AttributeModifiersBonusEffect(ImmutableMultimap.copyOf(modifiers));
         }
     }
 }

@@ -1,7 +1,9 @@
 package net.kapitencraft.kap_lib.mana;
 
 import net.kapitencraft.kap_lib.core.LibConstants;
+import net.kapitencraft.kap_lib.core.util.Modules;
 import net.kapitencraft.kap_lib.mana.advancement.ExtraCriterionTriggers;
+import net.kapitencraft.kap_lib.mana.compat.OverlayCompat;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -14,5 +16,8 @@ public class ManaModule {
         ExtraCriterionTriggers.REGISTRY.register(modEventBus);
         ManaAttributes.REGISTRY.register(modEventBus);
         ManaAttachmentTypes.REGISTRY.register(modEventBus);
+
+        if (Modules.isOverlayActive())
+            OverlayCompat.register(modEventBus);
     }
 }

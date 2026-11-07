@@ -47,8 +47,8 @@ public class TimedModifiers {
         modifiers.removeAll(toRemove);
     }
 
-    public void add(int duration, Holder<Attribute> attribute, ResourceLocation location) {
-        this.modifiers.add(new Entry(duration, attribute, location));
+    public void add(int durationTicks, Holder<Attribute> attribute, ResourceLocation location) {
+        this.modifiers.add(new Entry(durationTicks, attribute, location));
     }
 
     private static class Entry {

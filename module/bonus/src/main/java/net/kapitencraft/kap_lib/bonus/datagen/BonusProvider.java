@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import net.kapitencraft.kap_lib.bonus.Bonus;
+import net.kapitencraft.kap_lib.bonus.BonusEffect;
 import net.kapitencraft.kap_lib.core.collection.DoubleMap;
 import net.kapitencraft.kap_lib.core.collection.MapStream;
 import net.minecraft.Util;
@@ -107,12 +107,12 @@ public abstract class BonusProvider extends ItemTagsProvider {
         );
     }
 
-    private <T extends Bonus<T>> JsonObject saveItem(Item item, ItemBuilder itemBuilder) {
+    private <T extends BonusEffect> JsonObject saveItem(Item item, ItemBuilder itemBuilder) {
         T bonus = (T) itemBuilder.getBonus();
         JsonObject main = new JsonObject();
         if (itemBuilder.isHidden()) main.addProperty("hidden", true);
         if (bonus != null) {
-            DataResult<JsonElement> result = Bonus.CODEC.encodeStart(JsonOps.INSTANCE, bonus);
+            DataResult<JsonElement> result = BonusEffect.CODEC.encodeStart(JsonOps.INSTANCE, bonus);
             result.resultOrPartial(e -> LOGGER.warn("unable to save item loader for item {}: {}", BuiltInRegistries.ITEM.getKey(item), e))
                     .ifPresent(e -> main.add("bonus", e));
         }
@@ -175,8 +175,8 @@ public abstract class BonusProvider extends ItemTagsProvider {
         }
 
         @Override
-        public SetBuilder setBonus(Bonus<?> bonus) {
-            return (SetBuilder) super.setBonus(bonus);
+        public SetBuilder setBonus(BonusEffect bonusEffect) {
+            return (SetBuilder) super.setBonus(bonusEffect);
         }
 
         private Map<EquipmentSlot, SetSlotBuilder> getEquipmentContent() {
@@ -224,7 +224,7 @@ public abstract class BonusProvider extends ItemTagsProvider {
     }
 
     protected static class ItemBuilder {
-        private Bonus<?> bonus;
+        private BonusEffect bonusEffect;
         private boolean hidden;
 
         /**
@@ -238,8 +238,8 @@ public abstract class BonusProvider extends ItemTagsProvider {
         /**
          * set the Bonus of this builder
          */
-        public ItemBuilder setBonus(Bonus<?> bonus) {
-            this.bonus = bonus;
+        public ItemBuilder setBonus(BonusEffect bonusEffect) {
+            this.bonusEffect = bonusEffect;
             return this;
         }
 
@@ -247,8 +247,8 @@ public abstract class BonusProvider extends ItemTagsProvider {
             return hidden;
         }
 
-        protected Bonus<?> getBonus() {
-            return Objects.requireNonNull(bonus, "found builder without bonus!");
+        protected BonusEffect getBonus() {
+            return Objects.requireNonNull(bonusEffect, "found builder without bonus!");
         }
     }
 
