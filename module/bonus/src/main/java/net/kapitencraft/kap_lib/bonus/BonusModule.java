@@ -1,6 +1,6 @@
 package net.kapitencraft.kap_lib.bonus;
 
-import net.kapitencraft.kap_lib.bonus.compat.RequirementTypesCompat;
+import net.kapitencraft.kap_lib.bonus.compat.RequirementCompat;
 import net.kapitencraft.kap_lib.bonus.registry.BonusTypes;
 import net.kapitencraft.kap_lib.core.LibConstants;
 import net.kapitencraft.kap_lib.core.util.Modules;
@@ -19,7 +19,7 @@ public class BonusModule {
         BonusTypes.REGISTRY.register(modEventBus);
 
         if (Modules.isRequirementsActive()) {
-            NeoForge.EVENT_BUS.addListener(RequirementTypesCompat::onRegisterRequirementTypes);
+            NeoForge.EVENT_BUS.addListener(RequirementCompat::onRegisterRequirementTypes);
         }
     }
 }

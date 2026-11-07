@@ -12,6 +12,7 @@ added `immune_to_life_steal` tag to disable life steal effect on selected entity
 removed generics from `Bonus`
 renamed `Bonus` -> `BonusEffect` to better illustrate its purpose
 renamed `BonusRegistries.SERIALIZER` to `BonusRegistries.EFFECT_SERIALIZER`
+fixed a possible bug when the requirement module is not installed
 
 # Component Module
 

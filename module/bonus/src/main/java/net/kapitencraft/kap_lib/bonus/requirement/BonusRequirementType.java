@@ -20,7 +20,7 @@ public class BonusRequirementType implements RequirementType<AbstractBonusElemen
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return "bonuses";
     }
 }

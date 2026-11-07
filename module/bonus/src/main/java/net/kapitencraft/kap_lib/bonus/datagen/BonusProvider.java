@@ -204,6 +204,10 @@ public abstract class BonusProvider extends ItemTagsProvider {
             return this;
         }
 
+        public SetSlotBuilder add(Supplier<? extends Item> item) {
+            return this.add(item.get());
+        }
+
         /**
          * adds all the given items as possible for the builder
          */

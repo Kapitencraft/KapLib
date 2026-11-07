@@ -1,8 +1,7 @@
 package net.kapitencraft.kap_lib.bonus;
 
-import net.kapitencraft.kap_lib.bonus.requirement.BonusRequirementType;
+import net.kapitencraft.kap_lib.bonus.compat.RequirementCompat;
 import net.kapitencraft.kap_lib.core.util.Modules;
-import net.kapitencraft.kap_lib.requirement.RequirementManager;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,18 +13,21 @@ public interface AbstractBonusElement {
 
     /**
      * determines whether this bonus should be visible in tooltips
+     *
      * @return whether this bonus should be visible in tooltips
      */
     boolean isHidden();
 
     /**
      * supplies the bonus
+     *
      * @return the bonus this element contains
      */
     BonusEffect getBonus();
 
     /**
      * supplies the location of this element, useful for identifying the element
+     *
      * @return the location of this element
      */
     ResourceLocation getId();
@@ -41,6 +43,6 @@ public interface AbstractBonusElement {
     String getNameId();
 
     default boolean isActive(LivingEntity living) {
-        return !Modules.isRequirementsActive() || RequirementManager.instance.meetsRequirements(BonusRequirementType.INSTANCE, this, living);
+        return !Modules.isRequirementsActive() || RequirementCompat.isBonusActive(this, living);
     }
 }
