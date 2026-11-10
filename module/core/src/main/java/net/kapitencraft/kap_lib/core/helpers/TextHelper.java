@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import net.kapitencraft.kap_lib.core.patch.BlockPosPatch;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
@@ -282,6 +283,12 @@ public class TextHelper {
         return "[" + vec3.x + ", " + vec3.y + ", " + vec3.z + "]";
     }
 
+    /**
+     * @param pos the vec object to convert to text
+     * @return the text view of the vector
+     * @deprecated use {@link BlockPosPatch#toDimView() BlockPos#toDimView} instead
+     */
+    @Deprecated
     public static String positionToText(Vec3i pos) {
         return fromVec3(new Vec3(pos.getX(), pos.getY(), pos.getZ()));
     }

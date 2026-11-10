@@ -71,4 +71,9 @@ public interface BlockPosPatch {
                 min.getY() <= self.getY() && self.getY() <= max.getY() &&
                 min.getZ() <= self.getZ() && self.getZ() <= max.getZ();
     }
+
+    default String toDimView() {
+        BlockPos self = (BlockPos) this;
+        return "[" + self.getX() + ", " + self.getY() + ", " + self.getZ() + "]";
+    }
 }
