@@ -6,6 +6,7 @@ import net.kapitencraft.kap_lib.multiblock.test.multiblock.entity.TestMultiblock
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class TestMultiblockStructureBlock extends MultiblockStructureBlock<TestMultiblockStructureBlockEntity> {
@@ -14,7 +15,7 @@ public class TestMultiblockStructureBlock extends MultiblockStructureBlock<TestM
     }
 
     @Override
-    public @Nullable TestMultiblockStructureBlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+    public @Nullable TestMultiblockStructureBlockEntity newBlockEntity(@NotNull BlockPos blockPos, @NotNull BlockState blockState) {
         return new TestMultiblockStructureBlockEntity(blockPos, blockState);
     }
 

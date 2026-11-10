@@ -2,6 +2,7 @@ package net.kapitencraft.kap_lib.multiblock.structure.match;
 
 import com.google.common.collect.ImmutableMap;
 import net.kapitencraft.kap_lib.core.helpers.TextHelper;
+import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructurePatternManager;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
 import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
 import net.kapitencraft.kap_lib.multiblock.structure.impl.MultiblockStructureBE;
@@ -9,8 +10,10 @@ import net.kapitencraft.kap_lib.multiblock.structure.impl.MultiblockStructureBlo
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -23,14 +26,14 @@ public class MultiblockStructureMatch {
     private final Map<String, Integer> namedQuantifierSizes;
     private final Vec3i size;
     private final MultiblockStructureConfiguration configuration;
-    private final BlockPos posOrigin;
+    private final BlockPos origin;
 
-    private MultiblockStructureMatch(BlockState[][][] states, Map<String, Integer> namedQuantifierSizes, Vec3i size, MultiblockStructureConfiguration configuration, BlockPos posOrigin) {
+    private MultiblockStructureMatch(BlockState[][][] states, Map<String, Integer> namedQuantifierSizes, Vec3i size, MultiblockStructureConfiguration configuration, BlockPos origin) {
         this.states = states;
         this.namedQuantifierSizes = namedQuantifierSizes;
         this.size = size;
         this.configuration = configuration;
-        this.posOrigin = posOrigin;
+        this.origin = origin;
     }
 
     @Nullable
@@ -48,6 +51,10 @@ public class MultiblockStructureMatch {
 
     public Vec3i getSize() {
         return this.size;
+    }
+
+    public BlockPos getOrigin() {
+        return origin;
     }
 
     public static MultiblockStructureMatch of(
@@ -83,25 +90,39 @@ public class MultiblockStructureMatch {
         }
     }
 
+    /**
+     * replaces the matched section with the block provided in the configuration and initializes the BEs required for the structure to work correctly
+     *
+     * @param level the level this match is in
+     */
+    @ApiStatus.Internal
     public void place(LevelAccessor level) {
-        BlockPos pos = this.posOrigin;
         MultiblockStructureBlock<?> block = configuration.block();
         BlockState structureState = block.defaultBlockState();
 
+        BlockPos managerPos = null;
+
+        //TODO figure out why last placed block is not updated
         for (int x = 0; x < this.size.getX(); x++) {
             for (int y = 0; y < this.size.getY(); y++) {
                 for (int z = 0; z < this.size.getZ(); z++) {
                     BlockState state = states[x][y][z];
                     if (state != null) {
-                        BlockPos sPos = pos.offset(x, y, z);
-                        MultiblockStructureBE be = block.newBlockEntity(sPos, structureState);
-                        if (be == null)
-                            throw new NullPointerException("failed to create BE for block at " + TextHelper.positionToText(sPos));
-                        int flags = 1; //do update
+                        BlockPos sPos = this.origin.offset(x, y, z);
+                        int flags = 3; //do update and send to client
                         if (isOutline(x, y, z))
                             flags |= 16; //update neighbours only if necessary //TODO test effectiveness
-                        be.setOriginal(state);
                         level.setBlock(sPos, structureState, flags);
+                        MultiblockStructureBE be = (MultiblockStructureBE) level.getBlockEntity(sPos);
+                        if (be == null)
+                            throw new NullPointerException("failed to create BE for block at " + TextHelper.positionToText(sPos));
+                        if (managerPos == null) {
+                            //this will be the manager location. so we can store match data (eg the origin and size)
+                            managerPos = sPos;
+                            be.setStructureData(this.origin, this.size);
+                        }
+                        be.setOriginal(state);
+                        be.setManagerPos(managerPos);
                     }
                 }
             }
@@ -118,5 +139,9 @@ public class MultiblockStructureMatch {
             }
         }
         return false;
+    }
+
+    public ResourceLocation getConfigId() {
+        return MultiblockStructurePatternManager.INSTANCE.getKey(this.configuration);
     }
 }

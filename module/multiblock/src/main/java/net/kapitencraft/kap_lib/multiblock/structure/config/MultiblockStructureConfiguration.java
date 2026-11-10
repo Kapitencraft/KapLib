@@ -41,7 +41,7 @@ public class MultiblockStructureConfiguration {
             Codec.unboundedMap(Direction.Axis.CODEC, Quantifier.CODEC.listOf()).fieldOf("quantifiers").forGetter(c -> c.quantifiers),
             SpacialData.codec(BlockInstance.CODEC, BlockInstance.EmptyBlockInstance.INSTANCE).fieldOf("data").forGetter(c -> c.spacialData),
             BLOCK_PROVIDER_CODEC.fieldOf("block").forGetter(c -> c.block)
-            ).apply(i, MultiblockStructureConfiguration::new));
+    ).apply(i, MultiblockStructureConfiguration::new));
 
     private final Map<String, BlockGroup> groups;
     private final Map<Direction.Axis, List<Quantifier>> quantifiers;

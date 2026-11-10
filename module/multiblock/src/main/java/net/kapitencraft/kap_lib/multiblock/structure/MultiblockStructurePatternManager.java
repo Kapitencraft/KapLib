@@ -1,5 +1,6 @@
 package net.kapitencraft.kap_lib.multiblock.structure;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.core.io.JsonHelper;
@@ -29,6 +30,7 @@ public class MultiblockStructurePatternManager extends CodecJsonReloader<Multibl
     //do we need to sync this?
     public static final MultiblockStructurePatternManager INSTANCE = new MultiblockStructurePatternManager();
     private @NotNull Map<ResourceLocation, MultiblockStructurePattern> structures = Map.of();
+    private Map<MultiblockStructureConfiguration, ResourceLocation> keyLookup = Map.of();
 
     private MultiblockStructurePatternManager() {
         super(MultiblockStructureConfiguration.CODEC, JsonHelper.GSON, "mb_configs");
@@ -37,22 +39,29 @@ public class MultiblockStructurePatternManager extends CodecJsonReloader<Multibl
     @Override
     protected void apply(Map<ResourceLocation, MultiblockStructureConfiguration> structureConfigurations, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerFiller) {
         ImmutableMap.Builder<ResourceLocation, MultiblockStructurePattern> patternBuilder = ImmutableMap.builder();
+        ImmutableMap.Builder<MultiblockStructureConfiguration, ResourceLocation> keysBuilder = ImmutableMap.builder();
         structureConfigurations.forEach((key, structureConfiguration) -> {
             profilerFiller.push("multiblock structure pattern " + key + " building");
             try {
                 patternBuilder.put(key, MultiblockStructurePattern.build(structureConfiguration));
+                keysBuilder.put(structureConfiguration, key);
             } catch (Exception e) {
                 LOGGER.warn("unable to parse multiblock structure pattern {}: {}", key, e.getMessage());
             }
             profilerFiller.pop();
         });
         this.structures = patternBuilder.build();
+        this.keyLookup = keysBuilder.build();
         LOGGER.info("loaded {} multiblock structure patterns", this.structures.size());
         MultiblockStructureManager.INSTANCE.rebuild(this);
     }
 
     public @Nullable MultiblockStructurePattern getStructure(ResourceLocation location) {
         return this.structures.get(location);
+    }
+
+    public @Nullable ResourceLocation getKey(MultiblockStructureConfiguration configuration) {
+        return this.keyLookup.get(configuration);
     }
 
     public Map<ResourceLocation, MultiblockStructurePattern> getAll() {
