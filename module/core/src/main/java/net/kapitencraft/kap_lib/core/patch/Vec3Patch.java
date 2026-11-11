@@ -1,6 +1,8 @@
 package net.kapitencraft.kap_lib.core.patch;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -95,5 +97,10 @@ public interface Vec3Patch {
             case Y -> rotateHorizontalYAxis(pivot, angle);
             case Z -> rotateZAxis(pivot, angle);
         };
+    }
+
+    default String toDimView() {
+        Vec3 self = (Vec3) this;
+        return "[" + self.x + ", " + self.y + ", " + self.z + "]";
     }
 }

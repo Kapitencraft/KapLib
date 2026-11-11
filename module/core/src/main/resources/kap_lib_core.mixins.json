@@ -15,7 +15,7 @@
     "AbstractArrowMixin",
     "AnvilMenuMixin",
     "AttributeMixin",
-    "BlockPosMixin",
+    "Vec3iMixin",
     "CarvedPumpkinMixin",
     "ClientboundAddEntityPacketMixin",
     "ClientboundSetEntityMotionPacketMixin",

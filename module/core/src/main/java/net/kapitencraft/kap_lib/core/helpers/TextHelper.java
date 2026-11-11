@@ -6,10 +6,9 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import net.kapitencraft.kap_lib.core.patch.BlockPosPatch;
+import net.kapitencraft.kap_lib.core.patch.Vec3iPatch;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
@@ -21,8 +20,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
-import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
-import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -278,7 +275,9 @@ public class TextHelper {
 
     /**
      * converts the given vector into a humanly readable string representation
+     * @deprecated use {@link net.kapitencraft.kap_lib.core.patch.Vec3Patch#toDimView Vec3#toDimView} instead
      */
+    @Deprecated
     public static String fromVec3(Vec3 vec3) {
         return "[" + vec3.x + ", " + vec3.y + ", " + vec3.z + "]";
     }
@@ -286,7 +285,7 @@ public class TextHelper {
     /**
      * @param pos the vec object to convert to text
      * @return the text view of the vector
-     * @deprecated use {@link BlockPosPatch#toDimView() BlockPos#toDimView} instead
+     * @deprecated use {@link Vec3iPatch#toDimView() Vec3i#toDimView} instead
      */
     @Deprecated
     public static String positionToText(Vec3i pos) {

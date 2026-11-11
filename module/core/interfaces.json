@@ -2,8 +2,8 @@
   "net/minecraft/world/phys/AABB": [
     "net/kapitencraft/kap_lib/core/patch/AABBPatch"
   ],
-  "net/minecraft/core/BlockPos": [
-    "net/kapitencraft/kap_lib/core/patch/BlockPosPatch"
+  "net/minecraft/core/Vec3i": [
+    "net/kapitencraft/kap_lib/core/patch/Vec3iPatch"
   ],
   "net/minecraft/commands/CommandSourceStack": [
     "net/kapitencraft/kap_lib/core/patch/CommandSourceStackPatch"
