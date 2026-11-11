@@ -20,7 +20,6 @@ public class MBEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onBlockEntityPlace(BlockEvent.EntityPlaceEvent event) {
-        BlockPos pos = event.getBlockSnapshot().getPos();
-        MultiblockStructureManager.INSTANCE.notifyChange(event.getLevel(), pos, event.getState());
+        MultiblockStructureManager.INSTANCE.notifyChange(event.getLevel(), event.getBlockSnapshot(), event.getState());
     }
 }

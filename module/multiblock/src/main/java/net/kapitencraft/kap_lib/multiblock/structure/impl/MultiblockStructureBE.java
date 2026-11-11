@@ -2,7 +2,6 @@ package net.kapitencraft.kap_lib.multiblock.structure.impl;
 
 import com.mojang.logging.LogUtils;
 import net.kapitencraft.kap_lib.core.helpers.IOHelper;
-import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
@@ -17,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -61,7 +61,7 @@ public class MultiblockStructureBE extends BlockEntity {
         if (tag.isEmpty()) {
             return; //skip to fix error
         }
-        if (level.isClientSide) {
+        if (level != null && level.isClientSide) {
             LOGGER.info("loading data on client at {}: {}", this.worldPosition.toDimView(), tag);
         }
         this.managerPos = BlockPos.CODEC.parse(NbtOps.INSTANCE, tag.get("Pos")).getOrThrow();
@@ -115,6 +115,10 @@ public class MultiblockStructureBE extends BlockEntity {
         this.original = original;
     }
 
+    public BlockState getOriginalState() {
+        return this.original;
+    }
+
     /**
      * sets the position of the manager of this multiblock structure
      *
@@ -144,7 +148,7 @@ public class MultiblockStructureBE extends BlockEntity {
         //TODO send data
     }
 
-    public void onPartRemoved() {
+    public void onPartRemoved(@NotNull BlockPos removedPos) {
         Vec3i origin = this.structureOrigin;
         Vec3i size = this.structureSize;
         Level level = this.level;
@@ -156,7 +160,7 @@ public class MultiblockStructureBE extends BlockEntity {
                             origin.getY() + y,
                             origin.getZ() + z
                     );
-                    if (level.getBlockEntity(pos) instanceof MultiblockStructureBE msBE && msBE.managerPos == this.worldPosition) {
+                    if (!pos.equals(removedPos) && level.getBlockEntity(pos) instanceof MultiblockStructureBE msBE && msBE.managerPos.equals(this.worldPosition)) {
                         msBE.destruct();
                     }
                 }

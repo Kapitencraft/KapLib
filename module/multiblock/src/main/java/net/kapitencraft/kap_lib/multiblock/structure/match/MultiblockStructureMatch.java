@@ -103,6 +103,8 @@ public class MultiblockStructureMatch {
         BlockPos managerPos = null;
 
         //TODO figure out why last placed block is not updated
+        //update: the block is changed before the BE packet arrives.
+        //update: the block change packet is cancelled due to server prediction being active
         for (int x = 0; x < this.size.getX(); x++) {
             for (int y = 0; y < this.size.getY(); y++) {
                 for (int z = 0; z < this.size.getZ(); z++) {
@@ -115,7 +117,7 @@ public class MultiblockStructureMatch {
                         level.setBlock(sPos, structureState, flags);
                         MultiblockStructureBE be = (MultiblockStructureBE) level.getBlockEntity(sPos);
                         if (be == null)
-                            throw new NullPointerException("failed to create BE for block at " + TextHelper.positionToText(sPos));
+                            throw new NullPointerException("failed to create BE for block at " + sPos.toDimView());
                         if (managerPos == null) {
                             //this will be the manager location. so we can store match data (eg the origin and size)
                             managerPos = sPos;

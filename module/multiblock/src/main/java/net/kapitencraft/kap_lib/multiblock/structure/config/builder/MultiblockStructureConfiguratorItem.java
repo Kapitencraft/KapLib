@@ -43,7 +43,7 @@ public class MultiblockStructureConfiguratorItem extends Item {
                     }
                 } else if (level.getBlockEntity(pos) instanceof MultiblockStructureConfigurationBlockEntity e && e.getMode() == MultiblockStructureConfigurationBlockEntity.Mode.SAVE) {
                     context.getItemInHand().set(MBItemComponentTypes.MB_STRUCTURE_CONFIGURATION_ANCHOR, pos);
-                    player.displayClientMessage(Component.translatable("mb.structure.configurator.select_block", TextHelper.positionToText(pos)), true);
+                    player.displayClientMessage(Component.translatable("mb.structure.configurator.select_block", pos.toDimView()), true);
                     return InteractionResult.SUCCESS;
                 } else {
                     player.displayClientMessage(Component.translatable("mb.structure.configurator.not_connected"), true);
