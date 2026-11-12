@@ -48,21 +48,17 @@ public class MultiblockStructureBE extends BlockEntity {
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         saveAdditional(tag, registries);
-        LOGGER.info("sending data from server at {}: {}", this.worldPosition.toDimView(), tag);
         return tag;
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.isEmpty()) {
             return; //skip to fix error
-        }
-        if (level != null && level.isClientSide) {
-            LOGGER.info("loading data on client at {}: {}", this.worldPosition.toDimView(), tag);
         }
         this.managerPos = BlockPos.CODEC.parse(NbtOps.INSTANCE, tag.get("Pos")).getOrThrow();
 
@@ -75,7 +71,7 @@ public class MultiblockStructureBE extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("Pos", BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, this.managerPos).getOrThrow());
 
@@ -148,7 +144,12 @@ public class MultiblockStructureBE extends BlockEntity {
         //TODO send data
     }
 
+    private boolean removing = false;
+
     public void onPartRemoved(@NotNull BlockPos removedPos) {
+        if (removing)
+            return; //skip removing recursively
+        this.removing = true;
         Vec3i origin = this.structureOrigin;
         Vec3i size = this.structureSize;
         Level level = this.level;
@@ -166,5 +167,6 @@ public class MultiblockStructureBE extends BlockEntity {
                 }
             }
         }
+        this.removing = false;
     }
 }
