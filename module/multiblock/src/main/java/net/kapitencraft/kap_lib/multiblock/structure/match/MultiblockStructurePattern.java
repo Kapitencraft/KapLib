@@ -5,7 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import net.kapitencraft.kap_lib.multiblock.MultiblockModuleServerConfig;
 import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructureManager;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
-import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
+import net.kapitencraft.kap_lib.multiblock.structure.config.SectionQuantifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -194,14 +194,14 @@ public class MultiblockStructurePattern {
     private int getPermutationSize(Direction.Axis axis, int[][] permutations) {
         int value = 0;
         int[] axisPermutations = permutations[axis.ordinal()];
-        List<Quantifier> axisQuantifiers = this.structureConfiguration.getQuantifiers(axis);
+        List<SectionQuantifier> axisSectionQuantifiers = this.structureConfiguration.getQuantifiers(axis);
 
         for (int i = 0; i < this.structureConfiguration.getSize().get(axis); i++) {
-            int q = Quantifier.findQuantifierIndex(i, axisQuantifiers);
+            int q = SectionQuantifier.findQuantifierIndex(i, axisSectionQuantifiers);
             if (q != -1) {
-                int length = axisQuantifiers.get(q).length();
+                int length = axisSectionQuantifiers.get(q).length();
                 value += axisPermutations[q] * length;
-                i = axisQuantifiers.get(q).toPosition();
+                i = axisSectionQuantifiers.get(q).toPosition();
             } else value++;
         }
         return value;
@@ -221,7 +221,7 @@ public class MultiblockStructurePattern {
         //<dim> = offset of the checked position in the world
         int x = 0;
         //quantifiers = quantifiers for the given dimension
-        List<Quantifier> quantifiersX = this.structureConfiguration.getQuantifiers(Direction.Axis.X);
+        List<SectionQuantifier> quantifiersXES = this.structureConfiguration.getQuantifiers(Direction.Axis.X);
         //quantifierPermutation = repetitions per group, indexed in the same order then the quantifiers
         int[] quantifierPermutationX = quantifierData[0];
         int sizeX = this.structureConfiguration.getSize().get(Direction.Axis.X);
@@ -229,23 +229,23 @@ public class MultiblockStructurePattern {
         for (int elementIdxX = 0; elementIdxX < sizeX; ) {
 
             //qEIdx = idx of the currently used index
-            int qEIdxX = Quantifier.findQuantifierIndex(elementIdxX, quantifiersX);
+            int qEIdxX = SectionQuantifier.findQuantifierIndex(elementIdxX, quantifiersXES);
             //count = repetitions of the quantifier, or one if there's no quantifier
             int countX = qEIdxX != -1 ? quantifierPermutationX[qEIdxX] : 1;
             //length of the quantifier
-            int sectionLengthX = qEIdxX != -1 ? quantifiersX.get(qEIdxX).toPosition() - elementIdxX + 1 : 1;
+            int sectionLengthX = qEIdxX != -1 ? quantifiersXES.get(qEIdxX).toPosition() - elementIdxX + 1 : 1;
             //i = current repetition index
             for (int iX = 0; iX < countX; iX++) {
 
                 //sIdx = current offset inside the repetition
                 for (int sIdxX = 0; sIdxX < sectionLengthX; sIdxX++) {
                     int y = 0;
-                    List<Quantifier> quantifiersY = this.structureConfiguration.getQuantifiers(Direction.Axis.Y);
+                    List<SectionQuantifier> quantifiersY = this.structureConfiguration.getQuantifiers(Direction.Axis.Y);
                     int[] quantifierPermutationY = quantifierData[1];
                     int sizeY = this.structureConfiguration.getSize().get(Direction.Axis.Y);
                     for (int elementIdxY = 0; elementIdxY < sizeY; ) {
 
-                        int qEIdxY = Quantifier.findQuantifierIndex(elementIdxY, quantifiersY);
+                        int qEIdxY = SectionQuantifier.findQuantifierIndex(elementIdxY, quantifiersY);
 
                         int countY = qEIdxY != -1 ? quantifierPermutationY[qEIdxY] : 1;
                         //length of the quantifier
@@ -255,13 +255,13 @@ public class MultiblockStructurePattern {
 
                             for (int sIdxY = 0; sIdxY < sectionLengthY; sIdxY++) {
                                 int z = 0;
-                                List<Quantifier> quantifiersZ = this.structureConfiguration.getQuantifiers(Direction.Axis.Z);
+                                List<SectionQuantifier> quantifiersZ = this.structureConfiguration.getQuantifiers(Direction.Axis.Z);
                                 int[] quantifierPermutationZ = quantifierData[2];
 
                                 int sizeZ = this.structureConfiguration.getSize().get(Direction.Axis.Z);
                                 for (int elementIdxZ = 0; elementIdxZ < sizeZ; ) {
 
-                                    int qEIdxZ = Quantifier.findQuantifierIndex(elementIdxZ, quantifiersZ);
+                                    int qEIdxZ = SectionQuantifier.findQuantifierIndex(elementIdxZ, quantifiersZ);
 
                                     int countZ = qEIdxZ != -1 ? quantifierPermutationZ[qEIdxZ] : 1;
                                     //length of the quantifier
@@ -303,13 +303,13 @@ public class MultiblockStructurePattern {
         @SuppressWarnings("unchecked")
         List<Integer>[] dimensionalPosOffsets = new List[3];
         for (Direction.Axis value : Direction.Axis.values()) {
-            List<Quantifier> quantifiers = this.structureConfiguration.getQuantifiers(value);
+            List<SectionQuantifier> sectionQuantifiers = this.structureConfiguration.getQuantifiers(value);
             List<Integer> positionOffsets = new ArrayList<>();
             searchPotentialOrigins(posInStructure.get(value), 0, (structureIndex, worldPositionOffset) ->
                             structureConfiguration.getInstanceAt(
                                             posInStructure.relative(value, structureIndex - posInStructure.get(value)))
                                     .isValid(level.getBlockState(pos.relative(value, worldPositionOffset))),
-                    quantifiers, positionOffsets
+                    sectionQuantifiers, positionOffsets
             );
             //no potential offset found for the given axis, returning
             if (positionOffsets.isEmpty())
@@ -333,13 +333,13 @@ public class MultiblockStructurePattern {
         return origins;
     }
 
-    private static void searchPotentialOrigins(int structureIndex, int worldPositionOffset, BiPredicate<Integer, Integer> blockValidityCheck, List<Quantifier> quantifiers, List<Integer> results) {
+    private static void searchPotentialOrigins(int structureIndex, int worldPositionOffset, BiPredicate<Integer, Integer> blockValidityCheck, List<SectionQuantifier> sectionQuantifiers, List<Integer> results) {
         if (structureIndex < 0) {
             //end reached. save size and return
             results.add(worldPositionOffset + 1);
             return;
         }
-        Quantifier q = findQuantifierInRange(quantifiers, structureIndex);
+        SectionQuantifier q = findQuantifierInRange(sectionQuantifiers, structureIndex);
         if (q != null) {
             while (structureIndex > q.fromPosition()) {
                 structureIndex--;
@@ -352,7 +352,7 @@ public class MultiblockStructurePattern {
             worldPositionOffset--;
             //successfully searched through the entire quantifier.
             //check if there's more repetitions and check if the match is successful without
-            searchPotentialOrigins(structureIndex - 1, worldPositionOffset, blockValidityCheck, quantifiers, results);
+            searchPotentialOrigins(structureIndex - 1, worldPositionOffset, blockValidityCheck, sectionQuantifiers, results);
             //one for the exit from the current iteration
             for (int quantifierIterations = 1; q.maxCount() == -1 || quantifierIterations <= q.maxCount(); quantifierIterations++) {
                 for (structureIndex = q.toPosition(); structureIndex >= q.fromPosition(); structureIndex--) {
@@ -363,19 +363,19 @@ public class MultiblockStructurePattern {
 
                     worldPositionOffset--;
                 }
-                searchPotentialOrigins(structureIndex, worldPositionOffset, blockValidityCheck, quantifiers, results);
+                searchPotentialOrigins(structureIndex, worldPositionOffset, blockValidityCheck, sectionQuantifiers, results);
             }
         } else {
             if (blockValidityCheck.test(structureIndex, worldPositionOffset))
-                searchPotentialOrigins(structureIndex - 1, worldPositionOffset - 1, blockValidityCheck, quantifiers, results);
+                searchPotentialOrigins(structureIndex - 1, worldPositionOffset - 1, blockValidityCheck, sectionQuantifiers, results);
         }
     }
 
     @Nullable
-    private static Quantifier findQuantifierInRange(List<Quantifier> quantifiers, int idx) {
-        for (Quantifier quantifier : quantifiers) {
-            if (quantifier.fromPosition() <= idx && quantifier.toPosition() >= idx) {
-                return quantifier;
+    private static SectionQuantifier findQuantifierInRange(List<SectionQuantifier> sectionQuantifiers, int idx) {
+        for (SectionQuantifier sectionQuantifier : sectionQuantifiers) {
+            if (sectionQuantifier.fromPosition() <= idx && sectionQuantifier.toPosition() >= idx) {
+                return sectionQuantifier;
             }
         }
         return null;

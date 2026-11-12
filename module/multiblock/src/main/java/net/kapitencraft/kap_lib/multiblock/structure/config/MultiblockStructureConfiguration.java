@@ -38,17 +38,17 @@ public class MultiblockStructureConfiguration {
 
     public static final Codec<MultiblockStructureConfiguration> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.unboundedMap(Codec.STRING, BlockGroup.CODEC).fieldOf("groups").forGetter(c -> c.groups),
-            Codec.unboundedMap(Direction.Axis.CODEC, Quantifier.CODEC.listOf()).fieldOf("quantifiers").forGetter(c -> c.quantifiers),
+            Codec.unboundedMap(Direction.Axis.CODEC, SectionQuantifier.CODEC.listOf()).fieldOf("quantifiers").forGetter(c -> c.quantifiers),
             SpacialData.codec(BlockInstance.CODEC, BlockInstance.EmptyBlockInstance.INSTANCE).fieldOf("data").forGetter(c -> c.spacialData),
             BLOCK_PROVIDER_CODEC.fieldOf("block").forGetter(c -> c.block)
     ).apply(i, MultiblockStructureConfiguration::new));
 
     private final Map<String, BlockGroup> groups;
-    private final Map<Direction.Axis, List<Quantifier>> quantifiers;
+    private final Map<Direction.Axis, List<SectionQuantifier>> quantifiers;
     private final SpacialData<BlockInstance> spacialData;
     private final MultiblockStructureBlock<?> block;
 
-    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, Map<Direction.Axis, List<Quantifier>> quantifiers, SpacialData<BlockInstance> spacialData, MultiblockStructureBlock<?> block) {
+    public MultiblockStructureConfiguration(Map<String, BlockGroup> groups, Map<Direction.Axis, List<SectionQuantifier>> quantifiers, SpacialData<BlockInstance> spacialData, MultiblockStructureBlock<?> block) {
         this.groups = groups;
         this.quantifiers = quantifiers;
         this.spacialData = spacialData;
@@ -63,7 +63,7 @@ public class MultiblockStructureConfiguration {
         return this.getInstanceAt(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public List<Quantifier> getQuantifiers(Direction.Axis axis) {
+    public List<SectionQuantifier> getQuantifiers(Direction.Axis axis) {
         return quantifiers.getOrDefault(axis, List.of());
     }
 
@@ -107,21 +107,21 @@ public class MultiblockStructureConfiguration {
     }
 
     private int findPositionInStructure(int[][] permutation, Direction.Axis axis, int value) {
-        List<Quantifier> quantifiers = this.getQuantifiers(axis);
+        List<SectionQuantifier> sectionQuantifiers = this.getQuantifiers(axis);
         int offset = 0;
         while (offset <= value) {
-            int qIndex = Quantifier.findQuantifierIndex(offset, quantifiers);
+            int qIndex = SectionQuantifier.findQuantifierIndex(offset, sectionQuantifiers);
             if (qIndex == -1) {
                 if (offset == value)
                     return offset;
                 offset++;
             } else {
-                Quantifier quantifier = quantifiers.get(qIndex);
-                if (offset + quantifier.length() * permutation[axis.ordinal()][qIndex] < value) {
-                    offset = quantifier.toPosition() + 1;
+                SectionQuantifier sectionQuantifier = sectionQuantifiers.get(qIndex);
+                if (offset + sectionQuantifier.length() * permutation[axis.ordinal()][qIndex] < value) {
+                    offset = sectionQuantifier.toPosition() + 1;
                 } else {
                     value -= offset;
-                    value %= quantifier.length();
+                    value %= sectionQuantifier.length();
                     return offset + value;
                 }
             }

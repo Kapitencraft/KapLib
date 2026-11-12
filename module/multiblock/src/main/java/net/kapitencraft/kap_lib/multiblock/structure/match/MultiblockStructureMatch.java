@@ -1,10 +1,9 @@
 package net.kapitencraft.kap_lib.multiblock.structure.match;
 
 import com.google.common.collect.ImmutableMap;
-import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructurePatternManager;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
-import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
+import net.kapitencraft.kap_lib.multiblock.structure.config.SectionQuantifier;
 import net.kapitencraft.kap_lib.multiblock.structure.impl.MultiblockStructureBE;
 import net.kapitencraft.kap_lib.multiblock.structure.impl.MultiblockStructureBlock;
 import net.minecraft.core.BlockPos;
@@ -81,11 +80,11 @@ public class MultiblockStructureMatch {
     }
 
     private static void collectNamedQuantifier(ImmutableMap.Builder<String, Integer> sink, MultiblockStructureConfiguration configuration, int[][] permutation, Direction.Axis axis) {
-        List<Quantifier> quantifiers = configuration.getQuantifiers(axis);
-        for (int i = 0; i < quantifiers.size(); i++) {
-            Quantifier quantifier = quantifiers.get(i);
-            if (!quantifier.name().isEmpty()) {
-                sink.put(quantifier.name(), permutation[axis.ordinal()][i]);
+        List<SectionQuantifier> sectionQuantifiers = configuration.getQuantifiers(axis);
+        for (int i = 0; i < sectionQuantifiers.size(); i++) {
+            SectionQuantifier sectionQuantifier = sectionQuantifiers.get(i);
+            if (!sectionQuantifier.name().isEmpty()) {
+                sink.put(sectionQuantifier.name(), permutation[axis.ordinal()][i]);
             }
         }
     }

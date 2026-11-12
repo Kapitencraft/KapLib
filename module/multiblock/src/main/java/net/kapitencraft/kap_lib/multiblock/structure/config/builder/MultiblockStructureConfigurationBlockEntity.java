@@ -8,7 +8,7 @@ import net.kapitencraft.kap_lib.core.helpers.IOHelper;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlockEntityTypes;
 import net.kapitencraft.kap_lib.multiblock.registry.MBBlocks;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
-import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
+import net.kapitencraft.kap_lib.multiblock.structure.config.SectionQuantifier;
 import net.kapitencraft.kap_lib.multiblock.structure.config.SpacialData;
 import net.kapitencraft.kap_lib.multiblock.structure.config.builder.client.MultiblockStructureConfigurationEditScreen;
 import net.minecraft.FileUtil;
@@ -63,7 +63,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     private Mode mode = Mode.SAVE;
     private final Map<BlockPos, MultiblockStructureConfiguration.BlockInstance> instances = new HashMap<>();
     private final Map<String, MultiblockStructureConfiguration.BlockGroup> groups = new HashMap<>();
-    //private final List<MultiblockStructureConfiguration.QuantifierInstance> quantifiers = new ArrayList<>();
+    private final Map<Direction.Axis, List<SectionQuantifier>> sectionQuantifiers = new EnumMap<>(Direction.Axis.class);
 
     public MultiblockStructureConfigurationBlockEntity(BlockPos pos, BlockState blockState) {
         super(MBBlockEntityTypes.MULTIBLOCK_STRUCTURE_CONFIG.get(), pos, blockState);
@@ -81,7 +81,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         this.structureSize = size;
     }
 
-    public BlockPos getStructurePos() {
+    public BlockPos getRelativeStructurePos() {
         return this.structurePos;
     }
 
@@ -103,6 +103,10 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
 
     public void setStructureName(@Nullable ResourceLocation structureName) {
         this.structureName = structureName;
+    }
+
+    public @Nullable List<SectionQuantifier> getQuantifiers(Direction.Axis axis) {
+        return this.sectionQuantifiers.get(axis);
     }
 
     public boolean detectSize() {
@@ -238,7 +242,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
     public boolean saveStructure() {
         if (this.structureName != null && this.level instanceof ServerLevel serverLevel) {
             SpacialData<MultiblockStructureConfiguration.BlockInstance> data = createData();
-            Map<Direction.Axis, List<Quantifier>> quantifierInstances = new EnumMap<>(Direction.Axis.class);
+            Map<Direction.Axis, List<SectionQuantifier>> quantifierInstances = new EnumMap<>(Direction.Axis.class);
             MultiblockStructureConfiguration configuration = new MultiblockStructureConfiguration(this.groups, quantifierInstances, data, null); //TODO
             Path dirPath = serverLevel.getServer().getWorldPath(CONFIGURATION_STORAGE)
                     .resolve(this.structureName.getNamespace())
@@ -273,7 +277,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
                 data,
                 MultiblockStructureConfiguration.BlockInstance.getEmpty()
         );
-        BlockPos pos = this.getBlockPos().offset(this.getStructurePos());
+        BlockPos pos = this.getBlockPos().offset(this.getRelativeStructurePos());
         Vec3i size = this.structureSize;
         for (int x = 0; x < size.getX(); x++) {
             for (int y = 0; y < size.getY(); y++) {

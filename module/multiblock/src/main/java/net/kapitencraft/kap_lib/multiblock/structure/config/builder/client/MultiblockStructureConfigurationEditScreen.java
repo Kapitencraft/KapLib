@@ -53,7 +53,7 @@ public class MultiblockStructureConfigurationEditScreen extends Screen {
         );
         this.groupSelector.importFrom(this.configuration);
         this.addRenderableWidget(this.groupSelector);
-        BlockPos blockpos = this.configuration.getStructurePos();
+        BlockPos blockpos = this.configuration.getRelativeStructurePos();
         this.posXEdit = new EditBox(this.font, this.width / 2 - 152, 80, 80, 20, Component.translatable("structure_block.position.x"));
         this.posXEdit.setMaxLength(15);
         this.posXEdit.setValue(Integer.toString(blockpos.getX()));

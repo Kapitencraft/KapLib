@@ -1,7 +1,7 @@
 package net.kapitencraft.kap_lib.multiblock.structure.match;
 
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
-import net.kapitencraft.kap_lib.multiblock.structure.config.Quantifier;
+import net.kapitencraft.kap_lib.multiblock.structure.config.SectionQuantifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;
@@ -20,7 +20,7 @@ public class BlockPattern {
         this.root = root;
     }
 
-    public static BlockPattern build(List<Quantifier> quantifiers, Function<Integer, MultiblockStructureConfiguration.BlockInstance> blockAccessor, int size) {
+    public static BlockPattern build(List<SectionQuantifier> sectionQuantifiers, Function<Integer, MultiblockStructureConfiguration.BlockInstance> blockAccessor, int size) {
 
         int quantifierOrdinal = 0;
         Node root = null;
@@ -28,12 +28,12 @@ public class BlockPattern {
         for (int i = 0; i < size; i++) {
 
             //we'll be doing recursive quantifiers later
-            Quantifier quantifier = Quantifier.findQuantifier(i, quantifiers);
+            SectionQuantifier sectionQuantifier = SectionQuantifier.findQuantifier(i, sectionQuantifiers);
             Node n;
-            if (quantifier != null) {
+            if (sectionQuantifier != null) {
                 Node qRoot = null;
                 Node qCurrent = null;
-                while (i <= quantifier.toPosition()) {
+                while (i <= sectionQuantifier.toPosition()) {
                     LiteralNode literalNode = new LiteralNode(blockAccessor.apply(i));
                     if (qCurrent != null) {
                         qCurrent.next = literalNode;
@@ -44,7 +44,7 @@ public class BlockPattern {
                     qCurrent = literalNode;
                     i++;
                 }
-                n = new QuantifiedNode(qRoot, quantifier, quantifierOrdinal++);
+                n = new QuantifiedNode(qRoot, sectionQuantifier, quantifierOrdinal++);
                 i--; //move back for the for loop
             } else {
                 n = new LiteralNode(blockAccessor.apply(i));
@@ -111,10 +111,10 @@ public class BlockPattern {
      */
     private static class QuantifiedNode extends Node {
         private final Node element;
-        private final Quantifier instance;
+        private final SectionQuantifier instance;
         private final int ordinal;
 
-        protected QuantifiedNode(Node element, Quantifier instance, int ordinal) {
+        protected QuantifiedNode(Node element, SectionQuantifier instance, int ordinal) {
             this.element = element;
             this.instance = instance;
             this.ordinal = ordinal;

@@ -1,9 +1,9 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
+import net.kapitencraft.kap_lib.multiblock.structure.config.SectionQuantifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -13,10 +13,12 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+
+import java.util.List;
 
 public class MultiblockStructureConfigurationBlockEntityRenderer implements BlockEntityRenderer<MultiblockStructureConfigurationBlockEntity> {
     public MultiblockStructureConfigurationBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -25,7 +27,7 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
     @Override
     public void render(MultiblockStructureConfigurationBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         if (Minecraft.getInstance().player.canUseGameMasterBlocks() || Minecraft.getInstance().player.isSpectator()) {
-            BlockPos blockpos = blockEntity.getStructurePos();
+            BlockPos blockpos = blockEntity.getRelativeStructurePos();
             Vec3i vec3i = blockEntity.getStructureSize();
             if (vec3i.getX() >= 1 && vec3i.getY() >= 1 && vec3i.getZ() >= 1) {
                 double d0 = blockpos.getX();
@@ -51,7 +53,7 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
     private void renderInvisibleBlocks(MultiblockStructureConfigurationBlockEntity blockEntity, MultiBufferSource bufferSource, PoseStack poseStack) {
         DebugRenderer.renderFloatingText(poseStack, bufferSource, "test", 0, 5, 0, 0xFFFF0000);
         BlockGetter blockgetter = blockEntity.getLevel();
-        BlockPos renderOrigin = blockEntity.getBlockPos().offset(blockEntity.getStructurePos());
+        BlockPos renderOrigin = blockEntity.getBlockPos().offset(blockEntity.getRelativeStructurePos());
 
         for (BlockPos blockpos2 : BlockPos.betweenClosed(renderOrigin, renderOrigin.offset(blockEntity.getStructureSize()).offset(-1, -1, -1))) {
             BlockState blockstate = blockgetter.getBlockState(blockpos2);
@@ -78,6 +80,25 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
                             false
                     );
                 }
+            }
+        }
+
+        VertexConsumer vertexconsumer = bufferSource.getBuffer(RenderType.lines());
+        Vec3i size = blockEntity.getStructureSize().offset(blockEntity.getRelativeStructurePos());
+        Vec3i pos = blockEntity.getRelativeStructurePos();
+        for (Direction.Axis value : Direction.Axis.values()) {
+            List<SectionQuantifier> quantifiers = blockEntity.getQuantifiers(value);
+            if (quantifiers == null)
+                continue;
+            for (SectionQuantifier quantifier : quantifiers) {
+                Vec3i min = pos.with(value, quantifier.fromPosition());
+                Vec3i max = size.with(value, quantifier.toPosition());
+                LevelRenderer.renderLineBox(
+                        poseStack, vertexconsumer,
+                        min.getX(), min.getY(), min.getZ(),
+                        max.getX(), max.getY(), max.getZ(),
+                        1, 0.408f, 0, 1
+                );
             }
         }
     }
