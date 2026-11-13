@@ -69,7 +69,7 @@ public class MultiblockStructureConfigurationBlockEntity extends BlockEntity {
         super(MBBlockEntityTypes.MULTIBLOCK_STRUCTURE_CONFIG.get(), pos, blockState);
     }
 
-    public MultiblockStructureConfiguration.BlockInstance getInfo(BlockPos relative) {
+    public @Nullable MultiblockStructureConfiguration.BlockInstance getInfo(BlockPos relative) {
         return instances.get(relative);
     }
 

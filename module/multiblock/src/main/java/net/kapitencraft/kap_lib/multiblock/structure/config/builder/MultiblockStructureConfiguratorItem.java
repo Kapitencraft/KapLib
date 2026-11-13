@@ -1,19 +1,21 @@
 package net.kapitencraft.kap_lib.multiblock.structure.config.builder;
 
-import net.kapitencraft.kap_lib.core.helpers.TextHelper;
 import net.kapitencraft.kap_lib.multiblock.registry.MBItemComponentTypes;
-import net.kapitencraft.kap_lib.multiblock.structure.MultiblockStructurePatternManager;
-import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructureMatch;
-import net.kapitencraft.kap_lib.multiblock.structure.match.MultiblockStructurePattern;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class MultiblockStructureConfiguratorItem extends Item {
 
@@ -22,7 +24,7 @@ public class MultiblockStructureConfiguratorItem extends Item {
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext context) {
+    public @NotNull InteractionResult useOn(UseOnContext context) {
         BlockPos pos = context.getClickedPos();
         BlockPos structureConfigurationLocation = context.getItemInHand().get(MBItemComponentTypes.MB_STRUCTURE_CONFIGURATION_ANCHOR);
         Level level = context.getLevel();
@@ -52,5 +54,23 @@ public class MultiblockStructureConfiguratorItem extends Item {
             }
         }
         return super.useOn(context);
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Override
+    public void appendHoverText(ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        BlockPos pos = stack.get(MBItemComponentTypes.MB_STRUCTURE_CONFIGURATION_ANCHOR);
+        if (pos != null && context.level() != null) {
+            BlockEntity entity = context.level().getBlockEntity(pos);
+            if (entity instanceof MultiblockStructureConfigurationBlockEntity mbsBE) {
+                tooltipComponents.add(Component.translatable(
+                        "mb.structure.configurator.description",
+                        mbsBE.getStructureName(),
+                        pos.toDimView()
+                ).withStyle(ChatFormatting.GREEN));
+            }
+        }
+
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 }

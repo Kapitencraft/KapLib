@@ -4,8 +4,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.kapitencraft.kap_lib.multiblock.structure.config.MultiblockStructureConfiguration;
 import net.kapitencraft.kap_lib.multiblock.structure.config.SectionQuantifier;
+import net.kapitencraft.kap_lib.multiblock.structure.config.builder.client.ConfiguratorItemHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -17,6 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -24,9 +27,11 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
     public MultiblockStructureConfigurationBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
-    public void render(MultiblockStructureConfigurationBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        if (Minecraft.getInstance().player.canUseGameMasterBlocks() || Minecraft.getInstance().player.isSpectator()) {
+    public void render(@NotNull MultiblockStructureConfigurationBlockEntity blockEntity, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if ((player.canUseGameMasterBlocks() || player.isSpectator()) && ConfiguratorItemHandler.isLookingFor(blockEntity)) {
             BlockPos blockpos = blockEntity.getRelativeStructurePos();
             Vec3i vec3i = blockEntity.getStructureSize();
             if (vec3i.getX() >= 1 && vec3i.getY() >= 1 && vec3i.getZ() >= 1) {
@@ -50,6 +55,7 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     private void renderInvisibleBlocks(MultiblockStructureConfigurationBlockEntity blockEntity, MultiBufferSource bufferSource, PoseStack poseStack) {
         DebugRenderer.renderFloatingText(poseStack, bufferSource, "test", 0, 5, 0, 0xFFFF0000);
         BlockGetter blockgetter = blockEntity.getLevel();
@@ -128,7 +134,7 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
         poseStack.popPose();
     }
 
-    public boolean shouldRenderOffScreen(MultiblockStructureConfigurationBlockEntity blockEntity) {
+    public boolean shouldRenderOffScreen(@NotNull MultiblockStructureConfigurationBlockEntity blockEntity) {
         return true;
     }
 
@@ -138,7 +144,7 @@ public class MultiblockStructureConfigurationBlockEntityRenderer implements Bloc
     }
 
     @Override
-    public net.minecraft.world.phys.AABB getRenderBoundingBox(MultiblockStructureConfigurationBlockEntity blockEntity) {
+    public net.minecraft.world.phys.@NotNull AABB getRenderBoundingBox(@NotNull MultiblockStructureConfigurationBlockEntity blockEntity) {
         return net.minecraft.world.phys.AABB.INFINITE;
     }
 }

@@ -7,5 +7,6 @@
   "mb.structure.configurator.select_tag": "Block is now referencing tag §a%s§r",
   "cmsb.groups": "Configure Groups",
   "cmsb.add": "Add",
-  "cmsb.remove": "Remove"
+  "cmsb.remove": "Remove",
+  "mb.structure.configurator.description": "Connected to structure named %s at %s"
 }
