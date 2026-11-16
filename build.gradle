@@ -81,6 +81,7 @@ subprojects { Project proj ->
             for (final def m in moduleData) {
                 jarJar(api(rootProject.project(":${m}")))
             }
+
         }
 
         jar {
@@ -131,7 +132,7 @@ subprojects { Project proj ->
         if (name == 'recipe') {
             maven { url 'https://maven.blamejared.com' }
         }
-        if (name == 'enchantment') {
+        if (moduleData.test_deps != null) {
             exclusiveContent {
                 forRepository {
                     maven {
@@ -180,6 +181,12 @@ subprojects { Project proj ->
         if (moduleData.dependencies != null) {
             moduleData.dependencies.each { String dep ->
                 api(project(":${dep}"))
+            }
+        }
+
+        if (moduleData.test_deps != null) {
+            moduleData.test_deps.each { String key, String value ->
+                runtimeOnly("maven.modrinth:${key}:${value}")
             }
         }
     }
