@@ -3,6 +3,10 @@ package net.kapitencraft.kap_lib.publish;
 import com.google.gson.JsonObject;
 import net.kapitencraft.kap_lib.core.io.ByteAccumulator;
 import net.kapitencraft.kap_lib.core.util.ModrinthUtils;
+import net.kapitencraft.kap_lib.publish.depends.DependencyInfo;
+import net.kapitencraft.kap_lib.publish.info.ArtifactInfo;
+import net.kapitencraft.kap_lib.publish.info.Config;
+import net.kapitencraft.kap_lib.publish.info.ModInfo;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
@@ -18,7 +22,8 @@ import java.util.stream.Stream;
 public class ModrinthPublish {
     private static final String API_URL = "https://api.modrinth.com/v2/version";
 
-    static boolean publish(AutoPublisher.Config config, HttpClient client, List<AutoPublisher.Source> sources) {
+    @SuppressWarnings("unchecked")
+    static boolean publish(Config config, HttpClient client, List<AutoPublisher.Source> sources) {
         String modName = config.modInfo().name();
         String modVersion = config.modInfo().version();
         String mcVersion = config.mcVersion();
@@ -34,7 +39,7 @@ public class ModrinthPublish {
             ByteAccumulator accumulator = new ByteAccumulator();
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(accumulator, StandardCharsets.UTF_8), true);
             // Add text part
-            addData(writer, boundary, config.modInfo(), mcVersion, loaderVersion, config.modrinthId(), fillModules(config.archives(), config.withSources()), config.dependencies());
+            addData(writer, boundary, config.modInfo(), mcVersion, config.environment(), config.modrinthId(), fillModules(config.archives(), config.withSources()), config.dependencies());
 
             // Add file part
             for (AutoPublisher.Source source : sources) {
@@ -45,9 +50,6 @@ public class ModrinthPublish {
             accumulator.flush();
 
             byte[] requestData = accumulator.output();
-
-            if (true)
-                return false;
 
             HttpResponse<String> response = client.send(builder.POST(HttpRequest.BodyPublishers.ofByteArray(requestData)).build(), HttpResponse.BodyHandlers.ofString());
 
@@ -80,23 +82,23 @@ public class ModrinthPublish {
         return false;
     }
 
-    private static String[] fillModules(String[] modules, boolean b) {
-        List<String> strings = getExtraModules(modules, b);
+    private static String[] fillModules(ArtifactInfo[] modules, boolean withSources) {
+        List<String> strings = getExtraModules(modules, withSources);
         strings.addFirst("primary");
-        if (b) strings.add("primary-sources");
-        for (String module : modules) {
-            strings.add(module);
-            if (b)
+        if (withSources) strings.add("primary-sources");
+        for (ArtifactInfo module : modules) {
+            strings.add(module.name());
+            if (withSources)
                 strings.add(module + "-sources");
         }
         return strings.toArray(String[]::new);
     }
 
-    private static List<String> getExtraModules(String[] modules, boolean b) {
+    private static List<String> getExtraModules(ArtifactInfo[] modules, boolean b) {
         List<String> s = new ArrayList<>();
         if (b) s.add("sources");
-        for (String module : modules) {
-            s.add(module);
+        for (ArtifactInfo module : modules) {
+            s.add(module.name());
             if (b)
                 s.add(module + "-sources");
         }
@@ -104,14 +106,14 @@ public class ModrinthPublish {
     }
 
     // Helper method to add a text field
-    private static void addData(PrintWriter writer, String boundary, AutoPublisher.ModInfo modInfo, String mcVersion, String loaderVersion, String projectId, String[] modules, AutoPublisher.DependencyInfo[] dependencies) throws IOException {
+    private static void addData(PrintWriter writer, String boundary, ModInfo modInfo, String mcVersion, Environment environment, String projectId, String[] modules, DependencyInfo[] dependencies) throws IOException {
         writer.append("""
                 --%s\r
                 Content-Disposition: form-data; name="data"\r
                 Content-Type: application/json; charset=UTF-8\r
                 \r
                 """.formatted(boundary));
-        writer.append(addVersionData(modInfo, mcVersion, projectId, dependencies, modules)).append("\r\n");
+        writer.append(addVersionData(modInfo, mcVersion, projectId, dependencies, modules, environment)).append("\r\n");
         writer.flush();
     }
 
@@ -131,7 +133,7 @@ public class ModrinthPublish {
         writer.flush();
     }
 
-    private static String addVersionData(AutoPublisher.ModInfo modInfo, String mcVersion, String projectId, AutoPublisher.DependencyInfo[] dependencies, String[] modules) throws IOException {
+    private static String addVersionData(ModInfo modInfo, String mcVersion, String projectId, DependencyInfo[] dependencies, String[] modules, Environment environment) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
         data.put("name", String.format("%s v%s", modInfo.name(), modInfo.version()));
@@ -143,6 +145,7 @@ public class ModrinthPublish {
         data.put("featured", true);
         data.put("status", "listed");
         data.put("project_id", projectId);
+        data.put("environment", environment.name().toLowerCase());
 
         data.put("file_parts", modules);
         data.put("primary_file", "primary");
@@ -151,11 +154,11 @@ public class ModrinthPublish {
         return AutoPublisher.GSON.toJson(data);
     }
 
-    private static void addDependencies(AutoPublisher.DependencyInfo[] dependencies, Map<String, Object> data, String gameVersion) throws IOException {
+    private static void addDependencies(DependencyInfo[] dependencies, Map<String, Object> data, String gameVersion) throws IOException {
         List<JsonObject> dependencyData = new ArrayList<>();
 
         if (dependencies != null) {
-            for (AutoPublisher.DependencyInfo object : dependencies) {
+            for (DependencyInfo object : dependencies) {
                 dependencyData.add(object.toModrinthDependency(gameVersion));
             }
         }
@@ -163,7 +166,7 @@ public class ModrinthPublish {
         data.put("dependencies", dependencyData);
     }
 
-    static String getDependencyVersionId(String modId, String gameVersion, String name, int ordinal) throws IOException {
+    public static String getDependencyVersionId(String modId, String gameVersion, String name, int ordinal) throws IOException {
         try {
             Stream<JsonObject> data = ModrinthUtils.readVersions(modId, gameVersion, "AutoPublisherDependency");
             if (data == null) throw new IllegalStateException("connecting to '" + modId + "' failed");

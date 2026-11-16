@@ -1,6 +1,10 @@
 package net.kapitencraft.kap_lib.publish;
 
 import com.google.gson.JsonObject;
+import net.kapitencraft.kap_lib.publish.depends.DependencyInfo;
+import net.kapitencraft.kap_lib.publish.info.ArtifactInfo;
+import net.kapitencraft.kap_lib.publish.info.Config;
+import net.kapitencraft.kap_lib.publish.info.ModInfo;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
@@ -26,8 +30,8 @@ public class CurseforgePublish {
      * @return whether the publishing was successful or not
      */
     //TODO make working
-    static boolean publish(AutoPublisher.Config config, HttpClient client, List<AutoPublisher.Source> sources) {
-        AutoPublisher.ModInfo modInfo = config.modInfo();
+    static boolean publish(Config config, HttpClient client, List<AutoPublisher.Source> sources) {
+        ModInfo modInfo = config.modInfo();
         String mcVersion = config.mcVersion();
         String loaderVersion = config.loaderVersion();
         Integer mcVersionId;
@@ -95,7 +99,7 @@ public class CurseforgePublish {
                     fileFooter.getBytes()
             );
 
-            for (AutoPublisher.ArtifactInfo extraFile : config.archives()) {
+            for (ArtifactInfo extraFile : config.archives()) {
                 File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile.name()));
                 //addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
             }
@@ -129,12 +133,12 @@ public class CurseforgePublish {
         return false;
     }
 
-    private static void appendAuth(HttpRequest.Builder request, AutoPublisher.Config config, String modName, String modVersion) {
+    private static void appendAuth(HttpRequest.Builder request, Config config, String modName, String modVersion) {
         request.header("User-Agent", String.format(config.authorInfo().name() + "/%s/%s (%s)", modName, modVersion, config.authorInfo().email()));
         request.header("X-Api-Token", AutoPublisher.getAuth(false));
     }
 
-    private static String getData(String boundary, String modName, String modVersion, AutoPublisher.ArtifactInfo[] extraFiles, AutoPublisher.DependencyInfo[] dependencies, int[] versionData) throws IOException {
+    private static String getData(String boundary, String modName, String modVersion, ArtifactInfo[] extraFiles, DependencyInfo[] dependencies, int[] versionData) throws IOException {
         return """
                 --%s\r
                 Content-Disposition: form-data; name="metadata"\r
@@ -144,7 +148,7 @@ public class CurseforgePublish {
                 """.formatted(boundary, getVersionData(modName, modVersion, dependencies, extraFiles, versionData));
     }
 
-    private static String getVersionData(String modName, String modVersion, AutoPublisher.DependencyInfo[] dependencies, AutoPublisher.ArtifactInfo[] extraFiles, int[] versionData) throws IOException {
+    private static String getVersionData(String modName, String modVersion, DependencyInfo[] dependencies, ArtifactInfo[] extraFiles, int[] versionData) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
         data.put("changelog", AutoPublisher.getChangelog());
@@ -155,7 +159,7 @@ public class CurseforgePublish {
         addDependencies(dependencies, data);
         String[] fileParts = new String[extraFiles.length + 1];
         for (int i = 0; i < extraFiles.length; i++) {
-            AutoPublisher.ArtifactInfo file = extraFiles[i];
+            ArtifactInfo file = extraFiles[i];
             fileParts[i + 1] = file.name();
         }
         fileParts[0] = "primary";
@@ -175,14 +179,14 @@ public class CurseforgePublish {
                 """.formatted(boundary, file.getName());
     }
 
-    private static void addDependencies(AutoPublisher.DependencyInfo[] dependencies, Map<String, Object> data) throws IOException {
+    private static void addDependencies(DependencyInfo[] dependencies, Map<String, Object> data) throws IOException {
         if (dependencies == null || dependencies.length < 1)
             return; //no need to add all this information if there's no dependency to add
         Map<String, Object> map = new HashMap<>();
         List<JsonObject> dependencyData = new ArrayList<>();
         map.put("projects", dependencyData);
 
-        for (AutoPublisher.DependencyInfo info : dependencies) {
+        for (DependencyInfo info : dependencies) {
             dependencyData.add(info.toCurseforgeDependency());
         }
 
