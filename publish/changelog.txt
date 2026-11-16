@@ -1,0 +1,3 @@
+# Publish Module
+
+fixed typo causing publisher to search for `archives` instead of `artifacts`

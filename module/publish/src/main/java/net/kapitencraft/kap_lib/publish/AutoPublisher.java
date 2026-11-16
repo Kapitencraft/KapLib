@@ -58,12 +58,12 @@ public class AutoPublisher {
                 String loaderVersion = GsonHelper.getAsString(object, "loader_version");
                 String modrinthId = GsonHelper.getOptionalAsString(object, "modrinth_id");
                 String curseforgeId = GsonHelper.getOptionalAsString(object, "curseforge_id");
-                String[] archives = object.has("archives") ? jsonDeserializationContext.deserialize(object.get("archives"), String[].class) : new String[0];
+                String[] artifacts = object.has("artifacts") ? jsonDeserializationContext.deserialize(object.get("artifacts"), String[].class) : new String[0];
                 boolean withSources = GsonHelper.getOptionalAsBoolean(object, "with_sources", false);
                 DependencyInfo[] infos = jsonDeserializationContext.deserialize(object.get("dependencies"), DependencyInfo[].class);
                 ChangelogInfo changelogInfo = object.has("changelog") ? jsonDeserializationContext.deserialize(object.get("changelog"), ChangelogInfo.class) : ChangelogInfo.DEFAULT;
                 AssetsInfo assetsInfo = object.has("assets") ? jsonDeserializationContext.deserialize(object.get("assets"), AssetsInfo.class) : AssetsInfo.DEFAULT;
-                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, archives, withSources, infos, changelogInfo, assetsInfo);
+                return new Config(authorInfo, modInfo, mcVersion, loaderVersion, modrinthId, curseforgeId, artifacts, withSources, infos, changelogInfo, assetsInfo);
             }
         }
     }
