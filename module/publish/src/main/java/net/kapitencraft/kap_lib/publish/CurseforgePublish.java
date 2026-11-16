@@ -95,8 +95,8 @@ public class CurseforgePublish {
                     fileFooter.getBytes()
             );
 
-            for (String extraFile : config.archives()) {
-                File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile));
+            for (AutoPublisher.ArtifactInfo extraFile : config.archives()) {
+                File sourcesFile = new File(fileBase + String.format("-%s.jar", extraFile.name()));
                 //addFilePart(writer, outputStream, boundary, extraFile, sourcesFile);
             }
 
@@ -134,7 +134,7 @@ public class CurseforgePublish {
         request.header("X-Api-Token", AutoPublisher.getAuth(false));
     }
 
-    private static String getData(String boundary, String modName, String modVersion, String[] extraFiles, AutoPublisher.DependencyInfo[] dependencies, int[] versionData) throws IOException {
+    private static String getData(String boundary, String modName, String modVersion, AutoPublisher.ArtifactInfo[] extraFiles, AutoPublisher.DependencyInfo[] dependencies, int[] versionData) throws IOException {
         return """
                 --%s\r
                 Content-Disposition: form-data; name="metadata"\r
@@ -144,7 +144,7 @@ public class CurseforgePublish {
                 """.formatted(boundary, getVersionData(modName, modVersion, dependencies, extraFiles, versionData));
     }
 
-    private static String getVersionData(String modName, String modVersion, AutoPublisher.DependencyInfo[] dependencies, String[] extraFiles, int[] versionData) throws IOException {
+    private static String getVersionData(String modName, String modVersion, AutoPublisher.DependencyInfo[] dependencies, AutoPublisher.ArtifactInfo[] extraFiles, int[] versionData) throws IOException {
         Map<String, Object> data = new HashMap<>();
 
         data.put("changelog", AutoPublisher.getChangelog());
@@ -154,7 +154,10 @@ public class CurseforgePublish {
         data.put("releaseType", "release");
         addDependencies(dependencies, data);
         String[] fileParts = new String[extraFiles.length + 1];
-        System.arraycopy(extraFiles, 0, fileParts, 1, extraFiles.length);
+        for (int i = 0; i < extraFiles.length; i++) {
+            AutoPublisher.ArtifactInfo file = extraFiles[i];
+            fileParts[i + 1] = file.name();
+        }
         fileParts[0] = "primary";
         data.put("file_parts", fileParts);
         data.put("primary_file", "primary");
