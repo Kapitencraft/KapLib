@@ -363,7 +363,7 @@ tasks.register('autoPublish', JavaExec) {
 
     classpath = sourceSets.main.runtimeClasspath
 
-    if (hasProperty('modrinthAuth'))
+    hasProperty('modrinthAuth')
         systemProperty('modrinthAuth', getProperty('modrinthAuth'))
     if (hasProperty('curseforgeAuth'))
         systemProperty('curseforgeAuth', getProperty('curseforgeAuth'))
