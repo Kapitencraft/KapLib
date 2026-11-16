@@ -433,7 +433,14 @@ neoForge {
 tasks.named('processResources', ProcessResources) {
     filesMatching('publish_config.json') {
         String artifactData =
-                bundles.stream().map {"\"kap_lib-bundle-${it.name.substring(7)}-${version}\""}.collect(Collectors.joining(', ', '[', ']'))
+                bundles.stream().map {
+                    String name = it.name.substring(7)
+                    return """
+[
+    "artifactPath": "bundle/${name}/build/libs",
+    "artifactName": "kap_lib-bundle-${name}-${version}"
+]
+"""}.collect(Collectors.joining(', ', '[', ']'))
 
         expand(
                 'mod_id': mod_id,

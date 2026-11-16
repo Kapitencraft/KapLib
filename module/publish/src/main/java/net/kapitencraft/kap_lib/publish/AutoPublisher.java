@@ -25,6 +25,7 @@ public class AutoPublisher {
             .registerTypeAdapter(DependencyInfo.class, new DependencyInfo.Deserializer())
             .registerTypeAdapter(DependencyType.class, new DependencyType.Deserializer())
             .registerTypeAdapter(AssetsInfo.class, new AssetsInfo.Deserializer())
+            .registerTypeAdapter(ArtifactInfo.class, new ArtifactInfo.Deserializer())
             .create();
     static final Logger LOGGER = LogUtils.getLogger();
 
@@ -40,7 +41,7 @@ public class AutoPublisher {
                   String loaderVersion,
                   String modrinthId,
                   String curseforgeId,
-                  String[] archives,
+                  ArtifactInfo[] archives,
                   boolean withSources,
                   DependencyInfo[] dependencies,
                   ChangelogInfo changelogInfo,
@@ -58,7 +59,7 @@ public class AutoPublisher {
                 String loaderVersion = GsonHelper.getAsString(object, "loader_version");
                 String modrinthId = GsonHelper.getOptionalAsString(object, "modrinth_id");
                 String curseforgeId = GsonHelper.getOptionalAsString(object, "curseforge_id");
-                String[] artifacts = object.has("artifacts") ? jsonDeserializationContext.deserialize(object.get("artifacts"), String[].class) : new String[0];
+                ArtifactInfo[] artifacts = object.has("artifacts") ? jsonDeserializationContext.deserialize(object.get("artifacts"), ArtifactInfo[].class) : new ArtifactInfo[0];
                 boolean withSources = GsonHelper.getOptionalAsBoolean(object, "with_sources", false);
                 DependencyInfo[] infos = jsonDeserializationContext.deserialize(object.get("dependencies"), DependencyInfo[].class);
                 ChangelogInfo changelogInfo = object.has("changelog") ? jsonDeserializationContext.deserialize(object.get("changelog"), ChangelogInfo.class) : ChangelogInfo.DEFAULT;
@@ -223,6 +224,21 @@ public class AutoPublisher {
         }
     }
 
+    record ArtifactInfo(String sourcePath, String name) {
+
+        private static class Deserializer implements JsonDeserializer<ArtifactInfo> {
+
+            @Override
+            public ArtifactInfo deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                if (!json.isJsonObject()) throw new JsonParseException("mod info must be object");
+                JsonObject object = json.getAsJsonObject();
+                String sourcePath = GsonHelper.getAsString(object, "artifactPath");
+                String artifactName = GsonHelper.getAsString(object, "artifactName");
+                return new ArtifactInfo(sourcePath, artifactName);
+            }
+        }
+    }
+
     private static Config loadConfig() throws FileNotFoundException {
         FileReader reader = new FileReader(CONFIG);
         return GSON.fromJson(reader, Config.class);
@@ -290,14 +306,14 @@ public class AutoPublisher {
     /**
      * returns a list of all files, including main, module and source if enabled
      */
-    private static List<Source> verifyFileExistence(String modId, String artifactVersion, String sourcePath, String[] archives, boolean withSources) {
+    private static List<Source> verifyFileExistence(String modId, String artifactVersion, String sourcePath, ArtifactInfo[] archives, boolean withSources) {
         List<Source> sources = new ArrayList<>();
         String fileBase = modId + "-" + artifactVersion;
         sources.add(new Source("primary", checkFileExistence(sourcePath, fileBase)));
         if (withSources)
             sources.add(new Source("primary-sources", checkFileExistence(sourcePath, fileBase + "-sources")));
-        for (String archive : archives) {
-            sources.add(new Source(archive, checkFileExistence(sourcePath, archive)));
+        for (ArtifactInfo archive : archives) {
+            sources.add(new Source(archive.name, checkFileExistence(archive.sourcePath, archive.name)));
             if (withSources)
                 sources.add(new Source(archive + "-sources", checkFileExistence(sourcePath, String.format("%s-sources", archive))));
         }
