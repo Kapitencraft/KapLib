@@ -46,6 +46,9 @@ public class ModrinthPublish {
 
             byte[] requestData = accumulator.output();
 
+            if (true)
+                return false;
+
             HttpResponse<String> response = client.send(builder.POST(HttpRequest.BodyPublishers.ofByteArray(requestData)).build(), HttpResponse.BodyHandlers.ofString());
 
             int responseCode = response.statusCode();
