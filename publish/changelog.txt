@@ -4,3 +4,4 @@ fixed typo causing publisher to search for `archives` instead of `artifacts`
 fixed changelog not being in the default place causing a crash
 cleaned up AutoPublisher class
 added modrinth environment to the publisher. fallback SERVER_AND_CLIENT
+fixed sending the list of modules twice

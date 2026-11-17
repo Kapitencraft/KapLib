@@ -27,7 +27,6 @@ public class ModrinthPublish {
         String modName = config.modInfo().name();
         String modVersion = config.modInfo().version();
         String mcVersion = config.mcVersion();
-        String loaderVersion = config.loaderVersion();
         try {
             String boundary = UUID.randomUUID().toString();
             HttpRequest.Builder builder = HttpRequest.newBuilder()
@@ -83,7 +82,7 @@ public class ModrinthPublish {
     }
 
     private static String[] fillModules(ArtifactInfo[] modules, boolean withSources) {
-        List<String> strings = getExtraModules(modules, withSources);
+        List<String> strings = new ArrayList<>();
         strings.addFirst("primary");
         if (withSources) strings.add("primary-sources");
         for (ArtifactInfo module : modules) {
@@ -92,17 +91,6 @@ public class ModrinthPublish {
                 strings.add(module + "-sources");
         }
         return strings.toArray(String[]::new);
-    }
-
-    private static List<String> getExtraModules(ArtifactInfo[] modules, boolean b) {
-        List<String> s = new ArrayList<>();
-        if (b) s.add("sources");
-        for (ArtifactInfo module : modules) {
-            s.add(module.name());
-            if (b)
-                s.add(module + "-sources");
-        }
-        return s;
     }
 
     // Helper method to add a text field
